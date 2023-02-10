@@ -11,4 +11,5 @@
    
    `git clone https://github.com/ChessVariants/ChessVariantsAPI.git`
 4. Download project dependencies, VS does this automatically but it can also be done via the [dotnet CLI](https://learn.microsoft.com/en-us/nuget/consume-packages/install-use-packages-dotnet-cli)
-5. Finished!
+5. Open solution if using VS
+6. Finished!
