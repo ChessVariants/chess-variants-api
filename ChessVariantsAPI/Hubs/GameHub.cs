@@ -1,14 +1,44 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using ChessVariantsAPI.GameOrganization;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChessVariantsAPI.Hubs;
 
 public class GameHub : Hub
 {
-    public async Task MovePiece(string move)
+    private readonly GameOrganizer _organizer;
+
+    public GameHub(GameOrganizer organizer)
+    {
+        _organizer = organizer;
+    }
+
+    public async Task JoinGame(string gameId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+        _organizer.CreateNewGame(gameId);
+    }
+
+    public async Task LeaveGame(string gameId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+    }
+
+    public async Task MovePiece(string move, string gameId)
     {
         // if move is valid, compute new board
-        await Clients.All.SendAsync("pieceMoved", "board"); // TODO only respond to players of the particular game
-        // else respond with illegal move
-        //await Clients.Caller.SendAsync("illegalMove", "board");
+        try
+        {
+            var game = _organizer.GetGame(gameId);
+            await Clients.Groups(gameId).SendAsync("pieceMoved", "board");
+        }
+        catch (GameNotFoundException)
+        {
+            await Clients.Caller.SendAsync("gameNotFound");
+        }
+    }
+
+    public async Task RequestBoardState()
+    {
+        await Clients.Caller.SendAsync("updatedBoardState", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     }
 }
