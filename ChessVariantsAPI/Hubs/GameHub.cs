@@ -16,11 +16,13 @@ public class GameHub : Hub
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
         _organizer.CreateNewGame(gameId);
+        await Clients.Groups(gameId).SendAsync("playerJoinedGame", Context.ConnectionId);
     }
 
     public async Task LeaveGame(string gameId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+        await Clients.Groups(gameId).SendAsync("playerLeftGame", Context.ConnectionId);
     }
 
     public async Task MovePiece(string move, string gameId)
