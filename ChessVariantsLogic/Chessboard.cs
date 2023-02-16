@@ -1,121 +1,173 @@
 ﻿namespace ChessVariantsLogic;
 
-public class ChessBoard
+public class Chessboard
 {
-    private char[,] Board { get; set; }
+    public char[,] Board { get; set; }
 
-    public static Dictionary<String, (int,int)> CoorToIndex = new Dictionary<String, (int, int)>()
+    // TODO: make dynamic to fit boardsize
+    public static Dictionary<String, (int, int)> CoorToIndex = new Dictionary<String, (int, int)>()
     {
-        {"a1", (7,0) },
-        {"a2", (7,1) },
-        {"a3", (7,2) },
-        {"a4", (7,3) },
-        {"a5", (7,4) },
-        {"a6", (7,5) },
-        {"a7", (7,6) },
-        {"a8", (7,7) },
-
-        {"b1", (6,0) },
-        {"b2", (6,1) },
-        {"b3", (6,2) },
-        {"b4", (6,3) },
-        {"b5", (6,4) },
-        {"b6", (6,5) },
-        {"b7", (6,6) },
-        {"b8", (6,7) },
-
-        {"c1", (5,0) },
-        {"c2", (5,1) },
-        {"c3", (5,2) },
-        {"c4", (5,3) },
-        {"c5", (5,4) },
-        {"c6", (5,5) },
-        {"c7", (5,6) },
-        {"c8", (5,7) },
-
-        {"d1", (4,0) },
-        {"d2", (4,1) },
-        {"d3", (4,2) },
-        {"d4", (4,3) },
-        {"d5", (4,4) },
-        {"d6", (4,5) },
-        {"d7", (4,6) },
-        {"d8", (4,7) },
-
-        {"e1", (3,0) },
-        {"e2", (3,1) },
-        {"e3", (3,2) },
-        {"e4", (3,3) },
-        {"e5", (3,4) },
-        {"e6", (3,5) },
-        {"e7", (3,6) },
-        {"e8", (3,7) },
-
-        {"f1", (2,0) },
-        {"f2", (2,1) },
-        {"f3", (2,2) },
-        {"f4", (2,3) },
-        {"f5", (2,4) },
-        {"f6", (2,5) },
-        {"f7", (2,6) },
-        {"f8", (2,7) },
-
-        {"g1", (1,0) },
-        {"g2", (1,1) },
-        {"g3", (1,2) },
-        {"g4", (1,3) },
-        {"g5", (1,4) },
-        {"g6", (1,5) },
-        {"g7", (1,6) },
-        {"g8", (1,7) },
-
-        {"h1", (0,0) },
-        {"h2", (0,1) },
-        {"h3", (0,2) },
-        {"h4", (0,3) },
-        {"h5", (0,4) },
-        {"h6", (0,5) },
-        {"h7", (0,6) },
         {"h8", (0,7) },
+        {"h7", (1,7) },
+        {"h6", (2,7) },
+        {"h5", (3,7) },
+        {"h4", (4,7) },
+        {"h3", (5,7) },
+        {"h2", (6,7) },
+        {"h1", (7,7) },
+
+        {"g8", (0,6) },
+        {"g7", (1,6) },
+        {"g6", (2,6) },
+        {"g5", (3,6) },
+        {"g4", (4,6) },
+        {"g3", (5,6) },
+        {"g2", (6,6) },
+        {"g1", (7,6) },
+
+        {"f8", (0,5) },
+        {"f7", (1,5) },
+        {"f6", (2,5) },
+        {"f5", (3,5) },
+        {"f4", (4,5) },
+        {"f3", (5,5) },
+        {"f2", (6,5) },
+        {"f1", (7,5) },
+
+        {"e8", (0,4) },
+        {"e7", (1,4) },
+        {"e6", (2,4) },
+        {"e5", (3,4) },
+        {"e4", (4,4) },
+        {"e3", (5,4) },
+        {"e2", (6,4) },
+        {"e1", (7,4) },
+
+        {"d8", (0,3) },
+        {"d7", (1,3) },
+        {"d6", (2,3) },
+        {"d5", (3,3) },
+        {"d4", (4,3) },
+        {"d3", (5,3) },
+        {"d2", (6,3) },
+        {"d1", (7,3) },
+
+        {"c8", (0,2) },
+        {"c7", (1,2) },
+        {"c6", (2,2) },
+        {"c5", (3,2) },
+        {"c4", (4,2) },
+        {"c3", (5,2) },
+        {"c2", (6,2) },
+        {"c1", (7,2) },
+
+        {"b8", (0,1) },
+        {"b7", (1,1) },
+        {"b6", (2,1) },
+        {"b5", (3,1) },
+        {"b4", (4,1) },
+        {"b3", (5,1) },
+        {"b2", (6,1) },
+        {"b1", (7,1) },
+
+        {"a8", (0,0) },
+        {"a7", (1,0) },
+        {"a6", (2,0) },
+        {"a5", (3,0) },
+        {"a4", (4,0) },
+        {"a3", (5,0) },
+        {"a2", (6,0) },
+        {"a1", (7,0) },
 
     };
 
-    public ChessBoard(int rows, int cols)
+    // Updates chessboard
+    // @param move is the string representation of a move
+    public void MakeMove(String move)
+    {
+        String from, to;
+        (from, to) = parseMove(move);
+
+        (int, int) fromIndex = CoorToIndex[from];
+        (int, int) toIndex = CoorToIndex[to];
+        
+        char piece = Board[fromIndex.Item1, fromIndex.Item2];
+        
+        Board[toIndex.Item1, toIndex.Item2] = piece;
+        Board[fromIndex.Item1, fromIndex.Item2] = '-';
+    }
+
+    // Splits the string move into the substrings representing the "from" square and "to" square 
+    private (String, String) parseMove(String move)
+    {
+        String from = "", to = "";
+        switch (move.Length)
+        {
+            case 4 : from = move.Substring(0,2); to = move.Substring(2,2); break;
+            case 5 :
+            {
+                if(char.IsNumber(move[2]))
+                {
+                    from = move.Substring(0,3);
+                    to = move.Substring(3,2);
+                }
+                else
+                {
+                    from = move.Substring(0,2);
+                    to = move.Substring(2,3);
+                }
+                break;
+            }
+            case 6 : from = move.Substring(0,3); to = move.Substring(3,3); break;
+        }
+        Console.WriteLine("from: " + from + ", to: " + to);
+        return (from, to);
+    }
+
+    public Chessboard(int rows, int cols)
     {
         Board = new char[rows, cols] ;
     }
 
-    public static ChessBoard StandardChessBoard()
+    public static Chessboard StandardChessboard()
     {
-        var chessBoard = new ChessBoard(8, 8);
+        var chessboard = new Chessboard(8, 8);
+
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                chessboard.Board[i,j] = '-';
+            }
+        }
 
         // small letters black pieces, capitalized letters white pieces
-        chessBoard.Board[0, 0] = 'r';
-        chessBoard.Board[0, 1] = 'n';
-        chessBoard.Board[0, 2] = 'b';
-        chessBoard.Board[0, 3] = 'q';
-        chessBoard.Board[0, 4] = 'k';
-        chessBoard.Board[0, 5] = 'b';
-        chessBoard.Board[0, 6] = 'n';
-        chessBoard.Board[0, 7] = 'r';
+        chessboard.Board[0, 0] = 'r';
+        chessboard.Board[0, 1] = 'n';
+        chessboard.Board[0, 2] = 'b';
+        chessboard.Board[0, 3] = 'q';
+        chessboard.Board[0, 4] = 'k';
+        chessboard.Board[0, 5] = 'b';
+        chessboard.Board[0, 6] = 'n';
+        chessboard.Board[0, 7] = 'r';
 
-        chessBoard.Board[7, 0] = 'R';
-        chessBoard.Board[7, 1] = 'N';
-        chessBoard.Board[7, 2] = 'B';
-        chessBoard.Board[7, 3] = 'Q';
-        chessBoard.Board[7, 4] = 'K';
-        chessBoard.Board[7, 5] = 'B';
-        chessBoard.Board[7, 6] = 'N';
-        chessBoard.Board[7, 7] = 'R';
+        chessboard.Board[7, 0] = 'R';
+        chessboard.Board[7, 1] = 'N';
+        chessboard.Board[7, 2] = 'B';
+        chessboard.Board[7, 3] = 'Q';
+        chessboard.Board[7, 4] = 'K';
+        chessboard.Board[7, 5] = 'B';
+        chessboard.Board[7, 6] = 'N';
+        chessboard.Board[7, 7] = 'R';
 
         // pawns
         for (int i = 0; i < 8; i++)
         {
-            chessBoard.Board[1, i] = 'p';
-            chessBoard.Board[6, i] = 'P';
+            chessboard.Board[1, i] = 'p';
+            chessboard.Board[6, i] = 'P';
         }
 
-        return chessBoard;
+        return chessboard;
     }
-
+    
 }
