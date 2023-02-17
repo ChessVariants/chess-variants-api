@@ -6,33 +6,11 @@ public class Chessboard
     private int rows, cols;
     private char[,] board;
 
-    public static Dictionary<string, (int, int)> CoorToIndex = initDictionary();
-
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
         this.cols = cols;
         this.board = new char[rows, cols];
-    }
-
-    private static Dictionary<string, (int,int)> initDictionary()
-    {
-        var temp = new Dictionary<string, (int, int)>();
-
-        string files = "abcdefghijklmnopqrst";
-
-        for(int i = 0; i < 20; i++)
-        {
-            for(int j = 0; j < 20; j++)
-            {
-                int rank = i+1;
-                string notation = files[j] + rank.ToString();
-                Console.WriteLine("notation: " + notation + " square: " + (i,j));
-                temp.Add(notation, (i,j));
-            }
-        }
-
-        return temp;
     }
 
     // Updates chessboard
@@ -42,10 +20,9 @@ public class Chessboard
         string from, to;
         (from, to) = parseMove(move);
 
-        (int, int) fromIndex = CoorToIndex[from];
-        (int, int) toIndex = CoorToIndex[to];
-        
-        Console.WriteLine("piece: " + (fromIndex.Item1,fromIndex.Item2));
+        (int, int) fromIndex = Constants.CoorToIndex[from];
+        (int, int) toIndex = Constants.CoorToIndex[to];
+
         char piece = board[fromIndex.Item1, fromIndex.Item2];
         
         board[toIndex.Item1, toIndex.Item2] = piece;
