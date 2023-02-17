@@ -6,11 +6,14 @@ public class Chessboard
     private int rows, cols;
     private string[,] board;
 
+    public Dictionary<string, (int, int)> CoorToIndex { get; }
+
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
         this.cols = cols;
         this.board = new string[rows, cols];
+        CoorToIndex = initDictionary();
     }
 
     // Updates chessboard
@@ -20,8 +23,8 @@ public class Chessboard
         string from, to;
         (from, to) = parseMove(move);
 
-        (int, int) fromIndex = Constants.CoorToIndex[from];
-        (int, int) toIndex = Constants.CoorToIndex[to];
+        (int, int) fromIndex = CoorToIndex[from];
+        (int, int) toIndex = CoorToIndex[to];
 
         string piece = board[fromIndex.Item1, fromIndex.Item2];
         
@@ -59,42 +62,58 @@ public class Chessboard
     {
         var chessboard = new Chessboard(8, 8);
 
-        for(int i = 0; i < 8; i++)
-        {
-            for(int j = 0; j < 8; j++)
-            {
-                chessboard.board[i,j] = Constants.UnoccupiedSquareIdentifier;
-            }
-        }
+        chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
 
-        // small letters black pieces, capitalized letters white pieces
-        chessboard.board[0, 0] = Constants.WhiteRookIdentifier;
-        chessboard.board[0, 1] = Constants.WhiteKnightIdentifier;
-        chessboard.board[0, 2] = Constants.WhiteBishopIdentifier;
-        chessboard.board[0, 3] = Constants.WhiteQueenIdentifier;
-        chessboard.board[0, 4] = Constants.WhiteKingIdentifier;
-        chessboard.board[0, 5] = Constants.WhiteBishopIdentifier;
-        chessboard.board[0, 6] = Constants.WhiteKnightIdentifier;
-        chessboard.board[0, 7] = Constants.WhiteRookIdentifier;
+        chessboard.board[0, 0] = Constants.BlackRookIdentifier;
+        chessboard.board[0, 1] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 2] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 3] = Constants.BlackQueenIdentifier;
+        chessboard.board[0, 4] = Constants.BlackKingIdentifier;
+        chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 7] = Constants.BlackRookIdentifier;
+        chessboard.fillRank(1, Constants.BlackPawnIdentifier);
 
-        chessboard.board[7, 0] = Constants.BlackRookIdentifier;
-        chessboard.board[7, 1] = Constants.BlackKnightIdentifier;
-        chessboard.board[7, 2] = Constants.BlackBishopIdentifier;
-        chessboard.board[7, 3] = Constants.BlackQueenIdentifier;
-        chessboard.board[7, 4] = Constants.BlackKingIdentifier;
-        chessboard.board[7, 5] = Constants.BlackBishopIdentifier;
-        chessboard.board[7, 6] = Constants.BlackKnightIdentifier;
-        chessboard.board[7, 7] = Constants.BlackRookIdentifier;
+        chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
+        chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 3] = Constants.WhiteQueenIdentifier;
+        chessboard.board[7, 4] = Constants.WhiteKingIdentifier;
+        chessboard.board[7, 5] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 6] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 7] = Constants.WhiteRookIdentifier;
+        chessboard.fillRank(6, Constants.WhitePawnIdentifier);
 
-        // pawns
-        for (int i = 0; i < 8; i++)
-        {
-            chessboard.board[6, i] = Constants.BlackPawnIdentifier;
-            chessboard.board[1, i] = Constants.WhitePawnIdentifier;
-        }
         return chessboard;
     }
-    
+
+    private Dictionary<string, (int,int)> initDictionary()
+    {
+        var dictionary = new Dictionary<string, (int, int)>();
+
+        for(int i = 0; i < this.rows; i++)
+        {
+            for(int j = 0; j < this.cols; j++)
+            {
+                int rank = this.rows-i;
+                string notation = Constants.BoardFiles[j] + rank.ToString();
+                dictionary.Add(notation, (i,j));
+            }
+        }
+        return dictionary;
+    }
+
+    // public string ReadBoardAsFEN() {}
+
+    private void fillRank(int rank, string squareIdentifier)
+    {
+        for(int file = 0; file < this.cols; file++)
+            board[rank, file] = squareIdentifier;
+    }
+
     public override string ToString()
     {
         string strBoard = "";
