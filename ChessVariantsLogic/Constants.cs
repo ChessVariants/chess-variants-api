@@ -10,7 +10,7 @@ public static class Constants
 
     private static Dictionary<string, (int,int)> initDictionary()
     {
-        var temp = new Dictionary<string, (int, int)>();
+        var dictionary = new Dictionary<string, (int, int)>();
 
         string files = "abcdefghijklmnopqrst";
 
@@ -20,10 +20,10 @@ public static class Constants
             {
                 int rank = i+1;
                 string notation = files[j] + rank.ToString();
-                temp.Add(notation, (i,j));
+                dictionary.Add(notation, (i,j));
             }
         }
-        return temp;
+        return dictionary;
     }
 
 }
