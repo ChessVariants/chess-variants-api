@@ -16,4 +16,17 @@ public class MyUnitTest
 
         Assert.True(true);
     }
+
+    [Fact]
+    public void Print_FEN()
+    {
+        var board = Chessboard.StandardChessboard();
+        Console.WriteLine(board.ReadBoardAsFEN());
+        board.MakeMove("h2h4");
+        Console.WriteLine(board.ReadBoardAsFEN());
+
+        Assert.True(true);
+    }
+
+
 }
