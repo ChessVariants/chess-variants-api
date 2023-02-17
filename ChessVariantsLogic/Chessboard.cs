@@ -4,13 +4,13 @@ public class Chessboard
 {
 
     private int rows, cols;
-    private char[,] board;
+    private string[,] board;
 
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
         this.cols = cols;
-        this.board = new char[rows, cols];
+        this.board = new string[rows, cols];
     }
 
     // Updates chessboard
@@ -23,10 +23,10 @@ public class Chessboard
         (int, int) fromIndex = Constants.CoorToIndex[from];
         (int, int) toIndex = Constants.CoorToIndex[to];
 
-        char piece = board[fromIndex.Item1, fromIndex.Item2];
+        string piece = board[fromIndex.Item1, fromIndex.Item2];
         
         board[toIndex.Item1, toIndex.Item2] = piece;
-        board[fromIndex.Item1, fromIndex.Item2] = '-';
+        board[fromIndex.Item1, fromIndex.Item2] = "-";
     }
 
     // Splits the string move into the substrings representing the "from" square and "to" square 
@@ -63,34 +63,34 @@ public class Chessboard
         {
             for(int j = 0; j < 8; j++)
             {
-                chessboard.board[i,j] = '-';
+                chessboard.board[i,j] = "-";
             }
         }
 
         // small letters black pieces, capitalized letters white pieces
-        chessboard.board[0, 0] = 'R';
-        chessboard.board[0, 1] = 'N';
-        chessboard.board[0, 2] = 'B';
-        chessboard.board[0, 3] = 'Q';
-        chessboard.board[0, 4] = 'K';
-        chessboard.board[0, 5] = 'B';
-        chessboard.board[0, 6] = 'N';
-        chessboard.board[0, 7] = 'R';
+        chessboard.board[0, 0] = "R";
+        chessboard.board[0, 1] = "N";
+        chessboard.board[0, 2] = "B";
+        chessboard.board[0, 3] = "Q";
+        chessboard.board[0, 4] = "K";
+        chessboard.board[0, 5] = "B";
+        chessboard.board[0, 6] = "N";
+        chessboard.board[0, 7] = "R";
 
-        chessboard.board[7, 0] = 'r';
-        chessboard.board[7, 1] = 'n';
-        chessboard.board[7, 2] = 'b';
-        chessboard.board[7, 3] = 'q';
-        chessboard.board[7, 4] = 'k';
-        chessboard.board[7, 5] = 'b';
-        chessboard.board[7, 6] = 'n';
-        chessboard.board[7, 7] = 'r';
+        chessboard.board[7, 0] = "r";
+        chessboard.board[7, 1] = "n";
+        chessboard.board[7, 2] = "b";
+        chessboard.board[7, 3] = "q";
+        chessboard.board[7, 4] = "k";
+        chessboard.board[7, 5] = "b";
+        chessboard.board[7, 6] = "n";
+        chessboard.board[7, 7] = "r";
 
         // pawns
         for (int i = 0; i < 8; i++)
         {
-            chessboard.board[6, i] = 'p';
-            chessboard.board[1, i] = 'P';
+            chessboard.board[6, i] = "p";
+            chessboard.board[1, i] = "P";
         }
         return chessboard;
     }
