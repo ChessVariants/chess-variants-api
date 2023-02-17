@@ -1,13 +1,19 @@
+using System;
 using Xunit;
 
 namespace ChessVariantsLogic.Tests;
 
 public class MyUnitTest
 {
+
     [Fact]
-    public void Add_2Plus2_Returns4()
+    public void Print_Chessboard()
     {
-        int result = MyCalculator.Add(2, 2);
-        Assert.Equal(4, result);
+        var board = Chessboard.StandardChessboard();
+        Console.WriteLine(board.ToString());
+        board.MakeMove("e2e4");
+        Console.WriteLine(board.ToString());
+
+        Assert.True(true);
     }
 }
