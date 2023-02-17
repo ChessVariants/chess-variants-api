@@ -63,34 +63,34 @@ public class Chessboard
         {
             for(int j = 0; j < 8; j++)
             {
-                chessboard.board[i,j] = "-";
+                chessboard.board[i,j] = Constants.UnoccupiedSquareIdentifier;
             }
         }
 
         // small letters black pieces, capitalized letters white pieces
-        chessboard.board[0, 0] = "R";
-        chessboard.board[0, 1] = "N";
-        chessboard.board[0, 2] = "B";
-        chessboard.board[0, 3] = "Q";
-        chessboard.board[0, 4] = "K";
-        chessboard.board[0, 5] = "B";
-        chessboard.board[0, 6] = "N";
-        chessboard.board[0, 7] = "R";
+        chessboard.board[0, 0] = Constants.WhiteRookIdentifier;
+        chessboard.board[0, 1] = Constants.WhiteKnightIdentifier;
+        chessboard.board[0, 2] = Constants.WhiteBishopIdentifier;
+        chessboard.board[0, 3] = Constants.WhiteQueenIdentifier;
+        chessboard.board[0, 4] = Constants.WhiteKingIdentifier;
+        chessboard.board[0, 5] = Constants.WhiteBishopIdentifier;
+        chessboard.board[0, 6] = Constants.WhiteKnightIdentifier;
+        chessboard.board[0, 7] = Constants.WhiteRookIdentifier;
 
-        chessboard.board[7, 0] = "r";
-        chessboard.board[7, 1] = "n";
-        chessboard.board[7, 2] = "b";
-        chessboard.board[7, 3] = "q";
-        chessboard.board[7, 4] = "k";
-        chessboard.board[7, 5] = "b";
-        chessboard.board[7, 6] = "n";
-        chessboard.board[7, 7] = "r";
+        chessboard.board[7, 0] = Constants.BlackRookIdentifier;
+        chessboard.board[7, 1] = Constants.BlackKnightIdentifier;
+        chessboard.board[7, 2] = Constants.BlackBishopIdentifier;
+        chessboard.board[7, 3] = Constants.BlackQueenIdentifier;
+        chessboard.board[7, 4] = Constants.BlackKingIdentifier;
+        chessboard.board[7, 5] = Constants.BlackBishopIdentifier;
+        chessboard.board[7, 6] = Constants.BlackKnightIdentifier;
+        chessboard.board[7, 7] = Constants.BlackRookIdentifier;
 
         // pawns
         for (int i = 0; i < 8; i++)
         {
-            chessboard.board[6, i] = "p";
-            chessboard.board[1, i] = "P";
+            chessboard.board[6, i] = Constants.BlackPawnIdentifier;
+            chessboard.board[1, i] = Constants.WhitePawnIdentifier;
         }
         return chessboard;
     }
