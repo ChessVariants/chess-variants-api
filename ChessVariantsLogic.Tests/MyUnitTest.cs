@@ -32,7 +32,7 @@ public class MyUnitTest
     [Fact]
     public void Test_sizes()
     {
-        var board1 = new Chessboard(6,6);
+        var board1 = new Chessboard(6);
         Console.WriteLine(board1.ToString());
 
         var board2 = new Chessboard(6,15);
