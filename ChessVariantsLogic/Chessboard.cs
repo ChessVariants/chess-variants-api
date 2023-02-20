@@ -92,6 +92,39 @@ public class Chessboard
         return fen.Remove(fen.Length - 1, 1);
     }
 
+    /// <returns> an instance of Chessboard with the standard set up. </returns>
+    public static Chessboard StandardChessboard()
+    {
+        var chessboard = new Chessboard(8);
+
+        chessboard.board[0, 0] = Constants.BlackRookIdentifier;
+        chessboard.board[0, 1] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 2] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 3] = Constants.BlackQueenIdentifier;
+        chessboard.board[0, 4] = Constants.BlackKingIdentifier;
+        chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 7] = Constants.BlackRookIdentifier;
+        
+        chessboard.fillRank(1, Constants.BlackPawnIdentifier);
+        chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(6, Constants.WhitePawnIdentifier);
+        
+        chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
+        chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 3] = Constants.WhiteQueenIdentifier;
+        chessboard.board[7, 4] = Constants.WhiteKingIdentifier;
+        chessboard.board[7, 5] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 6] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 7] = Constants.WhiteRookIdentifier;
+
+        return chessboard;
+    }
+
 #region Getters and setters
     /// <summary>
     /// Inserts the piece onto the square on the chessboard.
@@ -180,39 +213,6 @@ public class Chessboard
         }
     }
 #endregion
-
-    /// <returns> an instance of Chessboard with the standard set up. </returns>
-    public static Chessboard StandardChessboard()
-    {
-        var chessboard = new Chessboard(8);
-
-        chessboard.board[0, 0] = Constants.BlackRookIdentifier;
-        chessboard.board[0, 1] = Constants.BlackKnightIdentifier;
-        chessboard.board[0, 2] = Constants.BlackBishopIdentifier;
-        chessboard.board[0, 3] = Constants.BlackQueenIdentifier;
-        chessboard.board[0, 4] = Constants.BlackKingIdentifier;
-        chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
-        chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
-        chessboard.board[0, 7] = Constants.BlackRookIdentifier;
-        
-        chessboard.fillRank(1, Constants.BlackPawnIdentifier);
-        chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
-        chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
-        chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
-        chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
-        chessboard.fillRank(6, Constants.WhitePawnIdentifier);
-        
-        chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
-        chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
-        chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;
-        chessboard.board[7, 3] = Constants.WhiteQueenIdentifier;
-        chessboard.board[7, 4] = Constants.WhiteKingIdentifier;
-        chessboard.board[7, 5] = Constants.WhiteBishopIdentifier;
-        chessboard.board[7, 6] = Constants.WhiteKnightIdentifier;
-        chessboard.board[7, 7] = Constants.WhiteRookIdentifier;
-
-        return chessboard;
-    }
 
 #region private methods
     private void fillRank(int rank, string squareIdentifier)
