@@ -17,6 +17,9 @@ public class ChessboardTests
         board = new Chessboard(12, 3);
         Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", board.ReadBoardAsFEN());
 
+        board.Insert(Constants.BlackBishopIdentifier, "b2");
+        Assert.Equal("3/3/3/3/3/3/3/3/3/3/1b1/3", board.ReadBoardAsFEN());
+
         board = Chessboard.StandardChessboard();
         Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
 
@@ -52,5 +55,23 @@ public class ChessboardTests
         Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g4"));
     }
 
+    /// <summary>
+    /// Tests that pieces can not be inserted into squares outside of the chessboard.
+    /// </summary>
+    [Fact]
+    public void Test_Faulty_Indices()
+    {
+        var board = Chessboard.StandardChessboard();
+        Assert.False(board.Insert(Constants.BlackBishopIdentifier, 2, 9));
+        Assert.False(board.Insert(Constants.BlackBishopIdentifier, 9, 9));
+        Assert.False(board.Insert(Constants.BlackBishopIdentifier, 10, 7));
+        Assert.True(board.Insert(Constants.BlackBishopIdentifier, "h8"));
+
+        board = new Chessboard(12, 12);
+        Assert.True(board.Insert(Constants.WhiteBishopIdentifier, "j3"));
+        Assert.False(board.Insert(Constants.WhiteBishopIdentifier, "n3"));
+        Assert.False(board.Insert(Constants.WhiteBishopIdentifier, (3, 14)));
+
+    }
 
 }
