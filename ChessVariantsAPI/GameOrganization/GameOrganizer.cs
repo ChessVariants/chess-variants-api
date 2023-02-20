@@ -39,7 +39,7 @@ public class GameOrganizer
             throw new GameNotFoundException($"No active game for gameId: {gameId}");
         }
         return game;
-     }
+    }
 
     private void DeleteGame(string gameId)
     {
