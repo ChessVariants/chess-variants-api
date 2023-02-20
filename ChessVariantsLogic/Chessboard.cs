@@ -9,7 +9,7 @@ public class Chessboard
     private int rows, cols;
     private string[,] board;
 
-    private Dictionary<string, (int, int)> coorToIndex;
+    private readonly Dictionary<string, (int, int)> coorToIndex;
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
