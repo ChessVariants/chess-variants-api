@@ -1,28 +1,37 @@
 ﻿namespace ChessVariantsLogic;
 
+/// <summary>
+/// Class representing a chessboard that can be initialized as a rectangle of max size 20X20. Currently uses strings to represent pieces.
+/// </summary>
 public class Chessboard
 {
 
     private int rows, cols;
     private string[,] board;
 
+    private Dictionary<string, (int, int)> coorToIndex;
+
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
-    public Dictionary<string, (int, int)> CoorToIndex { get; }
+    public Dictionary<string, (int, int)> CoorToIndex
+    {
+        get { return this.coorToIndex; }
+    }
 
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
         this.cols = cols;
         this.board = new string[rows, cols];
-        CoorToIndex = initDictionary();
+        coorToIndex = initDictionary();
+        board = initBoard();
     }
 
     public Chessboard(int length) : this(length, length) {}
 
     /// <summary>
-    /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move.
+    /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
     /// </summary>
     /// <param name="move"> consists of two coordinates without any space between them. </param>
     public void MakeMove(string move)
@@ -30,8 +39,8 @@ public class Chessboard
         string from, to;
         (from, to) = parseMove(move);
 
-        (int, int) fromIndex = CoorToIndex[from];
-        (int, int) toIndex = CoorToIndex[to];
+        (int, int) fromIndex = coorToIndex[from];
+        (int, int) toIndex = coorToIndex[to];
 
         string piece = board[fromIndex.Item1, fromIndex.Item2];
         
@@ -89,6 +98,11 @@ public class Chessboard
     public string GetPiece(int row, int col)
     {
         return board[row,col];
+    }
+
+    public string GetPiece((int, int) index)
+    {
+        return GetPiece(index.Item1, index.Item2);
     }
 
     /// <returns> an instance of Chessboard with the standard set up. </returns>
@@ -173,10 +187,27 @@ public class Chessboard
         return dictionary;
     }
 
+    private string[,] initBoard()
+    {
+        var board = new string[this.rows, this.cols];
+        for(int i = 0; i < board.GetLength(0); i++)
+        {
+            for(int j = 0; j < board.GetLength(1); j++)
+            {
+                board[i,j] = Constants.UnoccupiedSquareIdentifier;
+            }
+        }
+        return board;
+    }
+
 #endregion
 
 #region Overrides
 
+    /// <summary>
+    /// Creates a readble string representation of the board.
+    /// </summary>
+    /// <returns> a string representing the board. </returns>
     public override string ToString()
     {
         string strBoard = "";
