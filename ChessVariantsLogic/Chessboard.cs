@@ -35,18 +35,25 @@ public class Chessboard
     /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
     /// </summary>
     /// <param name="move"> consists of two coordinates without any space between them. </param>
-    public void MakeMove(string move)
+    public bool Move(string move)
     {
         string from, to;
         (from, to) = parseMove(move);
 
-        (int, int) fromIndex = coorToIndex[from];
-        (int, int) toIndex = coorToIndex[to];
-
-        string piece = board[fromIndex.Item1, fromIndex.Item2];
+        try
+        {
+            (int, int) fromIndex = coorToIndex[from];
+            (int, int) toIndex = coorToIndex[to];
+            string piece = board[fromIndex.Item1, fromIndex.Item2];
         
-        board[toIndex.Item1, toIndex.Item2] = piece;
-        board[fromIndex.Item1, fromIndex.Item2] = Constants.UnoccupiedSquareIdentifier;
+            board[toIndex.Item1, toIndex.Item2] = piece;
+            board[fromIndex.Item1, fromIndex.Item2] = Constants.UnoccupiedSquareIdentifier;
+            return true;
+        }
+        catch(Exception)
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -85,6 +92,7 @@ public class Chessboard
         return fen.Remove(fen.Length - 1, 1);
     }
 
+#region Getters and setters
     /// <summary>
     /// Inserts the piece onto the square on the chessboard.
     /// </summary>
@@ -171,6 +179,7 @@ public class Chessboard
             return null;
         }
     }
+#endregion
 
     /// <returns> an instance of Chessboard with the standard set up. </returns>
     public static Chessboard StandardChessboard()

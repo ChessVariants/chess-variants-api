@@ -23,7 +23,7 @@ public class ChessboardTests
         board = Chessboard.StandardChessboard();
         Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
 
-        board.MakeMove("a2a4");
+        board.Move("a2a4");
         Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
 
     }
@@ -50,9 +50,12 @@ public class ChessboardTests
         var board = Chessboard.StandardChessboard();
         Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g4"));
-        board.MakeMove("g2g4");
+        Assert.True(board.Move("g2g4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g2"));
         Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g4"));
+        
+        Assert.False(board.Move("h2h9"));
+        Assert.Equal(Constants.WhitePawnIdentifier, board.GetPiece("h2"));
     }
 
     /// <summary>
