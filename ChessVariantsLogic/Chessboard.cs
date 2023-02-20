@@ -90,17 +90,35 @@ public class Chessboard
     /// <param name="pieceIdentifier"> the piece to be inserted </param>
     /// <param name="row"> the row index </param>
     /// <param name="col"> the column index </param>
-    public void Insert(string pieceIdentifier, int row, int col)
+    public bool Insert(string pieceIdentifier, int row, int col)
     {
-        board[row,col] = pieceIdentifier;
+        if(validIndex(row, col))
+        {
+            board[row,col] = pieceIdentifier;
+            return true;
+        }
+        return false;
     }
 
-    public string GetPiece(int row, int col)
+    /// <summary>
+    /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
+    /// </summary>
+    /// <param name="row"> is the row index. </param>
+    /// <param name="col"> is the column index. </param>
+    /// <returns> the piece if the index is valid. </returns>
+    public string? GetPiece(int row, int col)
     {
-        return board[row,col];
+        if(validIndex(row, col))
+            return board[row,col];
+        return null;
     }
 
-    public string GetPiece((int, int) index)
+    /// <summary>
+    /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
+    /// </summary>
+    /// <param name="index"> is the index of the square </param>
+    /// <returns> the piece if the index is valid. </returns>
+    public string? GetPiece((int, int) index)
     {
         return GetPiece(index.Item1, index.Item2);
     }
@@ -198,6 +216,18 @@ public class Chessboard
             }
         }
         return board;
+    }
+
+    private bool validIndex(int row, int col)
+    {
+        if(row >= 0 && row < this.rows)
+        {
+            if(col >= 0 && col < this.cols)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 #endregion
