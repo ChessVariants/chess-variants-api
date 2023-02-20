@@ -32,10 +32,10 @@ public class ChessboardTests
     public void Test_Standard_Chessboard()
     {
         var board = Chessboard.StandardChessboard();
-        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPiece(board.CoorToIndex["e1"]));
-        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPiece(board.CoorToIndex["d8"]));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece(board.CoorToIndex["e4"]));
-        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPiece(board.CoorToIndex["a8"]));
+        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPiece("e1"));
+        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPiece("d8"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("e4"));
+        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPiece("a8"));
     }
 
     /// <summary>
@@ -45,11 +45,11 @@ public class ChessboardTests
     public void Test_Move_Piece()
     {
         var board = Chessboard.StandardChessboard();
-        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece(board.CoorToIndex["g2"]));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece(board.CoorToIndex["g4"]));
+        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g4"));
         board.MakeMove("g2g4");
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece(board.CoorToIndex["g2"]));
-        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece(board.CoorToIndex["g4"]));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g2"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g4"));
     }
 
 

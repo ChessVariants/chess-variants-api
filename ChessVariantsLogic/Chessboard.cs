@@ -6,8 +6,9 @@
 public class Chessboard
 {
 
-    private int rows, cols;
-    private string[,] board;
+    private readonly int rows;
+    private readonly int cols;
+    private readonly string[,] board;
 
     private readonly Dictionary<string, (int, int)> coorToIndex;
 
@@ -45,7 +46,7 @@ public class Chessboard
         string piece = board[fromIndex.Item1, fromIndex.Item2];
         
         board[toIndex.Item1, toIndex.Item2] = piece;
-        board[fromIndex.Item1, fromIndex.Item2] = "-";
+        board[fromIndex.Item1, fromIndex.Item2] = Constants.UnoccupiedSquareIdentifier;
     }
 
     /// <summary>
@@ -85,11 +86,12 @@ public class Chessboard
     }
 
     /// <summary>
-    /// Inserts a piece onto the chessboard
+    /// Inserts the piece onto the square on the chessboard.
     /// </summary>
     /// <param name="pieceIdentifier"> the piece to be inserted </param>
     /// <param name="row"> the row index </param>
     /// <param name="col"> the column index </param>
+    /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
     public bool Insert(string pieceIdentifier, int row, int col)
     {
         if(validIndex(row, col))
@@ -98,6 +100,35 @@ public class Chessboard
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Inserts the piece onto the square on the chessboard.
+    /// </summary>
+    /// <param name="pieceIdentifier"> the piece to be inserted </param>
+    /// <param name="index"> is the index of the square as a tuple of ints. </param>
+    /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
+    public bool Insert(string pieceIdentifier, (int, int) index)
+    {
+        return Insert(pieceIdentifier, index.Item1, index.Item2);
+    }
+
+    /// <summary>
+    /// Inserts the piece onto the square on the chessboard.
+    /// </summary>
+    /// <param name="pieceIdentifier"> is the piece to be inserted. </param>
+    /// <param name="coordinate"> is the coordinate of the square as a string. </param>
+    /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
+    public bool Insert(string pieceIdentifier, string coordinate)
+    {
+        try {
+            var key = this.coorToIndex[coordinate];
+            return Insert(pieceIdentifier, key.Item1, key.Item2);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -116,11 +147,29 @@ public class Chessboard
     /// <summary>
     /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
     /// </summary>
-    /// <param name="index"> is the index of the square </param>
+    /// <param name="index"> is the index of the square as a tuple of ints </param>
     /// <returns> the piece if the index is valid. </returns>
     public string? GetPiece((int, int) index)
     {
         return GetPiece(index.Item1, index.Item2);
+    }
+
+    /// <summary>
+    /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
+    /// </summary>
+    /// <param name="coordinate"> is the coordinate of the square as a string </param>
+    /// <returns> the piece if the index is valid. </returns>
+    public string? GetPiece(string coordinate)
+    {
+        try
+        {
+            var key = this.coorToIndex[coordinate];
+            return GetPiece(key);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     /// <returns> an instance of Chessboard with the standard set up. </returns>
