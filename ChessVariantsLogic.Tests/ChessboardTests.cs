@@ -11,23 +11,17 @@ public class ChessboardTests
     [Fact]
     public void Test_FEN()
     {
-        var board1 = new Chessboard(6);
-        string fen1 = board1.ReadBoardAsFEN();
-        string[] splitFen1 = fen1.Split('/');
-        Assert.Equal(6, splitFen1.Length);
+        var board = new Chessboard(6);
+        Assert.Equal("6/6/6/6/6/6", board.ReadBoardAsFEN());
 
-        var board2 = new Chessboard(12, 3);
-        string fen2 = board2.ReadBoardAsFEN();
-        string[] splitFen2 = fen2.Split('/');
-        Assert.Equal(12, splitFen2.Length);
+        board = new Chessboard(12, 3);
+        Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", board.ReadBoardAsFEN());
 
-        var stdBoard = Chessboard.StandardChessboard();
-        string fen3 = stdBoard.ReadBoardAsFEN();
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", fen3);
+        board = Chessboard.StandardChessboard();
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
 
-        stdBoard.MakeMove("a2a4");
-        string fen4 = stdBoard.ReadBoardAsFEN();
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", fen4);
+        board.MakeMove("a2a4");
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
 
     }
 
