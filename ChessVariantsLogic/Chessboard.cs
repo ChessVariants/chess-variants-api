@@ -6,7 +6,7 @@
 public class Chessboard
 {
 
-/// <summary>
+    /// <summary>
     /// Returns all valid moves for a given board and piece
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
@@ -20,7 +20,16 @@ public class Chessboard
         var moves = new List<Tuple<int, int>>();
         if (jump)
         {
-            moves = getAllMovesJump(m, board, pos, size);
+            var movesTmp = getAllMovesJump(m, board, pos);
+            moves = getAllMovesJump(m, board, pos);
+            while (repeat >= 1)
+            {
+                foreach (var move in movesTmp)
+                {
+                    moves.AddRange(getAllMovesJump(m, board, (move.Item1, move.Item2)));
+                    repeat--;
+                }
+            }
         }
         else
         {
@@ -44,9 +53,9 @@ public class Chessboard
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
-    
-    
-    
+
+
+
     static List<Tuple<int, int>> getAllMovesJump((int, int)[] m, int[,] board, (int, int) pos)
     {
         var moves = new List<Tuple<int, int>>();
@@ -54,7 +63,7 @@ public class Chessboard
         {
             int newRow = pos.Item1 + m[i].Item1;
             int newCol = pos.Item2 + m[i].Item2;
-            if ((0 <= newRow && newRow <= board.GetLength(0)) && (0 <= newCol && newCol <= board.GetLength(0)))
+            if ((0 <= newRow && newRow <= board.GetLength(0) - 1) && (0 <= newCol && newCol <= board.GetLength(0) - 1) && board[pos.Item1, pos.Item2] == 0)
             {
                 moves.Add(new Tuple<int, int>(newRow, newCol));
             }
