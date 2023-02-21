@@ -13,7 +13,7 @@ public class GameOrganizer
     }
 
     /// <summary>
-    /// Creates a new game and maps it to the given gameId. If the gameId already maps to a game, nothing will happen.
+    /// Creates a new game and maps it to the given <paramref name="gameId"/>. If the <paramref name="gameId"/> already maps to a game, nothing will happen.
     /// </summary>
     /// <param name="gameId">The key to which the created game should be mapped to.</param>
     public void CreateNewGame(string gameId)
@@ -26,7 +26,7 @@ public class GameOrganizer
     }
 
     /// <summary>
-    /// Returns the game object for the given gameId if it exists, otherwise throws a <c>GameNotFoundException</c>
+    /// Returns the game object for the given <paramref name="gameId"/> if it exists, otherwise throws a <see cref="GameNotFoundException"/>
     /// </summary>
     /// <param name="gameId">The game id for the game to return</param>
     /// <returns>The game object corresponding to the gameId</returns>
@@ -47,6 +47,9 @@ public class GameOrganizer
     }
 }
 
+/// <summary>
+/// Exception for when a game is not found amongst the active games.
+/// </summary>
 public class GameNotFoundException : Exception
 {
     public GameNotFoundException(string message) : base(message) {}

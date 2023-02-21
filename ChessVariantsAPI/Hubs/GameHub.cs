@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace ChessVariantsAPI.Hubs;
 
+/// <summary>
+/// A SignalR hub for handling real-time chess game communication between client and server.
+/// </summary>
 public class GameHub : Hub
 {
     private readonly GameOrganizer _organizer;
@@ -13,7 +16,7 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Adds the caller to a group corresponding to the supplied game id. Invokes a playerJoinedGame event to all clients in the joined group.
+    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/>. Invokes a playerJoinedGame event to all clients in the joined group.
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
@@ -25,7 +28,7 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Removes the caller from a group corresponding to the supplied game id. Invokes a playerLeftGame event to all clients in the joined group.
+    /// Removes the caller from a group corresponding to the supplied <paramref name="gameId"/>. Invokes a playerLeftGame event to all clients in the joined group.
     /// </summary>
     /// <param name="gameId">The id for the game to leave</param>
     /// <returns></returns>
