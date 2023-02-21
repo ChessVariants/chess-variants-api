@@ -166,7 +166,7 @@ public class Chessboard
             var key = this.coorToIndex[coordinate];
             return Insert(pieceIdentifier, key.Item1, key.Item2);
         }
-        catch (Exception)
+        catch (KeyNotFoundException)
         {
             return false;
         }
