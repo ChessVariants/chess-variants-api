@@ -50,7 +50,7 @@ public class Chessboard
             board[fromIndex.Item1, fromIndex.Item2] = Constants.UnoccupiedSquareIdentifier;
             return true;
         }
-        catch(Exception)
+        catch(KeyNotFoundException)
         {
             return false;
         }
