@@ -4,6 +4,5 @@ public enum PieceClassifier
 {
     WHITE,
     BLACK,
-    SHARED,
-    EMPTY
+    SHARED
 }

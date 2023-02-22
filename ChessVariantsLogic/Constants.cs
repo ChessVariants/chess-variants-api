@@ -7,6 +7,8 @@ public static class Constants
 
     public const string BoardFiles = "abcdefghijklmnopqrst";
 
+    //public const Piece BlackRook = new Piece(movement, false, moveLength, 0, false, false, PieceClassifier.BLACK);
+
 #region Square identifiers
     public const string UnoccupiedSquareIdentifier = "-";
     public const string BlackRookIdentifier = "r";
