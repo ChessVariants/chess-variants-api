@@ -12,6 +12,11 @@ public class Chessboard
 
     private readonly Dictionary<string, (int, int)> coorToIndex;
 
+    public IEnumerable<string> GetAllMoves(string playerTurn)
+    {
+        return new List<string>();
+    }
+
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
@@ -173,9 +178,6 @@ public class Chessboard
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
-
-
-
     static List<Tuple<int, int>> getAllMovesJump((int, int)[] m, int[,] board, (int, int) pos)
     {
         var moves = new List<Tuple<int, int>>();
@@ -323,7 +325,7 @@ public class Chessboard
     }
 
     // Splits the string move into the substrings representing the "from" square and "to" square 
-    private (string, string) parseMove(string move)
+    public (string, string) parseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
