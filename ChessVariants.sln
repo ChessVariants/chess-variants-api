@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessVariantsAPI", "ChessVariantsAPI\ChessVariantsAPI.csproj", "{13DF6852-EE5B-4CF4-AB49-3618F22129F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessVariantsAPI", "ChessVariantsAPI\ChessVariantsAPI.csproj", "{13DF6852-EE5B-4CF4-AB49-3618F22129F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{E936EC73-C31F-42BF-BCBC-AE6C24963DF1}"
 EndProject
@@ -11,14 +11,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chess", "Chess", "{E05C37F4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{12000BF7-323A-438B-956E-A27EEE3658D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessVariantsLogic", "ChessVariantsLogic\ChessVariantsLogic.csproj", "{F20F8B1B-D3C8-4795-866B-5D52E75E95F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessVariantsLogic", "ChessVariantsLogic\ChessVariantsLogic.csproj", "{F20F8B1B-D3C8-4795-866B-5D52E75E95F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessVariantsLogic.Tests", "ChessVariantsLogic.Tests\ChessVariantsLogic.Tests.csproj", "{C0D6E8C8-5277-4C12-9E8D-F518289A95EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessVariantsLogic.Tests", "ChessVariantsLogic.Tests\ChessVariantsLogic.Tests.csproj", "{C0D6E8C8-5277-4C12-9E8D-F518289A95EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5308AEC0-614D-4492-A8CD-4D6D88E89063}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessVariantsAPI.Tests", "ChessVariantsAPI.Tests\ChessVariantsAPI.Tests.csproj", "{9DAFDB32-DFBF-47A5-ABF5-37231773D783}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{C0D6E8C8-5277-4C12-9E8D-F518289A95EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0D6E8C8-5277-4C12-9E8D-F518289A95EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0D6E8C8-5277-4C12-9E8D-F518289A95EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{13DF6852-EE5B-4CF4-AB49-3618F22129F9} = {12000BF7-323A-438B-956E-A27EEE3658D7}
 		{F20F8B1B-D3C8-4795-866B-5D52E75E95F8} = {E05C37F4-5E64-4EE7-BF9A-E882C8925425}
 		{C0D6E8C8-5277-4C12-9E8D-F518289A95EF} = {E05C37F4-5E64-4EE7-BF9A-E882C8925425}
+		{9DAFDB32-DFBF-47A5-ABF5-37231773D783} = {12000BF7-323A-438B-956E-A27EEE3658D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {705A729B-BCC8-4D2F-90F5-767B8425E793}
