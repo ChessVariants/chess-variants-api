@@ -7,28 +7,30 @@ public class Checked : IPredicate
 {
     private BoardState boardState;
     private string pieceIdentifier;
-    private string player;
 
-    public Checked(BoardState boardState, string pieceIdentifier, string player)
+    public Checked(BoardState boardState, string pieceIdentifier)
 	{
         this.boardState = boardState;
         this.pieceIdentifier = pieceIdentifier;
-        this.player = player;
     }
 
     public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
         Chessboard board = boardState == BoardState.NEXT ? nextBoardState : thisBoardState;
 
-        string opponent = player == "black" ? "white" : "black";
-
-        var royalAttacked = PieceChecked(board, player, opponent, pieceIdentifier);
+        var royalAttacked = PieceChecked(board, pieceIdentifier);
         return royalAttacked;
     }
-
-    private static bool PieceChecked(Chessboard board, string sideToPlay, string attacker, string pieceIdentifier)
+    static string getPlayer(string pieceIdentifier)
     {
-        var piecePositions = FindPiecesOfType(board, sideToPlay, pieceIdentifier);
+        return "black";
+    }
+
+    private static bool PieceChecked(Chessboard board, string pieceIdentifier)
+    {
+        string player = getPlayer(pieceIdentifier);
+        string attacker = player == "white" ? "black" : "white";
+        var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         foreach (var attackerMove in board.GetAllMoves(attacker))
         {
             var (_, to) = board.parseMove(attackerMove);
@@ -40,12 +42,12 @@ public class Checked : IPredicate
         return false;
     }
 
-    private static IEnumerable<string> FindPiecesOfType(Chessboard board, string player, string pieceIdentifier)
+    private static IEnumerable<string> FindPiecesOfType(Chessboard board, string pieceIdentifier)
     {
         var pieceLocations = new List<string>();
         foreach (var position in board.CoorToIndex.Keys)
         {
-            if (IsOfType(position, board, player, pieceIdentifier))
+            if (IsOfType(position, board, pieceIdentifier))
             {
                 pieceLocations.Add(position);
             }
@@ -53,7 +55,7 @@ public class Checked : IPredicate
         return pieceLocations;
     }
 
-    private static bool IsOfType(string position, Chessboard board, string player, string pieceIdentifier)
+    private static bool IsOfType(string position, Chessboard board, string pieceIdentifier)
     {
         var piece = board.GetPiece(position);
         switch (pieceIdentifier)
@@ -62,14 +64,9 @@ public class Checked : IPredicate
             case "ANY":
                 return piece != Constants.UnoccupiedSquareIdentifier;
             case "ROYAL":
-            {
-                if (player == "black")
-                {
-                    return piece == Constants.BlackKingIdentifier;
-                }
-                return piece == Constants.WhiteKingIdentifier;
-            }
-            default: return piece == pieceIdentifier;
+                return piece == Constants.BlackKingIdentifier;
+            default:
+                return piece == pieceIdentifier;
         }
     }
 

@@ -41,25 +41,49 @@ internal class Rule
     */
     void test()
     {
-        IPredicate whiteChessWinRule = new Checked(BoardState.NEXT, Constants.BlackKingIdentifier, "black");
-        IPredicate whiteChessMoveRule = new Function(FunctionType.NOT, new Checked(BoardState.NEXT, Constants.WhiteKingIdentifier, "white"));
+
+        // Some examples of different predicates and rules that can be constructed from these classes
+        // Each predicate evaluates a transition from one board state to another
 
 
-        IPredicate whiteAntiChessMoveRule = new Operator(PredType.IMPLIES, new Checked(BoardState.THIS, "ANY", "black"), new PieceCaptured("ANY", "black"));
-        IPredicate whiteAntiChessWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, "ANY", "black");
+        // CAPTURE THE KING
 
-
+        // Since checkmate isn't an issue, any move is valid. (Predicate will always return true)
         IPredicate whiteCaptureTheKingMoveRule = new Function(FunctionType.TRUE, null);
-        IPredicate whiteCaptureTheKingWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.BlackKingIdentifier, "black");
-
-        IPredicate blackWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.WhitePawnIdentifier, "white");
-
-
-        Rule classicalChess = new Rule(whiteChessMoveRule, whiteChessWinRule, WinRuleType.MUST_SATISFY_ALL);
-
-        Rule antiChess = new Rule(whiteAntiChessMoveRule, whiteAntiChessWinRule, WinRuleType.MUST_SATISFY_NEXT);
+        // White wins if the amount of black kings left is equal to 0
+        IPredicate whiteCaptureTheKingWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.BlackKingIdentifier);
 
         Rule captureTheKing = new Rule(whiteCaptureTheKingMoveRule, whiteCaptureTheKingWinRule, WinRuleType.MUST_SATISFY_NEXT);
+
+        // CLASSICAL CHESS
+
+        // This one is a bit tricky since it needs to hold for all possible next board states :/
+        IPredicate blackKingIsCheckedDuringThisTurn = new Checked(BoardState.THIS, Constants.BlackKingIdentifier);
+        IPredicate blackKingIsCheckedDuringNextTurn = new Checked(BoardState.NEXT, Constants.BlackKingIdentifier);
+        IPredicate whiteChessWinRule = new Operator(PredType.AND, blackKingIsCheckedDuringThisTurn, blackKingIsCheckedDuringNextTurn);
+        // White move is possible if white king is not checked during next board state
+        IPredicate whiteChessMoveRule = new Function(FunctionType.NOT, new Checked(BoardState.NEXT, Constants.WhiteKingIdentifier));
+
+        // ANTI CHESS
+
+        // White move is possible if any black piece being checked during this state implies that a piece is captured during the transition
+        IPredicate whiteAntiChessMoveRule = new Operator(PredType.IMPLIES, new Checked(BoardState.THIS, "ANY_BLACK"), new PieceCaptured("ANY_BLACK"));
+        // White wins if the amount of white pieces left is equal to 0
+        IPredicate whiteAntiChessWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, "ANY_WHITE");
+
+        // HORDE
+
+        // If black has captured all white's pawns, black wins.
+        IPredicate blackHordeWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.WhitePawnIdentifier);
+
+        // Since checkmate isn't an issue, any move is valid. (Predicate will always return true)
+        IPredicate blackHordeMoveRule = new Function(FunctionType.TRUE, null);
+
+
+        Rule classicalChessRuleWhite = new Rule(whiteChessMoveRule, whiteChessWinRule, WinRuleType.MUST_SATISFY_ALL);
+
+        Rule antiChessRuleWhite = new Rule(whiteAntiChessMoveRule, whiteAntiChessWinRule, WinRuleType.MUST_SATISFY_NEXT);
+
 
     }
 

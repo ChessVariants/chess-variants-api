@@ -11,31 +11,49 @@ internal class PiecesLeft : IPredicate
     int compareValue;
     BoardState state;
     string pieceIdentifier;
-    string player;
 
-    public PiecesLeft(Comparator comparator, int compareValue, BoardState state, string pieceIdentifier, string player)
+    public PiecesLeft(Comparator comparator, int compareValue, BoardState state, string pieceIdentifier)
     {
         this.comparator = comparator;
         this.compareValue = compareValue;
         this.state = state;
         this.pieceIdentifier = pieceIdentifier;
-        this.player = player;
     }
 
     public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
         Chessboard board = state == BoardState.THIS ? thisBoardState : nextBoardState;
-        int piecesLeft = FindPiecesOfType(board, player, pieceIdentifier).Count();
+        int piecesLeft = FindPiecesOfType(board, pieceIdentifier).Count();
         return piecesLeft == compareValue;
     }
 
+    static string getPlayer(string pieceIdentifier)
+    {
+        return "black";
+    }
 
-    private static IEnumerable<string> FindPiecesOfType(Chessboard board, string player, string pieceIdentifier)
+    private static bool PieceChecked(Chessboard board, string pieceIdentifier)
+    {
+        string player = getPlayer(pieceIdentifier);
+        string attacker = player == "white" ? "black" : "white";
+        var piecePositions = FindPiecesOfType(board, pieceIdentifier);
+        foreach (var attackerMove in board.GetAllMoves(attacker))
+        {
+            var (_, to) = board.parseMove(attackerMove);
+            if (piecePositions.Contains(to))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static IEnumerable<string> FindPiecesOfType(Chessboard board, string pieceIdentifier)
     {
         var pieceLocations = new List<string>();
         foreach (var position in board.CoorToIndex.Keys)
         {
-            if (IsOfType(position, board, player, pieceIdentifier))
+            if (IsOfType(position, board, pieceIdentifier))
             {
                 pieceLocations.Add(position);
             }
@@ -43,28 +61,24 @@ internal class PiecesLeft : IPredicate
         return pieceLocations;
     }
 
-    private static bool IsOfType(string position, Chessboard board, string player, string pieceIdentifier)
+    private static bool IsOfType(string position, Chessboard board, string pieceIdentifier)
     {
         var piece = board.GetPiece(position);
         switch (pieceIdentifier)
         {
+            // TODO "ANY_BLACK", "ANY_WHITE" instead
             case "ANY":
                 return piece != Constants.UnoccupiedSquareIdentifier;
             case "ROYAL":
-                {
-                    if (player == "black")
-                    {
-                        return piece == Constants.BlackKingIdentifier;
-                    }
-                    return piece == Constants.WhiteKingIdentifier;
-                }
-            default: return piece == pieceIdentifier;
+                return piece == Constants.BlackKingIdentifier;
+            default:
+                return piece == pieceIdentifier;
         }
     }
 
 }
 
-public enum Comparator{
+public enum Comparator {
     GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS, NOT_EQUALS
 }
 
