@@ -28,7 +28,7 @@ public class GameOrganizerTests : IDisposable
     [Fact]
     public void CreateNewGameShouldAddGame()
     {
-        _gameOrganizer.CreateNewGame("0");
+        _gameOrganizer.JoinGame("0", "id", "white");
         var game = _gameOrganizer.GetGame("0");
         Assert.True(game != null);
     }

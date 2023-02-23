@@ -20,10 +20,10 @@ public class GameHub : Hub
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
-    public async Task JoinGame(string gameId)
+    public async Task JoinGame(string gameId, string asColor)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        _organizer.CreateNewGame(gameId);
+        _organizer.JoinGame(gameId, Context.ConnectionId, asColor);
         await Clients.Groups(gameId).SendAsync("playerJoinedGame", Context.ConnectionId);
     }
 
@@ -35,6 +35,7 @@ public class GameHub : Hub
     public async Task LeaveGame(string gameId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+        _organizer.LeaveGame(gameId, Context.ConnectionId);
         await Clients.Groups(gameId).SendAsync("playerLeftGame", Context.ConnectionId);
     }
 
@@ -50,6 +51,7 @@ public class GameHub : Hub
         try
         {
             var game = _organizer.GetGame(gameId);
+            // game.MakeMove(move, )
             await Clients.Groups(gameId).SendAsync("pieceMoved", "board");
         }
         catch (GameNotFoundException)
