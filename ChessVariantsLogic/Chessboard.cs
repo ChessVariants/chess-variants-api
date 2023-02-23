@@ -413,6 +413,11 @@ public class Chessboard
         return strBoard;
     }
 
-#endregion
+    internal IEnumerable<string> GetAllValidMoves(Player playerTurn)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 
 }
