@@ -1,10 +1,9 @@
 ﻿using System;
+using ChessVariantsLogic;
 
 public interface IPredicate
 {
 
-    bool evaluate(string[,] thisBoardState, string[,] nextBoardState);
-
-    bool evaluatesThisBoardState { get; }
+    bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState);
 
 }

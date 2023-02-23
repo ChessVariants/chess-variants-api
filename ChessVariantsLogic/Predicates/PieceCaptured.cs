@@ -1,34 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChessVariantsLogic;
 
-namespace ChessVariantsLogic.Predicates;
-internal class PiecesLeft : IPredicate
+internal class PieceCaptured : IPredicate
 {
-    Comparator comparator;
-    int compareValue;
-    BoardState state;
     string pieceIdentifier;
     string player;
 
-    public PiecesLeft(Comparator comparator, int compareValue, BoardState state, string pieceIdentifier, string player)
+    public PieceCaptured(string pieceIdentifier, string player)
     {
-        this.comparator = comparator;
-        this.compareValue = compareValue;
-        this.state = state;
         this.pieceIdentifier = pieceIdentifier;
         this.player = player;
     }
 
+
     public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
-        Chessboard board = state == BoardState.THIS ? thisBoardState : nextBoardState;
-        int piecesLeft = FindPiecesOfType(board, player, pieceIdentifier).Count();
-        return piecesLeft == compareValue;
+        int amountOfPieces = FindPiecesOfType(thisBoardState, player, pieceIdentifier).Count();
+        int amountOfPiecesNextState = FindPiecesOfType(nextBoardState, player, pieceIdentifier).Count();
+        int diff = amountOfPiecesNextState - amountOfPieces;
+        return diff > 0;
     }
-
 
     private static IEnumerable<string> FindPiecesOfType(Chessboard board, string player, string pieceIdentifier)
     {
@@ -63,8 +53,3 @@ internal class PiecesLeft : IPredicate
     }
 
 }
-
-public enum Comparator{
-    GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS, NOT_EQUALS
-}
-

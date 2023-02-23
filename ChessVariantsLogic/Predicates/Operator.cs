@@ -1,11 +1,10 @@
-﻿using System;
+﻿using ChessVariantsLogic;
+using System;
 
 public class Operator : IPredicate
 {
     private readonly PredType type;
     private readonly IPredicate p, q;
-
-    public bool evaluatesThisBoardState { get; }
 
 
     public Operator(PredType type, IPredicate p, IPredicate q)
@@ -13,11 +12,10 @@ public class Operator : IPredicate
         this.type = type;
         this.p = p;
         this.q = q;
-        this.evaluatesThisBoardState = true;
 	}
 
 
-    public bool evaluate(string[,] thisBoardState, string[,] nextBoardState)
+    public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
         switch(type)
         {

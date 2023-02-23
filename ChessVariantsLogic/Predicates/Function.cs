@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessVariantsLogic;
+using System;
 
 public class Function : IPredicate
 {
@@ -11,9 +12,9 @@ public class Function : IPredicate
         this.functionType = functionType;
 	}
 
-    public bool evaluate(string[,] thisBoardState, string[,] nextBoardState)
+    public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
-        switch(this.functionType)
+        switch(functionType)
         {
             case FunctionType.ID: return pred.evaluate(thisBoardState, nextBoardState);
             case FunctionType.NOT: return !(pred.evaluate(thisBoardState, nextBoardState));
