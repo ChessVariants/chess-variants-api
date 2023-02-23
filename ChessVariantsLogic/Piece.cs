@@ -142,7 +142,7 @@ public class Piece
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.North
+            MovementPattern.South
             };
         return new Piece(pattern, false, (1, 1), 0, false, false, PieceClassifier.BLACK);
     }
@@ -150,7 +150,7 @@ public class Piece
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.South
+            MovementPattern.North
             };
         return new Piece(pattern, false, (1, 1), 0, false, false, PieceClassifier.WHITE);
     }

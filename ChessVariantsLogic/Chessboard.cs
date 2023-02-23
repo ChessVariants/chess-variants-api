@@ -10,12 +10,12 @@ public class Chessboard
     private readonly int cols;
     private readonly string[,] board;
 
-    private readonly Dictionary<string, (int, int)> coorToIndex;
+    private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
-    public Dictionary<string, (int, int)> CoorToIndex
+    public Dictionary<string, Tuple<int, int>> CoorToIndex
     {
         get { return this.coorToIndex; }
     }
@@ -137,7 +137,7 @@ public class Chessboard
     /// <param name="pieceIdentifier"> the piece to be inserted </param>
     /// <param name="index"> is the index of the square as a tuple of ints. </param>
     /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
-    public bool Insert(string pieceIdentifier, (int, int) index)
+    public bool Insert(string pieceIdentifier, Tuple<int, int> index)
     {
         return Insert(pieceIdentifier, index.Item1, index.Item2);
     }
@@ -166,7 +166,7 @@ public class Chessboard
     /// <param name="row"> is the row index. </param>
     /// <param name="col"> is the column index. </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece(int row, int col)
+    public string? GetPieceAsString(int row, int col)
     {
         if(validIndex(row, col))
             return board[row,col];
@@ -178,9 +178,9 @@ public class Chessboard
     /// </summary>
     /// <param name="index"> is the index of the square as a tuple of ints </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece((int, int) index)
+    public string? GetPieceAsString(Tuple<int, int> index)
     {
-        return GetPiece(index.Item1, index.Item2);
+        return GetPieceAsString(index.Item1, index.Item2);
     }
 
     /// <summary>
@@ -188,12 +188,12 @@ public class Chessboard
     /// </summary>
     /// <param name="coordinate"> is the coordinate of the square as a string </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece(string coordinate)
+    public string? GetPieceAsString(string coordinate)
     {
         try
         {
             var key = this.coorToIndex[coordinate];
-            return GetPiece(key);
+            return GetPieceAsString(key);
         }
         catch (Exception)
         {
@@ -201,7 +201,7 @@ public class Chessboard
         }
     }
 
-    public (int,int)? ParseCoordinate(string coor)
+    public Tuple<int, int>? ParseCoordinate(string coor)
     {
         try
         {
@@ -211,6 +211,11 @@ public class Chessboard
         {
             return null;
         }
+    }
+
+    public  bool isEmpty(string pieceId)
+    {
+        return pieceId == Constants.UnoccupiedSquareIdentifier; 
     }
 
 #endregion
@@ -223,9 +228,9 @@ public class Chessboard
     }
 
 
-    private Dictionary<string, (int,int)> initDictionary()
+    private Dictionary<string, Tuple<int, int>> initDictionary()
     {
-        var dictionary = new Dictionary<string, (int, int)>();
+        var dictionary = new Dictionary<string, Tuple<int, int>>();
 
         for(int i = 0; i < this.rows; i++)
         {
@@ -233,7 +238,7 @@ public class Chessboard
             {
                 int rank = this.rows-i;
                 string notation = Constants.BoardFiles[j] + rank.ToString();
-                dictionary.Add(notation, (i,j));
+                dictionary.Add(notation, new Tuple<int, int>(i, j));
             }
         }
         return dictionary;

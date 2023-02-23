@@ -6,6 +6,12 @@ public class GameDriver
 {
     private Chessboard board;
 
+    public Chessboard Board
+    {
+        get { return this.board; }
+        set { this.board = value; }
+    }
+
     private readonly Dictionary<string, Piece> stringToPiece;
     
     public GameDriver(Chessboard chessboard)
@@ -23,23 +29,24 @@ public class GameDriver
     {
         var (from, to) = parseMove(move);
         
-        string? strPiece = this.board.GetPiece(from);
+        string? strPiece = this.board.GetPieceAsString(from);
         if(strPiece != null)
         {
             try
             {
                 Piece piece = stringToPiece[strPiece];
                 var moves = getAllValidMoves(piece, this.board, this.board.CoorToIndex[from]);
-
-                var coor = this.board.ParseCoordinate(to);
-                /*if(coor != null && moves.Contains())
+                foreach (var m in moves)
                 {
-                    
-                }*/
-
-                this.board.Insert(strPiece, to);
-                this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
-            return true;
+                    Console.WriteLine(m.ToString() + " , ");
+                }
+                var coor = this.board.ParseCoordinate(to);
+                if(coor != null && moves.Contains(coor))
+                {
+                    this.board.Insert(strPiece, to);
+                    this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    return true;   
+                }
             }
             catch (KeyNotFoundException)
             {
@@ -85,7 +92,7 @@ public class GameDriver
     /// <param name = "size"> Length of movement pattern </param>
     /// <param name = "jump"> Is the piece allowed to jump </param>
     /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    static List<Tuple<int, int>> getAllValidMoves(Piece piece, Chessboard board, (int,int) pos)
+    public List<Tuple<int, int>> getAllValidMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
         
         int repeat = piece.Repeat;
@@ -98,7 +105,7 @@ public class GameDriver
             {
                 foreach (var move in movesTmp)
                 {
-                    moves.AddRange(getAllMovesJump(piece, board, (move.Item1, move.Item2)));
+                    moves.AddRange(getAllMovesJump(piece, board, new Tuple<int, int>(move.Item1, move.Item2)));
                     repeat--;
                 }
             }
@@ -111,7 +118,7 @@ public class GameDriver
             {
                 foreach (var move in movesTmp)
                 {
-                    moves.AddRange(getAllMoves(piece, board, (move.Item1, move.Item2)));
+                    moves.AddRange(getAllMoves(piece, board, new Tuple<int, int>(move.Item1, move.Item2)));
                     repeat--;
                 }
             }
@@ -125,17 +132,29 @@ public class GameDriver
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
-    static List<Tuple<int, int>> getAllMovesJump(Piece piece, Chessboard board, (int,int) pos)
+    private List<Tuple<int, int>> getAllMovesJump(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
         var moves = new List<Tuple<int, int>>();
         for (int i = 0; i < piece.Movement.Count; i++)
         {
             int newRow = pos.Item1 + piece.Movement[i].Item1;
             int newCol = pos.Item2 + piece.Movement[i].Item2;
-            if ((0 <= newRow) && (newRow < board.Rows) && (0 <= newCol) && (newCol < board.Cols) && canTake(board.GetPiece(pos), board.GetPiece(newRow, newCol)))
+
+            string? piece1 = board.GetPieceAsString(pos);
+            string? piece2 = board.GetPieceAsString(newRow, newCol);
+
+            if(piece1 != null && piece2 != null)
             {
-                moves.Add(new Tuple<int, int>(newRow, newCol));
+                try
+                {
+                    Piece p1 = this.stringToPiece[piece1];
+                    Piece p2 = this.stringToPiece[piece2];
+                    if (insideBoard(newRow, newCol) && canTake(p1, p2))
+                        moves.Add(new Tuple<int, int>(newRow, newCol));
+                }
+                catch (KeyNotFoundException) {}
             }
+
         }
         return moves;
     }
@@ -147,7 +166,7 @@ public class GameDriver
     /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
     /// <param name = "size"> Length of movement pattern </param>
-    static List<Tuple<int, int>> getAllMoves(Piece piece, Chessboard board, (int, int) pos)
+    private List<Tuple<int, int>> getAllMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
 
         var moves = new List<Tuple<int, int>>();
@@ -158,28 +177,43 @@ public class GameDriver
             {
                 int newRow = pos.Item1 + piece.Movement[i].Item1 * j;
                 int newCol = pos.Item2 + piece.Movement[i].Item2 * j;
-                
-                if (true)
+
+                string? piece1 = board.GetPieceAsString(pos);
+                string? piece2 = board.GetPieceAsString(newRow, newCol);
+                if(piece1 != null && piece2 != null && insideBoard(newRow, newCol))
                 {
-                    if (piece.MoveLength.Item2 >= j && j >= piece.MoveLength.Item1 && canTake(board.GetPiece(pos),board.GetPiece(newRow,newCol)))
+                    if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
                     {
                         moves.Add(new Tuple<int, int>(newRow, newCol));
+                        continue;
                     }
-                    if (!isEmpty(board.GetPiece(newRow, newCol))) break;
+                    try
+                    {
+                        Piece p1 = this.stringToPiece[piece1];
+                        Piece p2 = this.stringToPiece[piece2];
+                        if (piece.MoveLength.Item2 >= j && j >= piece.MoveLength.Item1 && canTake(p1, p2))
+                        {
+                            moves.Add(new Tuple<int, int>(newRow, newCol));
+                        }
+                    }
+                    catch (KeyNotFoundException) {}
+
+                    if (board.isEmpty(piece2)) break;
 
                 }
+
             }
         }
         return moves;    
     }
     
-    public static bool insideBoard(Chessboard board, int row, int col)
+    private bool insideBoard(int row, int col)
     {
-        return 0 <= row && row < board.Rows && 0 <= col && col < board.Cols;
+        return 0 <= row && row < this.board.Rows && 0 <= col && col < this.board.Cols;
     }
 
     private Dictionary<string, Piece> initStringToPiece()
-     {
+    {
         var dictionary = new Dictionary<string, Piece>();
 
         dictionary.Add(Constants.BlackRookIdentifier, Piece.Rook(PieceClassifier.BLACK));

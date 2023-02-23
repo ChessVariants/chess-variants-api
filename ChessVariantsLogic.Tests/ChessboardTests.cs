@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace ChessVariantsLogic.Tests;
@@ -11,20 +12,21 @@ public class ChessboardTests
     [Fact]
     public void Test_FEN()
     {
-        var board = new Chessboard(6);
-        Assert.Equal("6/6/6/6/6/6", board.ReadBoardAsFEN());
+        var gameDriver = new GameDriver(new Chessboard(6));
 
-        board = new Chessboard(12, 3);
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", board.ReadBoardAsFEN());
+        Assert.Equal("6/6/6/6/6/6", gameDriver.Board.ReadBoardAsFEN());
 
-        board.Insert(Constants.BlackBishopIdentifier, "b2");
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/1b1/3", board.ReadBoardAsFEN());
+        gameDriver.Board = new Chessboard(12, 3);
+        Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", gameDriver.Board.ReadBoardAsFEN());
 
-        board = Chessboard.StandardChessboard();
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
+        gameDriver.Board.Insert(Constants.BlackBishopIdentifier, "b2");
+        Assert.Equal("3/3/3/3/3/3/3/3/3/3/1b1/3", gameDriver.Board.ReadBoardAsFEN());
 
-        board.Move("a2a4");
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", board.ReadBoardAsFEN());
+        gameDriver.Board = Chessboard.StandardChessboard();
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", gameDriver.Board.ReadBoardAsFEN());
+
+        gameDriver.Move("a2a4");
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", gameDriver.Board.ReadBoardAsFEN());
 
     }
 
@@ -35,10 +37,10 @@ public class ChessboardTests
     public void Test_Standard_Chessboard()
     {
         var board = Chessboard.StandardChessboard();
-        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPiece("e1"));
-        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPiece("d8"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("e4"));
-        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPiece("a8"));
+        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPieceAsString("e1"));
+        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPieceAsString("d8"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPieceAsString("e4"));
+        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPieceAsString("a8"));
     }
 
     /// <summary>
@@ -47,15 +49,18 @@ public class ChessboardTests
     [Fact]
     public void Test_Move_Piece()
     {
-        var board = Chessboard.StandardChessboard();
-        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g4"));
-        Assert.True(board.Move("g2g4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPiece("g2"));
-        Assert.Equal(Constants.WhitePawnIdentifier,         board.GetPiece("g4"));
+        var gameDriver = new GameDriver(Chessboard.StandardChessboard());
+
+        Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("g2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g3"));
+        Assert.True(gameDriver.Move("g2g3"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g2"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("g3"));
         
-        Assert.False(board.Move("h2h9"));
-        Assert.Equal(Constants.WhitePawnIdentifier, board.GetPiece("h2"));
+        Assert.False(gameDriver.Move("h2h9"));
+        Assert.Equal(Constants.WhitePawnIdentifier, gameDriver.Board.GetPieceAsString("h2"));
+
+        
     }
 
     /// <summary>
@@ -73,7 +78,7 @@ public class ChessboardTests
         board = new Chessboard(12, 12);
         Assert.True(board.Insert(Constants.WhiteBishopIdentifier, "j3"));
         Assert.False(board.Insert(Constants.WhiteBishopIdentifier, "n3"));
-        Assert.False(board.Insert(Constants.WhiteBishopIdentifier, (3, 14)));
+        Assert.False(board.Insert(Constants.WhiteBishopIdentifier, new Tuple<int, int>(3, 14)));
 
     }
 
