@@ -78,8 +78,10 @@ public class Piece
             MovementPattern.South,
             MovementPattern.West
             };
-        return new Piece(pattern, false, (1, Constants.MaxBoardHeigth), 0, false, false, pieceClassifier);
+        return new Piece(pattern, false, (0, Constants.MaxBoardHeigth), 1, false, false, pieceClassifier);
     }
+
+    
 
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {

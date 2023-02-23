@@ -235,4 +235,18 @@ public class ChessboardTests
 
     }
 
+    /// <summary>
+    /// Test that a piece can repeat its movement pattern.
+    /// </summary>
+    /*[Fact]
+    public void Test_Repeat()
+    {
+        var gameDriver = new GameDriver(new Chessboard(8));
+
+        gameDriver.Board.Insert("r", "a1");
+        Assert.True(gameDriver.Move("a1b2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a1"));
+        Assert.Equal(Constants.BlackRookIdentifier,  gameDriver.Board.GetPieceAsString("b2"));
+    }*/
+
 }
