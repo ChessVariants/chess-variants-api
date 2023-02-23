@@ -63,6 +63,27 @@ public class ChessboardTests
     }
 
     /// <summary>
+    /// Test that a rook can move correcly on non-standard chessboard.
+    /// </summary>
+    [Fact]
+    public void Test_Rook_Rectangular_Board()
+    {
+        var gameDriver = new GameDriver(new Chessboard(4,10));
+        
+        Assert.True(gameDriver.Board.Insert("r", "b2"));
+
+        Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("b2"));
+        Assert.True(gameDriver.Move("b2i2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("b2"));
+        Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("i2"));
+
+        Assert.True(gameDriver.Move("i2i4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("i2"));
+        Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("i4"));
+
+    }
+
+    /// <summary>
     /// Tests that invalid moves are not processed.
     /// </summary>
     [Fact]
@@ -108,43 +129,45 @@ public class ChessboardTests
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("a4"));
     }
 
-
+    /// <summary>
+    /// Tests that a knight can jump over pieces and move correctly.
+    /// </summary>
+    [Fact]
     public void Test_Move_Knight()
     {
         var gameDriver = new GameDriver(Chessboard.StandardChessboard());
 
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("g1"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
         Assert.True(gameDriver.Move("g1h3"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("h3"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("h3"));
         Assert.True(gameDriver.Move("h3f4"));
     }
       
-   /** [Fact]
+    [Fact]
      public void Test_Take()
      {
         var gameDriver = new GameDriver(Chessboard.StandardChessboard());
 
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("g1"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
         Assert.True(gameDriver.Move("g1h3"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("h3"));
-        Assert.True(gameDriver.Move("h3f4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("f4"));
-
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
-        Assert.True(gameDriver.Move("g1h3"));
-        
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,         gameDriver.Board.GetPieceAsString("f4"));
-        Assert.False(gameDriver.Move("f4e2"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,  gameDriver.Board.GetPieceAsString("f4"));
-        
-     }*/
+        Assert.True(gameDriver.Move("h3g5"));
+        Assert.True(gameDriver.Move("g5h7"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g5"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("h7"));
+     }
+     [Fact]
+     public void Test_Bishop()
+     {
+        var gameDriver = new GameDriver(Chessboard.StandardChessboard());
+        Assert.False(gameDriver.Move("f1c4"));
+        Assert.True(gameDriver.Move("e2e3"));
+        Assert.True(gameDriver.Move("f1c4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("f1"));
+        Assert.Equal(Constants.WhiteBishopIdentifier,       gameDriver.Board.GetPieceAsString("c4"));
+     }
 
     /// <summary>
     /// Tests that pieces can not be inserted into squares outside of the chessboard.

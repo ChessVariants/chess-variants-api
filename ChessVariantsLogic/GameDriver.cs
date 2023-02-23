@@ -141,6 +141,11 @@ public class GameDriver
 
             if(piece1 != null && piece2 != null)
             {
+                if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
+                    {
+                        moves.Add(new Tuple<int, int>(newRow, newCol));
+                        continue;
+                    }
                 try
                 {
                     Piece p1 = this.stringToPiece[piece1];
@@ -166,17 +171,21 @@ public class GameDriver
     {
 
         var moves = new List<Tuple<int, int>>();
+        int maxIndex = Math.Max(board.Rows,board.Cols);
 
         for (int i = 0; i < piece.Movement.Count; i++)
         {
-            for (int j = 1; j < board.Rows; j++)
+            for (int j = 1; j < maxIndex; j++)
             {
                 int newRow = pos.Item1 + piece.Movement[i].Item1 * j;
                 int newCol = pos.Item2 + piece.Movement[i].Item2 * j;
-
+                if(!insideBoard(newRow, newCol))
+                {
+                    break;
+                }
                 string? piece1 = board.GetPieceAsString(pos);
                 string? piece2 = board.GetPieceAsString(newRow, newCol);
-                if(piece1 != null && piece2 != null && insideBoard(newRow, newCol))
+                if(piece1 != null && piece2 != null)
                 {
                     if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
                     {
