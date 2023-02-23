@@ -36,10 +36,6 @@ public class GameDriver
             {
                 Piece piece = stringToPiece[strPiece];
                 var moves = getAllValidMoves(piece, this.board, this.board.CoorToIndex[from]);
-                foreach (var m in moves)
-                {
-                    Console.WriteLine(m.ToString() + " , ");
-                }
                 var coor = this.board.ParseCoordinate(to);
                 if(coor != null && moves.Contains(coor))
                 {
@@ -195,10 +191,14 @@ public class GameDriver
                         {
                             moves.Add(new Tuple<int, int>(newRow, newCol));
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
                     catch (KeyNotFoundException) {}
 
-                    if (board.isEmpty(piece2)) break;
+                    
 
                 }
 
