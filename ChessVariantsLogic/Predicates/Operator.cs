@@ -1,35 +1,51 @@
 ﻿using ChessVariantsLogic;
 using System;
 
+namespace ChessVariantsLogic.Predicates;
+
 public class Operator : IPredicate
 {
-    private readonly PredType type;
-    private readonly IPredicate p, q;
+    private readonly OperatorType _type;
+    private readonly IPredicate _p;
+    private readonly IPredicate _q;
 
 
-    public Operator(PredType type, IPredicate p, IPredicate q)
+    public Operator(IPredicate p, OperatorType type, IPredicate q)
 	{
-        this.type = type;
-        this.p = p;
-        this.q = q;
+        if (type == OperatorType.NOT) {
+            throw new ArgumentException("Operator with only two predicates can not have OperatorType NOT");
+        }
+        _type = type;
+        _p = p;
+        _q = q;
+	}
+
+    public Operator(OperatorType type, IPredicate p)
+	{
+        if (type != OperatorType.NOT) {
+            throw new ArgumentException("Operator with only one predicate must have OperatorType NOT");
+        }
+        _type = type;
+        _p = p;
+        _q = new Const(false);
 	}
 
 
-    public bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
-        switch(type)
+        switch(_type)
         {
-            case PredType.AND: return p.evaluate(thisBoardState, nextBoardState) && q.evaluate(thisBoardState, nextBoardState);
-            case PredType.OR: return p.evaluate(thisBoardState, nextBoardState) || q.evaluate(thisBoardState, nextBoardState);
-            case PredType.IMPLIES: return !(p.evaluate(thisBoardState, nextBoardState)) || q.evaluate(thisBoardState, nextBoardState);
-            case PredType.XOR: return p.evaluate(thisBoardState, nextBoardState) ^ q.evaluate(thisBoardState, nextBoardState);
-            case PredType.EQUALS: return p.evaluate(thisBoardState, nextBoardState) == q.evaluate(thisBoardState, nextBoardState);
+            case OperatorType.AND: return _p.Evaluate(thisBoardState, nextBoardState) && _q.Evaluate(thisBoardState, nextBoardState);
+            case OperatorType.OR: return _p.Evaluate(thisBoardState, nextBoardState) || _q.Evaluate(thisBoardState, nextBoardState);
+            case OperatorType.IMPLIES: return !(_p.Evaluate(thisBoardState, nextBoardState)) || _q.Evaluate(thisBoardState, nextBoardState);
+            case OperatorType.XOR: return _p.Evaluate(thisBoardState, nextBoardState) ^ _q.Evaluate(thisBoardState, nextBoardState);
+            case OperatorType.EQUALS: return _p.Evaluate(thisBoardState, nextBoardState) == _q.Evaluate(thisBoardState, nextBoardState);
+            case OperatorType.NOT: return !(_p.Evaluate(thisBoardState, nextBoardState));
             default: return false;
         }
     }
-
 }
 
-public enum PredType {
-    AND, OR, IMPLIES, XOR, EQUALS
+public enum OperatorType {
+    AND, OR, IMPLIES, XOR, EQUALS, NOT
 }

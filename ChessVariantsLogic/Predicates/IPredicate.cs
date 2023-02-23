@@ -1,9 +1,9 @@
 ﻿using System;
 using ChessVariantsLogic;
 
+namespace ChessVariantsLogic.Predicates;
+
 public interface IPredicate
 {
-
-    bool evaluate(Chessboard thisBoardState, Chessboard nextBoardState);
-
+    bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState);
 }

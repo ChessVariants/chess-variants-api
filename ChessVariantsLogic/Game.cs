@@ -1,17 +1,23 @@
 namespace ChessVariantsLogic;
 
+using Predicates;
+
 public class Game {
 
     private readonly Chessboard _board;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
+    private readonly RuleSet _whiteRules;
+    private readonly RuleSet _blackRules;
 
-    public Game(Chessboard board, Player playerToStart, int movesPerTurn)
+    public Game(Chessboard board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
         _board = board;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
+        _whiteRules = whiteRules;
+        _blackRules = blackRules;
     }
 
     public GameEvent MakeMove(string move, Player playerRequestingMove) {

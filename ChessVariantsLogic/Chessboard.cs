@@ -34,6 +34,19 @@ public class Chessboard
         board = initBoard();
     }
 
+    public Chessboard CopyBoard()
+    {
+        var boardCopy = new Chessboard(rows, cols);
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                boardCopy.Insert(board[i, j], (i, j));
+            }
+        }
+        return boardCopy;
+    }
+
     public Chessboard(int length) : this(length, length) {}
 
     /// <summary>
