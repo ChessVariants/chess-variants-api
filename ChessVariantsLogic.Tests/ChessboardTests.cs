@@ -3,6 +3,9 @@ using Xunit;
 
 namespace ChessVariantsLogic.Tests;
 
+/// <summary>
+/// This class contains unit tests on Chessboard.cs and ChessDriver.cs.
+/// </summary>
 public class ChessboardTests
 {
 
@@ -145,6 +148,9 @@ public class ChessboardTests
         Assert.True(gameDriver.Move("h3f4"));
     }
       
+    /// <summary>
+    /// Test that pices can be captured correctly.
+    /// </summary>
     [Fact]
      public void Test_Take()
      {
@@ -158,6 +164,10 @@ public class ChessboardTests
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g5"));
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("h7"));
      }
+     
+     /// <summary>
+     /// Test that the bishop can move correctly diagonally.
+     /// </summary>
      [Fact]
      public void Test_Bishop()
      {
@@ -167,6 +177,23 @@ public class ChessboardTests
         Assert.True(gameDriver.Move("f1c4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("f1"));
         Assert.Equal(Constants.WhiteBishopIdentifier,       gameDriver.Board.GetPieceAsString("c4"));
+     }
+
+    
+     [Fact]
+     public void Test_Move_King()
+     {
+        var gameDriver = new GameDriver(Chessboard.StandardChessboard());
+
+        Assert.Equal(Constants.WhiteKingIdentifier,  gameDriver.Board.GetPieceAsString("e1"));
+        Assert.True(gameDriver.Move("e2e3"));
+        Assert.True(gameDriver.Move("e1e2"));
+        Assert.False(gameDriver.Move("e2e3"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e1"));
+        Assert.Equal(Constants.WhiteKingIdentifier,  gameDriver.Board.GetPieceAsString("e2"));
+        Assert.Equal(Constants.WhitePawnIdentifier,  gameDriver.Board.GetPieceAsString("e3"));
+        Assert.True(gameDriver.Move("e2f3"));
+
      }
 
     /// <summary>
@@ -185,6 +212,26 @@ public class ChessboardTests
         Assert.True(board.Insert(Constants.WhiteBishopIdentifier, "j3"));
         Assert.False(board.Insert(Constants.WhiteBishopIdentifier, "n3"));
         Assert.False(board.Insert(Constants.WhiteBishopIdentifier, new Tuple<int, int>(3, 14)));
+
+    }
+
+    /// <summary>
+    /// Test that the queen can move both straight and diagnoally.
+    /// </summary>
+    [Fact]
+    public void Test_Queen()
+    {
+        var gameDriver = new GameDriver(new Chessboard(6,5));
+        
+        Assert.True(gameDriver.Board.Insert("Q", "c4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a6"));
+        Assert.True(gameDriver.Move("c4a6"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("c4"));
+        Assert.Equal(Constants.WhiteQueenIdentifier, gameDriver.Board.GetPieceAsString("a6"));
+
+        Assert.True(gameDriver.Move("a6a1"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a6"));
+        Assert.Equal(Constants.WhiteQueenIdentifier, gameDriver.Board.GetPieceAsString("a1"));
 
     }
 
