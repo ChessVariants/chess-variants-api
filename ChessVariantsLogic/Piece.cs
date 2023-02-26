@@ -41,22 +41,18 @@ public class Piece
         get { return this.PieceClassifier;}
     }
 
+    /// <summary>
+    /// Checks that two pieces are of opposite colors.
+    /// </summary>
+    /// <param name="p1">The first piece.</param>
+    /// <param name="p2">The second piece.</param>
+    /// <returns>true if pieces are of opposite colors.</returns>
     public static bool canTake(Piece p1, Piece p2)
     {
-        if(p1.pieceClassifier == PieceClassifier.WHITE && p2.pieceClassifier == PieceClassifier.BLACK)
-        {
-            return true;
-        }
-        else if(p1.pieceClassifier == PieceClassifier.BLACK && p2.pieceClassifier == PieceClassifier.WHITE)
-        {
-            return true;
-        }        
-        else
-        {
-            return false;
-        }
+        return !p1.pieceClassifier.Equals(p2.pieceClassifier);
     }
 
+#region Static fields
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -147,4 +143,6 @@ public class Piece
         return new Piece(mp, false, PieceClassifier.WHITE);
     }
     
+#endregion
+
 }

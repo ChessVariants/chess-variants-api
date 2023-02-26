@@ -1,5 +1,8 @@
 namespace ChessVariantsLogic;
 
+/// <summary>
+/// Represents a movement pattern for moving across a rectangular grid.
+/// </summary>
 public class MovementPattern
 {
     private readonly List<Tuple<int, int>> movement;
@@ -12,6 +15,7 @@ public class MovementPattern
         get { return movement; }
     }
 
+#region Properties
     public bool Jump
     {
         get { return jump; }
@@ -27,6 +31,8 @@ public class MovementPattern
         get { return repeat; }
     }
 
+#endregion
+
     public MovementPattern(List<Tuple<int, int>> movement, bool jump, (int,int) moveLength, int repeat)
     {
         this.movement = movement;
@@ -36,7 +42,7 @@ public class MovementPattern
     }
 
 
-
+#region Static fields
     public static Tuple<int, int> North = new Tuple<int, int>(-1,0);
     public static Tuple<int, int> East = new Tuple<int, int>(0,1);
     public static Tuple<int, int> South = new Tuple<int, int>(1,0);
@@ -45,5 +51,7 @@ public class MovementPattern
     public static Tuple<int, int> SouthEast = new Tuple<int, int>(1,1);
     public static Tuple<int, int> SouthWest = new Tuple<int, int>(1,-1);
     public static Tuple<int, int> NorthWest = new Tuple<int, int>(-1,-1);
+
+#endregion
 
 }
