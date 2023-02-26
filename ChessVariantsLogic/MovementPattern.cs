@@ -6,9 +6,9 @@ namespace ChessVariantsLogic;
 public class MovementPattern
 {
     private readonly List<Tuple<int, int>> movement;
-    private bool jump;
-    private (int, int) moveLength;
-    private int repeat;
+    private readonly bool jump;
+    private readonly (int, int) moveLength;
+    private readonly int repeat;
 
     public List<Tuple<int,int>> Movement
     {
@@ -39,6 +39,19 @@ public class MovementPattern
         this.jump = jump;
         this.moveLength = moveLength;
         this.repeat = repeat;
+    }
+
+    public MovementPattern(bool jump, (int,int) moveLength, int repeat) : this(new List<Tuple<int, int>>(), jump, moveLength, repeat) {}
+    public MovementPattern(bool jump, (int,int) moveLength) : this(new List<Tuple<int, int>>(), jump, moveLength, 0) {}
+
+    public void Add(Tuple<int, int> direction)
+    {
+        this.movement.Add(direction);
+    }
+
+    public bool Remove(Tuple<int, int> direction)
+    {
+        return this.movement.Remove(direction);
     }
 
 
