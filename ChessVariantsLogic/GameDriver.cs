@@ -91,9 +91,9 @@ public class GameDriver
     public List<Tuple<int, int>> getAllValidMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
         
-        int repeat = piece.Repeat;
+        int repeat = piece.MovementPattern.Repeat;
         var moves = new List<Tuple<int, int>>();
-        if (piece.Jump)
+        if (piece.MovementPattern.Jump)
         {
             var movesTmp = getAllMovesJump(piece, board, pos);
             moves = getAllMovesJump(piece, board, pos);
@@ -131,10 +131,10 @@ public class GameDriver
     private List<Tuple<int, int>> getAllMovesJump(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
         var moves = new List<Tuple<int, int>>();
-        for (int i = 0; i < piece.Movement.Count; i++)
+        for (int i = 0; i < piece.MovementPattern.Movement.Count; i++)
         {
-            int newRow = pos.Item1 + piece.Movement[i].Item1;
-            int newCol = pos.Item2 + piece.Movement[i].Item2;
+            int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1;
+            int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2;
 
             string? piece1 = board.GetPieceAsString(pos);
             string? piece2 = board.GetPieceAsString(newRow, newCol);
@@ -173,12 +173,12 @@ public class GameDriver
         var moves = new List<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
 
-        for (int i = 0; i < piece.Movement.Count; i++)
+        for (int i = 0; i < piece.MovementPattern.Movement.Count; i++)
         {
             for (int j = 1; j < maxIndex; j++)
             {
-                int newRow = pos.Item1 + piece.Movement[i].Item1 * j;
-                int newCol = pos.Item2 + piece.Movement[i].Item2 * j;
+                int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1 * j; // piece.MovementPattern.Movement should prbly not be accessed this way.
+                int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2 * j;
                 if(!insideBoard(newRow, newCol))
                 {
                     break;
@@ -196,7 +196,7 @@ public class GameDriver
                     {
                         Piece p1 = this.stringToPiece[piece1];
                         Piece p2 = this.stringToPiece[piece2];
-                        if (piece.MoveLength.Item2 >= j && j >= piece.MoveLength.Item1 && canTake(p1, p2))
+                        if (piece.MovementPattern.MoveLength.Item2 >= j && j >= piece.MovementPattern.MoveLength.Item1 && canTake(p1, p2))
                         {
                             moves.Add(new Tuple<int, int>(newRow, newCol));
                         }

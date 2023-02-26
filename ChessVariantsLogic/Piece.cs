@@ -5,53 +5,40 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class Piece
 {
-    private readonly List<Tuple<int, int>> movement;
-    private bool jump;
-    private (int, int) moveLength;
-    private int repeat;
+    private readonly MovementPattern movementPattern;
     private bool royal;
     private PieceClassifier pieceClassifier;
     private bool hasMoved;
 
-    public Piece(List<Tuple<int, int>> movement, bool jump, (int,int) moveLength, int repeat, bool royal, bool hasMoved, PieceClassifier pc)
+    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved)
     {
-        this.movement = movement;
-        this.jump = jump;
-        this.moveLength = moveLength;
-        this.repeat = repeat;
+        this.movementPattern = movementPattern;
         this.royal = royal;
-        this.hasMoved = hasMoved;
         this.pieceClassifier = pc;
+        this.hasMoved = hasMoved;
     }
 
-    public List<Tuple<int,int>> Movement
+    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc)
     {
-        get { return movement; }
+        this.movementPattern = movementPattern;
+        this.royal = royal;
+        this.pieceClassifier = pc;
+        this.hasMoved = false;
     }
 
-    public bool Jump
+    public MovementPattern MovementPattern
     {
-        get { return jump; }
-    }
-
-    public (int,int) MoveLength
-    {
-        get { return moveLength; }
-    }
-
-    public int Repeat
-    {
-        get { return repeat; }
+        get { return this.movementPattern; }
     }
 
     public bool Royal
     {
-        get { return royal; }
+        get { return this.royal; }
     }
 
     public PieceClassifier PieceClassifier
     {
-        get { return PieceClassifier;}
+        get { return this.PieceClassifier;}
     }
 
     public static bool canTake(Piece p1, Piece p2)
@@ -77,11 +64,10 @@ public class Piece
             MovementPattern.East,
             MovementPattern.South,
             MovementPattern.West
-            };
-        return new Piece(pattern, false, (0, Constants.MaxBoardHeigth), 1, false, false, pieceClassifier);
+        };
+        var mp = new MovementPattern(pattern, false, (0, Constants.MaxBoardHeigth), 0);
+        return new Piece(mp, false, pieceClassifier);
     }
-
-    
 
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
@@ -90,8 +76,9 @@ public class Piece
             MovementPattern.SouthEast,
             MovementPattern.SouthWest,
             MovementPattern.NorthWest
-            };
-        return new Piece(pattern, false, (1, Constants.MaxBoardHeigth), 0, false, false, pieceClassifier);
+        };
+        var mp = new MovementPattern(pattern, false, (1, Constants.MaxBoardHeigth), 0);
+        return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece Queen(PieceClassifier pieceClassifier)
@@ -105,8 +92,9 @@ public class Piece
             MovementPattern.SouthEast,
             MovementPattern.SouthWest,
             MovementPattern.NorthWest
-            };
-        return new Piece(pattern, false, (1, Constants.MaxBoardHeigth), 0, false, false, pieceClassifier);
+        };
+        var mp = new MovementPattern(pattern, false, (1,Constants.MaxBoardHeigth), 0);
+        return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece King(PieceClassifier pieceClassifier)
@@ -120,8 +108,9 @@ public class Piece
             MovementPattern.SouthEast,
             MovementPattern.SouthWest,
             MovementPattern.NorthWest
-            };
-        return new Piece(pattern, false, (1, 1), 0, true, false, pieceClassifier);
+        };
+        var mp = new MovementPattern(pattern, false, (1,1), 0);
+        return new Piece(mp, true, pieceClassifier);
     }
 
     public static Piece Knight(PieceClassifier pieceClassifier)
@@ -135,26 +124,27 @@ public class Piece
             new Tuple<int, int>(-2, 1),
             new Tuple<int, int>(-1,-2),
             new Tuple<int, int>(-2,-1),
-
-            };
-        
-        return new Piece(pattern, true, (1, Constants.MaxBoardHeigth), 0, false, false, pieceClassifier);
+        };
+        var mp = new MovementPattern(pattern, true, (1, Constants.MaxBoardHeigth), 0);
+        return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
             MovementPattern.South
-            };
-        return new Piece(pattern, false, (1, 1), 0, false, false, PieceClassifier.BLACK);
+        };
+        var mp = new MovementPattern(pattern, false, (1, 1), 0);
+        return new Piece(mp, false, PieceClassifier.BLACK);
     }
 
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
             MovementPattern.North
-            };
-        return new Piece(pattern, false, (1, 1), 0, false, false, PieceClassifier.WHITE);
+        };
+        var mp = new MovementPattern(pattern, false, (1, 1), 0);
+        return new Piece(mp, false, PieceClassifier.WHITE);
     }
     
 }
