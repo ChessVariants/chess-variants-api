@@ -10,27 +10,7 @@ public class Piece
     private PieceClassifier pieceClassifier;
     private bool hasMoved;
 
-    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved)
-    {
-        this.movementPattern = movementPattern;
-        this.royal = royal;
-        this.pieceClassifier = pc;
-        this.hasMoved = hasMoved;
-    }
-
-    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc)
-    {
-        this.movementPattern = movementPattern;
-        this.royal = royal;
-        this.pieceClassifier = pc;
-        this.hasMoved = false;
-    }
-
-    public MovementPattern MovementPattern
-    {
-        get { return this.movementPattern; }
-    }
-
+#region Properties
     public bool Royal
     {
         get { return this.royal; }
@@ -40,6 +20,23 @@ public class Piece
     {
         get { return this.PieceClassifier;}
     }
+
+    public MovementPattern MovementPattern
+    {
+        get { return this.movementPattern; }
+    }
+
+#endregion
+
+    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved)
+    {
+        this.movementPattern = movementPattern;
+        this.royal = royal;
+        this.pieceClassifier = pc;
+        this.hasMoved = hasMoved;
+    }
+
+    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc) : this(movementPattern, royal, pc, false) {}
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
