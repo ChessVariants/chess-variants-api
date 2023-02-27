@@ -38,13 +38,13 @@ public class Game {
             }
             
             if (moveWasPossible) {
-                decrementPlayerMoves();
+                DecrementPlayerMoves();
             }
         }
         return GameEvent.InvalidMove;
     }
 
-    private void decrementPlayerMoves() {
+    private void DecrementPlayerMoves() {
         _playerMovesRemaining--;
         if (_playerMovesRemaining <= 0) {
             _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;

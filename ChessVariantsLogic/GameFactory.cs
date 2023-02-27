@@ -2,6 +2,9 @@ namespace ChessVariantsLogic;
 
 using Predicates;
 
+/// <summary>
+/// Factory with predetermined rules for the known variants. WIP
+/// </summary>
 public static class GameFactory
 {
 
