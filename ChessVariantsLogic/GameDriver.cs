@@ -1,6 +1,5 @@
 namespace ChessVariantsLogic;
 using static Piece;
-using static Chessboard;
 
 public class GameDriver
 {
@@ -24,8 +23,8 @@ public class GameDriver
     /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
     /// </summary>
     /// <param name="move"> consists of two coordinates without any space between them. </param>
-    /// <returns> true if move was valid and successful. </returns>
-    public bool Move(string move)
+    /// <returns> A GameEvent representing whether the move was successful or not. </returns>
+    public GameEvent Move(string move)
     {
         var (from, to) = parseMove(move);
         
@@ -41,15 +40,12 @@ public class GameDriver
                 {
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
-                    return true;   
+                    return GameEvent.MoveSucceeded;
                 }
             }
-            catch (KeyNotFoundException)
-            {
-                return false;
-            }
+            catch (KeyNotFoundException) {}
         }
-        return false;
+        return GameEvent.InvalidMove;
 
     }
 
@@ -207,10 +203,7 @@ public class GameDriver
                     }
                     catch (KeyNotFoundException) {}
 
-                    
-
                 }
-
             }
         }
         return moves;    
@@ -242,4 +235,12 @@ public class GameDriver
         return dictionary;
     }
 
+}
+
+public enum GameEvent {
+    InvalidMove,
+    MoveSucceeded,
+    WhiteWon,
+    BlackWon,
+    Tie
 }
