@@ -3,12 +3,10 @@ namespace ChessVariantsLogic;
 /// <summary>
 /// Represents a movement pattern for moving across a rectangular grid.
 /// </summary>
-public class MovementPattern
+public class RegularMovementPattern : IMovementPattern
 {
     private readonly List<Tuple<int, int>> movement;
-    private readonly bool jump;
-    private readonly (int, int) moveLength;
-    private readonly int repeat;
+    private readonly List<Tuple<int, int>> moveLength;
 
     public List<Tuple<int,int>> Movement
     {
@@ -16,40 +14,26 @@ public class MovementPattern
     }
 
 #region Properties
-    public bool Jump
-    {
-        get { return jump; }
-    }
 
-    public (int,int) MoveLength
+    public List<Tuple<int, int>> MoveLength
     {
         get { return moveLength; }
     }
 
-    public int Repeat
-    {
-        get { return repeat; }
-    }
-
 #endregion
 
-    public MovementPattern(List<Tuple<int, int>> movement, bool jump, (int,int) moveLength, int repeat)
+    public RegularMovementPattern(List<Tuple<int, int>> movement, List<Tuple<int, int>> moveLength)
     {
         this.movement = movement;
-        this.jump = jump;
         this.moveLength = moveLength;
-        this.repeat = repeat;
     }
 
-    public MovementPattern(bool jump, (int,int) moveLength, int repeat) : this(new List<Tuple<int, int>>(), jump, moveLength, repeat) {}
-    public MovementPattern(bool jump, (int,int) moveLength) : this(new List<Tuple<int, int>>(), jump, moveLength, 0) {}
-
-    public void Add(Tuple<int, int> direction)
+    public void AddPattern(Tuple<int, int> direction)
     {
         this.movement.Add(direction);
     }
 
-    public bool Remove(Tuple<int, int> direction)
+    public bool RemovePattern(Tuple<int, int> direction)
     {
         return this.movement.Remove(direction);
     }

@@ -5,10 +5,12 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class Piece
 {
-    private readonly MovementPattern movementPattern;
-    private bool royal;
-    private PieceClassifier pieceClassifier;
+    private readonly IMovementPattern movementPattern;
+    private readonly bool royal;
+    private readonly PieceClassifier pieceClassifier;
     private bool hasMoved;
+
+    private readonly int repeat;
 
 #region Properties
     public bool Royal
@@ -21,22 +23,28 @@ public class Piece
         get { return this.PieceClassifier;}
     }
 
-    public MovementPattern MovementPattern
+    public IMovementPattern MovementPattern
     {
         get { return this.movementPattern; }
     }
 
+    public int Repeat
+    {
+        get { return this.repeat; }
+    }
+
 #endregion
 
-    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved)
+    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat)
     {
         this.movementPattern = movementPattern;
         this.royal = royal;
         this.pieceClassifier = pc;
         this.hasMoved = hasMoved;
+        this.repeat = repeat;
     }
 
-    public Piece(MovementPattern movementPattern, bool royal, PieceClassifier pc) : this(movementPattern, royal, pc, false) {}
+    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc) : this(movementPattern, royal, pc, false, 0) {}
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
@@ -53,56 +61,88 @@ public class Piece
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.North,
-            MovementPattern.East,
-            MovementPattern.South,
-            MovementPattern.West
+            RegularMovementPattern.North,
+            RegularMovementPattern.East,
+            RegularMovementPattern.South,
+            RegularMovementPattern.West
         };
-        var mp = new MovementPattern(pattern, false, (0, Constants.MaxBoardHeigth), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.NorthEast,
-            MovementPattern.SouthEast,
-            MovementPattern.SouthWest,
-            MovementPattern.NorthWest
+            RegularMovementPattern.NorthEast,
+            RegularMovementPattern.SouthEast,
+            RegularMovementPattern.SouthWest,
+            RegularMovementPattern.NorthWest
         };
-        var mp = new MovementPattern(pattern, false, (1, Constants.MaxBoardHeigth), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.North,
-            MovementPattern.East,
-            MovementPattern.South,
-            MovementPattern.West,
-            MovementPattern.NorthEast,
-            MovementPattern.SouthEast,
-            MovementPattern.SouthWest,
-            MovementPattern.NorthWest
+            RegularMovementPattern.North,
+            RegularMovementPattern.East,
+            RegularMovementPattern.South,
+            RegularMovementPattern.West,
+            RegularMovementPattern.NorthEast,
+            RegularMovementPattern.SouthEast,
+            RegularMovementPattern.SouthWest,
+            RegularMovementPattern.NorthWest
         };
-        var mp = new MovementPattern(pattern, false, (1,Constants.MaxBoardHeigth), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth),
+            new Tuple<int,int> (1, Constants.MaxBoardHeigth)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece King(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.North,
-            MovementPattern.East,
-            MovementPattern.South,
-            MovementPattern.West,
-            MovementPattern.NorthEast,
-            MovementPattern.SouthEast,
-            MovementPattern.SouthWest,
-            MovementPattern.NorthWest
+            RegularMovementPattern.North,
+            RegularMovementPattern.East,
+            RegularMovementPattern.South,
+            RegularMovementPattern.West,
+            RegularMovementPattern.NorthEast,
+            RegularMovementPattern.SouthEast,
+            RegularMovementPattern.SouthWest,
+            RegularMovementPattern.NorthWest
         };
-        var mp = new MovementPattern(pattern, false, (1,1), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1),
+            new Tuple<int,int> (1,1)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, true, pieceClassifier);
     }
 
@@ -118,25 +158,31 @@ public class Piece
             new Tuple<int, int>(-1,-2),
             new Tuple<int, int>(-2,-1),
         };
-        var mp = new MovementPattern(pattern, true, (1, Constants.MaxBoardHeigth), 0);
+        var mp = new JumpMovementPattern(pattern);
         return new Piece(mp, false, pieceClassifier);
     }
 
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.South
+            RegularMovementPattern.South
         };
-        var mp = new MovementPattern(pattern, false, (1, 1), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,1)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, false, PieceClassifier.BLACK);
     }
 
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            MovementPattern.North
+            RegularMovementPattern.North
         };
-        var mp = new MovementPattern(pattern, false, (1, 1), 0);
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,1)
+        };
+        var mp = new RegularMovementPattern(pattern, moveLength);
         return new Piece(mp, false, PieceClassifier.WHITE);
     }
     

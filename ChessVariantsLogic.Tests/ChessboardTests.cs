@@ -56,11 +56,11 @@ public class ChessboardTests
 
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("g2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g3"));
-        Assert.True(gameDriver.Move("g2g3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("g2g3"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g2"));
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("g3"));
         
-        Assert.False(gameDriver.Move("h2h9"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("h2h9"));
         Assert.Equal(Constants.WhitePawnIdentifier, gameDriver.Board.GetPieceAsString("h2"));
 
     }
@@ -76,11 +76,11 @@ public class ChessboardTests
         Assert.True(gameDriver.Board.Insert("r", "b2"));
 
         Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("b2"));
-        Assert.True(gameDriver.Move("b2i2"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("b2i2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("b2"));
         Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("i2"));
 
-        Assert.True(gameDriver.Move("i2i4"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("i2i4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("i2"));
         Assert.Equal(Constants.BlackRookIdentifier,         gameDriver.Board.GetPieceAsString("i4"));
 
@@ -97,19 +97,19 @@ public class ChessboardTests
         Assert.Equal(Constants.WhiteRookIdentifier,         gameDriver.Board.GetPieceAsString("h1"));
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("h2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h4"));
-        Assert.False(gameDriver.Move("h1h4"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("h1h4"));
         Assert.Equal(Constants.WhiteRookIdentifier,         gameDriver.Board.GetPieceAsString("h1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h4"));
         
         Assert.Equal(Constants.BlackKnightIdentifier,       gameDriver.Board.GetPieceAsString("b8"));
         Assert.Equal(Constants.BlackPawnIdentifier,         gameDriver.Board.GetPieceAsString("d7"));
-        Assert.False(gameDriver.Move("b8d7"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("b8d7"));
         Assert.Equal(Constants.BlackKnightIdentifier,       gameDriver.Board.GetPieceAsString("b8"));
         Assert.Equal(Constants.BlackPawnIdentifier,         gameDriver.Board.GetPieceAsString("d7"));
 
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e5"));
-        Assert.False(gameDriver.Move("e4e5"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("e4e5"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e5"));
 
@@ -125,8 +125,8 @@ public class ChessboardTests
 
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("a2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("a3"));
-        Assert.True(gameDriver.Move("a2a3"));
-        Assert.True(gameDriver.Move("a3a4"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("a2a3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("a3a4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("a2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("a3"));
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("a4"));
@@ -142,10 +142,10 @@ public class ChessboardTests
 
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
-        Assert.True(gameDriver.Move("g1h3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("g1h3"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("h3"));
-        Assert.True(gameDriver.Move("h3f4"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h3f4"));
     }
       
     /// <summary>
@@ -158,9 +158,9 @@ public class ChessboardTests
 
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
-        Assert.True(gameDriver.Move("g1h3"));
-        Assert.True(gameDriver.Move("h3g5"));
-        Assert.True(gameDriver.Move("g5h7"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("g1h3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h3g5"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("g5h7"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g5"));
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("h7"));
      }
@@ -172,9 +172,9 @@ public class ChessboardTests
      public void Test_Bishop()
      {
         var gameDriver = new GameDriver(Chessboard.StandardChessboard());
-        Assert.False(gameDriver.Move("f1c4"));
-        Assert.True(gameDriver.Move("e2e3"));
-        Assert.True(gameDriver.Move("f1c4"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("f1c4"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("f1c4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("f1"));
         Assert.Equal(Constants.WhiteBishopIdentifier,       gameDriver.Board.GetPieceAsString("c4"));
      }
@@ -186,13 +186,13 @@ public class ChessboardTests
         var gameDriver = new GameDriver(Chessboard.StandardChessboard());
 
         Assert.Equal(Constants.WhiteKingIdentifier,  gameDriver.Board.GetPieceAsString("e1"));
-        Assert.True(gameDriver.Move("e2e3"));
-        Assert.True(gameDriver.Move("e1e2"));
-        Assert.False(gameDriver.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e1e2"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("e2e3"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("e1"));
         Assert.Equal(Constants.WhiteKingIdentifier,  gameDriver.Board.GetPieceAsString("e2"));
         Assert.Equal(Constants.WhitePawnIdentifier,  gameDriver.Board.GetPieceAsString("e3"));
-        Assert.True(gameDriver.Move("e2f3"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2f3"));
 
      }
 
@@ -225,11 +225,11 @@ public class ChessboardTests
         
         Assert.True(gameDriver.Board.Insert("Q", "c4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a6"));
-        Assert.True(gameDriver.Move("c4a6"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("c4a6"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("c4"));
         Assert.Equal(Constants.WhiteQueenIdentifier, gameDriver.Board.GetPieceAsString("a6"));
 
-        Assert.True(gameDriver.Move("a6a1"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("a6a1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a6"));
         Assert.Equal(Constants.WhiteQueenIdentifier, gameDriver.Board.GetPieceAsString("a1"));
 

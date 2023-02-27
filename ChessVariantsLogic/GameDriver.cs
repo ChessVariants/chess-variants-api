@@ -87,9 +87,10 @@ public class GameDriver
     public List<Tuple<int, int>> getAllValidMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
     {
         
-        int repeat = piece.MovementPattern.Repeat;
+        int repeat = piece.Repeat;
         var moves = new List<Tuple<int, int>>();
-        if (piece.MovementPattern.Jump)
+        
+        if (piece.MovementPattern is JumpMovementPattern)
         {
             var movesTmp = getAllMovesJump(piece, board, pos);
             moves = getAllMovesJump(piece, board, pos);
@@ -176,9 +177,7 @@ public class GameDriver
                 int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1 * j; // piece.MovementPattern.Movement should prbly not be accessed this way.
                 int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2 * j;
                 if(!insideBoard(newRow, newCol))
-                {
                     break;
-                }
                 string? piece1 = board.GetPieceAsString(pos);
                 string? piece2 = board.GetPieceAsString(newRow, newCol);
                 if(piece1 != null && piece2 != null)
@@ -192,7 +191,7 @@ public class GameDriver
                     {
                         Piece p1 = this.stringToPiece[piece1];
                         Piece p2 = this.stringToPiece[piece2];
-                        if (piece.MovementPattern.MoveLength.Item2 >= j && j >= piece.MovementPattern.MoveLength.Item1 && canTake(p1, p2))
+                        if (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1 && canTake(p1, p2))
                         {
                             moves.Add(new Tuple<int, int>(newRow, newCol));
                         }
