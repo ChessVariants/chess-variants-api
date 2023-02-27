@@ -10,6 +10,8 @@ public class Piece
     private readonly PieceClassifier pieceClassifier;
     private bool hasMoved;
 
+    private string pieceIdentifier;
+
     private readonly int repeat;
 
 #region Properties
@@ -33,18 +35,28 @@ public class Piece
         get { return this.repeat; }
     }
 
+    public string PieceIdentifier
+    {
+        get { return this.pieceIdentifier; }
+    }
+
 #endregion
 
-    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat)
+    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier)
     {
         this.movementPattern = movementPattern;
         this.royal = royal;
         this.pieceClassifier = pc;
         this.hasMoved = hasMoved;
         this.repeat = repeat;
+        this.pieceIdentifier = pieceIdentifier;
     }
 
-    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc) : this(movementPattern, royal, pc, false, 0) {}
+    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier)
+    : this(movementPattern, royal, pc, false, repeat, pieceIdentifier) {}
+    
+    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, string pieceIdentifier)
+    : this(movementPattern, royal, pc, false, 0, pieceIdentifier) {}
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
@@ -73,7 +85,9 @@ public class Piece
             new Tuple<int,int> (1, Constants.MaxBoardHeigth)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, pieceClassifier);
+        if(pieceClassifier.Equals(PieceClassifier.WHITE))
+            return new Piece(mp, false, pieceClassifier, Constants.WhiteRookIdentifier);
+        return new Piece(mp, false, pieceClassifier, Constants.BlackRookIdentifier);
     }
 
     public static Piece Bishop(PieceClassifier pieceClassifier)
@@ -91,7 +105,9 @@ public class Piece
             new Tuple<int,int> (1, Constants.MaxBoardHeigth)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, pieceClassifier);
+        if(pieceClassifier.Equals(PieceClassifier.WHITE))
+            return new Piece(mp, false, pieceClassifier, Constants.WhiteBishopIdentifier);
+        return new Piece(mp, false, pieceClassifier, Constants.BlackBishopIdentifier);
     }
 
     public static Piece Queen(PieceClassifier pieceClassifier)
@@ -117,7 +133,9 @@ public class Piece
             new Tuple<int,int> (1, Constants.MaxBoardHeigth)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, pieceClassifier);
+        if(pieceClassifier.Equals(PieceClassifier.WHITE))
+            return new Piece(mp, false, pieceClassifier, Constants.WhiteQueenIdentifier);
+        return new Piece(mp, false, pieceClassifier, Constants.BlackQueenIdentifier);
     }
 
     public static Piece King(PieceClassifier pieceClassifier)
@@ -143,7 +161,9 @@ public class Piece
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, true, pieceClassifier);
+        if(pieceClassifier.Equals(PieceClassifier.WHITE))
+            return new Piece(mp, true, pieceClassifier, Constants.WhiteKingIdentifier);
+        return new Piece(mp, true, pieceClassifier, Constants.BlackKingIdentifier);
     }
 
     public static Piece Knight(PieceClassifier pieceClassifier)
@@ -159,7 +179,9 @@ public class Piece
             new Tuple<int, int>(-2,-1),
         };
         var mp = new JumpMovementPattern(pattern);
-        return new Piece(mp, false, pieceClassifier);
+        if(pieceClassifier.Equals(PieceClassifier.WHITE))
+            return new Piece(mp, false, pieceClassifier,Constants.WhiteKnightIdentifier);
+        return new Piece(mp, false, pieceClassifier,Constants.BlackKnightIdentifier);
     }
 
     public static Piece BlackPawn()
@@ -171,7 +193,7 @@ public class Piece
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, PieceClassifier.BLACK);
+        return new Piece(mp, false, PieceClassifier.BLACK, Constants.BlackPawnIdentifier);
     }
 
     public static Piece WhitePawn()
@@ -183,7 +205,21 @@ public class Piece
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, PieceClassifier.WHITE);
+
+        return new Piece(mp, false, PieceClassifier.WHITE, Constants.WhitePawnIdentifier);
+    }
+
+    public static HashSet<Piece> AllStandardPieces()
+    {
+        return new HashSet<Piece> 
+        {
+            Rook(PieceClassifier.WHITE), Rook(PieceClassifier.BLACK),
+            Knight(PieceClassifier.WHITE), Knight(PieceClassifier.BLACK),
+            Bishop(PieceClassifier.WHITE), Bishop(PieceClassifier.BLACK),
+            Queen(PieceClassifier.WHITE), Queen(PieceClassifier.BLACK),
+            King(PieceClassifier.WHITE), King(PieceClassifier.BLACK),
+            WhitePawn(), BlackPawn()
+        };
     }
     
 #endregion

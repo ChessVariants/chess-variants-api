@@ -5,6 +5,8 @@ public class GameDriver
 {
     private Chessboard board;
 
+    private readonly HashSet<Piece> pieces;
+
     public Chessboard Board
     {
         get { return this.board; }
@@ -13,11 +15,14 @@ public class GameDriver
 
     private readonly Dictionary<string, Piece> stringToPiece;
     
-    public GameDriver(Chessboard chessboard)
+    public GameDriver(Chessboard chessboard, HashSet<Piece> pieces)
     {
         this.board = chessboard;
+        this.pieces = pieces;
         stringToPiece = initStringToPiece();
     }
+
+    public GameDriver(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
 
     /// <summary>
     /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
@@ -73,6 +78,23 @@ public class GameDriver
             case 6 : from = move.Substring(0,3); to = move.Substring(3,3); break;
         }
         return (from, to);
+    }
+
+    /// <summary>
+    /// Inserts given piece onto a square of the board
+    /// </summary>
+    /// <param name="piece">The piece to be inserted</param>
+    /// <param name="square">The square that the piece should occupy.</param>
+    /// <returns>True if the insertion was successful, otherwise false.</returns>
+    public bool InsertOnBoard(Piece piece, string square)
+    {
+        if(Board.Insert(piece.PieceIdentifier, square))
+        {
+            if(!this.stringToPiece.ContainsKey(piece.PieceIdentifier))
+                this.stringToPiece.Add(piece.PieceIdentifier, piece);
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -174,7 +196,7 @@ public class GameDriver
         {
             for (int j = 1; j < maxIndex; j++)
             {
-                int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1 * j; // piece.MovementPattern.Movement should prbly not be accessed this way.
+                int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1 * j;
                 int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2 * j;
                 if(!insideBoard(newRow, newCol))
                     break;
@@ -182,7 +204,7 @@ public class GameDriver
                 string? piece2 = board.GetPieceAsString(newRow, newCol);
                 if(piece1 != null && piece2 != null)
                 {
-                    if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
+                    if(piece2.Equals(Constants.UnoccupiedSquareIdentifier) && (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1))
                     {
                         moves.Add(new Tuple<int, int>(newRow, newCol));
                         continue;
@@ -217,19 +239,10 @@ public class GameDriver
     {
         var dictionary = new Dictionary<string, Piece>();
 
-        dictionary.Add(Constants.BlackRookIdentifier, Piece.Rook(PieceClassifier.BLACK));
-        dictionary.Add(Constants.BlackKnightIdentifier, Piece.Knight(PieceClassifier.BLACK));
-        dictionary.Add(Constants.BlackBishopIdentifier, Piece.Bishop(PieceClassifier.BLACK));
-        dictionary.Add(Constants.BlackKingIdentifier, Piece.King(PieceClassifier.BLACK));
-        dictionary.Add(Constants.BlackQueenIdentifier, Piece.Queen(PieceClassifier.BLACK));
-        dictionary.Add(Constants.BlackPawnIdentifier, Piece.BlackPawn());
-
-        dictionary.Add(Constants.WhiteRookIdentifier, Piece.Rook(PieceClassifier.WHITE));
-        dictionary.Add(Constants.WhiteKnightIdentifier, Piece.Knight(PieceClassifier.WHITE));
-        dictionary.Add(Constants.WhiteBishopIdentifier, Piece.Bishop(PieceClassifier.WHITE));
-        dictionary.Add(Constants.WhiteKingIdentifier, Piece.King(PieceClassifier.WHITE));
-        dictionary.Add(Constants.WhiteQueenIdentifier, Piece.Queen(PieceClassifier.WHITE));
-        dictionary.Add(Constants.WhitePawnIdentifier, Piece.WhitePawn());
+        foreach (Piece p in this.pieces)
+        {
+            dictionary.Add(p.PieceIdentifier, p);   
+        }
 
         return dictionary;
     }
