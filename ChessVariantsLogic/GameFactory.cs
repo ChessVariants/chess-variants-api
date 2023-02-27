@@ -19,9 +19,13 @@ public static class GameFactory
         IPredicate whiteKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
 
-        IPredicate whiteWinRule = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
-        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn);
-        IPredicate blackWinRule = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
+        IPredicate blackKingCheckedThisAndNextTurn = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
+        IPredicate whiteKingCheckedThisAndNextTurn = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
+        
+        IPredicate whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);  
+        IPredicate blackWinRule = new ForEvery(whiteKingCheckedThisAndNextTurn, Player.White);
+
+        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn);        
         IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn);
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
@@ -33,11 +37,11 @@ public static class GameFactory
     public static Game CaptureTheKing()
     {
         IPredicate whiteMoveRule = new Const(true);
-        IPredicate whiteWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.BlackKingIdentifier);
+        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
         
         IPredicate blackMoveRule = new Const(true);
-        IPredicate blackWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, Constants.WhiteKingIdentifier);
+        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule);
@@ -49,10 +53,10 @@ public static class GameFactory
     {
         
         IPredicate whiteMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_BLACK"), IMPLIES, new PieceCaptured("ANY_BLACK"));
-        IPredicate whiteWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, "ANY_WHITE");
+        IPredicate whiteWinRule = new PiecesLeft("ANY_WHITE", Comparator.EQUALS, 0, BoardState.THIS);
         
         IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_WHITE"), IMPLIES, new PieceCaptured("ANY_WHITE"));
-        IPredicate blackWinRule = new PiecesLeft(Comparator.EQUALS, 0, BoardState.NEXT, "ANY_BLACK");
+        IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.THIS);
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);

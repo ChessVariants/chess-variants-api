@@ -20,8 +20,8 @@ public class Attacked : IPredicate
     {
         Chessboard board = _boardState == BoardState.NEXT ? nextBoardState : thisBoardState;
 
-        var royalAttacked = Utils.PieceChecked(board, _pieceIdentifier);
-        return royalAttacked;
+        var attacked = Utils.PieceAttacked(board, _pieceIdentifier);
+        return attacked;
     }
 
 }

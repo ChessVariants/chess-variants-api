@@ -63,5 +63,6 @@ public enum GameEvent {
 
 public enum Player {
     White,
-    Black
+    Black,
+    None
 }

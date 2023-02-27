@@ -12,7 +12,7 @@ public class PiecesLeft : IPredicate
     private readonly BoardState _state;
     private readonly string _pieceIdentifier;
 
-    public PiecesLeft(Comparator comparator, int compareValue, BoardState state, string pieceIdentifier)
+    public PiecesLeft(string pieceIdentifier, Comparator comparator, int compareValue, BoardState state)
     {
         _comparator = comparator;
         _compareValue = compareValue;
@@ -20,11 +20,32 @@ public class PiecesLeft : IPredicate
         _pieceIdentifier = pieceIdentifier;
     }
 
+    private bool CompareValue(int piecesLeft)
+    {
+        switch(_comparator)
+        {
+            case Comparator.GREATER_THAN:
+                return piecesLeft > _compareValue;
+            case Comparator.LESS_THAN:
+                return piecesLeft < _compareValue;
+            case Comparator.LESS_THAN_OR_EQUALS:
+                return piecesLeft <= _compareValue;
+            case Comparator.GREATER_THAN_OR_EQUALS:
+                return piecesLeft >= _compareValue;
+            case Comparator.EQUALS:
+                return piecesLeft == _compareValue;
+            case Comparator.NOT_EQUALS:
+                return piecesLeft != _compareValue;
+            default:
+                return false;
+        }
+    }
+
     public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
     {
         Chessboard board = _state == BoardState.THIS ? thisBoardState : nextBoardState;
         int piecesLeft = Utils.FindPiecesOfType(board, _pieceIdentifier).Count();
-        return piecesLeft == _compareValue;
+        return CompareValue(piecesLeft);
     }
 
 }

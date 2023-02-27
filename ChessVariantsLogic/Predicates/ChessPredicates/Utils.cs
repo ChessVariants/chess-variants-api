@@ -3,10 +3,10 @@ namespace ChessVariantsLogic.Predicates;
 
 public class Utils {
 
-    public static bool PieceChecked(Chessboard board, string pieceIdentifier)
+    public static bool PieceAttacked(Chessboard board, string pieceIdentifier)
     {
-        string player = getPlayer(pieceIdentifier);
-        string attacker = player == "white" ? "black" : "white";
+        Player player = getPlayer(pieceIdentifier);
+        Player attacker = player == Player.White ? Player.Black : Player.White;
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         foreach (var attackerMove in board.GetAllMoves(attacker))
         {
@@ -19,9 +19,16 @@ public class Utils {
         return false;
     }
 
-    public static string getPlayer(string pieceIdentifier)
+    public static Player getPlayer(string pieceIdentifier)
     {
-        return "black";
+        if (pieceIdentifier.Any(char.IsUpper))
+        {
+            return Player.White;
+        }
+        else if (pieceIdentifier.Any(char.IsLower)) {
+            return Player.Black;
+        }
+        return Player.None;
     }
 
     public static IEnumerable<string> FindPiecesOfType(Chessboard board, string pieceIdentifier)
@@ -42,11 +49,24 @@ public class Utils {
         var piece = board.GetPiece(position);
         switch (pieceIdentifier)
         {
-            // TODO "ANY_BLACK", "ANY_WHITE" instead
             case "ANY":
                 return piece != Constants.UnoccupiedSquareIdentifier;
-            case "ROYAL":
+            case "ANY_BLACK":
+                if (piece != null) 
+                {
+                    return getPlayer(piece) == Player.Black;
+                }
+                return false;
+            case "ANY_WHITE":
+                if (piece != null) 
+                {
+                    return getPlayer(piece) == Player.White;
+                }
+                return false;
+            case "ROYAL_BLACK":
                 return piece == Constants.BlackKingIdentifier;
+            case "ROYAL_WHITE":
+                return piece == Constants.WhiteKingIdentifier;
             default:
                 return piece == pieceIdentifier;
         }

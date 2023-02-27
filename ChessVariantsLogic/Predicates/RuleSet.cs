@@ -17,28 +17,7 @@ public class RuleSet
         this._winRule = winRule;
     }
 
-
-    /*
-    Action
-        {
-            explosionAction,
-            increaseScore,
-            insertPiece
-        }
-
-    Event
-    { IPredicate, Action}
-
-    {
-        Event stealPiece = Event(pieceCaptured, insertPiece)
-        Event explodeOnCapture = Event(pieceCaptured, explosionAction);
-        Event checkKing = Event(checked(king), increaseScore(1));
-
-
-    }
-    */
-    
-    public ISet<string> applyMoveRule(Chessboard board, string sideToPlay)
+    public ISet<string> applyMoveRule(Chessboard board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllMoves(sideToPlay);
         var acceptedMoves = new HashSet<string>();
@@ -55,19 +34,8 @@ public class RuleSet
         return acceptedMoves;
     }
 
-    public bool applyWinRule(Chessboard thisBoard, string sideToPlay)
+    public bool applyWinRule(Chessboard thisBoard)
     {
-        var possibleMoves = thisBoard.GetAllMoves(sideToPlay);
-        foreach (var move in possibleMoves)
-        {
-            var nextBoard = thisBoard.CopyBoard();
-            nextBoard.Move(move);
-            bool ruleSatisfied = _winRule.Evaluate(thisBoard, nextBoard);
-            if (!ruleSatisfied)
-            {
-                return false;
-            }
-        }
-        return true;
+        return _winRule.Evaluate(thisBoard, thisBoard);
     }
 }

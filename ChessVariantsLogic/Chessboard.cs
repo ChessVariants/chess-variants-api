@@ -12,7 +12,7 @@ public class Chessboard
 
     private readonly Dictionary<string, (int, int)> coorToIndex;
 
-    public IEnumerable<string> GetAllMoves(string playerTurn)
+    public IEnumerable<string> GetAllMoves(Player player)
     {
         return new List<string>();
     }
