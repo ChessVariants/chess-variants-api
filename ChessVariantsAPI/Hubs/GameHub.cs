@@ -1,5 +1,6 @@
 ﻿using ChessVariantsAPI.GameOrganization;
 using Microsoft.AspNetCore.SignalR;
+using ChessVariantsLogic;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -40,19 +41,37 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Placeholder method for moving a piece
+    /// Makes a move on the board if the move is valid and informs users of the gamestate.
     /// </summary>
-    /// <param name="move"></param>
-    /// <param name="gameId"></param>
+    /// <param name="move">Move requested to be made</param>
+    /// <param name="gameId">Id of the game</param>
     /// <returns></returns>
     public async Task MovePiece(string move, string gameId)
     {
-        // if move is valid, compute new board
         try
         {
             var game = _organizer.GetGame(gameId);
-            // game.MakeMove(move, )
-            await Clients.Groups(gameId).SendAsync("pieceMoved", "board");
+            var player = _organizer.GetPlayer(gameId, Context.ConnectionId);
+            GameEvent gameEvent = game.MakeMove(move, player);
+            // Take care of GameEvent and new board state
+            switch (gameEvent)
+            {
+                case GameEvent.WhiteWon:
+                    await Clients.Groups(gameId).SendAsync("White won the game", "board");
+                    break;
+                case GameEvent.BlackWon:
+                    await Clients.Groups(gameId).SendAsync("Black won the game", "board");
+                    break;
+                case GameEvent.Tie:
+                    await Clients.Groups(gameId).SendAsync("The game ended in a tie", "board");
+                    break;
+                case GameEvent.MoveSucceeded:
+                    await Clients.Groups(gameId).SendAsync("pieceMoved", "board");
+                    break;
+                case GameEvent.InvalidMove:
+                    await Clients.Groups(gameId).SendAsync("invalidMove", "board");
+                    break;
+            }
         }
         catch (GameNotFoundException)
         {

@@ -63,7 +63,8 @@ public class GameOrganizer
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
         if (activeGame != null)
-        {
+        {  
+            // TODO remove game from _activeGames if it is empty if we want
             return activeGame.RemovePlayer(playerIdentifier);
         }
         return false;
@@ -83,6 +84,29 @@ public class GameOrganizer
             throw new GameNotFoundException($"No active game for gameId: {gameId}");
         }
         return activeGame.GetGame();
+    }
+
+    /// <summary>
+    /// Returns the player object for the given <paramref name="gameId"/> and <paramref name="playerIdentifier"/> if it exists, otherwise throws correct exceptions.
+    /// </summary>
+    /// <param name="gameId">The game id of the game the connected user plays</param>
+    /// <param name="playerIdentifier">Connection id of the player to return</param>
+    /// <returns>The player object corresponding to the gameId and playerIdentifier</returns>
+    /// <exception cref="GameNotFoundException">If the game was not found (=null)</exception>
+    /// <exception cref="PlayerNotFoundException">If the connectionId was not found</exception>
+    public Player? GetPlayer(string gameId, string playerIdentifier)
+    {
+        var activeGame = _activeGames.GetValueOrDefault(gameId, null);
+        if (activeGame == null)
+        {
+            throw new GameNotFoundException($"No active game for gameId: {gameId}");
+        }
+        Player? player = activeGame.GetPlayer(playerIdentifier);
+        if (player == null)
+        {
+            throw new PlayerNotFoundException($"No player with identifier {playerIdentifier} found in game {gameId}");
+        }
+        return player;
     }
 
     private void DeleteGame(string gameId)
@@ -182,3 +206,10 @@ public class PlayerAlreadyExistsException : Exception
     public PlayerAlreadyExistsException(string message) : base(message) { }
 }
 
+/// <summary>
+/// Exception for when a player is not found in a game.
+/// </summary>
+public class PlayerNotFoundException : Exception
+{
+    public PlayerNotFoundException(string message) : base(message) { }
+}
