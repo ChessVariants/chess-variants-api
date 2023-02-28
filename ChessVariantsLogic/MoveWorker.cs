@@ -2,7 +2,7 @@ namespace ChessVariantsLogic;
 using static Piece;
 using System;
 
-public class GameDriver
+public class MoveWorker
 {
     private Chessboard board;
 
@@ -16,14 +16,14 @@ public class GameDriver
 
     private readonly Dictionary<string, Piece> stringToPiece;
     
-    public GameDriver(Chessboard chessboard, HashSet<Piece> pieces)
+    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces)
     {
         this.board = chessboard;
         this.pieces = pieces;
         stringToPiece = initStringToPiece();
     }
 
-    public GameDriver(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
+    public MoveWorker(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
 
     /// <summary>
     /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
@@ -98,7 +98,12 @@ public class GameDriver
         return false;
     }
 
-    public List<string> GetAllValidMoves(Player player)
+    /// <summary>
+    /// Gets all valid move for a given player.
+    /// </summary>
+    /// <param name="player"> is the player whose moves should be calculated. </param>
+    /// <returns>an iterable collection of all valid moves.</returns>
+    public IEnumerable<string> GetAllValidMoves(Player player)
     {
         var moves = new List<string>();
         var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();

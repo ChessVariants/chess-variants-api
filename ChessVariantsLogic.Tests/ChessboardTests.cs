@@ -16,7 +16,7 @@ public class ChessboardTests
     [Fact]
     public void Test_FEN()
     {
-        var gameDriver = new GameDriver(new Chessboard(6), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(new Chessboard(6), Piece.AllStandardPieces());
 
         Assert.Equal("6/6/6/6/6/6", gameDriver.Board.ReadBoardAsFEN());
 
@@ -53,7 +53,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Move_Pawn()
     {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("g2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("g3"));
@@ -72,7 +72,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Rook_Rectangular_Board()
     {
-        var gameDriver = new GameDriver(new Chessboard(4,10));
+        var gameDriver = new MoveWorker(new Chessboard(4,10));
         
         Assert.True(gameDriver.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "b2"));
 
@@ -93,7 +93,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Invalid_Move()
     {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhiteRookIdentifier,         gameDriver.Board.GetPieceAsString("h1"));
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("h2"));
@@ -122,7 +122,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Move_Serie()
     {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhitePawnIdentifier,         gameDriver.Board.GetPieceAsString("a2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("a3"));
@@ -139,7 +139,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Move_Knight()
     {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
@@ -155,7 +155,7 @@ public class ChessboardTests
     [Fact]
      public void Test_Take()
      {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhiteKnightIdentifier,       gameDriver.Board.GetPieceAsString("g1"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  gameDriver.Board.GetPieceAsString("h3"));
@@ -172,7 +172,7 @@ public class ChessboardTests
      [Fact]
      public void Test_Bishop()
      {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("f1c4"));
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2e3"));
@@ -185,7 +185,7 @@ public class ChessboardTests
      [Fact]
      public void Test_Move_King()
      {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        var gameDriver = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         Assert.Equal(Constants.WhiteKingIdentifier,  gameDriver.Board.GetPieceAsString("e1"));
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2e3"));
@@ -223,7 +223,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Queen()
     {
-        var gameDriver = new GameDriver(new Chessboard(6,5));
+        var gameDriver = new MoveWorker(new Chessboard(6,5));
         
         Assert.True(gameDriver.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "c4"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier, gameDriver.Board.GetPieceAsString("a6"));
@@ -243,7 +243,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Custom_Piece()
     {
-         var gameDriver = new GameDriver(new Chessboard(8));
+         var gameDriver = new MoveWorker(new Chessboard(8));
 
          var pattern = new List<Tuple<int,int>> {
             RegularMovementPattern.North,
@@ -281,7 +281,7 @@ public class ChessboardTests
     [Fact]
     public void Test_Custom_Piece_Repeat()
     {
-        var gameDriver = new GameDriver(new Chessboard(8));
+        var gameDriver = new MoveWorker(new Chessboard(8));
 
         var pattern = new List<Tuple<int,int>> {
             RegularMovementPattern.North,
@@ -305,16 +305,5 @@ public class ChessboardTests
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h4c5"));
         
     }
-
-    [Fact]
-    public void Test_GetAllValidMoves()
-    {
-        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-
-        var moves = gameDriver.GetAllValidMoves(Player.White);
-
-        int i = 0;
-    }
-    
 
 }
