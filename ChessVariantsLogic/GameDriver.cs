@@ -1,5 +1,6 @@
 namespace ChessVariantsLogic;
 using static Piece;
+using System;
 
 public class GameDriver
 {
@@ -134,8 +135,8 @@ public class GameDriver
                 foreach (var move in movesTmp)
                 {
                     moves.AddRange(getAllMoves(piece, board, new Tuple<int, int>(move.Item1, move.Item2)));
-                    repeat--;
                 }
+                repeat--;
             }
         }
         return moves;
@@ -202,7 +203,8 @@ public class GameDriver
                     break;
                 string? piece1 = board.GetPieceAsString(pos);
                 string? piece2 = board.GetPieceAsString(newRow, newCol);
-                if(piece1 != null && piece2 != null)
+
+                if(piece1 != null && piece2 != null && !hasTaken(piece, pos))
                 {
                     if(piece2.Equals(Constants.UnoccupiedSquareIdentifier) && (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1))
                     {
@@ -211,16 +213,13 @@ public class GameDriver
                     }
                     try
                     {
-                        Piece p1 = this.stringToPiece[piece1];
                         Piece p2 = this.stringToPiece[piece2];
-                        if (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1 && canTake(p1, p2))
+                        if (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1 && canTake(piece, p2))
                         {
                             moves.Add(new Tuple<int, int>(newRow, newCol));
-                        }
-                        else
-                        {
                             break;
                         }
+                        
                     }
                     catch (KeyNotFoundException) {}
 
@@ -247,7 +246,24 @@ public class GameDriver
         return dictionary;
     }
 
+    public bool hasTaken(Piece piece1, Tuple<int,int> pos)
+    {
+        string? piece2 = board.GetPieceAsString(pos);
+        
+        if(piece2 != null)
+        {
+            if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
+                return false;
+            Piece p2 = this.stringToPiece[piece2];
+            return canTake(piece1,p2);
+        }
+        return false;
+    }
+
 }
+
+
+
 
 public enum GameEvent {
     InvalidMove,

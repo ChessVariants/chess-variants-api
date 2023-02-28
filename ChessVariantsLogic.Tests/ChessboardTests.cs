@@ -285,22 +285,24 @@ public class ChessboardTests
          var pattern = new List<Tuple<int,int>> {
             RegularMovementPattern.North,
             RegularMovementPattern.West,
+          
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,8),
             new Tuple<int,int> (1,8),
+            
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         Piece piece = new Piece(mp, false, PieceClassifier.WHITE, 1, "C");
 
-        Assert.True(gameDriver.InsertOnBoard(piece, "h3"));
-        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("h3b2"));
-        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h3c5"));
+        Assert.True(gameDriver.InsertOnBoard(piece, "h4"));
+       
 
         var piece2 = Piece.BlackPawn();
-        Assert.True(gameDriver.InsertOnBoard(piece2, "c7"));
-        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("c5c8"));
-        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("c5c7"));
+        Assert.True(gameDriver.InsertOnBoard(piece2, "h6"));
+        Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("h4h7"));
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h4c5"));
+        
     }
     
 
