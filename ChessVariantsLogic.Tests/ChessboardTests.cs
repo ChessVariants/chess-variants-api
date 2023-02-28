@@ -29,8 +29,8 @@ public class ChessboardTests
         gameDriver.Board = Chessboard.StandardChessboard();
         Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", gameDriver.Board.ReadBoardAsFEN());
 
-        gameDriver.Move("a2a4");
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR", gameDriver.Board.ReadBoardAsFEN());
+        Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("a2a3"));
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR", gameDriver.Board.ReadBoardAsFEN());
 
     }
 
@@ -173,6 +173,7 @@ public class ChessboardTests
      public void Test_Bishop()
      {
         var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
         Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("f1c4"));
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("e2e3"));
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("f1c4"));
@@ -282,7 +283,7 @@ public class ChessboardTests
     {
         var gameDriver = new GameDriver(new Chessboard(8));
 
-         var pattern = new List<Tuple<int,int>> {
+        var pattern = new List<Tuple<int,int>> {
             RegularMovementPattern.North,
             RegularMovementPattern.West,
           
@@ -303,6 +304,16 @@ public class ChessboardTests
         Assert.Equal(GameEvent.InvalidMove, gameDriver.Move("h4h7"));
         Assert.Equal(GameEvent.MoveSucceeded, gameDriver.Move("h4c5"));
         
+    }
+
+    [Fact]
+    public void Test_GetAllValidMoves()
+    {
+        var gameDriver = new GameDriver(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        var moves = gameDriver.GetAllValidMoves(Player.White);
+
+        int i = 0;
     }
     
 

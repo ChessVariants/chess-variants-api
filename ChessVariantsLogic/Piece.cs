@@ -22,7 +22,7 @@ public class Piece
 
     public PieceClassifier PieceClassifier
     {
-        get { return this.PieceClassifier;}
+        get { return this.pieceClassifier;}
     }
 
     public IMovementPattern MovementPattern

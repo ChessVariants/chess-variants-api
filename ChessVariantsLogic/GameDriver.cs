@@ -40,7 +40,7 @@ public class GameDriver
             try
             {
                 Piece piece = stringToPiece[strPiece];
-                var moves = getAllValidMoves(piece, this.board, this.board.CoorToIndex[from]);
+                var moves = getAllValidMovesByPiece(piece, this.board.CoorToIndex[from]);
                 var coor = this.board.ParseCoordinate(to);
                 if(coor != null && moves.Contains(coor))
                 {
@@ -98,16 +98,66 @@ public class GameDriver
         return false;
     }
 
+    public List<string> GetAllValidMoves(Player player)
+    {
+        var moves = new List<string>();
+        var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();
+
+        for(int r = 0; r < this.board.Rows; r++)
+        {
+            for(int c = 0; c < this.board.Cols; c++)
+            {
+                var square = this.board.GetPieceAsString(r, c);
+                if (square != null && !square.Equals(Constants.UnoccupiedSquareIdentifier))
+                {
+                    try
+                    {
+                        Piece p = this.stringToPiece[square];
+                        if(player.Equals(Player.White) && p.PieceClassifier.Equals(PieceClassifier.WHITE))
+                        {
+                            var startPosition = new Tuple<int,int>(r,c);
+                            var legalMoves = getAllValidMovesByPiece(p, startPosition);
+                            foreach (var pos in legalMoves)
+                            {
+                                coorMoves.Add((startPosition, pos));
+                            }
+
+                        }
+                        else if(player.Equals(Player.Black) && p.PieceClassifier.Equals(PieceClassifier.BLACK))
+                        {
+                            var startPosition = new Tuple<int,int>(r,c);
+                            var legalMoves = getAllValidMovesByPiece(p, startPosition);
+                            foreach (var pos in legalMoves)
+                            {
+                                coorMoves.Add((startPosition, pos));
+                            }
+                        }
+                        
+                    }
+                    catch (KeyNotFoundException) {}
+                }
+            }
+        }
+
+        foreach (var move in coorMoves)
+        {
+            string start = this.board.IndexToCoor[move.Item1];
+            string end = this.board.IndexToCoor[move.Item2];
+            moves.Add(start + end);
+        }
+
+        return moves;
+    }
+
     /// <summary>
     /// Returns all valid moves for a given board and piece
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
     /// <param name = "size"> Length of movement pattern </param>
     /// <param name = "jump"> Is the piece allowed to jump </param>
     /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    public List<Tuple<int, int>> getAllValidMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
+    private List<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
         
         int repeat = piece.Repeat;
@@ -115,26 +165,26 @@ public class GameDriver
         
         if (piece.MovementPattern is JumpMovementPattern)
         {
-            var movesTmp = getAllMovesJump(piece, board, pos);
-            moves = getAllMovesJump(piece, board, pos);
+            var movesTmp = getAllMovesJump(piece, pos);
+            moves = getAllMovesJump(piece, pos);
             while (repeat >= 1)
             {
                 foreach (var move in movesTmp)
                 {
-                    moves.AddRange(getAllMovesJump(piece, board, new Tuple<int, int>(move.Item1, move.Item2)));
+                    moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
                     repeat--;
                 }
             }
         }
         else
         {
-            var movesTmp = getAllMoves(piece, board, pos);
-            moves = getAllMoves(piece, board, pos);
+            var movesTmp = getAllMoves(piece, pos);
+            moves = getAllMoves(piece, pos);
             while (repeat >= 1)
             {
                 foreach (var move in movesTmp)
                 {
-                    moves.AddRange(getAllMoves(piece, board, new Tuple<int, int>(move.Item1, move.Item2)));
+                    moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
                 }
                 repeat--;
             }
@@ -146,9 +196,8 @@ public class GameDriver
     /// Returns all valid moves for a given board and piece that can jump
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
-    private List<Tuple<int, int>> getAllMovesJump(Piece piece, Chessboard board, Tuple<int, int> pos)
+    private List<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
     {
         var moves = new List<Tuple<int, int>>();
         for (int i = 0; i < piece.MovementPattern.Movement.Count; i++)
@@ -184,10 +233,9 @@ public class GameDriver
     /// Returns all valid moves for a given board and piece that cannot jump
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
     /// <param name = "pos"> Position of piece </parma>
     /// <param name = "size"> Length of movement pattern </param>
-    private List<Tuple<int, int>> getAllMoves(Piece piece, Chessboard board, Tuple<int, int> pos)
+    private List<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
     {
 
         var moves = new List<Tuple<int, int>>();
@@ -219,6 +267,10 @@ public class GameDriver
                             moves.Add(new Tuple<int, int>(newRow, newCol));
                             break;
                         }
+                        else
+                        {
+                            break;
+                        }
                         
                     }
                     catch (KeyNotFoundException) {}
@@ -246,7 +298,7 @@ public class GameDriver
         return dictionary;
     }
 
-    public bool hasTaken(Piece piece1, Tuple<int,int> pos)
+    private bool hasTaken(Piece piece1, Tuple<int,int> pos)
     {
         string? piece2 = board.GetPieceAsString(pos);
         
@@ -262,13 +314,16 @@ public class GameDriver
 
 }
 
-
-
-
 public enum GameEvent {
     InvalidMove,
     MoveSucceeded,
     WhiteWon,
     BlackWon,
     Tie
+}
+
+
+public enum Player {
+    White,
+    Black
 }

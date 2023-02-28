@@ -11,6 +11,7 @@ public class Chessboard
     private readonly string[,] board;
 
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
+    private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
@@ -18,6 +19,11 @@ public class Chessboard
     public Dictionary<string, Tuple<int, int>> CoorToIndex
     {
         get { return this.coorToIndex; }
+    }
+
+    public Dictionary<Tuple<int, int>, string> IndexToCoor
+    {
+        get { return this.indexToCoor; }
     }
 
     public int Rows
@@ -35,8 +41,9 @@ public class Chessboard
         this.rows = rows;
         this.cols = cols;
         this.board = new string[rows, cols];
-        coorToIndex = initDictionary();
-        board = initBoard();
+        this.coorToIndex = initCoorToIndex();
+        this.indexToCoor = initIndexToCoor();
+        this.board = initBoard();
     }
 
     public Chessboard(int length) : this(length, length) {}
@@ -228,7 +235,7 @@ public class Chessboard
     }
 
 
-    private Dictionary<string, Tuple<int, int>> initDictionary()
+    private Dictionary<string, Tuple<int, int>> initCoorToIndex()
     {
         var dictionary = new Dictionary<string, Tuple<int, int>>();
 
@@ -239,6 +246,22 @@ public class Chessboard
                 int rank = this.rows-i;
                 string notation = Constants.BoardFiles[j] + rank.ToString();
                 dictionary.Add(notation, new Tuple<int, int>(i, j));
+            }
+        }
+        return dictionary;
+    }
+
+    private Dictionary<Tuple<int, int>, string> initIndexToCoor()
+    {
+        var dictionary = new Dictionary<Tuple<int, int>, string>();
+
+        for(int i = 0; i < this.rows; i++)
+        {
+            for(int j = 0; j < this.cols; j++)
+            {
+                int rank = this.rows-i;
+                string notation = Constants.BoardFiles[j] + rank.ToString();
+                dictionary.Add(new Tuple<int, int>(i, j), notation);
             }
         }
         return dictionary;
