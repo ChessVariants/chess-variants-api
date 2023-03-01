@@ -7,6 +7,8 @@ using System;
 /// </summary>
 public class MoveWorker
 {
+
+#region Fields, properties and constructors
     private Chessboard board;
 
     private readonly HashSet<Piece> pieces;
@@ -32,6 +34,8 @@ public class MoveWorker
     }
 
     public MoveWorker(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
+
+#endregion
 
     /// <summary>
     /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
@@ -64,7 +68,7 @@ public class MoveWorker
     }
 
     // Splits the string move into the substrings representing the "from" square and "to" square 
-    private (string, string) parseMove(string move)
+    public (string, string) parseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
@@ -153,6 +157,7 @@ public class MoveWorker
         return moves;
     }
 
+#region Private methods
     // PieceClassifier and Player should maybe be merged into one common enum.
     private bool pieceBelongsToPlayer(Piece piece, Player player)
     {
@@ -296,7 +301,6 @@ public class MoveWorker
     {
         return 0 <= row && row < this.board.Rows && 0 <= col && col < this.board.Cols;
     }
-
     private Dictionary<string, Piece> initStringToPiece()
     {
         var dictionary = new Dictionary<string, Piece>();
@@ -322,6 +326,8 @@ public class MoveWorker
         }
         return false;
     }
+
+#endregion
 
 }
 

@@ -6,6 +6,7 @@ namespace ChessVariantsLogic;
 public class Chessboard
 {
 
+#region Fields, properties and constructors
     private readonly int rows;
     private readonly int cols;
     private readonly string[,] board;
@@ -47,7 +48,7 @@ public class Chessboard
     }
 
     public Chessboard(int length) : this(length, length) {}
-
+#endregion
 
     /// <summary>
     /// Produces FEN representation of the chessboard

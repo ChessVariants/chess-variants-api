@@ -5,6 +5,7 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class Piece
 {
+#region Fields, properties and constructors
     private readonly IMovementPattern movementPattern;
     private readonly bool royal;
     private readonly PieceClassifier pieceClassifier;
@@ -14,7 +15,6 @@ public class Piece
 
     private readonly int repeat;
 
-#region Properties
     public bool Royal
     {
         get { return this.royal; }
@@ -40,8 +40,15 @@ public class Piece
         get { return this.pieceIdentifier; }
     }
 
-#endregion
-
+    /// <summary>
+    /// Constructor for a new Piece.
+    /// </summary>
+    /// <param name="movementPattern">is the custom movement pattern</param>
+    /// <param name="royal">set true if the piece is royal</param>
+    /// <param name="pc">is the player the piece belongs to</param>
+    /// <param name="hasMoved">set true if the piece has previously moved</param>
+    /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
+    /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
     public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier)
     {
         this.movementPattern = movementPattern;
@@ -57,6 +64,7 @@ public class Piece
     
     public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, string pieceIdentifier)
     : this(movementPattern, royal, pc, false, 0, pieceIdentifier) {}
+#endregion
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
@@ -69,7 +77,7 @@ public class Piece
         return !p1.pieceClassifier.Equals(p2.pieceClassifier);
     }
 
-#region Static fields
+#region Static methods
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -209,6 +217,10 @@ public class Piece
         return new Piece(mp, false, PieceClassifier.WHITE, Constants.WhitePawnIdentifier);
     }
 
+    /// <summary>
+    /// Instantiates a HashSet of all the standard pieces.
+    /// </summary>
+    /// <returns>A HashSet containing all the standard pieces.</returns>
     public static HashSet<Piece> AllStandardPieces()
     {
         return new HashSet<Piece> 
