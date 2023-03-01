@@ -2,6 +2,9 @@ namespace ChessVariantsLogic;
 using static Piece;
 using System;
 
+/// <summary>
+/// Retrieves and performs valid moves on a given Chessboard.
+/// </summary>
 public class MoveWorker
 {
     private Chessboard board;
@@ -16,6 +19,11 @@ public class MoveWorker
 
     private readonly Dictionary<string, Piece> stringToPiece;
     
+    /// <summary>
+    /// Constructor that takes a Chessboard and a HashSet of Piece
+    /// </summary>
+    /// <param name="chessboard">is the board that this worker should be assigned.</param>
+    /// <param name="pieces">is the set of pieces that are used in the played variant.</param>
     public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces)
     {
         this.board = chessboard;
@@ -103,7 +111,7 @@ public class MoveWorker
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid moves.</returns>
-    public IEnumerable<string> GetAllValidMoves(Player player)
+    public List<string> GetAllValidMoves(Player player)
     {
         var moves = new List<string>();
         var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();
@@ -118,7 +126,7 @@ public class MoveWorker
                     try
                     {
                         Piece p = this.stringToPiece[square];
-                        if(player.Equals(Player.White) && p.PieceClassifier.Equals(PieceClassifier.WHITE))
+                        if(pieceBelongsToPlayer(p, player))
                         {
                             var startPosition = new Tuple<int,int>(r,c);
                             var legalMoves = getAllValidMovesByPiece(p, startPosition);
@@ -127,15 +135,6 @@ public class MoveWorker
                                 coorMoves.Add((startPosition, pos));
                             }
 
-                        }
-                        else if(player.Equals(Player.Black) && p.PieceClassifier.Equals(PieceClassifier.BLACK))
-                        {
-                            var startPosition = new Tuple<int,int>(r,c);
-                            var legalMoves = getAllValidMovesByPiece(p, startPosition);
-                            foreach (var pos in legalMoves)
-                            {
-                                coorMoves.Add((startPosition, pos));
-                            }
                         }
                         
                     }
@@ -152,6 +151,13 @@ public class MoveWorker
         }
 
         return moves;
+    }
+
+    // PieceClassifier and Player should maybe be merged into one common enum.
+    private bool pieceBelongsToPlayer(Piece piece, Player player)
+    {
+        return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
+            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
     }
 
     /// <summary>
