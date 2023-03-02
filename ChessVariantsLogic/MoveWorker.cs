@@ -183,33 +183,44 @@ public class MoveWorker
     /// <param name = "repeat"> How many times the piece is allowed to move </param>
     private List<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
-        
-        int repeat = piece.Repeat;
-        var moves = new List<Tuple<int, int>>();
-        
         if (piece.MovementPattern is JumpMovementPattern)
+            return generateJumpMoves(piece, pos);
+
+        return generateRegularMoves(piece, pos);
+    }
+
+    // Generates all moves for a piece that can not jump over other pieces.
+    private List<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
+    {
+        var moves = new List<Tuple<int, int>>();
+        var movesTmp = getAllMoves(piece, pos);
+        int repeat = piece.Repeat;
+
+        moves = getAllMoves(piece, pos);
+        while (repeat >= 1)
         {
-            var movesTmp = getAllMovesJump(piece, pos);
-            moves = getAllMovesJump(piece, pos);
-            while (repeat >= 1)
+            foreach (var move in movesTmp)
             {
-                foreach (var move in movesTmp)
-                {
-                    moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                    repeat--;
-                }
+                moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
+            repeat--;
         }
-        else
+        return moves;
+    }
+
+    // Generates all moves for a piece that can jump over other pieces.
+    private List<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
+    {
+        var moves = new List<Tuple<int, int>>();
+        var movesTmp = getAllMovesJump(piece, pos);
+        int repeat = piece.Repeat;
+
+        moves = getAllMovesJump(piece, pos);
+        while (repeat >= 1)
         {
-            var movesTmp = getAllMoves(piece, pos);
-            moves = getAllMoves(piece, pos);
-            while (repeat >= 1)
+            foreach (var move in movesTmp)
             {
-                foreach (var move in movesTmp)
-                {
-                    moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                }
+                moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
                 repeat--;
             }
         }
