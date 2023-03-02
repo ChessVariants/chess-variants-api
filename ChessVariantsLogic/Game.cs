@@ -4,14 +4,14 @@ using Predicates;
 
 public class Game {
 
-    private readonly Chessboard _board;
+    private readonly IBoardState _board;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(Chessboard board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(IBoardState board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
         _board = board;
         _playerTurn = playerToStart;
@@ -47,11 +47,13 @@ public class Game {
         if (validMoves.Contains(move)) {
             var moveWasPossible = _board.Move(move);
 
+            // TODO: PERFORM ACTION
+
             if (false) { // check if game is won via rules
                 return GameEvent.Tie;
             }
             
-            if (moveWasPossible) {
+            if (moveWasPossible == GameEvent.MoveSucceeded) {
                 DecrementPlayerMoves();
                 return GameEvent.MoveSucceeded;
             }

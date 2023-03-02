@@ -54,7 +54,7 @@ public class Chessboard
         {
             for (int j = 0; j < cols; j++)
             {
-                boardCopy.Insert(board[i, j], (i, j));
+                boardCopy.Insert(board[i, j], i, j);
             }
         }
         return boardCopy;
@@ -62,30 +62,6 @@ public class Chessboard
 
     public Chessboard(int length) : this(length, length) {}
 
-    /// <summary>
-    /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
-    /// </summary>
-    /// <param name="move"> consists of two coordinates without any space between them. </param>
-    public bool Move(string move)
-    {
-        string from, to;
-        (from, to) = parseMove(move);
-
-        try
-        {
-            (int, int) fromIndex = coorToIndex[from];
-            (int, int) toIndex = coorToIndex[to];
-            string piece = board[fromIndex.Item1, fromIndex.Item2];
-        
-            board[toIndex.Item1, toIndex.Item2] = piece;
-            board[fromIndex.Item1, fromIndex.Item2] = Constants.UnoccupiedSquareIdentifier;
-            return true;
-        }
-        catch(KeyNotFoundException)
-        {
-            return false;
-        }
-    }
 
     /// <summary>
     /// Produces FEN representation of the chessboard
@@ -360,3 +336,5 @@ public class Chessboard
     #endregion
 
 }
+
+#endregion

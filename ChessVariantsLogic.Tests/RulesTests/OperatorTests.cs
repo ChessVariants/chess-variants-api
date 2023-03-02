@@ -8,18 +8,18 @@ public class OperatorTests : IDisposable {
 
     IPredicate constTrue;
     IPredicate constFalse;
-    Chessboard board;
+    IBoardState board;
 
     public OperatorTests()
     {
         constTrue = new Const(true);
         constFalse = new Const(false);
-        board = new Chessboard(8);
+        board = new MoveWorker(new Chessboard(8));
     }
 
     public void Dispose()
     {
-        board = new Chessboard(8);
+        board = new MoveWorker(new Chessboard(8));
         GC.SuppressFinalize(this);
     }
 

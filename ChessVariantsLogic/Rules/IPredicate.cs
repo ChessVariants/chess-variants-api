@@ -11,7 +11,7 @@ public interface IPredicate
     /// <param name="thisBoardState">A chessboard that represents the current state of the game</param>
     /// <param name="nextBoardState">A chessboard that represents a potential future state of the game</param>
     /// <returns>A boolean value according to the implementation</returns>
-    bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState);
+    bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState);
 
     public static IPredicate operator |(IPredicate p, IPredicate q)
         => new Operator(p, OperatorType.OR, q);

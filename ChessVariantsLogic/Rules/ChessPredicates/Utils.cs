@@ -13,12 +13,12 @@ public class Utils
     /// <param name="board">The board state which you want to find information about</param>
     /// <param name="pieceIdentifier">The identifier for the piece you're trying to see if attacked</param>
     /// <returns>True if a piece with the supplied <paramref name="pieceIdentifier"/> is attacked, otherwise false.</returns>
-    public static bool PieceAttacked(Chessboard board, string pieceIdentifier)
+    public static bool PieceAttacked(IBoardState board, string pieceIdentifier)
     {
         Player player = GetPlayer(pieceIdentifier);
         Player attacker = player == Player.White ? Player.Black : Player.White;
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
-        foreach (var attackerMove in board.GetAllMoves(attacker))
+        foreach (var attackerMove in board.GetAllValidMoves(attacker))
         {
             var (_, to) = board.parseMove(attackerMove);
             if (piecePositions.Contains(to))
@@ -36,11 +36,11 @@ public class Utils
     /// <returns>The <see cref="Player"/> who owns the piece</returns>
     public static Player GetPlayer(string pieceIdentifier)
     {
-        if (pieceIdentifier.Any(char.IsUpper))
+        if ((pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "ANY_BLACK" && pieceIdentifier != "ROYAL_BLACK") || pieceIdentifier == "ANY_WHITE")
         {
             return Player.White;
         }
-        else if (pieceIdentifier.Any(char.IsLower))
+        else if (pieceIdentifier.Any(char.IsLower) || pieceIdentifier == "ANY_BLACK" || pieceIdentifier == "ROYAL_BLACK")
         {
             return Player.Black;
         }
@@ -53,10 +53,10 @@ public class Utils
     /// <param name="board">The board to find pieces on</param>
     /// <param name="pieceIdentifier">The identifier for the piece type whose locations to find</param>
     /// <returns>All positions where a piece with <paramref name="pieceIdentifier"/> are located.</returns>
-    public static IEnumerable<string> FindPiecesOfType(Chessboard board, string pieceIdentifier)
+    public static IEnumerable<string> FindPiecesOfType(IBoardState board, string pieceIdentifier)
     {
         var pieceLocations = new List<string>();
-        foreach (var position in board.CoorToIndex.Keys)
+        foreach (var position in board.Board.CoorToIndex.Keys)
         {
             if (IsOfType(position, board, pieceIdentifier))
             {
@@ -73,9 +73,9 @@ public class Utils
     /// <param name="board">The board to check on</param>
     /// <param name="pieceIdentifier">The identifier for the type</param>
     /// <returns>True if the piece at <paramref name="position"/> conforms to the type of the <paramref name="pieceIdentifier"/></returns>
-    public static bool IsOfType(string position, Chessboard board, string pieceIdentifier)
+    public static bool IsOfType(string position, IBoardState board, string pieceIdentifier)
     {
-        var piece = board.GetPiece(position);
+        var piece = board.Board.GetPieceAsString(position);
         switch (pieceIdentifier)
         {
             case "ANY":
