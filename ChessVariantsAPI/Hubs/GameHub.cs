@@ -1,6 +1,7 @@
 ﻿using ChessVariantsAPI.GameOrganization;
 using ChessVariantsLogic;
 using Microsoft.AspNetCore.SignalR;
+using ChessVariantsLogic;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -101,10 +102,10 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Placeholder method for moving a piece
+    /// Makes a move on the board if the move is valid and informs users of the gamestate.
     /// </summary>
-    /// <param name="move"></param>
-    /// <param name="gameId"></param>
+    /// <param name="move">Move requested to be made</param>
+    /// <param name="gameId">Id of the game</param>
     /// <returns></returns>
     public async Task MovePiece(string move, string gameId)
     {

@@ -20,16 +20,30 @@ public class Game {
         _blackRules = blackRules;
     }
 
-    public GameEvent MakeMove(string move, Player playerRequestingMove) {
+    /// <summary>
+    /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move.
+    /// </summary>
+    /// <param name="move">The move requested to be made</param>
+    /// <param name="playerRequestingMove">The player requesting to make a move</param>
+    public GameEvent MakeMove(string move, Player? playerRequestingMove) {
         if (playerRequestingMove != _playerTurn) {
             return GameEvent.InvalidMove;
         }
         return MakeMoveImpl(move);
     }
 
+    /// <summary>
+    /// Checks whether the given <paramref name="move"/> is valid and if so does the move and return correct GameEvent.
+    /// </summary>
+    /// <param name="move">The move requested to be made</param>
+    /// <returns>GameEvent of what happened in the game</returns>
     private GameEvent MakeMoveImpl(string move) {
-        IEnumerable<string> validMoves = _board.GetAllValidMoves(_playerTurn);
-        // Filter out moves using rules
+        ISet<string> validMoves;
+        if (_playerTurn == Player.White) {
+            validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
+        } else {
+            validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
+        }
         if (validMoves.Contains(move)) {
             var moveWasPossible = _board.Move(move);
 
@@ -39,11 +53,15 @@ public class Game {
             
             if (moveWasPossible) {
                 DecrementPlayerMoves();
+                return GameEvent.MoveSucceeded;
             }
         }
         return GameEvent.InvalidMove;
     }
 
+    /// <summary>
+    /// Decrements the number of moves remaining for the current player. If the player has no moves left, switches the player turn and resets the number of moves remaining.
+    /// </summary>
     private void DecrementPlayerMoves() {
         _playerMovesRemaining--;
         if (_playerMovesRemaining <= 0) {
