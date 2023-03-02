@@ -10,14 +10,14 @@ public class ActiveGame
 {
     private readonly Game _game;
     private readonly Dictionary<string, Player?> _playerDict;
-    private string _admin;
+    public string Admin { get; private set; }
 
     public ActiveGame(Game game, string creatorPlayerIdentifier)
     {
         _game = game;
         _playerDict = new Dictionary<string, Player?>();
         AddPlayer(creatorPlayerIdentifier);
-        _admin = creatorPlayerIdentifier;
+        Admin = creatorPlayerIdentifier;
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public class ActiveGame
     public bool RemovePlayer(string playerIdentifier)
     {
         var success = _playerDict.Remove(playerIdentifier);
-        if (success && _admin == playerIdentifier)
+        if (success && Admin == playerIdentifier)
         {
             AssignNewAdmin();
         }
@@ -82,7 +82,7 @@ public class ActiveGame
     /// <param name="playerIdentifier">The player requesting the swap</param>
     public void SwapColors(string playerIdentifier)
     {
-        if (playerIdentifier != _admin)
+        if (playerIdentifier != Admin)
         {
             return;
         }
@@ -98,7 +98,7 @@ public class ActiveGame
         string? newAdminIdentifier = _playerDict.Keys.FirstOrDefault();
         if (newAdminIdentifier != null)
         {
-            _admin = newAdminIdentifier;
+            Admin = newAdminIdentifier;
         }
         else
         {

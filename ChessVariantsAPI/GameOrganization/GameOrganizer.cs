@@ -106,7 +106,7 @@ public class GameOrganizer
         {
             throw new PlayerNotFoundException($"No player with identifier '{playerIdentifier}' found for game with gameId '{gameId}'");
         }
-        return player;
+        return (Player) player;
     }
 
     /// <summary>
