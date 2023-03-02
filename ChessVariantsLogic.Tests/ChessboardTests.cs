@@ -246,11 +246,11 @@ public class ChessboardTests
          var moveWorker = new MoveWorker(new Chessboard(8));
 
          var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.NorthWest,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest
+            Constants.North,
+            Constants.NorthEast,
+            Constants.NorthWest,
+            Constants.SouthEast,
+            Constants.SouthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,3),
@@ -287,8 +287,8 @@ public class ChessboardTests
         var moveWorker = new MoveWorker(new Chessboard(8));
 
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.West,
+            Constants.North,
+            Constants.West,
           
         };
         var moveLength = new List<Tuple<int,int>> {

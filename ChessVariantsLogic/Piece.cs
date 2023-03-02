@@ -81,10 +81,10 @@ public class Piece
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -101,10 +101,10 @@ public class Piece
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -121,14 +121,14 @@ public class Piece
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West,
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West,
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -149,14 +149,14 @@ public class Piece
     public static Piece King(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West,
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West,
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1),
@@ -195,7 +195,7 @@ public class Piece
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.South
+            Constants.South
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)
@@ -207,7 +207,7 @@ public class Piece
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North
+            Constants.North
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)
