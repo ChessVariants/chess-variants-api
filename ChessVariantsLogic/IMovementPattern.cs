@@ -35,7 +35,7 @@ public interface IMovementPattern
     /// <summary>
     /// Gets the total number of allowed moves.
     /// </summary>
-    /// <returns> the integer value representing the total number of allowed moves.</returns>
+    /// <returns> the integer value representing the total number of allowed moves. </returns>
     int GetMovementPatternCount();
 
 }

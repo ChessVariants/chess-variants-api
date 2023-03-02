@@ -108,6 +108,12 @@ public class Piece
     }
 
 #region Static methods
+
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard rook.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the rook belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard rook.</returns>
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -128,6 +134,11 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackRookIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard bishop.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the bishop belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard bishop.</returns>
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -148,6 +159,11 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackBishopIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard queen.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the queen belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard queen.</returns>
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -176,6 +192,11 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackQueenIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard king.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the king belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard king.</returns>
     public static Piece King(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -204,6 +225,11 @@ public class Piece
         return new Piece(mp, true, pieceClassifier, Constants.BlackKingIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard knight.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the knight belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard knight.</returns>
     public static Piece Knight(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -222,6 +248,10 @@ public class Piece
         return new Piece(mp, false, pieceClassifier,Constants.BlackKnightIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard black pawn.
+    /// </summary>
+    /// <returns>an instance of Piece with the movement pattern of a standard black pawn.</returns>
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
@@ -234,6 +264,10 @@ public class Piece
         return new Piece(mp, false, PieceClassifier.BLACK, Constants.BlackPawnIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard white pawn.
+    /// </summary>
+    /// <returns>an instance of Piece with the movement pattern of a standard white pawn.</returns>
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
