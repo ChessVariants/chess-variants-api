@@ -8,6 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{E936EC73-C31F-42BF-BCBC-AE6C24963DF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chess", "Chess", "{E05C37F4-5E64-4EE7-BF9A-E882C8925425}"
+	ProjectSection(SolutionItems) = preProject
+		Predicate.cs = Predicate.cs
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{12000BF7-323A-438B-956E-A27EEE3658D7}"
 EndProject

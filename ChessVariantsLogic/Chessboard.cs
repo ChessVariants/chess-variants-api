@@ -14,6 +14,11 @@ public class Chessboard
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
 
+    public IEnumerable<string> GetAllMoves(Player player)
+    {
+        return new List<string>();
+    }
+
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
@@ -45,6 +50,19 @@ public class Chessboard
         this.coorToIndex = initCoorToIndex();
         this.indexToCoor = initIndexToCoor();
         this.board = initBoard();
+    }
+
+    public Chessboard CopyBoard()
+    {
+        var boardCopy = new Chessboard(rows, cols);
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                boardCopy.Insert(board[i, j], (i, j));
+            }
+        }
+        return boardCopy;
     }
 
     public Chessboard(int length) : this(length, length) {}
@@ -247,6 +265,7 @@ public class Chessboard
     }
 
 
+
     private Dictionary<string, Tuple<int, int>> initCoorToIndex()
     {
         var dictionary = new Dictionary<string, Tuple<int, int>>();
@@ -326,6 +345,11 @@ public class Chessboard
         return strBoard;
     }
 
-#endregion
+    internal IEnumerable<string> GetAllValidMoves(Player playerTurn)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 
 }
