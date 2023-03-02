@@ -7,33 +7,40 @@ public class JumpMovementPattern : IMovementPattern
 {
     private readonly List<Tuple<int, int>> movement;
 
-#region Properties
-    public List<Tuple<int,int>> Movement
-    {
-        get { return movement; }
-    }
-
-    public List<Tuple<int,int>> MoveLength
-    {
-        get { return new List<Tuple<int,int>>(); }
-    }
-
-#endregion
-
     public JumpMovementPattern(List<Tuple<int, int>> movement)
     {
         this.movement = movement;
     }
     public JumpMovementPattern() : this(new List<Tuple<int, int>>()) {}
 
-    public void AddPattern(Tuple<int, int> direction)
+#region Interface overrides
+    public void AddPattern(Tuple<int, int> pattern)
     {
-        this.movement.Add(direction);
+        this.movement.Add(pattern);
     }
 
-    public bool RemovePattern(Tuple<int, int> direction)
+    public bool RemovePattern(Tuple<int, int> pattern)
     {
-        return this.movement.Remove(direction);
+        return this.movement.Remove(pattern);
     }
+
+    public Tuple<int,int>? GetMovement(int index)
+    {
+        if(index >= 0 && index < this.movement.Count)
+            return this.movement[index];
+        return null;
+    }
+
+    public Tuple<int,int>? GetMoveLength(int index)
+    {
+        return null;
+    }
+
+    public int GetMovementPatternCount()
+    {
+        return this.movement.Count;
+    }
+
+#endregion
 
 }

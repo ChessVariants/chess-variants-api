@@ -44,7 +44,12 @@ public class MoveWorker
     /// <returns> A GameEvent representing whether the move was successful or not. </returns>
     public GameEvent Move(string move)
     {
-        var (from, to) = parseMove(move);
+        var splitMove = parseMove(move);
+        if(splitMove == null)
+            return GameEvent.InvalidMove;
+
+        string from = splitMove.Item1;
+        string to = splitMove.Item2;
         
         string? strPiece = this.board.GetPieceIdentifier(from);
         if(strPiece != null)
@@ -67,8 +72,12 @@ public class MoveWorker
 
     }
 
-    // Splits the string move into the substrings representing the "from" square and "to" square 
-    public (string, string) parseMove(string move)
+    /// <summary>
+    /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   
+    /// </summary>
+    /// <param name="move"> is a string representing two coordinates on the chessboard.</param>
+    /// <returns> the two squares split into separate strings. </returns>
+    public Tuple<string, string>? parseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
@@ -89,8 +98,9 @@ public class MoveWorker
                 break;
             }
             case 6 : from = move.Substring(0,3); to = move.Substring(3,3); break;
+            default: return null;
         }
-        return (from, to);
+        return new Tuple<string, string>(from, to);
     }
 
     /// <summary>
@@ -235,10 +245,15 @@ public class MoveWorker
     private List<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
     {
         var moves = new List<Tuple<int, int>>();
-        for (int i = 0; i < piece.MovementPattern.Movement.Count; i++)
+        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
         {
-            int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1;
-            int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2;
+
+            var pattern = piece.GetMovementPattern(i);
+            if(pattern == null)
+                continue;
+
+            int newRow = pos.Item1 + pattern.Item1;
+            int newCol = pos.Item2 + pattern.Item2;
 
             string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
             string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
@@ -254,7 +269,7 @@ public class MoveWorker
 
             Piece? piece1 = null;
             Piece? piece2 = null;
-            
+
             try
             {
                 piece1 = this.stringToPiece[pieceIdentifier1];
@@ -280,45 +295,61 @@ public class MoveWorker
     /// <param name = "size"> Length of movement pattern </param>
     private List<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
     {
-
         var moves = new List<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
 
-        for (int i = 0; i < piece.MovementPattern.Movement.Count; i++)
+        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
         {
             for (int j = 1; j < maxIndex; j++)
             {
-                int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1 * j;
-                int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2 * j;
+                var pattern = piece.GetMovementPattern(i);
+                if(pattern == null)
+                    continue;
+
+                int newRow = pos.Item1 + pattern.Item1 * j;
+                int newCol = pos.Item2 + pattern.Item2 * j;
+
                 if(!insideBoard(newRow, newCol))
                     break;
-                string? piece1 = board.GetPieceIdentifier(pos);
-                string? piece2 = board.GetPieceIdentifier(newRow, newCol);
 
-                if(piece1 != null && piece2 != null && !hasTaken(piece, pos))
+                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                    continue;
+
+                var moveLength = piece.GetMoveLength(i);
+                if(moveLength == null)
+                    continue;
+                
+                var ml1 = moveLength.Item1;
+                var ml2 = moveLength.Item2;
+
+                if(ml2 < j || j < ml1)
+                    continue;
+
+                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
                 {
-                    if(piece2.Equals(Constants.UnoccupiedSquareIdentifier) && (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1))
-                    {
-                        moves.Add(new Tuple<int, int>(newRow, newCol));
-                        continue;
-                    }
-                    try
-                    {
-                        Piece p2 = this.stringToPiece[piece2];
-                        if (piece.MovementPattern.MoveLength[i].Item2 >= j && j >= piece.MovementPattern.MoveLength[i].Item1 && canTake(piece, p2))
-                        {
-                            moves.Add(new Tuple<int, int>(newRow, newCol));
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        
-                    }
-                    catch (KeyNotFoundException) {}
-
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    continue;
                 }
+
+                Piece? piece2 = null;
+
+                try
+                {
+                    piece2 = this.stringToPiece[pieceIdentifier2];
+                }
+                catch (KeyNotFoundException)
+                {
+                    continue;
+                }
+                
+                if (canTake(piece, piece2))
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    
+                break;
+
             }
         }
         return moves;    

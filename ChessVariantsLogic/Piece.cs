@@ -64,7 +64,37 @@ public class Piece
     
     public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, string pieceIdentifier)
     : this(movementPattern, royal, pc, false, 0, pieceIdentifier) {}
+
 #endregion
+
+    /// <summary>
+    /// Gets a specific movement pattern by index.
+    /// </summary>
+    /// <param name="index" is the index of the movement pattern></param>
+    /// <returns> the movement pattern at <paramref name="index"/>.</returns>
+    public Tuple<int,int>? GetMovementPattern(int index)
+    {
+        return this.movementPattern.GetMovement(index);
+    }
+
+    /// <summary>
+    /// Gets a specific move length by index.
+    /// </summary>
+    /// <param name="index"> is the index of the move length</param>
+    /// <returns> the move length at index <paramref name="index"/>.</returns>
+    public Tuple<int, int>? GetMoveLength(int index)
+    {
+        return this.movementPattern.GetMoveLength(index);
+    }
+
+    /// <summary>
+    /// Gets the total number of moves that this piece can perform on an empty board.
+    /// </summary>
+    /// <returns> the total number of moves this piece can perform. </returns>
+    public int GetMovementPatternCount()
+    {
+        return this.movementPattern.GetMovementPatternCount();
+    }
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
