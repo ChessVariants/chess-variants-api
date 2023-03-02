@@ -41,10 +41,10 @@ public class ChessboardTests
     public void Test_Standard_Chessboard()
     {
         var board = Chessboard.StandardChessboard();
-        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPieceAsString("e1"));
-        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPieceAsString("d8"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPieceAsString("e4"));
-        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPieceAsString("a8"));
+        Assert.Equal(Constants.WhiteKingIdentifier,         board.GetPieceIdentifier("e1"));
+        Assert.Equal(Constants.BlackQueenIdentifier,        board.GetPieceIdentifier("d8"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  board.GetPieceIdentifier("e4"));
+        Assert.Equal(Constants.BlackRookIdentifier,         board.GetPieceIdentifier("a8"));
     }
 
     /// <summary>
@@ -55,14 +55,14 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceAsString("g2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("g3"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("g2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("g3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("g2g3"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("g2"));
-        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceAsString("g3"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("g2"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("g3"));
         
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("h2h9"));
-        Assert.Equal(Constants.WhitePawnIdentifier, moveWorker.Board.GetPieceAsString("h2"));
+        Assert.Equal(Constants.WhitePawnIdentifier, moveWorker.Board.GetPieceIdentifier("h2"));
 
     }
 
@@ -76,14 +76,14 @@ public class ChessboardTests
         
         Assert.True(moveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "b2"));
 
-        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceAsString("b2"));
+        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceIdentifier("b2"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("b2i2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("b2"));
-        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceAsString("i2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("b2"));
+        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceIdentifier("i2"));
 
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("i2i4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("i2"));
-        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceAsString("i4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("i2"));
+        Assert.Equal(Constants.BlackRookIdentifier,         moveWorker.Board.GetPieceIdentifier("i4"));
 
     }
 
@@ -95,24 +95,24 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhiteRookIdentifier,         moveWorker.Board.GetPieceAsString("h1"));
-        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceAsString("h2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("h4"));
+        Assert.Equal(Constants.WhiteRookIdentifier,         moveWorker.Board.GetPieceIdentifier("h1"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("h2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("h4"));
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("h1h4"));
-        Assert.Equal(Constants.WhiteRookIdentifier,         moveWorker.Board.GetPieceAsString("h1"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("h4"));
+        Assert.Equal(Constants.WhiteRookIdentifier,         moveWorker.Board.GetPieceIdentifier("h1"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("h4"));
         
-        Assert.Equal(Constants.BlackKnightIdentifier,       moveWorker.Board.GetPieceAsString("b8"));
-        Assert.Equal(Constants.BlackPawnIdentifier,         moveWorker.Board.GetPieceAsString("d7"));
+        Assert.Equal(Constants.BlackKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("b8"));
+        Assert.Equal(Constants.BlackPawnIdentifier,         moveWorker.Board.GetPieceIdentifier("d7"));
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("b8d7"));
-        Assert.Equal(Constants.BlackKnightIdentifier,       moveWorker.Board.GetPieceAsString("b8"));
-        Assert.Equal(Constants.BlackPawnIdentifier,         moveWorker.Board.GetPieceAsString("d7"));
+        Assert.Equal(Constants.BlackKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("b8"));
+        Assert.Equal(Constants.BlackPawnIdentifier,         moveWorker.Board.GetPieceIdentifier("d7"));
 
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("e4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("e5"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e5"));
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("e4e5"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("e4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("e5"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e5"));
 
     }
 
@@ -124,13 +124,13 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceAsString("a2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("a3"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("a2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("a3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a2a3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a3a4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("a2"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("a3"));
-        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceAsString("a4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("a2"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("a3"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("a4"));
     }
 
     /// <summary>
@@ -141,11 +141,11 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("h3"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("g1"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("h3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("g1h3"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceAsString("h3"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("g1"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("h3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h3f4"));
     }
       
@@ -157,13 +157,13 @@ public class ChessboardTests
      {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceAsString("g1"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("h3"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("g1"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("h3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("g1h3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h3g5"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("g5h7"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("g5"));
-        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceAsString("h7"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("g5"));
+        Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("h7"));
      }
      
      /// <summary>
@@ -177,8 +177,8 @@ public class ChessboardTests
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("f1c4"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("f1c4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("f1"));
-        Assert.Equal(Constants.WhiteBishopIdentifier,       moveWorker.Board.GetPieceAsString("c4"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("f1"));
+        Assert.Equal(Constants.WhiteBishopIdentifier,       moveWorker.Board.GetPieceIdentifier("c4"));
      }
 
     
@@ -187,13 +187,13 @@ public class ChessboardTests
      {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        Assert.Equal(Constants.WhiteKingIdentifier,  moveWorker.Board.GetPieceAsString("e1"));
+        Assert.Equal(Constants.WhiteKingIdentifier,  moveWorker.Board.GetPieceIdentifier("e1"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e1e2"));
         Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("e2e3"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceAsString("e1"));
-        Assert.Equal(Constants.WhiteKingIdentifier,  moveWorker.Board.GetPieceAsString("e2"));
-        Assert.Equal(Constants.WhitePawnIdentifier,  moveWorker.Board.GetPieceAsString("e3"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e1"));
+        Assert.Equal(Constants.WhiteKingIdentifier,  moveWorker.Board.GetPieceIdentifier("e2"));
+        Assert.Equal(Constants.WhitePawnIdentifier,  moveWorker.Board.GetPieceIdentifier("e3"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2f3"));
 
      }
@@ -226,14 +226,14 @@ public class ChessboardTests
         var moveWorker = new MoveWorker(new Chessboard(6,5));
         
         Assert.True(moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "c4"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceAsString("a6"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceIdentifier("a6"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("c4a6"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceAsString("c4"));
-        Assert.Equal(Constants.WhiteQueenIdentifier, moveWorker.Board.GetPieceAsString("a6"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceIdentifier("c4"));
+        Assert.Equal(Constants.WhiteQueenIdentifier, moveWorker.Board.GetPieceIdentifier("a6"));
 
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a6a1"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceAsString("a6"));
-        Assert.Equal(Constants.WhiteQueenIdentifier, moveWorker.Board.GetPieceAsString("a1"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, moveWorker.Board.GetPieceIdentifier("a6"));
+        Assert.Equal(Constants.WhiteQueenIdentifier, moveWorker.Board.GetPieceIdentifier("a1"));
 
     }
 

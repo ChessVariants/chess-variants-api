@@ -46,7 +46,7 @@ public class MoveWorker
     {
         var (from, to) = parseMove(move);
         
-        string? strPiece = this.board.GetPieceAsString(from);
+        string? strPiece = this.board.GetPieceIdentifier(from);
         if(strPiece != null)
         {
             try
@@ -123,7 +123,7 @@ public class MoveWorker
         {
             int row = coor.Item1;
             int col = coor.Item2;
-            var square = this.board.GetPieceAsString(row, col);
+            var square = this.board.GetPieceIdentifier(row, col);
 
             if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
                 continue;
@@ -240,25 +240,33 @@ public class MoveWorker
             int newRow = pos.Item1 + piece.MovementPattern.Movement[i].Item1;
             int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2;
 
-            string? piece1 = board.GetPieceAsString(pos);
-            string? piece2 = board.GetPieceAsString(newRow, newCol);
+            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
 
-            if(piece1 != null && piece2 != null)
+            if(pieceIdentifier1 == null || pieceIdentifier2 == null)
+                continue;
+
+            if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
             {
-                if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
-                    {
-                        moves.Add(new Tuple<int, int>(newRow, newCol));
-                        continue;
-                    }
-                try
-                {
-                    Piece p1 = this.stringToPiece[piece1];
-                    Piece p2 = this.stringToPiece[piece2];
-                    if (insideBoard(newRow, newCol) && canTake(p1, p2))
-                        moves.Add(new Tuple<int, int>(newRow, newCol));
-                }
-                catch (KeyNotFoundException) {}
+                moves.Add(new Tuple<int, int>(newRow, newCol));
+                continue;
             }
+
+            Piece? piece1 = null;
+            Piece? piece2 = null;
+            
+            try
+            {
+                piece1 = this.stringToPiece[pieceIdentifier1];
+                piece2 = this.stringToPiece[pieceIdentifier2];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
+                moves.Add(new Tuple<int, int>(newRow, newCol));
 
         }
         return moves;
@@ -284,8 +292,8 @@ public class MoveWorker
                 int newCol = pos.Item2 + piece.MovementPattern.Movement[i].Item2 * j;
                 if(!insideBoard(newRow, newCol))
                     break;
-                string? piece1 = board.GetPieceAsString(pos);
-                string? piece2 = board.GetPieceAsString(newRow, newCol);
+                string? piece1 = board.GetPieceIdentifier(pos);
+                string? piece2 = board.GetPieceIdentifier(newRow, newCol);
 
                 if(piece1 != null && piece2 != null && !hasTaken(piece, pos))
                 {
@@ -334,7 +342,7 @@ public class MoveWorker
 
     private bool hasTaken(Piece piece1, Tuple<int,int> pos)
     {
-        string? piece2 = board.GetPieceAsString(pos);
+        string? piece2 = board.GetPieceIdentifier(pos);
         
         if(piece2 != null)
         {
