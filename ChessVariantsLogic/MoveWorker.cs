@@ -117,47 +117,55 @@ public class MoveWorker
     /// <returns>an iterable collection of all valid moves.</returns>
     public List<string> GetAllValidMoves(Player player)
     {
-        var moves = new List<string>();
         var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();
 
-        for(int r = 0; r < this.board.Rows; r++)
+        foreach (var coor in this.board.GetAllCoordinates())
         {
-            for(int c = 0; c < this.board.Cols; c++)
-            {
-                var square = this.board.GetPieceAsString(r, c);
-                if (square != null && !square.Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    try
-                    {
-                        Piece p = this.stringToPiece[square];
-                        if(pieceBelongsToPlayer(p, player))
-                        {
-                            var startPosition = new Tuple<int,int>(r,c);
-                            var legalMoves = getAllValidMovesByPiece(p, startPosition);
-                            foreach (var pos in legalMoves)
-                            {
-                                coorMoves.Add((startPosition, pos));
-                            }
+            int row = coor.Item1;
+            int col = coor.Item2;
+            var square = this.board.GetPieceAsString(row, col);
 
-                        }
-                        
-                    }
-                    catch (KeyNotFoundException) {}
+            if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? p = null;
+            try
+            {
+                p = this.stringToPiece[square];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if(pieceBelongsToPlayer(p, player))
+            {
+                var startPosition = new Tuple<int,int>(row, col);
+                var legalMoves = getAllValidMovesByPiece(p, startPosition);
+                foreach (var pos in legalMoves)
+                {
+                    coorMoves.Add((startPosition, pos));
                 }
             }
         }
+        return coorListToStringList(coorMoves);
+    }
 
+#region Private methods
+
+    // Converts a list of coordinates with start and end coordinate into string representation
+    private List<String> coorListToStringList(List<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
+    {
+        var moves = new List<string>();
         foreach (var move in coorMoves)
         {
             string start = this.board.IndexToCoor[move.Item1];
             string end = this.board.IndexToCoor[move.Item2];
             moves.Add(start + end);
         }
-
         return moves;
     }
 
-#region Private methods
     // PieceClassifier and Player should maybe be merged into one common enum.
     private bool pieceBelongsToPlayer(Piece piece, Player player)
     {

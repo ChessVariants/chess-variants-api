@@ -51,6 +51,20 @@ public class Chessboard
 #endregion
 
     /// <summary>
+    /// Yield returns all coordinates for this Chessboard.
+    /// </summary>
+    public IEnumerable<(int,int)> GetAllCoordinates()
+    {
+        for(int i = 0; i < this.rows; i++)
+        {
+            for(int j = 0; j < this.cols; j++)
+            {
+                yield return (i,j);
+            }
+        }
+    }
+
+    /// <summary>
     /// Produces FEN representation of the chessboard
     /// </summary>
     /// <returns> a string representing the chessboard in FEN </returns>
