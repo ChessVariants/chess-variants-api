@@ -6,23 +6,35 @@ namespace ChessVariantsLogic;
 public class Chessboard
 {
 
+#region Fields, properties and constructors
     private readonly int rows;
     private readonly int cols;
     private readonly string[,] board;
 
-    private readonly Dictionary<string, (int, int)> coorToIndex;
-
-    public IEnumerable<string> GetAllMoves(Player player)
-    {
-        return new List<string>();
-    }
+    private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
+    private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
-    public Dictionary<string, (int, int)> CoorToIndex
+    public Dictionary<string, Tuple<int, int>> CoorToIndex
     {
         get { return this.coorToIndex; }
+    }
+
+    public Dictionary<Tuple<int, int>, string> IndexToCoor
+    {
+        get { return this.indexToCoor; }
+    }
+
+    public int Rows
+    {
+        get { return rows; }
+    }
+
+    public int Cols
+    {
+        get { return cols; }
     }
 
     public Chessboard(int rows, int cols)
@@ -30,8 +42,9 @@ public class Chessboard
         this.rows = rows;
         this.cols = cols;
         this.board = new string[rows, cols];
-        coorToIndex = initDictionary();
-        board = initBoard();
+        this.coorToIndex = initCoorToIndex();
+        this.indexToCoor = initIndexToCoor();
+        this.board = initBoard();
     }
 
     public Chessboard CopyBoard()
@@ -142,104 +155,8 @@ public class Chessboard
 
         return chessboard;
     }
+
    
-#region Moves
-    /// <summary>
-    /// Returns all valid moves for a given board and piece
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-    /// <param name = "jump"> Is the piece allowed to jump </param>
-    /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    static List<Tuple<int, int>> getAllValidMoves((int, int)[] m, int[,] board, (int, int) pos, (int, int) size, bool jump, int repeat)
-    {
-        var moves = new List<Tuple<int, int>>();
-        if (jump)
-        {
-            var movesTmp = getAllMovesJump(m, board, pos);
-            moves = getAllMovesJump(m, board, pos);
-            while (repeat >= 1)
-            {
-                foreach (var move in movesTmp)
-                {
-                    moves.AddRange(getAllMovesJump(m, board, (move.Item1, move.Item2)));
-                    repeat--;
-                }
-            }
-        }
-        else
-        {
-            var movesTmp = getAllMoves(m, board, pos, size);
-            moves = getAllMoves(m, board, pos, size);
-            while (repeat >= 1)
-            {
-                foreach (var move in movesTmp)
-                {
-                    moves.AddRange(getAllMoves(m, board, (move.Item1, move.Item2), size));
-                    repeat--;
-                }
-            }
-        }
-        return moves;
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece that can jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
-    /// <param name = "pos"> Position of piece </parma>
-    static List<Tuple<int, int>> getAllMovesJump((int, int)[] m, int[,] board, (int, int) pos)
-    {
-        var moves = new List<Tuple<int, int>>();
-        for (int i = 0; i < m.Length; i++)
-        {
-            int newRow = pos.Item1 + m[i].Item1;
-            int newCol = pos.Item2 + m[i].Item2;
-            if ((0 <= newRow && newRow <= board.GetLength(0) - 1) && (0 <= newCol && newCol <= board.GetLength(0) - 1) && board[pos.Item1, pos.Item2] == 0)
-            {
-                moves.Add(new Tuple<int, int>(newRow, newCol));
-            }
-        }
-        return moves;
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece that cannot jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "board"> Current board state </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-   
-    static List<Tuple<int, int>> getAllMoves((int, int)[] m, int[,] board, (int, int) pos, (int, int) size)
-    {
-
-        var moves = new List<Tuple<int, int>>();
-
-        for (int i = 0; i < m.Length; i++)
-        {
-            for (int j = 1; j < board.GetLength(0); j++)
-            {
-                int newRow = pos.Item1 + m[i].Item1 * j;
-                int newCol = pos.Item2 + m[i].Item2 * j;
-
-                if ((0 <= newRow && newRow <= board.GetLength(0) - 1) && (0 <= newCol && newCol <= board.GetLength(0) - 1))
-                {
-                    if (size.Item2 >= j && j >= size.Item1 && board[pos.Item1, pos.Item2] == 0)
-                    {
-                        moves.Add(new Tuple<int, int>(newRow, newCol));
-                    }
-                    if (board[newRow, newCol] == 2) break;
-
-                }
-            }
-        }
-        return moves;
-    }
-#endregion
 
 #region Getters and setters
     /// <summary>
@@ -265,7 +182,7 @@ public class Chessboard
     /// <param name="pieceIdentifier"> the piece to be inserted </param>
     /// <param name="index"> is the index of the square as a tuple of ints. </param>
     /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
-    public bool Insert(string pieceIdentifier, (int, int) index)
+    public bool Insert(string pieceIdentifier, Tuple<int, int> index)
     {
         return Insert(pieceIdentifier, index.Item1, index.Item2);
     }
@@ -275,7 +192,7 @@ public class Chessboard
     /// </summary>
     /// <param name="pieceIdentifier"> is the piece to be inserted. </param>
     /// <param name="coordinate"> is the coordinate of the square as a string. </param>
-    /// <returns> true if piece was successfully inserter into the square, otherwise false. </returns>
+    /// <returns> true if piece was successfully inserted into the square, otherwise false. </returns>
     public bool Insert(string pieceIdentifier, string coordinate)
     {
         try {
@@ -294,7 +211,7 @@ public class Chessboard
     /// <param name="row"> is the row index. </param>
     /// <param name="col"> is the column index. </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece(int row, int col)
+    public string? GetPieceAsString(int row, int col)
     {
         if(validIndex(row, col))
             return board[row,col];
@@ -306,9 +223,9 @@ public class Chessboard
     /// </summary>
     /// <param name="index"> is the index of the square as a tuple of ints </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece((int, int) index)
+    public string? GetPieceAsString(Tuple<int, int> index)
     {
-        return GetPiece(index.Item1, index.Item2);
+        return GetPieceAsString(index.Item1, index.Item2);
     }
 
     /// <summary>
@@ -316,18 +233,36 @@ public class Chessboard
     /// </summary>
     /// <param name="coordinate"> is the coordinate of the square as a string </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPiece(string coordinate)
+    public string? GetPieceAsString(string coordinate)
     {
         try
         {
             var key = this.coorToIndex[coordinate];
-            return GetPiece(key);
+            return GetPieceAsString(key);
         }
         catch (Exception)
         {
             return null;
         }
     }
+
+    public Tuple<int, int>? ParseCoordinate(string coor)
+    {
+        try
+        {
+            return coorToIndex[coor];
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
+    }
+
+    public  bool isEmpty(string pieceId)
+    {
+        return pieceId == Constants.UnoccupiedSquareIdentifier; 
+    }
+
 #endregion
 
 #region private methods
@@ -337,35 +272,10 @@ public class Chessboard
             board[rank, file] = squareIdentifier;
     }
 
-    // Splits the string move into the substrings representing the "from" square and "to" square 
-    public (string, string) parseMove(string move)
-    {
-        string from = "", to = "";
-        switch (move.Length)
-        {
-            case 4 : from = move.Substring(0,2); to = move.Substring(2,2); break;
-            case 5 :
-            {
-                if(char.IsNumber(move[2]))
-                {
-                    from = move.Substring(0,3);
-                    to = move.Substring(3,2);
-                }
-                else
-                {
-                    from = move.Substring(0,2);
-                    to = move.Substring(2,3);
-                }
-                break;
-            }
-            case 6 : from = move.Substring(0,3); to = move.Substring(3,3); break;
-        }
-        return (from, to);
-    }
 
-    private Dictionary<string, (int,int)> initDictionary()
+    public Dictionary<string, Tuple<int, int>> initCoorToIndex()
     {
-        var dictionary = new Dictionary<string, (int, int)>();
+        var dictionary = new Dictionary<string, Tuple<int, int>>();
 
         for(int i = 0; i < this.rows; i++)
         {
@@ -373,7 +283,23 @@ public class Chessboard
             {
                 int rank = this.rows-i;
                 string notation = Constants.BoardFiles[j] + rank.ToString();
-                dictionary.Add(notation, (i,j));
+                dictionary.Add(notation, new Tuple<int, int>(i, j));
+            }
+        }
+        return dictionary;
+    }
+
+    private Dictionary<Tuple<int, int>, string> initIndexToCoor()
+    {
+        var dictionary = new Dictionary<Tuple<int, int>, string>();
+
+        for(int i = 0; i < this.rows; i++)
+        {
+            for(int j = 0; j < this.cols; j++)
+            {
+                int rank = this.rows-i;
+                string notation = Constants.BoardFiles[j] + rank.ToString();
+                dictionary.Add(new Tuple<int, int>(i, j), notation);
             }
         }
         return dictionary;
