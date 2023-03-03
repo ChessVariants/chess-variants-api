@@ -161,8 +161,107 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
-#region Private methods
+#region Move methods
+// These methods are approximately sorted in the order that they are called.
+//First comes all methods regarding RegularMovementPattern and then the corresponding methods for JumpMovementPattern.
 
+    // Returns all valid moves for a given piece.
+    private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
+    {
+        if (piece.MovementPattern is JumpMovementPattern)
+            return generateJumpMoves(piece, pos);
+
+        return generateRegularMoves(piece, pos);
+    }
+
+    // Generates all moves for a piece that can not jump over other pieces.
+    private HashSet<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        var movesTmp = getAllMoves(piece, pos);
+        int repeat = piece.Repeat;
+
+        moves = getAllMoves(piece, pos);
+        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
+        
+        while (repeat >= 1)
+        {
+            foreach (var move in movesTmp)
+            {
+                moves.UnionWith(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllCaptureMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+            }
+            movesTmp = moves;
+            repeat--;
+        }
+        return moves;
+    }
+
+     // Returns all moves for a non-jumping piece.
+    private HashSet<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        int maxIndex = Math.Max(board.Rows,board.Cols);
+
+        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
+        {
+            for (int j = 1; j < maxIndex; j++)
+            {
+                var pattern = piece.GetMovementPattern(i);
+                if(pattern == null)
+                    continue;
+
+                int newRow = pos.Item1 + pattern.Item1 * j;
+                int newCol = pos.Item2 + pattern.Item2 * j;
+
+                if(!insideBoard(newRow, newCol))
+                    break;
+
+                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                    continue;
+
+                var moveLength = piece.GetMoveLength(pattern);
+                if(moveLength == null)
+                    continue;
+                
+                var ml1 = moveLength.Item1;
+                var ml2 = moveLength.Item2;
+
+                if(ml2 < j || j < ml1)
+                    continue;
+
+                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                {
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    continue;
+                }
+                break;
+
+                /*Piece? piece2 = null;
+
+                try
+                {
+                    piece2 = this.stringToPiece[pieceIdentifier2];
+                }
+                catch (KeyNotFoundException)
+                {
+                    continue;
+                }
+                
+                if (canTake(piece, piece2))
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    
+                break; */
+
+            }
+        }
+        return moves;    
+    }
+
+    // Returns all valid capture moves for a non-jumping piece.
     private HashSet<Tuple<int, int>> getAllCaptureMoves(Piece piece, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
@@ -225,142 +324,7 @@ public class MoveWorker
         return moves;    
     }
 
-    private HashSet<Tuple<int, int>> getAllCapturesJump(Piece piece, Tuple<int, int> pos)
-    {
-        var moves = new HashSet<Tuple<int, int>>();
-        for (int i = 0; i < piece.GetCapturePatternCount(); i++)
-        {
-
-            var pattern = piece.GetCapturePattern(i);
-            if(pattern == null)
-                continue;
-
-            int newRow = pos.Item1 + pattern.Item1;
-            int newCol = pos.Item2 + pattern.Item2;
-
-            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
-
-            if(pieceIdentifier1 == null || pieceIdentifier2 == null || pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
-                continue;
-
-            Piece? piece1 = null;
-            Piece? piece2 = null;
-
-            try
-            {
-                piece1 = this.stringToPiece[pieceIdentifier1];
-                piece2 = this.stringToPiece[pieceIdentifier2];
-            }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
-
-            if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
-                moves.Add(new Tuple<int, int>(newRow, newCol));
-
-        }
-        return moves;
-    }
-
-
-    // Converts a HashSet of coordinates with start and end coordinate into string representation
-    private HashSet<String> coorSetToStringSet(HashSet<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
-    {
-        var moves = new HashSet<string>();
-        foreach (var move in coorMoves)
-        {
-            string start = this.board.IndexToCoor[move.Item1];
-            string end = this.board.IndexToCoor[move.Item2];
-            moves.Add(start + end);
-        }
-        return moves;
-    }
-
-    // PieceClassifier and Player should maybe be merged into one common enum.
-    private bool pieceBelongsToPlayer(Piece piece, Player player)
-    {
-        return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
-            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-    /// <param name = "jump"> Is the piece allowed to jump </param>
-    /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
-    {
-        if (piece.MovementPattern is JumpMovementPattern)
-            return generateJumpMoves(piece, pos);
-
-        return generateRegularMoves(piece, pos);
-    }
-
-    private HashSet<Tuple<int, int>> getAllValidCapturesByPiece(Piece piece, Tuple<int, int> pos)
-    {
-        if (piece.CapturePattern is JumpMovementPattern)
-            return getAllCapturesJump(piece, pos);
-
-        return getAllCaptureMoves(piece, pos);
-    }
-
-
-    // Generates all moves for a piece that can not jump over other pieces.
-    private HashSet<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
-    {
-        var moves = new HashSet<Tuple<int, int>>();
-        var movesTmp = getAllMoves(piece, pos);
-        int repeat = piece.Repeat;
-
-        moves = getAllMoves(piece, pos);
-        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
-        
-        while (repeat >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                moves.UnionWith(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                moves.UnionWith(getAllCaptureMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-            }
-            movesTmp = moves;
-            repeat--;
-        }
-        return moves;
-    }
-
-    // Generates all moves for a piece that can jump over other pieces.
-    private HashSet<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
-    {
-        var moves = new HashSet<Tuple<int, int>>();
-        var movesTmp = getAllMovesJump(piece, pos);
-        int repeat = piece.Repeat;
-
-        moves = getAllMovesJump(piece, pos);
-        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
-        
-        while (repeat >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                moves.UnionWith(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                moves.UnionWith(getAllCapturesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-            }
-            movesTmp = moves;
-            repeat--;
-        }
-        return moves;
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece that can jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
+    // Returns all moves for a jumping piece.
     private HashSet<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
@@ -406,73 +370,100 @@ public class MoveWorker
         return moves;
     }
 
-    /// <summary>
-    /// Returns all valid moves for a piece that can not jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-    private HashSet<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
+    // Generates all moves for a piece that can jump over other pieces.
+    private HashSet<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
-        int maxIndex = Math.Max(board.Rows,board.Cols);
+        var movesTmp = getAllMovesJump(piece, pos);
+        int repeat = piece.Repeat;
 
-        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
+        moves = getAllMovesJump(piece, pos);
+        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
+        
+        while (repeat >= 1)
         {
-            for (int j = 1; j < maxIndex; j++)
+            foreach (var move in movesTmp)
             {
-                var pattern = piece.GetMovementPattern(i);
-                if(pattern == null)
-                    continue;
-
-                int newRow = pos.Item1 + pattern.Item1 * j;
-                int newCol = pos.Item2 + pattern.Item2 * j;
-
-                if(!insideBoard(newRow, newCol))
-                    break;
-
-                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
-
-                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
-                    continue;
-
-                var moveLength = piece.GetMoveLength(pattern);
-                if(moveLength == null)
-                    continue;
-                
-                var ml1 = moveLength.Item1;
-                var ml2 = moveLength.Item2;
-
-                if(ml2 < j || j < ml1)
-                    continue;
-
-                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    moves.Add(new Tuple<int, int>(newRow, newCol));
-                    continue;
-                }
-                break;
-
-                /*Piece? piece2 = null;
-
-                try
-                {
-                    piece2 = this.stringToPiece[pieceIdentifier2];
-                }
-                catch (KeyNotFoundException)
-                {
-                    continue;
-                }
-                
-                if (canTake(piece, piece2))
-                    moves.Add(new Tuple<int, int>(newRow, newCol));
-                    
-                break; */
-
+                moves.UnionWith(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllCapturesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
+            movesTmp = moves;
+            repeat--;
         }
-        return moves;    
+        return moves;
+    }
+
+    // Returns all valid capture moves for a given piece.
+    private HashSet<Tuple<int, int>> getAllValidCapturesByPiece(Piece piece, Tuple<int, int> pos)
+    {
+        if (piece.CapturePattern is JumpMovementPattern)
+            return getAllCapturesJump(piece, pos);
+
+        return getAllCaptureMoves(piece, pos);
+    }
+
+    // Returns all valid moves for a piece that can jump.
+    private HashSet<Tuple<int, int>> getAllCapturesJump(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        for (int i = 0; i < piece.GetCapturePatternCount(); i++)
+        {
+
+            var pattern = piece.GetCapturePattern(i);
+            if(pattern == null)
+                continue;
+
+            int newRow = pos.Item1 + pattern.Item1;
+            int newCol = pos.Item2 + pattern.Item2;
+
+            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+            if(pieceIdentifier1 == null || pieceIdentifier2 == null || pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? piece1 = null;
+            Piece? piece2 = null;
+
+            try
+            {
+                piece1 = this.stringToPiece[pieceIdentifier1];
+                piece2 = this.stringToPiece[pieceIdentifier2];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
+                moves.Add(new Tuple<int, int>(newRow, newCol));
+
+        }
+        return moves;
+    }
+
+#endregion
+
+#region Auxiliary methods
+
+    // Converts a HashSet of coordinates with start and end coordinate into string representation
+    private HashSet<String> coorSetToStringSet(HashSet<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
+    {
+        var moves = new HashSet<string>();
+        foreach (var move in coorMoves)
+        {
+            string start = this.board.IndexToCoor[move.Item1];
+            string end = this.board.IndexToCoor[move.Item2];
+            moves.Add(start + end);
+        }
+        return moves;
+    }
+
+    // PieceClassifier and Player should maybe be merged into one common enum.
+    private bool pieceBelongsToPlayer(Piece piece, Player player)
+    {
+        return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
+            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
     }
     
     private bool insideBoard(int row, int col)
