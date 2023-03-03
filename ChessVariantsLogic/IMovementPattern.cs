@@ -9,7 +9,7 @@ public interface IMovementPattern
     /// Adds an additional pattern to the set of allowed moves.
     /// </summary>
     /// <param name="pattern"> is the pattern that is added to the set. </param>
-    void AddPattern(Tuple<int, int> pattern);
+    void AddPattern(Tuple<int, int> pattern, Tuple<int, int> moveLength);
 
     /// <summary>
     /// Removes a pattern from the set of allowed moves.
@@ -23,14 +23,14 @@ public interface IMovementPattern
     /// </summary>
     /// <param name="index"> is the index where the pattern is located. </param>
     /// <returns> the pattern if <paramref name="index"/>   is in range, otherwise null. </returns>
-    Tuple<int,int>? GetMovement(int index);
+    Tuple<int,int>? GetPattern(int index);
 
     /// <summary>
     /// Gets a specific move length connected to a specific pattern.
     /// </summary>
     /// <param name="index"> is the index where the move length is located.</param>
     /// <returns> the move length if <paramref name="index"/> is in range, otherwise null. </returns>
-    Tuple<int,int>? GetMoveLength(int index);
+    Tuple<int,int>? GetMoveLength(Tuple<int, int> pattern);
 
     /// <summary>
     /// Gets the total number of allowed moves.

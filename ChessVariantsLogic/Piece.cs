@@ -81,12 +81,12 @@ public class Piece
     /// <returns> the movement pattern at <paramref name="index"/>.</returns>
     public Tuple<int,int>? GetMovementPattern(int index)
     {
-        return this.movementPattern.GetMovement(index);
+        return this.movementPattern.GetPattern(index);
     }
 
     public Tuple<int,int>? GetCapturePattern(int index)
     {
-        return this.capturePattern.GetMovement(index);
+        return this.capturePattern.GetPattern(index);
     }
 
     /// <summary>
@@ -94,14 +94,14 @@ public class Piece
     /// </summary>
     /// <param name="index"> is the index of the move length</param>
     /// <returns> the move length at index <paramref name="index"/>.</returns>
-    public Tuple<int, int>? GetMoveLength(int index)
+    public Tuple<int, int>? GetMoveLength(Tuple<int, int> pattern)
     {
-        return this.movementPattern.GetMoveLength(index);
+        return this.movementPattern.GetMoveLength(pattern);
     }
 
-    public Tuple<int, int>? GetCaptureLength(int index)
+    public Tuple<int, int>? GetCaptureLength(Tuple<int, int> pattern)
     {
-        return this.capturePattern.GetMoveLength(index);
+        return this.capturePattern.GetMoveLength(pattern);
     }
 
     /// <summary>

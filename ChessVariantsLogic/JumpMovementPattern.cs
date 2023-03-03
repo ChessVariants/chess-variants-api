@@ -14,7 +14,7 @@ public class JumpMovementPattern : IMovementPattern
     public JumpMovementPattern() : this(new List<Tuple<int, int>>()) {}
 
 #region Interface overrides
-    public void AddPattern(Tuple<int, int> pattern)
+    public void AddPattern(Tuple<int, int> pattern, Tuple<int, int> moveLength)
     {
         this.movement.Add(pattern);
     }
@@ -24,14 +24,14 @@ public class JumpMovementPattern : IMovementPattern
         return this.movement.Remove(pattern);
     }
 
-    public Tuple<int,int>? GetMovement(int index)
+    public Tuple<int,int>? GetPattern(int index)
     {
         if(index >= 0 && index < this.movement.Count)
             return this.movement[index];
         return null;
     }
 
-    public Tuple<int,int>? GetMoveLength(int index)
+    public Tuple<int,int>? GetMoveLength(Tuple<int, int> pattern)
     {
         return null;
     }

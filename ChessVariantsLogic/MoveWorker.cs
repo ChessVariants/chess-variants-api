@@ -188,7 +188,7 @@ public class MoveWorker
                 if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
                     continue;
 
-                var moveLength = piece.GetCaptureLength(i);
+                var moveLength = piece.GetCaptureLength(pattern);
                 if(moveLength == null)
                     continue;
                 
@@ -437,7 +437,7 @@ public class MoveWorker
                 if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
                     continue;
 
-                var moveLength = piece.GetMoveLength(i);
+                var moveLength = piece.GetMoveLength(pattern);
                 if(moveLength == null)
                     continue;
                 
