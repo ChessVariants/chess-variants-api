@@ -388,17 +388,3 @@ public class MoveWorker
 #endregion
 
 }
-
-public enum GameEvent {
-    InvalidMove,
-    MoveSucceeded,
-    WhiteWon,
-    BlackWon,
-    Tie
-}
-
-
-public enum Player {
-    White,
-    Black
-}

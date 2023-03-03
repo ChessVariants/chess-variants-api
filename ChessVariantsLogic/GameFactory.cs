@@ -34,7 +34,9 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
 
-        return new Game(Chessboard.StandardChessboard(), Player.White, 1, rulesWhite, rulesBlack);
+        MoveWorker moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
     }
 
     public static Game CaptureTheKing()
@@ -48,8 +50,10 @@ public static class GameFactory
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule);
+
+        MoveWorker moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         
-        return new Game(Chessboard.StandardChessboard(), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
     }
 
     public static Game AntiChess()
@@ -64,6 +68,8 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
 
-        return new Game(Chessboard.StandardChessboard(), Player.White, 1, rulesWhite, rulesBlack);
+        MoveWorker moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
     }
 }

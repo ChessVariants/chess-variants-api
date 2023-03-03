@@ -4,16 +4,16 @@ using Predicates;
 
 public class Game {
 
-    private readonly Chessboard _board;
+    private readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(Chessboard board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
-        _board = board;
+        _moveWorker = moveWorker;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
@@ -40,21 +40,26 @@ public class Game {
     private GameEvent MakeMoveImpl(string move) {
         ISet<string> validMoves;
         if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         } else {
-            validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         }
         if (validMoves.Contains(move)) {
-            var moveWasPossible = _board.Move(move);
+        
+            GameEvent gameEvent = _moveWorker.Move(move);
 
-            if (false) { // check if game is won via rules
-                return GameEvent.Tie;
+            if(gameEvent == GameEvent.InvalidMove) {
+                return gameEvent;
+            }
+
+            /// TODO: Check for a tie
+
+            if(GameIsWon(_moveWorker.Board)){
+                return _whiteRules.ApplyWinRule(_moveWorker.Board) ? GameEvent.WhiteWon : GameEvent.BlackWon;
             }
             
-            if (moveWasPossible) {
-                DecrementPlayerMoves();
-                return GameEvent.MoveSucceeded;
-            }
+            DecrementPlayerMoves();
+            return gameEvent;
         }
         return GameEvent.InvalidMove;
     }
@@ -68,6 +73,10 @@ public class Game {
             _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;
             _playerMovesRemaining = _movesPerTurn;
         }
+    }
+
+    private bool GameIsWon(Chessboard board) {
+        return _whiteRules.ApplyWinRule(board) || _blackRules.ApplyWinRule(board); 
     }
 }
 
