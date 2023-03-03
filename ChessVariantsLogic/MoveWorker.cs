@@ -125,9 +125,9 @@ public class MoveWorker
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid moves.</returns>
-    public List<string> GetAllValidMoves(Player player)
+    public HashSet<string> GetAllValidMoves(Player player)
     {
-        var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();
+        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
 
         foreach (var coor in this.board.GetAllCoordinates())
         {
@@ -158,21 +158,21 @@ public class MoveWorker
                 }
             }
         }
-        return coorListToStringList(coorMoves);
+        return coorSetToStringSet(coorMoves);
     }
 
 #region Private methods
 
-    private List<Tuple<int, int>> getAllCaptureMoves(Piece piece, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getAllCaptureMoves(Piece piece, Tuple<int, int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
 
         for (int i = 0; i < piece.GetCapturePatternCount(); i++)
         {
             for (int j = 1; j < maxIndex; j++)
             {
-                var pattern = piece.GetMovementPattern(i);
+                var pattern = piece.GetCapturePattern(i);
                 if(pattern == null)
                     continue;
 
@@ -225,9 +225,9 @@ public class MoveWorker
         return moves;    
     }
 
-    private List<Tuple<int, int>> getAllCapturesJump(Piece piece, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getAllCapturesJump(Piece piece, Tuple<int, int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        var moves = new HashSet<Tuple<int, int>>();
         for (int i = 0; i < piece.GetCapturePatternCount(); i++)
         {
 
@@ -265,10 +265,10 @@ public class MoveWorker
     }
 
 
-    // Converts a list of coordinates with start and end coordinate into string representation
-    private List<String> coorListToStringList(List<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
+    // Converts a HashSet of coordinates with start and end coordinate into string representation
+    private HashSet<String> coorSetToStringSet(HashSet<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
     {
-        var moves = new List<string>();
+        var moves = new HashSet<string>();
         foreach (var move in coorMoves)
         {
             string start = this.board.IndexToCoor[move.Item1];
@@ -293,7 +293,7 @@ public class MoveWorker
     /// <param name = "size"> Length of movement pattern </param>
     /// <param name = "jump"> Is the piece allowed to jump </param>
     /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    private List<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
         if (piece.MovementPattern is JumpMovementPattern)
             return generateJumpMoves(piece, pos);
@@ -301,22 +301,31 @@ public class MoveWorker
         return generateRegularMoves(piece, pos);
     }
 
-    // Generates all moves for a piece that can not jump over other pieces.
-    private List<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
+    private HashSet<Tuple<int, int>> getAllValidCapturesByPiece(Piece piece, Tuple<int, int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        if (piece.CapturePattern is JumpMovementPattern)
+            return getAllCapturesJump(piece, pos);
+
+        return getAllCaptureMoves(piece, pos);
+    }
+
+
+    // Generates all moves for a piece that can not jump over other pieces.
+    private HashSet<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
         var movesTmp = getAllMoves(piece, pos);
         int repeat = piece.Repeat;
 
         moves = getAllMoves(piece, pos);
-        moves.AddRange(getAllCapturesJump(piece, pos));
+        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
         
         while (repeat >= 1)
         {
             foreach (var move in movesTmp)
             {
-                moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                moves.AddRange(getAllCaptureMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllCaptureMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
             movesTmp = moves;
             repeat--;
@@ -325,21 +334,21 @@ public class MoveWorker
     }
 
     // Generates all moves for a piece that can jump over other pieces.
-    private List<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
+    private HashSet<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        var moves = new HashSet<Tuple<int, int>>();
         var movesTmp = getAllMovesJump(piece, pos);
         int repeat = piece.Repeat;
 
         moves = getAllMovesJump(piece, pos);
-        moves.AddRange(getAllCapturesJump(piece, pos));
+        moves.UnionWith(getAllValidCapturesByPiece(piece, pos));
         
         while (repeat >= 1)
         {
             foreach (var move in movesTmp)
             {
-                moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                moves.AddRange(getAllCapturesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.UnionWith(getAllCapturesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
             movesTmp = moves;
             repeat--;
@@ -352,9 +361,9 @@ public class MoveWorker
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "pos"> Position of piece </parma>
-    private List<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        var moves = new HashSet<Tuple<int, int>>();
         for (int i = 0; i < piece.GetMovementPatternCount(); i++)
         {
 
@@ -403,9 +412,9 @@ public class MoveWorker
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "pos"> Position of piece </parma>
     /// <param name = "size"> Length of movement pattern </param>
-    private List<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
     {
-        var moves = new List<Tuple<int, int>>();
+        var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
 
         for (int i = 0; i < piece.GetMovementPatternCount(); i++)

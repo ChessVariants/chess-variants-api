@@ -35,7 +35,7 @@ public class RegularMovementPattern : IMovementPattern
 
     public Tuple<int,int>? GetMoveLength(int index)
     {
-        if(index >= 0 && index < this.movement.Count)
+        if(index >= 0 && index < this.moveLength.Count)
             return this.moveLength[index];
         return null;
     }

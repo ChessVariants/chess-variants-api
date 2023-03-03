@@ -284,6 +284,7 @@ public class Piece
             Constants.SouthWest
         };
         var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,1),
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
@@ -305,7 +306,9 @@ public class Piece
             Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,1),
             new Tuple<int,int> (1,1)
+
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         var cp = new RegularMovementPattern(capturePattern, moveLength);
