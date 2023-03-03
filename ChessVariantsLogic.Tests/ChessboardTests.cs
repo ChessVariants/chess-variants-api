@@ -165,6 +165,41 @@ public class ChessboardTests
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("g5"));
         Assert.Equal(Constants.WhiteKnightIdentifier,       moveWorker.Board.GetPieceIdentifier("h7"));
      }
+
+    /// <summary>
+    /// Tests that a bishop, a piece that can not jump, can capture opponents pieces.
+    /// </summary>
+     [Fact]
+     public void PieceNotJumpCanCapture_shouldReturnTrue()
+     {
+        var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        Assert.Equal(Constants.BlackPawnIdentifier, moveWorker.Board.GetPieceIdentifier("b7"));
+
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("f1a6"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a6b7"));
+
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("a6"));
+        Assert.Equal(Constants.WhiteBishopIdentifier,       moveWorker.Board.GetPieceIdentifier("b7"));
+     }
+
+    [Fact]
+     public void PawnCanCaptureDiagonally_shouldReturnTrue()
+     {
+        var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        Assert.Equal(Constants.BlackPawnIdentifier, moveWorker.Board.GetPieceIdentifier("d7"));
+
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e3e4"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e4e5"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e5e6"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e6d7"));
+
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  moveWorker.Board.GetPieceIdentifier("e6"));
+        Assert.Equal(Constants.WhitePawnIdentifier,         moveWorker.Board.GetPieceIdentifier("d7"));
+     }
      
      /// <summary>
      /// Test that the bishop can move correctly diagonally.
@@ -261,7 +296,7 @@ public class ChessboardTests
 
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        Piece piece = new Piece(mp, false, PieceClassifier.WHITE, "C");
+        Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "c4"));
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("c4c5"));
@@ -297,7 +332,7 @@ public class ChessboardTests
             
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        Piece piece = new Piece(mp, false, PieceClassifier.WHITE, 1, "C");
+        Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "h4"));
        

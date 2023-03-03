@@ -163,6 +163,108 @@ public class MoveWorker
 
 #region Private methods
 
+    private List<Tuple<int, int>> getAllCaptureMoves(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new List<Tuple<int, int>>();
+        int maxIndex = Math.Max(board.Rows,board.Cols);
+
+        for (int i = 0; i < piece.GetCapturePatternCount(); i++)
+        {
+            for (int j = 1; j < maxIndex; j++)
+            {
+                var pattern = piece.GetMovementPattern(i);
+                if(pattern == null)
+                    continue;
+
+                int newRow = pos.Item1 + pattern.Item1 * j;
+                int newCol = pos.Item2 + pattern.Item2 * j;
+
+                if(!insideBoard(newRow, newCol))
+                    break;
+
+                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                    continue;
+
+                var moveLength = piece.GetCaptureLength(i);
+                if(moveLength == null)
+                    continue;
+                
+                var ml1 = moveLength.Item1;
+                var ml2 = moveLength.Item2;
+
+                if(ml2 < j || j < ml1)
+                    continue;
+
+                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                {
+                    //moves.Add(new Tuple<int, int>(newRow, newCol));
+                    continue;
+                }
+
+                Piece? piece2 = null;
+
+                try
+                {
+                    piece2 = this.stringToPiece[pieceIdentifier2];
+                }
+                catch (KeyNotFoundException)
+                {
+                    continue;
+                }
+                
+                if (canTake(piece, piece2))
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    
+                break;
+
+            }
+        }
+        return moves;    
+    }
+
+    private List<Tuple<int, int>> getAllCapturesJump(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new List<Tuple<int, int>>();
+        for (int i = 0; i < piece.GetCapturePatternCount(); i++)
+        {
+
+            var pattern = piece.GetCapturePattern(i);
+            if(pattern == null)
+                continue;
+
+            int newRow = pos.Item1 + pattern.Item1;
+            int newCol = pos.Item2 + pattern.Item2;
+
+            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+            if(pieceIdentifier1 == null || pieceIdentifier2 == null || pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? piece1 = null;
+            Piece? piece2 = null;
+
+            try
+            {
+                piece1 = this.stringToPiece[pieceIdentifier1];
+                piece2 = this.stringToPiece[pieceIdentifier2];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
+                moves.Add(new Tuple<int, int>(newRow, newCol));
+
+        }
+        return moves;
+    }
+
+
     // Converts a list of coordinates with start and end coordinate into string representation
     private List<String> coorListToStringList(List<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
     {
@@ -207,12 +309,16 @@ public class MoveWorker
         int repeat = piece.Repeat;
 
         moves = getAllMoves(piece, pos);
+        moves.AddRange(getAllCapturesJump(piece, pos));
+        
         while (repeat >= 1)
         {
             foreach (var move in movesTmp)
             {
                 moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
+                moves.AddRange(getAllCaptureMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
+            movesTmp = moves;
             repeat--;
         }
         return moves;
@@ -226,13 +332,17 @@ public class MoveWorker
         int repeat = piece.Repeat;
 
         moves = getAllMovesJump(piece, pos);
+        moves.AddRange(getAllCapturesJump(piece, pos));
+        
         while (repeat >= 1)
         {
             foreach (var move in movesTmp)
             {
                 moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                repeat--;
+                moves.AddRange(getAllCapturesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
             }
+            movesTmp = moves;
+            repeat--;
         }
         return moves;
     }
@@ -267,7 +377,7 @@ public class MoveWorker
                 continue;
             }
 
-            Piece? piece1 = null;
+           /* Piece? piece1 = null;
             Piece? piece2 = null;
 
             try
@@ -281,14 +391,14 @@ public class MoveWorker
             }
 
             if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
-                moves.Add(new Tuple<int, int>(newRow, newCol));
+                moves.Add(new Tuple<int, int>(newRow, newCol));*/
 
         }
         return moves;
     }
 
     /// <summary>
-    /// Returns all valid moves for a given board and piece that cannot jump
+    /// Returns all valid moves for a piece that can not jump
     /// </summary>
     /// <param name="m"> Movement pattern for piece </param>
     /// <param name = "pos"> Position of piece </parma>
@@ -333,8 +443,9 @@ public class MoveWorker
                     moves.Add(new Tuple<int, int>(newRow, newCol));
                     continue;
                 }
+                break;
 
-                Piece? piece2 = null;
+                /*Piece? piece2 = null;
 
                 try
                 {
@@ -348,7 +459,7 @@ public class MoveWorker
                 if (canTake(piece, piece2))
                     moves.Add(new Tuple<int, int>(newRow, newCol));
                     
-                break;
+                break; */
 
             }
         }

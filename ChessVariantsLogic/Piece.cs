@@ -7,6 +7,7 @@ public class Piece
 {
 #region Fields, properties and constructors
     private readonly IMovementPattern movementPattern;
+    private readonly IMovementPattern capturePattern;
     private readonly bool royal;
     private readonly PieceClassifier pieceClassifier;
     private bool hasMoved;
@@ -30,6 +31,11 @@ public class Piece
         get { return this.movementPattern; }
     }
 
+    public IMovementPattern CapturePattern
+    {
+        get { return this.capturePattern; }
+    }
+
     public int Repeat
     {
         get { return this.repeat; }
@@ -49,9 +55,10 @@ public class Piece
     /// <param name="hasMoved">set true if the piece has previously moved</param>
     /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
     /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
-    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier)
+    public Piece(IMovementPattern movementPattern, IMovementPattern capturePattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier)
     {
         this.movementPattern = movementPattern;
+        this.capturePattern = capturePattern;
         this.royal = royal;
         this.pieceClassifier = pc;
         this.hasMoved = hasMoved;
@@ -59,11 +66,11 @@ public class Piece
         this.pieceIdentifier = pieceIdentifier;
     }
 
-    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier)
-    : this(movementPattern, royal, pc, false, repeat, pieceIdentifier) {}
+    public Piece(IMovementPattern movementPattern, IMovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier)
+    : this(movementPattern, capturePattern, royal, pc, false, repeat, pieceIdentifier) {}
     
-    public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, string pieceIdentifier)
-    : this(movementPattern, royal, pc, false, 0, pieceIdentifier) {}
+    public Piece(IMovementPattern movementPattern, IMovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier)
+    : this(movementPattern, capturePattern, royal, pc, false, 0, pieceIdentifier) {}
 
 #endregion
 
@@ -77,6 +84,11 @@ public class Piece
         return this.movementPattern.GetMovement(index);
     }
 
+    public Tuple<int,int>? GetCapturePattern(int index)
+    {
+        return this.capturePattern.GetMovement(index);
+    }
+
     /// <summary>
     /// Gets a specific move length by index.
     /// </summary>
@@ -87,6 +99,11 @@ public class Piece
         return this.movementPattern.GetMoveLength(index);
     }
 
+    public Tuple<int, int>? GetCaptureLength(int index)
+    {
+        return this.capturePattern.GetMoveLength(index);
+    }
+
     /// <summary>
     /// Gets the total number of moves that this piece can perform on an empty board.
     /// </summary>
@@ -94,6 +111,11 @@ public class Piece
     public int GetMovementPatternCount()
     {
         return this.movementPattern.GetMovementPatternCount();
+    }
+
+    public int GetCapturePatternCount()
+    {
+        return this.capturePattern.GetMovementPatternCount();
     }
 
     /// <summary>
@@ -130,8 +152,8 @@ public class Piece
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, false, pieceClassifier, Constants.WhiteRookIdentifier);
-        return new Piece(mp, false, pieceClassifier, Constants.BlackRookIdentifier);
+            return new Piece(mp, mp,  false, pieceClassifier, Constants.WhiteRookIdentifier);
+        return new Piece(mp, mp, false, pieceClassifier, Constants.BlackRookIdentifier);
     }
 
     /// <summary>
@@ -155,8 +177,8 @@ public class Piece
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, false, pieceClassifier, Constants.WhiteBishopIdentifier);
-        return new Piece(mp, false, pieceClassifier, Constants.BlackBishopIdentifier);
+            return new Piece(mp, mp, false, pieceClassifier, Constants.WhiteBishopIdentifier);
+        return new Piece(mp, mp, false, pieceClassifier, Constants.BlackBishopIdentifier);
     }
 
     /// <summary>
@@ -188,8 +210,8 @@ public class Piece
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, false, pieceClassifier, Constants.WhiteQueenIdentifier);
-        return new Piece(mp, false, pieceClassifier, Constants.BlackQueenIdentifier);
+            return new Piece(mp, mp, false, pieceClassifier, Constants.WhiteQueenIdentifier);
+        return new Piece(mp, mp, false, pieceClassifier, Constants.BlackQueenIdentifier);
     }
 
     /// <summary>
@@ -221,8 +243,8 @@ public class Piece
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, true, pieceClassifier, Constants.WhiteKingIdentifier);
-        return new Piece(mp, true, pieceClassifier, Constants.BlackKingIdentifier);
+            return new Piece(mp, mp, true, pieceClassifier, Constants.WhiteKingIdentifier);
+        return new Piece(mp, mp, true, pieceClassifier, Constants.BlackKingIdentifier);
     }
 
     /// <summary>
@@ -244,8 +266,8 @@ public class Piece
         };
         var mp = new JumpMovementPattern(pattern);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, false, pieceClassifier,Constants.WhiteKnightIdentifier);
-        return new Piece(mp, false, pieceClassifier,Constants.BlackKnightIdentifier);
+            return new Piece(mp, mp, false, pieceClassifier,Constants.WhiteKnightIdentifier);
+        return new Piece(mp, mp, false, pieceClassifier,Constants.BlackKnightIdentifier);
     }
 
     /// <summary>
@@ -257,11 +279,16 @@ public class Piece
         var pattern = new List<Tuple<int,int>> {
             Constants.South
         };
+        var capturePattern = new List<Tuple<int,int>> {
+            Constants.SouthEast,
+            Constants.SouthWest
+        };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
-        return new Piece(mp, false, PieceClassifier.BLACK, Constants.BlackPawnIdentifier);
+        var cp = new RegularMovementPattern(capturePattern, moveLength);
+        return new Piece(mp, cp, false, PieceClassifier.BLACK, Constants.BlackPawnIdentifier);
     }
 
     /// <summary>
@@ -273,12 +300,17 @@ public class Piece
         var pattern = new List<Tuple<int,int>> {
             Constants.North
         };
+        var capturePattern = new List<Tuple<int,int>> {
+            Constants.NorthEast,
+            Constants.NorthWest
+        };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)
         };
         var mp = new RegularMovementPattern(pattern, moveLength);
+        var cp = new RegularMovementPattern(capturePattern, moveLength);
 
-        return new Piece(mp, false, PieceClassifier.WHITE, Constants.WhitePawnIdentifier);
+        return new Piece(mp, cp, false, PieceClassifier.WHITE, Constants.WhitePawnIdentifier);
     }
 
     /// <summary>
