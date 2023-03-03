@@ -64,7 +64,37 @@ public class Piece
     
     public Piece(IMovementPattern movementPattern, bool royal, PieceClassifier pc, string pieceIdentifier)
     : this(movementPattern, royal, pc, false, 0, pieceIdentifier) {}
+
 #endregion
+
+    /// <summary>
+    /// Gets a specific movement pattern by index.
+    /// </summary>
+    /// <param name="index" is the index of the movement pattern></param>
+    /// <returns> the movement pattern at <paramref name="index"/>.</returns>
+    public Tuple<int,int>? GetMovementPattern(int index)
+    {
+        return this.movementPattern.GetMovement(index);
+    }
+
+    /// <summary>
+    /// Gets a specific move length by index.
+    /// </summary>
+    /// <param name="index"> is the index of the move length</param>
+    /// <returns> the move length at index <paramref name="index"/>.</returns>
+    public Tuple<int, int>? GetMoveLength(int index)
+    {
+        return this.movementPattern.GetMoveLength(index);
+    }
+
+    /// <summary>
+    /// Gets the total number of moves that this piece can perform on an empty board.
+    /// </summary>
+    /// <returns> the total number of moves this piece can perform. </returns>
+    public int GetMovementPatternCount()
+    {
+        return this.movementPattern.GetMovementPatternCount();
+    }
 
     /// <summary>
     /// Checks that two pieces are of opposite colors.
@@ -78,13 +108,19 @@ public class Piece
     }
 
 #region Static methods
+
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard rook.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the rook belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard rook.</returns>
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -98,13 +134,18 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackRookIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard bishop.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the bishop belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard bishop.</returns>
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -118,17 +159,22 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackBishopIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard queen.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the queen belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard queen.</returns>
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West,
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West,
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1, Constants.MaxBoardHeigth),
@@ -146,17 +192,22 @@ public class Piece
         return new Piece(mp, false, pieceClassifier, Constants.BlackQueenIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard king.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the king belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard king.</returns>
     public static Piece King(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North,
-            RegularMovementPattern.East,
-            RegularMovementPattern.South,
-            RegularMovementPattern.West,
-            RegularMovementPattern.NorthEast,
-            RegularMovementPattern.SouthEast,
-            RegularMovementPattern.SouthWest,
-            RegularMovementPattern.NorthWest
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West,
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1),
@@ -174,6 +225,11 @@ public class Piece
         return new Piece(mp, true, pieceClassifier, Constants.BlackKingIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard knight.
+    /// </summary>
+    /// <param name="pieceClassifier"> is the side that the knight belongs to</param>
+    /// <returns> an instance of Piece with the movement pattern of a standard knight.</returns>
     public static Piece Knight(PieceClassifier pieceClassifier)
     {
         var pattern = new List<Tuple<int,int>> {
@@ -192,10 +248,14 @@ public class Piece
         return new Piece(mp, false, pieceClassifier,Constants.BlackKnightIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard black pawn.
+    /// </summary>
+    /// <returns>an instance of Piece with the movement pattern of a standard black pawn.</returns>
     public static Piece BlackPawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.South
+            Constants.South
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)
@@ -204,10 +264,14 @@ public class Piece
         return new Piece(mp, false, PieceClassifier.BLACK, Constants.BlackPawnIdentifier);
     }
 
+    /// <summary>
+    /// Creates a Piece object that behaves like a standard white pawn.
+    /// </summary>
+    /// <returns>an instance of Piece with the movement pattern of a standard white pawn.</returns>
     public static Piece WhitePawn()
     {
         var pattern = new List<Tuple<int,int>> {
-            RegularMovementPattern.North
+            Constants.North
         };
         var moveLength = new List<Tuple<int,int>> {
             new Tuple<int,int> (1,1)

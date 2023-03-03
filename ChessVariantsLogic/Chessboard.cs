@@ -64,6 +64,20 @@ public class Chessboard
 
 
     /// <summary>
+    /// Yield returns all coordinates for this Chessboard.
+    /// </summary>
+    public IEnumerable<(int,int)> GetAllCoordinates()
+    {
+        for(int i = 0; i < this.rows; i++)
+        {
+            for(int j = 0; j < this.cols; j++)
+            {
+                yield return (i,j);
+            }
+        }
+    }
+
+    /// <summary>
     /// Produces FEN representation of the chessboard
     /// </summary>
     /// <returns> a string representing the chessboard in FEN </returns>
@@ -132,7 +146,22 @@ public class Chessboard
         return chessboard;
     }
 
-   
+    public Tuple<int, int>? ParseCoordinate(string coor)
+    {
+        try
+        {
+            return coorToIndex[coor];
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
+    }
+
+    public  bool isEmpty(string pieceId)
+    {
+        return pieceId == Constants.UnoccupiedSquareIdentifier; 
+    }
 
 #region Getters and setters
     /// <summary>
@@ -187,7 +216,7 @@ public class Chessboard
     /// <param name="row"> is the row index. </param>
     /// <param name="col"> is the column index. </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPieceAsString(int row, int col)
+    public string? GetPieceIdentifier(int row, int col)
     {
         if(validIndex(row, col))
             return board[row,col];
@@ -199,9 +228,9 @@ public class Chessboard
     /// </summary>
     /// <param name="index"> is the index of the square as a tuple of ints </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPieceAsString(Tuple<int, int> index)
+    public string? GetPieceIdentifier(Tuple<int, int> index)
     {
-        return GetPieceAsString(index.Item1, index.Item2);
+        return GetPieceIdentifier(index.Item1, index.Item2);
     }
 
     /// <summary>
@@ -209,36 +238,18 @@ public class Chessboard
     /// </summary>
     /// <param name="coordinate"> is the coordinate of the square as a string </param>
     /// <returns> the piece if the index is valid. </returns>
-    public string? GetPieceAsString(string coordinate)
+    public string? GetPieceIdentifier(string coordinate)
     {
         try
         {
             var key = this.coorToIndex[coordinate];
-            return GetPieceAsString(key);
+            return GetPieceIdentifier(key);
         }
         catch (Exception)
         {
             return null;
         }
     }
-
-    public Tuple<int, int>? ParseCoordinate(string coor)
-    {
-        try
-        {
-            return coorToIndex[coor];
-        }
-        catch (KeyNotFoundException)
-        {
-            return null;
-        }
-    }
-
-    public  bool isEmpty(string pieceId)
-    {
-        return pieceId == Constants.UnoccupiedSquareIdentifier; 
-    }
-
 #endregion
 
 #region private methods
