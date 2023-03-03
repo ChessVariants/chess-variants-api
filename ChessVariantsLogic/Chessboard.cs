@@ -260,6 +260,7 @@ public class Chessboard
     }
 
 
+
     public Dictionary<string, Tuple<int, int>> initCoorToIndex()
     {
         var dictionary = new Dictionary<string, Tuple<int, int>>();
