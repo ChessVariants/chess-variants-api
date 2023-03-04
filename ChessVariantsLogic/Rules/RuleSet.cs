@@ -1,6 +1,4 @@
-﻿using ChessVariantsLogic.Actions;
-
-namespace ChessVariantsLogic.Predicates;
+﻿namespace ChessVariantsLogic.Predicates;
 
 /// <summary>
 /// This class represents an accumulation of rules defined as <see cref="IPredicate"/>s, separated into move and win rules.
@@ -9,15 +7,13 @@ public class RuleSet
 {
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
-    private readonly ISet<Move> _whiteCustomMoves;
-    private readonly ISet<Move> _blackCustomMoves;
+    private readonly IEnumerable<CustomMove> _customMoves;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<Move> whiteCustomMoves, ISet<Move> blackCustomMoves)
+    public RuleSet(IPredicate moveRule, IPredicate winRule, IEnumerable<CustomMove> customMoves)
     {
         _moveRule = moveRule;
         _winRule = winRule;
-        _whiteCustomMoves = whiteCustomMoves;
-        _blackCustomMoves = blackCustomMoves;
+        _customMoves = customMoves;
     }
 
     /// <summary>
@@ -26,10 +22,10 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public ISet<Move> ApplyMoveRule(IBoardState board, Player sideToPlay)
+    public ISet<string> ApplyMoveRule(IBoardState board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
-        var acceptedMoves = new HashSet<Move>();
+        var acceptedMoves = new HashSet<string>();
         foreach (var move in possibleMoves)
         {
             var futureBoard = board.CopyBoardState();
@@ -37,25 +33,24 @@ public class RuleSet
             bool ruleSatisfied = _moveRule.Evaluate(board, futureBoard);
             if (ruleSatisfied)
             {
-                acceptedMoves.Add(new MoveStandard(move));
+                acceptedMoves.Add(move);
             }
         }
-        ISet<Move> customMoves;
 
-        if (sideToPlay == Player.White)
-            customMoves = _whiteCustomMoves;
-        else if (sideToPlay == Player.Black)
-            customMoves = _blackCustomMoves;
-        else
-            return acceptedMoves;
-
-        foreach(var move in customMoves)
+        foreach(var move in _customMoves)
         {
+            IPredicate predicate = move.Predicate;
+            IEnumerable<IAction> actions = move.Actions;
+            string fromTo = move.From + move.To;
+
             var futureBoard = board.CopyBoardState();
-            move.Perform(futureBoard);
-            if (move.EvaluatePredicate(board, futureBoard))
+
+            futureBoard.Move(fromTo);
+
+
+            if (predicate.Evaluate(board, futureBoard))
             {
-                acceptedMoves.Add(move);
+                acceptedMoves.Add(fromTo);
             }
         }
 
