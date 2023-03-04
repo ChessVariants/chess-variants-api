@@ -37,6 +37,14 @@ public interface IBoardState
     /// <returns> the two squares split into separate strings. </returns>
     public Tuple<string, string>? parseMove(string move);
 
+    /// <summary>
+    /// Gets all moves for a player as a dict with the from-square as key and a list of all
+    /// possible to-squares as value.
+    /// </summary>
+    /// <param name="player">The player to get moves for</param>
+    /// <returns>A <see cref="Dictionary{string, List{string}}"/> of all moves for the given player</returns>
+    public Dictionary<string, List<string>> GetMoveDict(Player player);
+
 
     /// <summary>
     /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   

@@ -1,5 +1,6 @@
 namespace ChessVariantsLogic;
 
+using ChessVariantsLogic.Export;
 using Predicates;
 
 public class Game {
@@ -71,6 +72,11 @@ public class Game {
             _playerMovesRemaining = _movesPerTurn;
         }
     }
+
+    public string ExportStateAsJson()
+    {
+        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, _board.GetMoveDict(_playerTurn));
+    }
 }
 
 public enum GameEvent {
@@ -85,4 +91,17 @@ public enum Player {
     White,
     Black,
     None
+}
+
+public static class PlayerExtensions
+{
+    public static string AsString(this Player player)
+    {
+        return player switch
+        {
+            Player.White => "white",
+            Player.Black => "black",
+            _ => throw new ArgumentException("Player must be either white or black"),
+        };
+    }
 }
