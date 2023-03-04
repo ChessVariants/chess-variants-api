@@ -129,6 +129,17 @@ public class GameOrganizer
         _activeGames.Remove(gameId);
     }
 
+    /// <summary>
+    /// Gets the current state of the game as a json string
+    /// </summary>
+    /// <param name="gameId">The game to get the state for</param>
+    /// <returns>A json-formatted string of current game state</returns>
+    public string GetStateAsJson(string gameId)
+    {
+        var game = GetGame(gameId);
+        return game.ExportStateAsJson();
+    } 
+
     #endregion
 
     #region GameControl

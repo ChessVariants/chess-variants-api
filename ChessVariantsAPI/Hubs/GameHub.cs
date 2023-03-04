@@ -1,7 +1,6 @@
 ﻿using ChessVariantsAPI.GameOrganization;
 using ChessVariantsLogic;
 using Microsoft.AspNetCore.SignalR;
-using ChessVariantsLogic;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -18,7 +17,7 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/>. Invokes a playerJoinedGame event to all clients in the joined group.
+    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/>.
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
@@ -27,7 +26,7 @@ public class GameHub : Hub
         try
         {
             Player createdPlayer = _organizer.JoinGame(gameId, Context.ConnectionId);
-            await Clients.Caller.SendAsync(Events.GameJoined, PlayerToString(createdPlayer));
+            await Clients.Caller.SendAsync(Events.GameJoined, createdPlayer.AsString());
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
             await Clients.Groups(gameId).SendAsync(Events.PlayerJoinedGame, Context.ConnectionId);
         }
@@ -47,7 +46,7 @@ public class GameHub : Hub
         try
         {
             Player createdPlayer = _organizer.CreateGame(gameId, Context.ConnectionId);
-            await Clients.Caller.SendAsync(Events.GameCreated, PlayerToString(createdPlayer));
+            await Clients.Caller.SendAsync(Events.GameCreated, createdPlayer.AsString());
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
         }
         catch (OrganizerException e)
@@ -111,9 +110,11 @@ public class GameHub : Hub
     {
         // if move is valid, compute new board
         GameEvent? result = null;
+        string? state = null;
         try
         {
             result = _organizer.Move(move, gameId, Context.ConnectionId);
+            state = _organizer.GetStateAsJson(gameId);
         }
         catch (OrganizerException e)
         {
@@ -126,7 +127,7 @@ public class GameHub : Hub
                 await Clients.Caller.SendAsync(Events.InvalidMove);
                 return;
             case GameEvent.MoveSucceeded:
-                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, "INSERT JSON FORMATTED STRING HERE");
+                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
                 return;
             case GameEvent.WhiteWon:
                 await Clients.Group(gameId).SendAsync(Events.WhiteWon);
@@ -140,16 +141,21 @@ public class GameHub : Hub
         }
     }
 
-    private static string PlayerToString(Player p)
+    /// <summary>
+    /// Responds to the caller with the current game state
+    /// </summary>
+    /// <param name="gameId">The game to request state for</param>
+    /// <returns></returns>
+    public async Task RequestState(string gameId)
     {
-        switch (p)
+        try
         {
-            case Player.White:
-                return "white";
-            case Player.Black:
-                return "black";
-            default:
-                throw new ArgumentException("Player must be either white or black");
+            var state = _organizer.GetStateAsJson(gameId);
+            await Clients.Caller.SendAsync(Events.UpdatedGameState, state);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
     }
 
