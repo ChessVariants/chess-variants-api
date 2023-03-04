@@ -35,7 +35,7 @@ public class Operator : IPredicate
     /// Logically evaluates the two internal <see cref="IPredicate"/> objects by the supplied <see cref="Chessboard"/>s and <see cref="OperatorType"/>.
     /// </summary>
     /// <inheritdoc/>
-    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
     {
         switch (_type)
         {
