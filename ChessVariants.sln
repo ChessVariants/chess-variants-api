@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chess", "Chess", "{E05C37F4-5E64-4EE7-BF9A-E882C8925425}"
 	ProjectSection(SolutionItems) = preProject
+		IBoardState.cs = IBoardState.cs
 		Predicate.cs = Predicate.cs
 	EndProjectSection
 EndProject
@@ -23,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessVariantsAPI.Tests", "ChessVariantsAPI.Tests\ChessVariantsAPI.Tests.csproj", "{9DAFDB32-DFBF-47A5-ABF5-37231773D783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessVariantsAPI.Tests", "ChessVariantsAPI.Tests\ChessVariantsAPI.Tests.csproj", "{9DAFDB32-DFBF-47A5-ABF5-37231773D783}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

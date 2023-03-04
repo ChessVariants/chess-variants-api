@@ -18,7 +18,7 @@ public class Const : IPredicate
     /// <param name="thisBoardState">Irrelevant, only used to satisfy interface</param>
     /// <param name="nextBoardState">Irrelevant, only used to satisfy interface</param>
     /// <returns>the boolean value specified at creation.</returns>
-    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
     {
         return _value;
     }

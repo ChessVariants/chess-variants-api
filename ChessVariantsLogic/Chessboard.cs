@@ -14,11 +14,6 @@ public class Chessboard
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
 
-    public IEnumerable<string> GetAllMoves(Player player)
-    {
-        return new List<string>();
-    }
-
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
     /// </summary>
@@ -59,14 +54,14 @@ public class Chessboard
         {
             for (int j = 0; j < cols; j++)
             {
-                boardCopy.Insert(board[i, j], (i, j));
+                boardCopy.Insert(board[i, j], i, j);
             }
         }
         return boardCopy;
     }
 
     public Chessboard(int length) : this(length, length) {}
-#endregion
+
 
     /// <summary>
     /// Yield returns all coordinates for this Chessboard.
@@ -266,7 +261,7 @@ public class Chessboard
 
 
 
-    private Dictionary<string, Tuple<int, int>> initCoorToIndex()
+    public Dictionary<string, Tuple<int, int>> initCoorToIndex()
     {
         var dictionary = new Dictionary<string, Tuple<int, int>>();
 
@@ -353,3 +348,5 @@ public class Chessboard
     #endregion
 
 }
+
+#endregion

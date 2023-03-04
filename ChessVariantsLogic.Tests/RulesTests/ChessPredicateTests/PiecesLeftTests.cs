@@ -5,16 +5,16 @@ using System;
 namespace ChessVariantsLogic.Tests;
 
 public class PiecesLeftTests : IDisposable {
-    Chessboard board;
+    IBoardState board;
 
     public PiecesLeftTests()
     {
-        board = Chessboard.StandardChessboard();
+        board = new MoveWorker(Chessboard.StandardChessboard());
     }
 
     public void Dispose()
     {
-        board = Chessboard.StandardChessboard();
+        board = new MoveWorker(Chessboard.StandardChessboard());
         GC.SuppressFinalize(this);
     }
 

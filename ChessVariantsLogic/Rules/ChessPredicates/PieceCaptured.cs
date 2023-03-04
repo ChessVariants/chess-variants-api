@@ -17,11 +17,11 @@ public class PieceCaptured : IPredicate
     /// </summary>
     /// <inheritdoc/>
     /// <returns>True if a piece was captured during transition from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.</returns>
-    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
     {
         int amountOfPieces = Utils.FindPiecesOfType(thisBoardState, _pieceIdentifier).Count();
         int amountOfPiecesNextState = Utils.FindPiecesOfType(nextBoardState, _pieceIdentifier).Count();
-        int diff = amountOfPiecesNextState - amountOfPieces;
+        int diff = amountOfPieces - amountOfPiecesNextState;
         return diff > 0;
     }
 
