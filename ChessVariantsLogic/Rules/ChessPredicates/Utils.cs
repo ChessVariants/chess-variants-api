@@ -75,7 +75,7 @@ public class Utils
     /// <returns>True if the piece at <paramref name="position"/> conforms to the type of the <paramref name="pieceIdentifier"/></returns>
     public static bool IsOfType(string position, IBoardState board, string pieceIdentifier)
     {
-        var piece = board.Board.GetPieceAsString(position);
+        var piece = board.Board.GetPieceIdentifier(position);
         switch (pieceIdentifier)
         {
             case "ANY":

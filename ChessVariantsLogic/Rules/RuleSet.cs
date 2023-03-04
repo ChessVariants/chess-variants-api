@@ -7,13 +7,11 @@ public class RuleSet
 {
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
-    private readonly IEnumerable<CustomMove> _customMoves;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, IEnumerable<CustomMove> customMoves)
+    public RuleSet(IPredicate moveRule, IPredicate winRule)
     {
         _moveRule = moveRule;
         _winRule = winRule;
-        _customMoves = customMoves;
     }
 
     /// <summary>
@@ -37,22 +35,6 @@ public class RuleSet
             }
         }
 
-        foreach(var move in _customMoves)
-        {
-            IPredicate predicate = move.Predicate;
-            IEnumerable<IAction> actions = move.Actions;
-            string fromTo = move.From + move.To;
-
-            var futureBoard = board.CopyBoardState();
-
-            futureBoard.Move(fromTo);
-
-
-            if (predicate.Evaluate(board, futureBoard))
-            {
-                acceptedMoves.Add(fromTo);
-            }
-        }
 
         return acceptedMoves;
     }

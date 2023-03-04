@@ -385,6 +385,9 @@ public class MoveWorker : IBoardState
         return false;
     }
 
+    /// <summary>
+    /// Copies this move worker to a new move worker object
+    /// </summary>
     public IBoardState CopyBoardState()
     {
         Chessboard newBoard = board.CopyBoard();
