@@ -1,6 +1,8 @@
 namespace ChessVariantsLogic;
 
+using ChessVariantsLogic.Actions;
 using Predicates;
+using System;
 
 public class Game {
 
@@ -38,27 +40,39 @@ public class Game {
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
     private GameEvent MakeMoveImpl(string move) {
-        ISet<string> validMoves;
+        ISet<Move> validMoves;
         if (_playerTurn == Player.White) {
             validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
         } else {
             validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
         }
-        if (validMoves.Contains(move)) {
-            var moveWasPossible = _board.Move(move);
+        Move? movePerformed = GetMove(validMoves, move);
 
-            // TODO: PERFORM ACTION
+        if (movePerformed != null) {
+            movePerformed.Perform(_board);
+
+            
 
             if (false) { // check if game is won via rules
                 return GameEvent.Tie;
             }
             
-            if (moveWasPossible == GameEvent.MoveSucceeded) {
-                DecrementPlayerMoves();
-                return GameEvent.MoveSucceeded;
-            }
+            DecrementPlayerMoves();
+            return GameEvent.MoveSucceeded;
         }
         return GameEvent.InvalidMove;
+    }
+
+    private Move? GetMove(ISet<Move> validMoves, string fromTo)
+    {
+        foreach(Move move in validMoves)
+        {
+            if(move.FromTo.Equals(fromTo))
+            {
+                return move;
+            }
+        }
+        return null;
     }
 
     /// <summary>
