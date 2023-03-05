@@ -39,8 +39,7 @@ public class GameOrganizer
             throw new OrganizerException("The game you're trying to create already exists");
         }
         activeGame = CreateGameIfNull(gameId, activeGame, playerIdentifier);
-        var player = activeGame.AddPlayer(playerIdentifier);
-        return player;
+        return (Player) activeGame.GetPlayer(playerIdentifier)!;
     }
 
     private ActiveGame CreateGameIfNull(string gameId, ActiveGame? activeGame, string playerIdentifier)
