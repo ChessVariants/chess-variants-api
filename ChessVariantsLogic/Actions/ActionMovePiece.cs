@@ -4,15 +4,15 @@ using Predicates;
 
 public class ActionMovePiece : IAction
 {
-    private string _fromTo;
+    private IMoveType _moveType;
 
-    public ActionMovePiece(string fromTo)
+    public ActionMovePiece(IMoveType moveType)
     {
-        _fromTo = fromTo;
+        _moveType = moveType;
     }
 
     public void Perform(IBoardState moveWorker)
     {
-        moveWorker.Move(_fromTo);
+        moveWorker.Move(_moveType.GetFromTo(moveWorker));
     }
 }
