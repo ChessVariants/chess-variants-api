@@ -364,4 +364,127 @@ public class ChessboardTests
         Assert.Equal(27, movesQueen.Count);
     }
 
+    [Fact]
+    public void TestDifferentCapturePattern()
+    {
+        var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+         var pattern = new List<Tuple<int,int>> {
+            Constants.North,
+            Constants.East,
+            Constants.South,
+            Constants.West,
+        };
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+        };
+        
+        var capturePattern = new List<Tuple<int,int>> {
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest,
+        };
+        var capturePatternLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+        };
+
+        var mp = new RegularMovementPattern(pattern, moveLength);
+        var cp = new RegularMovementPattern(capturePattern, capturePatternLength);
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "C");
+
+        Assert.True(moveWorker.InsertOnBoard(piece, "h1"));
+        
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h2h3"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h3h4"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h1h3"));
+        
+        Assert.Equal(GameEvent.InvalidMove, moveWorker.Move("h3e6"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h3d7"));
+
+    }
+
+    [Fact]
+    public void MoveLikeBishop_captureLikeKnight()
+    {
+        var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        var pattern = new List<Tuple<int,int>> {
+            Constants.NorthEast,
+            Constants.SouthEast,
+            Constants.SouthWest,
+            Constants.NorthWest,
+        };
+        var moveLength = new List<Tuple<int,int>> {
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+            new Tuple<int,int> (1,8),
+        };
+
+        var capturePattern = new List<Tuple<int,int>> {
+            new Tuple<int, int>( 1, 2),
+            new Tuple<int, int>( 2, 1),
+            new Tuple<int, int>( 1,-2),
+            new Tuple<int, int>( 2,-1),
+            new Tuple<int, int>(-1, 2),
+            new Tuple<int, int>(-2, 1),
+            new Tuple<int, int>(-1,-2),
+            new Tuple<int, int>(-2,-1),
+        };
+
+        var mp = new RegularMovementPattern(pattern, moveLength);
+        var cp = new JumpMovementPattern(capturePattern);
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "C");
+
+        Assert.True(moveWorker.InsertOnBoard(piece, "h1"));
+        
+        Assert.Equal(GameEvent.InvalidMove,     moveWorker.Move("h1g3"));
+        Assert.Equal(GameEvent.MoveSucceeded,   moveWorker.Move("g2g3"));
+        Assert.Equal(GameEvent.InvalidMove,     moveWorker.Move("h1b7"));
+        Assert.Equal(GameEvent.MoveSucceeded,   moveWorker.Move("h1c6"));
+        
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("c6d8"));
+
+    }
+
+
+    [Fact]
+    public void TestJumpCapturePattern()
+    {
+        var moveWorker = new MoveWorker(new Chessboard(8));
+
+        var pattern = new List<Tuple<int,int>> {
+            new Tuple<int, int>( 1, 2),
+            new Tuple<int, int>( 2, 1),
+            new Tuple<int, int>( 1,-2),
+            new Tuple<int, int>( 2,-1),
+            new Tuple<int, int>(-1, 2),
+            new Tuple<int, int>(-2, 1),
+            new Tuple<int, int>(-1,-2),
+            new Tuple<int, int>(-2,-1),
+        };
+        
+        var capturePattern = new List<Tuple<int,int>> {
+            new Tuple<int, int>(3,1),
+            new Tuple<int, int>(1,3),
+            new Tuple<int, int>(-1,3),
+            new Tuple<int, int>(-3,1),
+        };
+        
+        var mp = new JumpMovementPattern(pattern);
+        var cp = new  JumpMovementPattern(capturePattern);
+        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , "C");
+        Piece piece2 = Piece.BlackPawn();
+        
+        Assert.True(moveWorker.InsertOnBoard(piece1, "d4"));
+        Assert.True(moveWorker.InsertOnBoard(piece2, "e7"));
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("d4e7"));
+    }
 }
