@@ -46,7 +46,7 @@ public class GameOrganizer
     {
         if (activeGame == null)
         {
-            activeGame = new ActiveGame(GameFactory.StandardChess(), playerIdentifier); // TODO don't automatically create standard chess
+            activeGame = new ActiveGame(GameFactory.AntiChess(), playerIdentifier); // TODO don't automatically create standard chess
             _activeGames.Add(gameId, activeGame);
         }
         return activeGame;

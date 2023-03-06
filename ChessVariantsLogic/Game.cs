@@ -75,7 +75,8 @@ public class Game {
 
     public string ExportStateAsJson()
     {
-        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, _board.GetMoveDict(_playerTurn));
+        RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
+        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _board));
     }
 }
 
