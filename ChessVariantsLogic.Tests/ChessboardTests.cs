@@ -278,24 +278,17 @@ public class ChessboardTests
     [Fact]
     public void Test_Custom_Piece()
     {
-         var moveWorker = new MoveWorker(new Chessboard(8));
+        var moveWorker = new MoveWorker(new Chessboard(8));
 
-         var pattern = new List<Tuple<int,int>> {
-            Constants.North,
-            Constants.NorthEast,
-            Constants.NorthWest,
-            Constants.SouthEast,
-            Constants.SouthWest
-        };
-        var moveLength = new List<Tuple<int,int>> {
-            new Tuple<int,int> (1,3),
-            new Tuple<int,int> (1,1),
-            new Tuple<int,int> (2,4),
-            new Tuple<int,int> (2,2),
-            new Tuple<int,int> (1,3),
+        var patterns = new List<IPattern> {
+            new RegularPattern(Constants.North,     1, 3),
+            new RegularPattern(Constants.NorthEast, 1, 1),
+            new RegularPattern(Constants.SouthEast, 2, 2),
+            new RegularPattern(Constants.SouthWest, 1, 3),
+            new RegularPattern(Constants.NorthWest, 2, 4),
 
         };
-        var mp = new RegularMovementPattern(pattern, moveLength);
+        var mp = new MovementPattern(patterns);
         Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "c4"));
@@ -321,17 +314,11 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(new Chessboard(8));
 
-        var pattern = new List<Tuple<int,int>> {
-            Constants.North,
-            Constants.West,
-          
+        var patterns = new List<IPattern> {
+            new RegularPattern(Constants.North, 1, 8),
+            new RegularPattern(Constants.West,  1, 8),
         };
-        var moveLength = new List<Tuple<int,int>> {
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            
-        };
-        var mp = new RegularMovementPattern(pattern, moveLength);
+        var mp = new MovementPattern(patterns);
         Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "h4"));
@@ -369,34 +356,22 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-         var pattern = new List<Tuple<int,int>> {
-            Constants.North,
-            Constants.East,
-            Constants.South,
-            Constants.West,
-        };
-        var moveLength = new List<Tuple<int,int>> {
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-        };
-        
-        var capturePattern = new List<Tuple<int,int>> {
-            Constants.NorthEast,
-            Constants.SouthEast,
-            Constants.SouthWest,
-            Constants.NorthWest,
-        };
-        var capturePatternLength = new List<Tuple<int,int>> {
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
+        var patterns = new List<IPattern> {
+            new RegularPattern(Constants.North, 1, 8),
+            new RegularPattern(Constants.East, 1, 8),
+            new RegularPattern(Constants.South, 1, 8),
+            new RegularPattern(Constants.West, 1, 8),
         };
 
-        var mp = new RegularMovementPattern(pattern, moveLength);
-        var cp = new RegularMovementPattern(capturePattern, capturePatternLength);
+        var capturePatterns = new List<IPattern> {
+            new RegularPattern(Constants.NorthEast, 1, 8),
+            new RegularPattern(Constants.SouthEast, 1, 8),
+            new RegularPattern(Constants.SouthWest, 1, 8),
+            new RegularPattern(Constants.NorthWest, 1, 8),
+        };
+
+        var mp = new MovementPattern(patterns);
+        var cp = new MovementPattern(capturePatterns);
         Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "h1"));
@@ -415,32 +390,26 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
-        var pattern = new List<Tuple<int,int>> {
-            Constants.NorthEast,
-            Constants.SouthEast,
-            Constants.SouthWest,
-            Constants.NorthWest,
-        };
-        var moveLength = new List<Tuple<int,int>> {
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
-            new Tuple<int,int> (1,8),
+        var patterns = new List<IPattern> {
+            new RegularPattern(Constants.NorthEast, 1, 8),
+            new RegularPattern(Constants.SouthEast, 1, 8),
+            new RegularPattern(Constants.SouthWest, 1, 8),
+            new RegularPattern(Constants.NorthWest, 1, 8),
         };
 
-        var capturePattern = new List<Tuple<int,int>> {
-            new Tuple<int, int>( 1, 2),
-            new Tuple<int, int>( 2, 1),
-            new Tuple<int, int>( 1,-2),
-            new Tuple<int, int>( 2,-1),
-            new Tuple<int, int>(-1, 2),
-            new Tuple<int, int>(-2, 1),
-            new Tuple<int, int>(-1,-2),
-            new Tuple<int, int>(-2,-1),
+        var capturePattern = new List<IPattern> {
+            new JumpPattern( 1, 2),
+            new JumpPattern( 2, 1),
+            new JumpPattern( 1,-2),
+            new JumpPattern( 2,-1),
+            new JumpPattern(-1, 2),
+            new JumpPattern(-2, 1),
+            new JumpPattern(-1,-2),
+            new JumpPattern(-2,-1),
         };
 
-        var mp = new RegularMovementPattern(pattern, moveLength);
-        var cp = new JumpMovementPattern(capturePattern);
+        var mp = new MovementPattern(patterns);
+        var cp = new MovementPattern(capturePattern);
         Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "C");
 
         Assert.True(moveWorker.InsertOnBoard(piece, "h1"));
@@ -460,26 +429,26 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(new Chessboard(8));
 
-        var pattern = new List<Tuple<int,int>> {
-            new Tuple<int, int>( 1, 2),
-            new Tuple<int, int>( 2, 1),
-            new Tuple<int, int>( 1,-2),
-            new Tuple<int, int>( 2,-1),
-            new Tuple<int, int>(-1, 2),
-            new Tuple<int, int>(-2, 1),
-            new Tuple<int, int>(-1,-2),
-            new Tuple<int, int>(-2,-1),
+        var patterns = new List<IPattern> {
+            new JumpPattern( 1, 2),
+            new JumpPattern( 2, 1),
+            new JumpPattern( 1,-2),
+            new JumpPattern( 2,-1),
+            new JumpPattern(-1, 2),
+            new JumpPattern(-2, 1),
+            new JumpPattern(-1,-2),
+            new JumpPattern(-2,-1),
         };
         
-        var capturePattern = new List<Tuple<int,int>> {
-            new Tuple<int, int>(3,1),
-            new Tuple<int, int>(1,3),
-            new Tuple<int, int>(-1,3),
-            new Tuple<int, int>(-3,1),
+        var capturePatterns = new List<IPattern> {
+            new JumpPattern( 3, 1),
+            new JumpPattern( 1, 3),
+            new JumpPattern(-1, 3),
+            new JumpPattern(-3, 1),
         };
         
-        var mp = new JumpMovementPattern(pattern);
-        var cp = new  JumpMovementPattern(capturePattern);
+        var mp = new MovementPattern(patterns);
+        var cp = new  MovementPattern(capturePatterns);
         Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , "C");
         Piece piece2 = Piece.BlackPawn();
         

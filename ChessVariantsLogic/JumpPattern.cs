@@ -14,9 +14,9 @@ public class JumpPattern : IPattern
 
     public int GetYDir() { return pattern.Item2; }
 
-    public int GetXLength() { return -1; }
+    public int GetMinLength() { return -1; }
 
-    public int GetYLength() { return -1; }
+    public int GetMaxLength() { return -1; }
 
 #endregion
 

@@ -9,15 +9,17 @@ public class RegularPattern : IPattern
         this.pattern = new Tuple<int,int,int,int>(xDir, yDir, minLength, maxLength);
     }
 
+    public RegularPattern(Tuple<int,int> direction, int minLength, int maxLength) : this(direction.Item1, direction.Item2, minLength, maxLength) {}
+
 #region Interface overrides
     public int GetXDir() { return pattern.Item1; }
 
     public int GetYDir() { return pattern.Item2; }
 
-    public int GetXLength() { return pattern.Item3; }
+    public int GetMinLength() { return pattern.Item3; }
 
-    public int GetYLength() { return pattern.Item4; }
-    
+    public int GetMaxLength() { return pattern.Item4; }
+
 #endregion
 
 }
