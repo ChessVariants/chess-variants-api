@@ -39,7 +39,8 @@ public class Piece
     /// <summary>
     /// Constructor for a new Piece.
     /// </summary>
-    /// <param name="movementPattern">is the custom movement pattern</param>
+    /// <param name="movementPattern">is the custom movement pattern of the type MovementPattern</param>
+    /// <param name="capturePattern">is the custom capture pattern of the type MovementPattern</param>
     /// <param name="royal">set true if the piece is royal</param>
     /// <param name="pc">is the player the piece belongs to</param>
     /// <param name="hasMoved">set true if the piece has previously moved</param>
@@ -68,47 +69,45 @@ public class Piece
     /// Gets a specific movement pattern by index.
     /// </summary>
     /// <param name="index" is the index of the movement pattern></param>
-    /// <returns> the movement pattern at <paramref name="index"/>.</returns>
+    /// <returns>the movement pattern at <paramref name="index"/> if the index is valid, otherwise null.</returns>
     public IPattern? GetMovementPattern(int index)
     {
         return this.movementPattern.GetPattern(index);
     }
 
+    /// <summary>
+    /// Gets a specific capture pattern by index.
+    /// </summary>
+    /// <param name="index" is the index of the capture pattern></param>
+    /// <returns>the capture pattern at <paramref name="index"/> if the index is valid, otherwise null.</returns>
     public IPattern? GetCapturePattern(int index)
     {
         return this.capturePattern.GetPattern(index);
     }
 
+    /// <summary>
+    /// Yield returns all IPatterns existing in this movement pattern.
+    /// </summary>
+    /// <returns>each IPattern in this movement pattern individually.</returns>
     public IEnumerable<IPattern> GetAllMovementPatterns()
     {
         return this.movementPattern.GetAllPatterns();
     }
 
+    /// <summary>
+    /// Yield returns all IPatterns existing in this capture pattern.
+    /// </summary>
+    /// <returns>each IPattern in this capture pattern individually.</returns>
     public IEnumerable<IPattern> GetAllCapturePatterns()
     {
         return this.capturePattern.GetAllPatterns();
     }
 
     /// <summary>
-    /// Gets the total number of moves that this piece can perform on an empty board.
+    /// Checks that this and <paramref name="other"/> are of opposite colors.
     /// </summary>
-    /// <returns> the total number of moves this piece can perform. </returns>
-    public int GetMovementPatternCount()
-    {
-        return this.movementPattern.GetMovementPatternCount();
-    }
-
-    public int GetCapturePatternCount()
-    {
-        return this.capturePattern.GetMovementPatternCount();
-    }
-
-    /// <summary>
-    /// Checks that two pieces are of opposite colors.
-    /// </summary>
-    /// <param name="p1">The first piece.</param>
-    /// <param name="p2">The second piece.</param>
-    /// <returns>true if pieces are of opposite colors.</returns>
+    /// <param name="other"> is the other piece</param>
+    /// <returns> true if this is of opposite color than other, otherwise false.</returns>
     public bool CanTake(Piece other)
     {
         return !this.pieceClassifier.Equals(other.pieceClassifier);

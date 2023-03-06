@@ -1,5 +1,8 @@
 namespace ChessVariantsLogic;
 
+/// <summary>
+/// Represent a movement pattern with fixed range, which DOES allow jumping over occupied squares. Implements IPattern.
+/// </summary>
 public class JumpPattern : IPattern
 {
     private readonly Tuple<int, int> pattern;
@@ -14,8 +17,16 @@ public class JumpPattern : IPattern
 
     public int GetYDir() { return pattern.Item2; }
 
+    /// <summary>
+    /// Exists to satisfy interface.
+    /// </summary>
+    /// <returns>-1</returns>
     public int GetMinLength() { return -1; }
 
+    /// <summary>
+    /// Exists to satisfy interface.
+    /// </summary>
+    /// <returns>-1</returns>
     public int GetMaxLength() { return -1; }
 
 #endregion

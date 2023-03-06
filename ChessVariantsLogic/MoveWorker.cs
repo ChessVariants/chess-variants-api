@@ -163,27 +163,27 @@ public class MoveWorker
 
 #region Move methods
 
-    // Generates all moves for a piece that can not jump over other pieces.
+    // Generates all moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int,int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
             if(pattern is RegularPattern)
-                moves.UnionWith(getAllMoves(piece, pattern, pos));
+                moves.UnionWith(getRegularMoves(piece, pattern, pos));
             else
-                moves.UnionWith(getAllMovesJump(piece, pattern, pos));
+                moves.UnionWith(getJumpMove(piece, pattern, pos));
         }
 
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if(pattern is RegularPattern)
             {
-                moves.UnionWith(getAllCaptureMoves(piece, pattern, pos));
+                moves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
             }
             else
             {
-                var captureMove = getAllCapturesJump(piece, pattern, pos);
+                var captureMove = getJumpCaptureMove(piece, pattern, pos);
                 if(captureMove == null)
                     continue;
                 moves.Add(captureMove);
@@ -199,20 +199,20 @@ public class MoveWorker
                 foreach (var pattern in piece.GetAllMovementPatterns())
                 {
                     if (pattern is RegularPattern)
-                        moves.UnionWith(getAllMoves(piece, pattern, move));
+                        moves.UnionWith(getRegularMoves(piece, pattern, move));
                     else
-                        moves.UnionWith(getAllMovesJump(piece, pattern, move));
+                        moves.UnionWith(getJumpMove(piece, pattern, move));
                 }
 
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
                     {
-                        moves.UnionWith(getAllCaptureMoves(piece, pattern, move));
+                        moves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
                     }
                     else
                     {
-                        var captureMove = getAllCapturesJump(piece, pattern, move);
+                        var captureMove = getJumpCaptureMove(piece, pattern, move);
                         if (captureMove == null)
                             continue;
                         moves.Add(captureMove);
@@ -225,8 +225,8 @@ public class MoveWorker
         return moves;
     }
 
-     // Returns all moves for a non-jumping piece.
-    private HashSet<Tuple<int, int>> getAllMoves(Piece piece, IPattern pattern, Tuple<int,int> pos)
+     // Returns all regular moves for a regularpattern.
+    private HashSet<Tuple<int, int>> getRegularMoves(Piece piece, IPattern pattern, Tuple<int,int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
@@ -264,8 +264,8 @@ public class MoveWorker
         return moves;    
     }
 
-    // Returns all valid capture moves for a non-jumping piece.
-    private HashSet<Tuple<int, int>> getAllCaptureMoves(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    // Returns all valid capture moves for a regularpattern.
+    private HashSet<Tuple<int, int>> getRegularCaptureMoves(Piece piece, IPattern pattern, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
@@ -322,8 +322,8 @@ public class MoveWorker
         return moves;    
     }
 
-    // Returns all moves for a jumping piece.
-    private HashSet<Tuple<int, int>> getAllMovesJump(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    // Returns move for jumpingpattern
+    private HashSet<Tuple<int, int>> getJumpMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
 
@@ -343,8 +343,8 @@ public class MoveWorker
         return moves;
     }
 
-    // Returns all valid moves for a piece that can jump.
-    private Tuple<int,int>? getAllCapturesJump(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    // Returns capture move for a jumpingpattern.
+    private Tuple<int,int>? getJumpCaptureMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
     {
         
         if (pattern == null)

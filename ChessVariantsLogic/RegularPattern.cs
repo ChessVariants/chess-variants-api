@@ -1,5 +1,8 @@
 namespace ChessVariantsLogic;
 
+/// <summary>
+/// Represent a movement pattern with dynamic range, which DOES NOT allow jumping over occupied squares. Implements IPattern.
+/// </summary>
 public class RegularPattern : IPattern
 {
     private readonly Tuple<int, int, int, int> pattern;
