@@ -37,15 +37,16 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/> and creates the game if possible.
+    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/> and creates the game.
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
+    /// <param name="variantIdentifier">What variant to create</param>
     /// <returns></returns>
-    public async Task CreateGame(string gameId)
+    public async Task CreateGame(string gameId, string variantIdentifier)
     {
         try
         {
-            Player createdPlayer = _organizer.CreateGame(gameId, Context.ConnectionId);
+            Player createdPlayer = _organizer.CreateGame(gameId, Context.ConnectionId, variantIdentifier);
             await Clients.Caller.SendAsync(Events.GameCreated, createdPlayer.AsString());
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
         }

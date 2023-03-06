@@ -10,14 +10,16 @@ public class ActiveGame
 {
     private readonly Game _game;
     private readonly Dictionary<string, Player?> _playerDict;
+    public string Variant { get; private set; }
     public string Admin { get; private set; }
 
-    public ActiveGame(Game game, string creatorPlayerIdentifier)
+    public ActiveGame(Game game, string creatorPlayerIdentifier, string variantType)
     {
         _game = game;
         _playerDict = new Dictionary<string, Player?>();
         AddPlayer(creatorPlayerIdentifier);
         Admin = creatorPlayerIdentifier;
+        Variant = variantType;
     }
 
     /// <summary>

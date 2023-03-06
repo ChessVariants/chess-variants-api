@@ -23,33 +23,46 @@ public class GameOrganizer
     /// <returns>True if the player could join the game, false otherwise</returns>
     public Player JoinGame(string gameId, string playerIdentifier)
     {
-        var activeGame = _activeGames.GetValueOrDefault(gameId, null);
-        if (activeGame == null)
-        {
-            throw new GameNotFoundException();
-        }
+        var activeGame = GetActiveGame(gameId);
         return activeGame.AddPlayer(playerIdentifier);
     }
 
-    public Player CreateGame(string gameId, string playerIdentifier)
+    public Player CreateGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
         if (activeGame != null)
         {
             throw new OrganizerException("The game you're trying to create already exists");
         }
-        activeGame = CreateGameIfNull(gameId, activeGame, playerIdentifier);
+        activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
         return (Player) activeGame.GetPlayer(playerIdentifier)!;
     }
 
-    private ActiveGame CreateGameIfNull(string gameId, ActiveGame? activeGame, string playerIdentifier)
+    private ActiveGame CreateActiveGame(string gameId, string playerIdentifier, string variantIdentifier)
     {
-        if (activeGame == null)
+        Game? gameVariant;
+        try
         {
-            activeGame = new ActiveGame(GameFactory.AntiChess(), playerIdentifier); // TODO don't automatically create standard chess
-            _activeGames.Add(gameId, activeGame);
+            gameVariant = GameFactory.FromIdentifier(variantIdentifier);
         }
+        catch (ArgumentException e)
+        {
+            throw new OrganizerException(e.Message);
+        }
+        
+        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
+        _activeGames.Add(gameId, activeGame);
         return activeGame;
+    }
+
+    /// <summary>
+    /// Returns what chess variant the game is
+    /// </summary>
+    /// <param name="gameId">The id for the game to query what variant it is</param>
+    /// <returns>The chess variant for the supplied <paramref name="gameId"/></returns>
+    public string GetActiveGameVariant(string gameId)
+    {
+        return GetActiveGame(gameId).Variant;
     }
 
     /// <summary>

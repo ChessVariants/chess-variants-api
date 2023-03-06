@@ -8,19 +8,13 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace ChessVariantsAPI.Tests.GameOrganizationTests;
-public class ActiveGameTests : IDisposable
+public class ActiveGameTests
 {
     ActiveGame activeGame;
 
     public ActiveGameTests()
     {
-        activeGame = new ActiveGame(GameFactory.StandardChess(), "admin");
-    }
-
-    public void Dispose()
-    {
-        activeGame = new ActiveGame(GameFactory.StandardChess(), "admin");
-        GC.SuppressFinalize(this);
+        activeGame = new ActiveGame(GameFactory.StandardChess(), "admin", GameFactory.StandardIdentifier);
     }
 
     [Fact]
@@ -87,6 +81,20 @@ public class ActiveGameTests : IDisposable
         activeGame.SwapColors("playerTwo");
         Assert.Equal(Player.White, activeGame.GetPlayer("admin"));
         Assert.Equal(Player.Black, activeGame.GetPlayer("playerTwo"));
+    }
+
+    [Fact]
+    public void Constructor_ShouldBeStandardVariant()
+    {
+        activeGame = new ActiveGame(GameFactory.FromIdentifier(GameFactory.StandardIdentifier), "admin", GameFactory.StandardIdentifier);
+        Assert.Equal(GameFactory.StandardIdentifier, activeGame.Variant);
+    }
+
+    [Fact]
+    public void Constructor_ShouldBeStandardAntiChess()
+    {
+        activeGame = new ActiveGame(GameFactory.FromIdentifier(GameFactory.AntiChessIdentifier), "admin", GameFactory.AntiChessIdentifier);
+        Assert.Equal(GameFactory.AntiChessIdentifier, activeGame.Variant);
     }
 
 

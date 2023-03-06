@@ -15,6 +15,10 @@ public static class GameFactory
     private static OperatorType EQUALS = OperatorType.EQUALS;
     private static OperatorType NOT = OperatorType.NOT;
 
+    public const string StandardIdentifier = "standard";
+    public const string CaptureTheKingIdentifier = "captureTheKing";
+    public const string AntiChessIdentifier = "antiChess";
+
     public static Game StandardChess()
     {
         IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
@@ -65,5 +69,22 @@ public static class GameFactory
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+    }
+
+    /// <summary>
+    /// Returns a game corresponding to the <paramref name="identifier"/>>.
+    /// </summary>
+    /// <param name="identifier">Variant identifier for the variant to create</param>
+    /// <returns>A game corresponding to the <paramref name="identifier"/>>.</returns>
+    /// <exception cref="ArgumentException">If there's no correspondence to the identifier</exception>
+    public static Game FromIdentifier(string identifier)
+    {
+        return identifier switch
+        {
+            StandardIdentifier => StandardChess(),
+            AntiChessIdentifier => AntiChess(),
+            CaptureTheKingIdentifier => CaptureTheKing(),
+            _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
+        };
     }
 }

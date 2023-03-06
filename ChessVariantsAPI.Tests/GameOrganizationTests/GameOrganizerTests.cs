@@ -90,4 +90,17 @@ public class GameOrganizerTests : IDisposable
     {
         Assert.Throws<PlayerNotFoundException>(() => gameOrganizer.GetPlayer("0", "non_existing_id"));
     }
+
+    [Fact]
+    public void CreateGame_ShouldBeStandardVariant()
+    {
+        Assert.Equal(gameOrganizer.GetActiveGameVariant("0"), GameFactory.StandardIdentifier);
+    }
+
+    [Fact]
+    public void CreateGame_ShouldBeCaptureTheKing()
+    {
+        gameOrganizer.CreateGame("1", "id", GameFactory.CaptureTheKingIdentifier);
+        Assert.Equal(gameOrganizer.GetActiveGameVariant("1"), GameFactory.CaptureTheKingIdentifier);
+    }
 }
