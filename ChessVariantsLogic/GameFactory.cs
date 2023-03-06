@@ -49,7 +49,7 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule);
         
-        return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
     public static Game AntiChess()
@@ -64,6 +64,6 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
 
-        return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 }
