@@ -57,14 +57,14 @@ public class PieceCapturedTests : IDisposable {
     {
         IPredicate pawnCaptured = new PieceCaptured(Constants.BlackPawnIdentifier);
         IPredicate pieceCaptured = new PieceCaptured("ANY_BLACK");
-        Assert.True(pawnCaptured.Evaluate(board0, board1));
-        Assert.True(pieceCaptured.Evaluate(board0, board1));
+        Assert.True(pawnCaptured.Evaluate(transition));
+        Assert.True(pieceCaptured.Evaluate(transition));
     }
     [Fact]
     public void CheckMate_ShouldReturnFalse()
     {
         IPredicate pawnCaptured = new PieceCaptured(Constants.BlackPawnIdentifier);
-        Assert.False(pawnCaptured.Evaluate(board0, board0));
+        Assert.False(pawnCaptured.Evaluate(transition));
     }
 
 }

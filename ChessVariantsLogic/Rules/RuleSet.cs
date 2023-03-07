@@ -1,6 +1,9 @@
-﻿using ChessVariantsLogic.Actions;
+﻿using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+using ChessVariantsLogic.Rules.Moves;
+using ChessVariantsLogic.Rules.Moves.Actions;
 
-namespace ChessVariantsLogic.Predicates;
+namespace ChessVariantsLogic.Rules;
 
 /// <summary>
 /// This class represents an accumulation of rules defined as <see cref="IPredicate"/>s, separated into move and win rules.
@@ -9,15 +12,13 @@ public class RuleSet
 {
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
-    private readonly ISet<Move> _whiteCustomMoves;
-    private readonly ISet<Move> _blackCustomMoves;
+    private readonly ISet<MoveData> _customMoves;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<Move> whiteCustomMoves, ISet<Move> blackCustomMoves)
+    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveData> customMoves)
     {
         _moveRule = moveRule;
         _winRule = winRule;
-        _whiteCustomMoves = whiteCustomMoves;
-        _blackCustomMoves = blackCustomMoves;
+        _customMoves = customMoves;
     }
 
     /// <summary>
@@ -26,37 +27,33 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public ISet<Move> ApplyMoveRule(IBoardState board, Player sideToPlay)
+    public IEnumerable<Move> ApplyMoveRule(IBoardState board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
-        var acceptedMoves = new HashSet<Move>();
+        var acceptedMoves = new List<Move>();
         foreach (var move in possibleMoves)
         {
             var futureBoard = board.CopyBoardState();
             futureBoard.Move(move);
-            bool ruleSatisfied = _moveRule.Evaluate(board, futureBoard);
+
+            BoardTransition transition = new BoardTransition(board, futureBoard, move);
+
+            (string from, string _) = board.parseMove(move);
+
+            Tuple<int, int>? fromPos = board.Board.ParseCoordinate(from);
+            
+            if (fromPos == null) continue;
+
+            bool ruleSatisfied = _moveRule.Evaluate(transition);
             if (ruleSatisfied)
             {
                 acceptedMoves.Add(new MoveStandard(move));
             }
         }
-        ISet<Move> customMoves;
 
-        if (sideToPlay == Player.White)
-            customMoves = _whiteCustomMoves;
-        else if (sideToPlay == Player.Black)
-            customMoves = _blackCustomMoves;
-        else
-            return acceptedMoves;
-
-        foreach(var move in customMoves)
+        foreach (var moveData in _customMoves)
         {
-            var futureBoard = board.CopyBoardState();
-            move.Perform(futureBoard);
-            if (move.EvaluatePredicate(board, futureBoard))
-            {
-                acceptedMoves.Add(move);
-            }
+            acceptedMoves.AddRange(moveData.GetValidMoves(board, _moveRule));
         }
 
         return acceptedMoves;
@@ -69,6 +66,6 @@ public class RuleSet
     /// <returns></returns>
     public bool ApplyWinRule(IBoardState thisBoard)
     {
-        return _winRule.Evaluate(thisBoard, thisBoard);
+        return _winRule.Evaluate(new BoardTransition(thisBoard, thisBoard, ""));
     }
 }

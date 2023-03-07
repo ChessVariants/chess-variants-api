@@ -1,7 +1,7 @@
 namespace ChessVariantsLogic;
 
-using ChessVariantsLogic.Actions;
-using Predicates;
+using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 using System;
 
 public class Game {
@@ -40,13 +40,18 @@ public class Game {
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
     private GameEvent MakeMoveImpl(string move) {
-        ISet<Move> validMoves;
+        IEnumerable<Move> validMoves;
         if (_playerTurn == Player.White) {
             validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
         } else {
             validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
         }
-        Move? movePerformed = GetMove(validMoves, move);
+        (string from, string _) = _board.parseMove(move);
+        Tuple<int, int>? fromPos = _board.Board.ParseCoordinate(from);
+        
+        if (fromPos == null) return GameEvent.InvalidMove;
+
+        Move? movePerformed = GetMove(validMoves, fromPos);
 
         if (movePerformed != null) {
             movePerformed.Perform(_board);
@@ -63,11 +68,11 @@ public class Game {
         return GameEvent.InvalidMove;
     }
 
-    private Move? GetMove(ISet<Move> validMoves, string fromTo)
+    private Move? GetMove(IEnumerable<Move> validMoves, Tuple<int, int> fromPos)
     {
         foreach(Move move in validMoves)
         {
-            if(move.FromTo.Equals(fromTo))
+            if(move.From.Equals(fromPos))
             {
                 return move;
             }

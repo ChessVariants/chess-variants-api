@@ -1,7 +1,10 @@
 namespace ChessVariantsLogic;
 
-using ChessVariantsLogic.Actions;
-using Predicates;
+using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
+using ChessVariantsLogic.Rules.Moves.Actions;
+using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// Factory with predetermined rules for the known variants. WIP
@@ -32,19 +35,27 @@ public static class GameFactory
         IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn);        
         IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn);
 
-        List<IAction> whiteCastleKingSideActions = new List<IAction>
+        
+        IPredicate blackPawnRight = new PieceAt(Constants.BlackPawnIdentifier, Tuple.Create(1, 0), BoardState.THIS, PositionType.RELATIVE);
+        IEnumerable<IAction> actions = new List<IAction> { new ActionMovePieceRelative(Tuple.Create(1, 1)) };
+
+
+        ISet<MoveData> movesWhite = new HashSet<MoveData>
         {
-            new ActionMovePiece("e1g1"),
-            new ActionMovePiece("h1f1")
+            MoveData.CastleMove(Player.White, true),
+            MoveData.CastleMove(Player.White, false)
         };
 
-        IPredicate castleKingSidePredicate = !(whiteKingCheckedThisTurn);
 
-        Move whiteCastleKingSide = new Move(whiteCastleKingSideActions, castleKingSidePredicate, "e1h1");
+        ISet<MoveData> movesBlack = new HashSet<MoveData>
+        {
+            MoveData.CastleMove(Player.Black, true),
+            MoveData.CastleMove(Player.Black, false)
+        };
 
-        
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<Move>() { whiteCastleKingSide }, new HashSet<Move>() {  });
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, new HashSet<Move>() { whiteCastleKingSide }, new HashSet<Move>() { });
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack);
 
 
 
@@ -60,8 +71,8 @@ public static class GameFactory
         IPredicate blackMoveRule = new Const(true);
         IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new List<Move>());
-        RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, new List<Move>());
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
+        RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         
         return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
     }
@@ -75,8 +86,8 @@ public static class GameFactory
         IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_WHITE"), IMPLIES, new PieceCaptured("ANY_WHITE"));
         IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.THIS);
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new List<Move>());
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, new List<Move>());
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, new HashSet<MoveData>());
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
     }

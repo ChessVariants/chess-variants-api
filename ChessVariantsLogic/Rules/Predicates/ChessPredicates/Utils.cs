@@ -1,5 +1,4 @@
-using ChessVariantsLogic;
-namespace ChessVariantsLogic.Predicates;
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// Utility methods used by to get information about the game. Should be moved eventually.
@@ -15,8 +14,8 @@ public class Utils
     /// <returns>True if a piece with the supplied <paramref name="pieceIdentifier"/> is attacked, otherwise false.</returns>
     public static bool PieceAttacked(IBoardState board, string pieceIdentifier)
     {
-        Player player = GetPlayer(pieceIdentifier);
-        Player attacker = player == Player.White ? Player.Black : Player.White;
+        var player = GetPlayer(pieceIdentifier);
+        var attacker = player == Player.White ? Player.Black : Player.White;
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         foreach (var attackerMove in board.GetAllValidMoves(attacker))
         {
@@ -36,7 +35,7 @@ public class Utils
     /// <returns>The <see cref="Player"/> who owns the piece</returns>
     public static Player GetPlayer(string pieceIdentifier)
     {
-        if ((pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "ANY_BLACK" && pieceIdentifier != "ROYAL_BLACK") || pieceIdentifier == "ANY_WHITE")
+        if (pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "ANY_BLACK" && pieceIdentifier != "ROYAL_BLACK" || pieceIdentifier == "ANY_WHITE")
         {
             return Player.White;
         }
@@ -75,7 +74,7 @@ public class Utils
     /// <returns>True if the piece at <paramref name="position"/> conforms to the type of the <paramref name="pieceIdentifier"/></returns>
     public static bool IsOfType(string position, IBoardState board, string pieceIdentifier)
     {
-        var piece = board.Board.GetPieceAsString(position);
+        var piece = board.Board.GetPieceIdentifier(position);
         switch (pieceIdentifier)
         {
             case "ANY":

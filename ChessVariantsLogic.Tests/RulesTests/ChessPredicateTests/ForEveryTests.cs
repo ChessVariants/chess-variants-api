@@ -68,13 +68,13 @@ public class ForEveryTests : IDisposable {
     [Fact]
     public void CheckMate_ShouldReturnTrue()
     {
-        Assert.True(whiteWinRule.Evaluate(scholarsMateBoard, scholarsMateBoard));
+        Assert.True(whiteWinRule.Evaluate(transition));
     }
     [Fact]
     public void CheckMate_ShouldReturnFalse()
     {
-        Assert.False(whiteWinRule.Evaluate(notScholarsMateBoard, notScholarsMateBoard));
-        Assert.False(whiteWinRule.Evaluate(board, board));
+        Assert.False(whiteWinRule.Evaluate(transition));
+        Assert.False(whiteWinRule.Evaluate(transition));
     }
 
 }
