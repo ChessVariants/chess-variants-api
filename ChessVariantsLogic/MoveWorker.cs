@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
 /// </summary>
-public class MoveWorker
+public class MoveWorker : IBoardState
 {
 
 #region Fields, properties and constructors
@@ -385,6 +385,16 @@ public class MoveWorker
         return false;
     }
 
-#endregion
+    /// <summary>
+    /// Copies this move worker to a new move worker object
+    /// </summary>
+    public IBoardState CopyBoardState()
+    {
+        Chessboard newBoard = board.CopyBoard();
+        HashSet<Piece> newPieces = new HashSet<Piece>(pieces);
+        return new MoveWorker(newBoard, newPieces);
+    }
+
+    #endregion
 
 }

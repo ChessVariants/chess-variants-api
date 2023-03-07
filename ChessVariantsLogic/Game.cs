@@ -59,6 +59,9 @@ public class Game {
             } 
             if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
                 return GameEvent.BlackWon;
+
+            if (false) {
+                return GameEvent.Tie;
             }
 
             DecrementPlayerMoves();

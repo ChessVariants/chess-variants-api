@@ -19,9 +19,9 @@ public class Attacked : IPredicate
     /// </summary>
     /// <inheritdoc/>
     /// <returns>true/false if a piece is attacked or not in either the current board state or the next, depending on what was specified at object-creation.</returns>
-    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
     {
-        Chessboard board = _boardState == BoardState.NEXT ? nextBoardState : thisBoardState;
+        IBoardState board = _boardState == BoardState.NEXT ? nextBoardState : thisBoardState;
         var attacked = Utils.PieceAttacked(board, _pieceIdentifier);
         return attacked;
     }

@@ -39,9 +39,9 @@ public class PiecesLeft : IPredicate
     /// </summary>
     /// <inheritdoc/>
     /// <returns>The boolean value of how many pieces left there are compared to the internal <see cref="Comparator"/>.</returns>
-    public bool Evaluate(Chessboard thisBoardState, Chessboard nextBoardState)
+    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
     {
-        Chessboard board = _state == BoardState.THIS ? thisBoardState : nextBoardState;
+        IBoardState board = _state == BoardState.THIS ? thisBoardState : nextBoardState;
         int piecesLeft = Utils.FindPiecesOfType(board, _pieceIdentifier).Count();
         return CompareValue(piecesLeft);
     }

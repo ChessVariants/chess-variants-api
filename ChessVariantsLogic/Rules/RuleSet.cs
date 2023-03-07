@@ -20,13 +20,13 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public ISet<string> ApplyMoveRule(Chessboard board, Player sideToPlay)
+    public ISet<string> ApplyMoveRule(IBoardState board, Player sideToPlay)
     {
-        var possibleMoves = board.GetAllMoves(sideToPlay);
+        var possibleMoves = board.GetAllValidMoves(sideToPlay);
         var acceptedMoves = new HashSet<string>();
         foreach (var move in possibleMoves)
         {
-            var futureBoard = board.CopyBoard();
+            var futureBoard = board.CopyBoardState();
             futureBoard.Move(move);
             bool ruleSatisfied = _moveRule.Evaluate(board, futureBoard);
             if (ruleSatisfied)
@@ -34,6 +34,8 @@ public class RuleSet
                 acceptedMoves.Add(move);
             }
         }
+
+
         return acceptedMoves;
     }
 
@@ -42,7 +44,7 @@ public class RuleSet
     /// </summary>
     /// <param name="thisBoard"></param>
     /// <returns></returns>
-    public bool ApplyWinRule(Chessboard thisBoard)
+    public bool ApplyWinRule(IBoardState thisBoard)
     {
         return _winRule.Evaluate(thisBoard, thisBoard);
     }
