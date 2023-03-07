@@ -46,12 +46,7 @@ public class Game {
         } else {
             validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
         }
-        (string from, string _) = _board.parseMove(move);
-        Tuple<int, int>? fromPos = _board.Board.ParseCoordinate(from);
-        
-        if (fromPos == null) return GameEvent.InvalidMove;
-
-        Move? movePerformed = GetMove(validMoves, fromPos);
+        Move? movePerformed = GetMove(validMoves, move);
 
         if (movePerformed != null) {
             movePerformed.Perform(_board);
@@ -68,11 +63,11 @@ public class Game {
         return GameEvent.InvalidMove;
     }
 
-    private Move? GetMove(IEnumerable<Move> validMoves, Tuple<int, int> fromPos)
+    private Move? GetMove(IEnumerable<Move> validMoves, string fromPos)
     {
         foreach(Move move in validMoves)
         {
-            if(move.From.Equals(fromPos))
+            if(move.FromTo.Equals(fromPos))
             {
                 return move;
             }

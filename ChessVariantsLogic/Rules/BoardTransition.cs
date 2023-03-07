@@ -29,7 +29,14 @@ public class BoardTransition
     {
         _thisState = thisState;
         _nextState = nextState;
-        (string from, string to) = thisState.parseMove(fromTo);
+        Tuple<string, string>? fromToStr = thisState.parseMove(fromTo);
+        if(fromToStr == null)
+        {
+            _moveFrom = Tuple.Create(0, 0);
+            _moveTo = Tuple.Create(0, 0);
+            return;
+        }
+        (string from, string to) = fromToStr;
         var moveFrom = thisState.Board.ParseCoordinate(from);
         var moveTo = thisState.Board.ParseCoordinate(to);
 

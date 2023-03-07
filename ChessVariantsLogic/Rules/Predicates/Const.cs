@@ -1,5 +1,3 @@
-using ChessVariantsLogic.Predicates;
-
 namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>

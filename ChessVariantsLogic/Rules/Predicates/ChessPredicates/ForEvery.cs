@@ -27,7 +27,8 @@ public class ForEvery : IPredicate
         {
             var nextBoard = transition.ThisState.CopyBoardState();
             nextBoard.Move(move);
-            bool ruleSatisfied = _rule.Evaluate(transition);
+            BoardTransition newTransition = new BoardTransition(transition.NextState, nextBoard, move);
+            bool ruleSatisfied = _rule.Evaluate(newTransition);
             if (!ruleSatisfied)
             {
                 return false;

@@ -11,6 +11,8 @@ public class Move
     private readonly IEnumerable<IAction> _actions;
     private readonly string _fromTo;
 
+    public string FromTo => _fromTo;
+
     public Move(IEnumerable<IAction> actions, string fromTo)
     {
         _actions = actions;

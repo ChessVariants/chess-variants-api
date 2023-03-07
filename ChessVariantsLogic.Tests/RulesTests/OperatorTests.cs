@@ -1,6 +1,7 @@
 using Xunit;
 using System;
 using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -9,12 +10,14 @@ public class OperatorTests : IDisposable {
     IPredicate constTrue;
     IPredicate constFalse;
     IBoardState board;
+    BoardTransition transition;
 
     public OperatorTests()
     {
         constTrue = new Const(true);
         constFalse = new Const(false);
         board = new MoveWorker(new Chessboard(8));
+        transition = new BoardTransition(board, board, "");
     }
 
     public void Dispose()

@@ -13,12 +13,12 @@ public class MoveData
     private readonly string _pieceIdentifier;
     private readonly Tuple<int, int> _relativeTo;
 
-    public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, Tuple<int, int> to)
+    public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, Tuple<int, int> relativeTo)
     {
         _actions = actions;
         _predicate = predicate;
         _pieceIdentifier = pieceIdentifier;
-        _relativeTo = to;
+        _relativeTo = relativeTo;
     }
 
     public IEnumerable<IAction> Actions => _actions;
@@ -112,6 +112,28 @@ public class MoveData
         };
 
         return new MoveData(actions, !hasMoved, PawnIdentifier, forwardPosition);
+    }
+
+    public static MoveData EnPassantRightMove(Player player, bool right)
+    {
+        int playerMultiplier = player == Player.White ? -1 : 1;
+        int sideMultiplier = right ? 1 : -1;
+        string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
+        string OpponentPawnIdentifier = player == Player.White ? Constants.BlackPawnIdentifier : Constants.WhitePawnIdentifier;
+
+        Tuple<int, int> finalPositionRelative = Tuple.Create(1 * sideMultiplier, 1 * playerMultiplier);
+        Tuple<int, int> enemyPawnPositionRelative = Tuple.Create(1 * sideMultiplier, 0);
+
+        IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPositionRelative, BoardState.THIS, PositionType.RELATIVE);
+        IPredicate enemyPawnHasMoved = new HasMoved(enemyPawnPositionRelative, PositionType.RELATIVE);
+
+        IEnumerable<IAction> actions = new List<IAction>
+        {
+            new ActionMovePieceRelative(finalPositionRelative),
+            new ActionDeletePieceRelative(enemyPawnPositionRelative)
+        };
+
+        return new MoveData(actions, enemyPawnNextTo & enemyPawnHasMoved, PawnIdentifier, finalPositionRelative);
     }
 
 }

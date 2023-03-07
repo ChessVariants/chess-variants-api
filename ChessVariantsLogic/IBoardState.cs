@@ -9,7 +9,7 @@ public interface IBoardState
 
     public List<string> GetAllValidMoves(Player player);
 
-    public (string, string) parseMove(string move);
+    public Tuple<string, string>? parseMove(string move);
 
     public Chessboard Board
     {

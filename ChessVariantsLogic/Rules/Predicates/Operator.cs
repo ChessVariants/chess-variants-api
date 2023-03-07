@@ -1,6 +1,4 @@
-﻿using ChessVariantsLogic.Predicates;
-
-namespace ChessVariantsLogic.Rules.Predicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
 /// Represents a logical operator which can be performed on <see cref="IPredicate"/> objects.
