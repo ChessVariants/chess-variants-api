@@ -1,6 +1,7 @@
 namespace ChessVariantsLogic;
 using static Piece;
 using System;
+using static ChessVariantsLogic.Game;
 
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.

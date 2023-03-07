@@ -1,6 +1,7 @@
 namespace ChessVariantsLogic;
 
 using Predicates;
+using static ChessVariantsLogic.Game;
 
 /// <summary>
 /// Factory with predetermined rules for the known variants. WIP

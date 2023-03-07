@@ -26,8 +26,10 @@ public class Game {
     /// </summary>
     /// <param name="move">The move requested to be made</param>
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
-    public GameEvent MakeMove(string move, Player? playerRequestingMove) {
-        if (playerRequestingMove != _playerTurn) {
+    public GameEvent MakeMove(string move, Player? playerRequestingMove)
+    {
+        if (playerRequestingMove != _playerTurn)
+        {
             return GameEvent.InvalidMove;
         }
         return MakeMoveImpl(move);
@@ -38,32 +40,31 @@ public class Game {
     /// </summary>
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
-    private GameEvent MakeMoveImpl(string move) {
+    private GameEvent MakeMoveImpl(string move)
+    {
         ISet<string> validMoves;
-        if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
-        } else {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
-        }
-        if (validMoves.Contains(move)) {
-        
+        if (_playerTurn == Player.White)
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
+        else
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
+
+        if (validMoves.Contains(move))
+        {
             GameEvent gameEvent = _moveWorker.Move(move);
 
-            if(gameEvent == GameEvent.InvalidMove) {
+            if(gameEvent == GameEvent.InvalidMove)
                 return gameEvent;
-            }
 
             /// TODO: Check for a tie
 
-            if(_whiteRules.ApplyWinRule(_moveWorker.Board)) {
+            if(_whiteRules.ApplyWinRule(_moveWorker))
                 return GameEvent.WhiteWon;
-            } 
-            if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
+
+            if(_blackRules.ApplyWinRule(_moveWorker))
                 return GameEvent.BlackWon;
 
-            if (false) {
+            if (false)
                 return GameEvent.Tie;
-            }
 
             DecrementPlayerMoves();
             return gameEvent;
@@ -85,7 +86,7 @@ public class Game {
     public string ExportStateAsJson()
     {
         RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
-        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _board));
+        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
     }
 }
 
