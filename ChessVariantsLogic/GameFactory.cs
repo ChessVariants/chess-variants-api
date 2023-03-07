@@ -39,6 +39,7 @@ public static class GameFactory
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+
     }
 
     public static Game CaptureTheKing()
@@ -52,8 +53,11 @@ public static class GameFactory
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule);
+
+        MoveWorker moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         
-        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
+
     }
 
     public static Game AntiChess()
@@ -67,6 +71,8 @@ public static class GameFactory
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule);
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule);
+        
+        MoveWorker moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
@@ -86,5 +92,6 @@ public static class GameFactory
             CaptureTheKingIdentifier => CaptureTheKing(),
             _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
         };
+
     }
 }
