@@ -1,7 +1,5 @@
 namespace ChessVariantsLogic;
-using static Piece;
 using System;
-using static ChessVariantsLogic.Game;
 
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
@@ -126,9 +124,9 @@ public class MoveWorker : IBoardState
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid moves.</returns>
-    public List<string> GetAllValidMoves(Player player)
+    public HashSet<string> GetAllValidMoves(Player player)
     {
-        var coorMoves = new List<(Tuple<int,int>, Tuple<int,int>)>();
+        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
 
         foreach (var coor in this.board.GetAllCoordinates())
         {
@@ -159,7 +157,7 @@ public class MoveWorker : IBoardState
                 }
             }
         }
-        return coorListToStringList(coorMoves);
+        return coorSetToStringSet(coorMoves);
     }
 
     /// <inheritdoc/>
@@ -187,12 +185,232 @@ public class MoveWorker : IBoardState
         return moveDict;
     }
 
-#region Private methods
+#region Move methods
 
-    // Converts a list of coordinates with start and end coordinate into string representation
-    private List<String> coorListToStringList(List<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
+    // Generates all moves for a piece.
+    private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int,int> pos)
     {
-        var moves = new List<string>();
+        var moves = new HashSet<Tuple<int, int>>();
+        foreach (var pattern in piece.GetAllMovementPatterns())
+        {
+            if(pattern is RegularPattern)
+                moves.UnionWith(getRegularMoves(piece, pattern, pos));
+            else
+                moves.UnionWith(getJumpMove(piece, pattern, pos));
+        }
+
+        foreach (var pattern in piece.GetAllCapturePatterns())
+        {
+            if(pattern is RegularPattern)
+            {
+                moves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+            }
+            else
+            {
+                var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                if(captureMove == null)
+                    continue;
+                moves.Add(captureMove);
+            }
+        }
+        var movesTmp = moves.ToHashSet();
+        int repeat = piece.Repeat;
+        
+        while (repeat >= 1)
+        {
+            foreach (var move in movesTmp)
+            {
+                foreach (var pattern in piece.GetAllMovementPatterns())
+                {
+                    if (pattern is RegularPattern)
+                        moves.UnionWith(getRegularMoves(piece, pattern, move));
+                    else
+                        moves.UnionWith(getJumpMove(piece, pattern, move));
+                }
+
+                foreach (var pattern in piece.GetAllCapturePatterns())
+                {
+                    if (pattern is RegularPattern)
+                    {
+                        moves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
+                    }
+                    else
+                    {
+                        var captureMove = getJumpCaptureMove(piece, pattern, move);
+                        if (captureMove == null)
+                            continue;
+                        moves.Add(captureMove);
+                    }
+                }
+            }
+            movesTmp = moves;
+            repeat--;
+        }
+        return moves;
+    }
+
+     // Returns all regular moves for a regularpattern.
+    private HashSet<Tuple<int, int>> getRegularMoves(Piece piece, IPattern pattern, Tuple<int,int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        int maxIndex = Math.Max(board.Rows,board.Cols);
+
+        if(pattern != null)
+        
+        
+            for (int j = pattern.GetMinLength(); j < maxIndex; j++)
+            {
+                int newRow = pos.Item1 + pattern.GetXDir() * j;
+                int newCol = pos.Item2 + pattern.GetYDir() * j;
+
+                if(!insideBoard(newRow, newCol))
+                    break;
+
+                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                    break;
+
+                var minLength = pattern.GetMinLength();
+                var maxLength = pattern.GetMaxLength();
+
+                if(maxLength < j || j < minLength)
+                    break;
+
+                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                {
+                    moves.Add(new Tuple<int, int>(newRow, newCol));
+                    continue;
+                } 
+                break;
+        }
+        return moves;    
+    }
+
+    // Returns all valid capture moves for a regularpattern.
+    private HashSet<Tuple<int, int>> getRegularCaptureMoves(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        int maxIndex = Math.Max(board.Rows,board.Cols);
+
+
+        for (int j = 1; j < maxIndex; j++)
+        {
+    
+            if (pattern == null)
+                continue;
+
+            int newRow = pos.Item1 + pattern.GetXDir() * j;
+            int newCol = pos.Item2 + pattern.GetYDir() * j;
+
+            if (!insideBoard(newRow, newCol))
+                break;
+
+            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+            if (pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                continue;
+
+            var minLength = pattern.GetMinLength();
+            var maxLength = pattern.GetMaxLength();
+
+            if (maxLength < j || j < minLength)
+                continue;
+
+            if (pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+            {
+                //moves.Add(new Tuple<int, int>(newRow, newCol));
+                continue;
+            }
+
+            Piece? piece2 = null;
+
+            try
+            {
+                piece2 = this.stringToPiece[pieceIdentifier2];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if (piece.CanTake(piece2))
+                moves.Add(new Tuple<int, int>(newRow, newCol));
+
+            break;
+
+            }
+        
+        return moves;    
+    }
+
+    // Returns move for jumpingpattern
+    private HashSet<Tuple<int, int>> getJumpMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+
+        int newRow = pos.Item1 + pattern.GetXDir();
+        int newCol = pos.Item2 + pattern.GetYDir();
+
+        string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+        string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+        if(pieceIdentifier1 == null || pieceIdentifier2 == null)
+            return new HashSet<Tuple<int, int>>();
+
+        if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+        {
+            moves.Add(new Tuple<int, int>(newRow, newCol));
+        }
+        return moves;
+    }
+
+    // Returns capture move for a jumpingpattern.
+    private Tuple<int,int>? getJumpCaptureMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    {
+        
+        if (pattern == null)
+            return null;
+
+        int newRow = pos.Item1 + pattern.GetXDir();
+        int newCol = pos.Item2 + pattern.GetYDir();
+
+        string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
+        string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+
+        if (pieceIdentifier1 == null || pieceIdentifier2 == null || pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+            return null;
+
+        Piece? piece1 = null;
+        Piece? piece2 = null;
+
+        try
+        {
+            piece1 = this.stringToPiece[pieceIdentifier1];
+            piece2 = this.stringToPiece[pieceIdentifier2];
+        }
+        catch (KeyNotFoundException)
+        {
+            return new Tuple<int, int>(-1,-1);
+        }
+
+        if (!insideBoard(newRow, newCol) || !piece1.CanTake(piece2))
+            return null;
+        
+        return new Tuple<int,int>(newRow, newCol); 
+
+    }
+
+#endregion
+
+#region Auxiliary methods
+
+    // Converts a HashSet of coordinates with start and end coordinate into string representation
+    private HashSet<String> coorSetToStringSet(HashSet<(Tuple<int,int>, Tuple<int,int>)> coorMoves)
+    {
+        var moves = new HashSet<string>();
         foreach (var move in coorMoves)
         {
             string start = this.board.IndexToCoor[move.Item1];
@@ -207,178 +425,6 @@ public class MoveWorker : IBoardState
     {
         return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
             || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-    /// <param name = "jump"> Is the piece allowed to jump </param>
-    /// <param name = "repeat"> How many times the piece is allowed to move </param>
-    private List<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int, int> pos)
-    {
-        if (piece.MovementPattern is JumpMovementPattern)
-            return generateJumpMoves(piece, pos);
-
-        return generateRegularMoves(piece, pos);
-    }
-
-    // Generates all moves for a piece that can not jump over other pieces.
-    private List<Tuple<int, int>> generateRegularMoves(Piece piece, Tuple<int,int> pos)
-    {
-        var moves = new List<Tuple<int, int>>();
-        var movesTmp = getAllMoves(piece, pos);
-        int repeat = piece.Repeat;
-
-        moves = getAllMoves(piece, pos);
-        while (repeat >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                moves.AddRange(getAllMoves(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-            }
-            repeat--;
-        }
-        return moves;
-    }
-
-    // Generates all moves for a piece that can jump over other pieces.
-    private List<Tuple<int, int>> generateJumpMoves(Piece piece, Tuple<int,int> pos)
-    {
-        var moves = new List<Tuple<int, int>>();
-        var movesTmp = getAllMovesJump(piece, pos);
-        int repeat = piece.Repeat;
-
-        moves = getAllMovesJump(piece, pos);
-        while (repeat >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                moves.AddRange(getAllMovesJump(piece, new Tuple<int, int>(move.Item1, move.Item2)));
-                repeat--;
-            }
-        }
-        return moves;
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece that can jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
-    private List<Tuple<int, int>> getAllMovesJump(Piece piece, Tuple<int, int> pos)
-    {
-        var moves = new List<Tuple<int, int>>();
-        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
-        {
-
-            var pattern = piece.GetMovementPattern(i);
-            if(pattern == null)
-                continue;
-
-            int newRow = pos.Item1 + pattern.Item1;
-            int newCol = pos.Item2 + pattern.Item2;
-
-            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
-
-            if(pieceIdentifier1 == null || pieceIdentifier2 == null)
-                continue;
-
-            if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
-            {
-                moves.Add(new Tuple<int, int>(newRow, newCol));
-                continue;
-            }
-
-            Piece? piece1 = null;
-            Piece? piece2 = null;
-
-            try
-            {
-                piece1 = this.stringToPiece[pieceIdentifier1];
-                piece2 = this.stringToPiece[pieceIdentifier2];
-            }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
-
-            if (insideBoard(newRow, newCol) && canTake(piece1, piece2))
-                moves.Add(new Tuple<int, int>(newRow, newCol));
-
-        }
-        return moves;
-    }
-
-    /// <summary>
-    /// Returns all valid moves for a given board and piece that cannot jump
-    /// </summary>
-    /// <param name="m"> Movement pattern for piece </param>
-    /// <param name = "pos"> Position of piece </parma>
-    /// <param name = "size"> Length of movement pattern </param>
-    private List<Tuple<int, int>> getAllMoves(Piece piece, Tuple<int, int> pos)
-    {
-        var moves = new List<Tuple<int, int>>();
-        int maxIndex = Math.Max(board.Rows,board.Cols);
-
-        for (int i = 0; i < piece.GetMovementPatternCount(); i++)
-        {
-            for (int j = 1; j < maxIndex; j++)
-            {
-                var pattern = piece.GetMovementPattern(i);
-                if(pattern == null)
-                    continue;
-
-                int newRow = pos.Item1 + pattern.Item1 * j;
-                int newCol = pos.Item2 + pattern.Item2 * j;
-
-                if(!insideBoard(newRow, newCol))
-                    break;
-
-                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
-
-                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
-                    continue;
-
-                var moveLength = piece.GetMoveLength(i);
-                if(moveLength == null)
-                    continue;
-                
-                var ml1 = moveLength.Item1;
-                var ml2 = moveLength.Item2;
-
-                if(ml2 < j || j < ml1)
-                    continue;
-
-                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    moves.Add(new Tuple<int, int>(newRow, newCol));
-                    continue;
-                }
-
-                Piece? piece2 = null;
-
-                try
-                {
-                    piece2 = this.stringToPiece[pieceIdentifier2];
-                }
-                catch (KeyNotFoundException)
-                {
-                    continue;
-                }
-                
-                if (canTake(piece, piece2))
-                    moves.Add(new Tuple<int, int>(newRow, newCol));
-                    
-                break;
-
-            }
-        }
-        return moves;    
     }
     
     private bool insideBoard(int row, int col)
@@ -406,7 +452,7 @@ public class MoveWorker : IBoardState
             if(piece2.Equals(Constants.UnoccupiedSquareIdentifier))
                 return false;
             Piece p2 = this.stringToPiece[piece2];
-            return canTake(piece1,p2);
+            return piece1.CanTake(p2);
         }
         return false;
     }
