@@ -15,12 +15,17 @@ public class RegularPattern : IPattern
     public RegularPattern(Tuple<int,int> direction, int minLength, int maxLength) : this(direction.Item1, direction.Item2, minLength, maxLength) {}
 
 #region Interface overrides
+
+    /// <inheritdoc /> 
     public int GetXDir() { return pattern.Item1; }
 
+    ///<inheritdoc /> 
     public int GetYDir() { return pattern.Item2; }
-
+    
+    ///<inheritdoc />
     public int GetMinLength() { return pattern.Item3; }
 
+    ///<inheritdoc />
     public int GetMaxLength() { return pattern.Item4; }
 
 #endregion

@@ -13,8 +13,10 @@ public class JumpPattern : IPattern
     }
 
 #region Interface overrides
+    ///<inheritdoc /> 
     public int GetXDir() { return pattern.Item1; }
 
+    /// <inheritdoc /> 
     public int GetYDir() { return pattern.Item2; }
 
     /// <summary>
