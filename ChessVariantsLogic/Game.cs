@@ -4,16 +4,16 @@ using Predicates;
 
 public class Game {
 
-    private readonly IBoardState _board;
+    private readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(IBoardState board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
-        _board = board;
+        _moveWorker = moveWorker;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
@@ -40,23 +40,32 @@ public class Game {
     private GameEvent MakeMoveImpl(string move) {
         ISet<string> validMoves;
         if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         } else {
-            validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         }
         if (validMoves.Contains(move)) {
-            var moveWasPossible = _board.Move(move);
+        
+            GameEvent gameEvent = _moveWorker.Move(move);
 
-            // TODO: PERFORM ACTION
+            if(gameEvent == GameEvent.InvalidMove) {
+                return gameEvent;
+            }
 
-            if (false) { // check if game is won via rules
+            /// TODO: Check for a tie
+
+            if(_whiteRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.WhiteWon;
+            } 
+            if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.BlackWon;
+
+            if (false) {
                 return GameEvent.Tie;
             }
-            
-            if (moveWasPossible == GameEvent.MoveSucceeded) {
-                DecrementPlayerMoves();
-                return GameEvent.MoveSucceeded;
-            }
+
+            DecrementPlayerMoves();
+            return gameEvent;
         }
         return GameEvent.InvalidMove;
     }
