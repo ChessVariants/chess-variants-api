@@ -54,10 +54,13 @@ public class Game {
 
             /// TODO: Check for a tie
 
-            if(GameIsWon(_moveWorker.Board)){
-                return _whiteRules.ApplyWinRule(_moveWorker.Board) ? GameEvent.WhiteWon : GameEvent.BlackWon;
+            if(_whiteRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.WhiteWon;
+            } 
+            if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.BlackWon;
             }
-            
+
             DecrementPlayerMoves();
             return gameEvent;
         }
@@ -73,10 +76,6 @@ public class Game {
             _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;
             _playerMovesRemaining = _movesPerTurn;
         }
-    }
-
-    private bool GameIsWon(Chessboard board) {
-        return _whiteRules.ApplyWinRule(board) || _blackRules.ApplyWinRule(board); 
     }
 }
 
