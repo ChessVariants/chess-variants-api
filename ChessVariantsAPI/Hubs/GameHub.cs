@@ -1,6 +1,6 @@
 ﻿using ChessVariantsAPI.GameOrganization;
-using Microsoft.AspNetCore.SignalR;
 using ChessVariantsLogic;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -17,27 +17,88 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/>. Invokes a playerJoinedGame event to all clients in the joined group.
+    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/>.
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
-    public async Task JoinGame(string gameId, string asColor)
+    public async Task JoinGame(string gameId)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        _organizer.JoinGame(gameId, Context.ConnectionId, asColor);
-        await Clients.Groups(gameId).SendAsync("playerJoinedGame", Context.ConnectionId);
+        try
+        {
+            Player createdPlayer = _organizer.JoinGame(gameId, Context.ConnectionId);
+            await Clients.Caller.SendAsync(Events.GameJoined, createdPlayer.AsString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+            await Clients.Groups(gameId).SendAsync(Events.PlayerJoinedGame, Context.ConnectionId);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
     }
 
     /// <summary>
-    /// Removes the caller from a group corresponding to the supplied <paramref name="gameId"/>. Invokes a playerLeftGame event to all clients in the joined group.
+    /// Adds the caller to a group corresponding to the supplied <paramref name="gameId"/> and creates the game.
+    /// </summary>
+    /// <param name="gameId">The id for the game to join</param>
+    /// <param name="variantIdentifier">What variant to create</param>
+    /// <returns></returns>
+    public async Task CreateGame(string gameId, string variantIdentifier)
+    {
+        try
+        {
+            Player createdPlayer = _organizer.CreateGame(gameId, Context.ConnectionId, variantIdentifier);
+            await Clients.Caller.SendAsync(Events.GameCreated, createdPlayer.AsString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Removes the caller from a group corresponding to the supplied <paramref name="gameId"/>. Deletes the game if its empty.
     /// </summary>
     /// <param name="gameId">The id for the game to leave</param>
     /// <returns></returns>
     public async Task LeaveGame(string gameId)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
-        _organizer.LeaveGame(gameId, Context.ConnectionId);
-        await Clients.Groups(gameId).SendAsync("playerLeftGame", Context.ConnectionId);
+        try
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+            await Clients.Caller.SendAsync(Events.GameLeft);
+            bool playerLeft = _organizer.LeaveGame(gameId, Context.ConnectionId);
+            if (playerLeft)
+            {
+                await Clients.Groups(gameId).SendAsync(Events.PlayerLeftGame, Context.ConnectionId);
+            }
+        }
+        catch (GameEmptyException)
+        {
+            _organizer.DeleteGame(gameId);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e);
+        }
+        
+    }
+
+    /// <summary>
+    /// Requests a swap of colors
+    /// </summary>
+    /// <param name="gameId">What game to swap colors in</param>
+    /// <returns></returns>
+    public async Task SwapColors(string gameId)
+    {
+        try
+        {
+            _organizer.SwapColors(gameId, Context.ConnectionId);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
     }
 
     /// <summary>
@@ -48,43 +109,74 @@ public class GameHub : Hub
     /// <returns></returns>
     public async Task MovePiece(string move, string gameId)
     {
+        // if move is valid, compute new board
+        GameEvent? result = null;
+        string? state = null;
         try
         {
-            var game = _organizer.GetGame(gameId);
-            var player = _organizer.GetPlayer(gameId, Context.ConnectionId);
-            GameEvent gameEvent = game.MakeMove(move, player);
-            // Take care of GameEvent and new board state
-            switch (gameEvent)
-            {
-                case GameEvent.WhiteWon:
-                    await Clients.Groups(gameId).SendAsync("White won the game", "board");
-                    break;
-                case GameEvent.BlackWon:
-                    await Clients.Groups(gameId).SendAsync("Black won the game", "board");
-                    break;
-                case GameEvent.Tie:
-                    await Clients.Groups(gameId).SendAsync("The game ended in a tie", "board");
-                    break;
-                case GameEvent.MoveSucceeded:
-                    await Clients.Groups(gameId).SendAsync("pieceMoved", "board");
-                    break;
-                case GameEvent.InvalidMove:
-                    await Clients.Groups(gameId).SendAsync("invalidMove", "board");
-                    break;
-            }
+            result = _organizer.Move(move, gameId, Context.ConnectionId);
+            state = _organizer.GetStateAsJson(gameId);
         }
-        catch (GameNotFoundException)
+        catch (OrganizerException e)
         {
-            await Clients.Caller.SendAsync("gameNotFound");
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
+
+        switch (result)
+        {
+            case GameEvent.InvalidMove:
+                await Clients.Caller.SendAsync(Events.InvalidMove);
+                return;
+            case GameEvent.MoveSucceeded:
+                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
+                return;
+            case GameEvent.WhiteWon:
+                await Clients.Group(gameId).SendAsync(Events.WhiteWon);
+                return;
+            case GameEvent.BlackWon:
+                await Clients.Group(gameId).SendAsync(Events.BlackWon);
+                return;
+            case GameEvent.Tie:
+                await Clients.Group(gameId).SendAsync(Events.Tie);
+                return;
         }
     }
 
     /// <summary>
-    /// Sends a updatedBoardState event to the caller with the current board state.
+    /// Responds to the caller with the current game state
     /// </summary>
+    /// <param name="gameId">The game to request state for</param>
     /// <returns></returns>
-    public async Task RequestBoardState()
+    public async Task RequestState(string gameId)
     {
-        await Clients.Caller.SendAsync("updatedBoardState", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        try
+        {
+            var state = _organizer.GetStateAsJson(gameId);
+            await Clients.Caller.SendAsync(Events.UpdatedGameState, state);
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
+    }
+
+    private static class Events
+    {
+        public readonly static string GameNotFound = "gameNotFound";
+        public readonly static string PieceMoved = "pieceMoved";
+        public readonly static string UpdatedGameState = "updatedGameState";
+        public readonly static string PlayerLeftGame = "playerLeftGame";
+        public readonly static string PlayerJoinedGame = "playerJoinedGame";
+        public readonly static string GameCreated = "gameCreated";
+        public readonly static string GameJoined = "gameJoined";
+        public readonly static string GameLeft = "gameLeft";
+        public readonly static string PlayerNotFound = "playerNotFound";
+        public readonly static string InvalidMove = "invalidMove";
+        public readonly static string Error = "error";
+        public readonly static string WhiteWon = "whiteWon";
+        public readonly static string BlackWon = "blackWon";
+        public readonly static string Tie = "tie";
     }
 }
+
+

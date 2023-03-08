@@ -161,6 +161,31 @@ public class MoveWorker : IBoardState
         return coorListToStringList(coorMoves);
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">In case the move couldn't be parsed</exception>
+    public Dictionary<string, List<string>> GetMoveDict(Player player)
+    {
+        var moveDict = new Dictionary<string, List<string>>();
+        var moves = GetAllValidMoves(player);
+        foreach (var move in moves)
+        {
+            var fromTo = parseMove(move);
+            if (fromTo == null)
+            {
+                throw new InvalidOperationException($"Could not parse move {move}");
+            }
+
+            var moveList = moveDict.GetValueOrDefault(fromTo.Item1, new List<string>());
+            if (moveList.Count == 0)
+            {
+                moveDict[fromTo.Item1] = moveList;
+            }
+            moveList.Add(fromTo.Item2);
+
+        }
+        return moveDict;
+    }
+
 #region Private methods
 
     // Converts a list of coordinates with start and end coordinate into string representation
@@ -385,6 +410,9 @@ public class MoveWorker : IBoardState
         return false;
     }
 
+    /// <summary>
+    /// Copies this move worker to a new move worker object
+    /// </summary>
     public IBoardState CopyBoardState()
     {
         Chessboard newBoard = board.CopyBoard();

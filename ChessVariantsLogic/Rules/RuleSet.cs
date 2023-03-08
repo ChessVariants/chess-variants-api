@@ -1,4 +1,4 @@
-﻿using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Rules.Moves.Actions;
@@ -18,8 +18,31 @@ public class RuleSet
     {
         _moveRule = moveRule;
         _winRule = winRule;
-        _customMoves = customMoves;
     }
+
+    public Dictionary<string, List<string>> GetLegalMoveDict(Player player, IBoardState board)
+    {
+        var moveDict = new Dictionary<string, List<string>>();
+        var moves = ApplyMoveRule(board, player);
+        foreach (var move in moves)
+        {
+            var fromTo = board.parseMove(move);
+            if (fromTo == null)
+            {
+                throw new InvalidOperationException($"Could not parse move {move}");
+            }
+
+            var moveList = moveDict.GetValueOrDefault(fromTo.Item1, new List<string>());
+            if (moveList.Count == 0)
+            {
+                moveDict[fromTo.Item1] = moveList;
+            }
+            moveList.Add(fromTo.Item2);
+
+        }
+        return moveDict;
+    }
+
 
     /// <summary>
     /// From the set of all moves unconditionally possible; calculates the subset of those moves which are accepted by the internal moveRule.
@@ -49,6 +72,7 @@ public class RuleSet
         {
             acceptedMoves.AddRange(moveData.GetValidMoves(board, _moveRule));
         }
+
 
         return acceptedMoves;
     }

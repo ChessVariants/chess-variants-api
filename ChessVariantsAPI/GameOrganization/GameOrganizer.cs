@@ -8,49 +8,61 @@ namespace ChessVariantsAPI.GameOrganization;
 public class GameOrganizer
 {
     private readonly Dictionary<string, ActiveGame?> _activeGames;
-    private readonly static Dictionary<string, Player?> _colorDict = new()
-    {
-        { "white", Player.White },
-        { "black", Player.Black }
-    };
 
     public GameOrganizer()
     {
         _activeGames = new Dictionary<string, ActiveGame?>();
     }
 
+    #region Administration
+
     /// <summary>
     /// Creates a new game if one does not already exist with <paramref name="gameId"/> and adds the player to the game if possible.
-    /// If <paramref name="asColor"/> is invalid an <see cref="InvalidColorException"/> will surface.
     /// </summary>
     /// <param name="gameId">The key to which the created game should be mapped to.</param>
     /// <returns>True if the player could join the game, false otherwise</returns>
-    /// <exception cref="InvalidColorException">If the color was not found (=null)</exception>
-    public bool JoinGame(string gameId, string playerIdentifier, string asColor)
+    public Player JoinGame(string gameId, string playerIdentifier)
     {
-        var activeGame = _activeGames.GetValueOrDefault(gameId, null);
-        activeGame = CreateGameIfNull(gameId, activeGame);
-        var color = _colorDict.GetValueOrDefault(asColor, null);
-
-        try
-        {
-            activeGame.AddPlayer(playerIdentifier, color);
-            return true;
-        }
-        catch (PlayerAlreadyExistsException)
-        {
-            return false;
-        }
+        var activeGame = GetActiveGame(gameId);
+        return activeGame.AddPlayer(playerIdentifier);
     }
 
-    private ActiveGame CreateGameIfNull(string gameId, ActiveGame? activeGame)
+    public Player CreateGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
     {
-        if (activeGame == null)
+        var activeGame = _activeGames.GetValueOrDefault(gameId, null);
+        if (activeGame != null)
         {
-            activeGame = new ActiveGame(GameFactory.StandardChess()); // TODO don't automatically create standard chess
-            _activeGames.Add(gameId, activeGame);
+            throw new OrganizerException("The game you're trying to create already exists");
         }
+        activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
+        return (Player) activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    private ActiveGame CreateActiveGame(string gameId, string playerIdentifier, string variantIdentifier)
+    {
+        Game? gameVariant;
+        try
+        {
+            gameVariant = GameFactory.FromIdentifier(variantIdentifier);
+        }
+        catch (ArgumentException e)
+        {
+            throw new OrganizerException(e.Message);
+        }
+        
+        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
+        _activeGames.Add(gameId, activeGame);
         return activeGame;
+    }
+
+    /// <summary>
+    /// Returns what chess variant the game is
+    /// </summary>
+    /// <param name="gameId">The id for the game to query what variant it is</param>
+    /// <returns>The chess variant for the supplied <paramref name="gameId"/></returns>
+    public string GetActiveGameVariant(string gameId)
+    {
+        return GetActiveGame(gameId).Variant;
     }
 
     /// <summary>
@@ -63,153 +75,96 @@ public class GameOrganizer
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
         if (activeGame != null)
-        {  
-            // TODO remove game from _activeGames if it is empty if we want
+        {
             return activeGame.RemovePlayer(playerIdentifier);
         }
         return false;
     }
 
     /// <summary>
-    /// Returns the game object for the given <paramref name="gameId"/> if it exists, otherwise throws a <see cref="GameNotFoundException"/>
+    /// Returns the game object for the given <paramref name="gameId"/> if it exists, otherwise surfaces a <see cref="GameNotFoundException"/>
     /// </summary>
     /// <param name="gameId">The game id for the game to return</param>
     /// <returns>The game object corresponding to the gameId</returns>
     /// <exception cref="GameNotFoundException"></exception>
     public Game GetGame(string gameId)
     {
-        var activeGame = _activeGames.GetValueOrDefault(gameId, null);
-        if (activeGame == null)
-        {
-            throw new GameNotFoundException($"No active game for gameId: {gameId}");
-        }
+        var activeGame = GetActiveGame(gameId);
         return activeGame.GetGame();
     }
 
-    /// <summary>
-    /// Returns the player object for the given <paramref name="gameId"/> and <paramref name="playerIdentifier"/> if it exists, otherwise throws correct exceptions.
-    /// </summary>
-    /// <param name="gameId">The game id of the game the connected user plays</param>
-    /// <param name="playerIdentifier">Connection id of the player to return</param>
-    /// <returns>The player object corresponding to the gameId and playerIdentifier</returns>
-    /// <exception cref="GameNotFoundException">If the game was not found (=null)</exception>
-    /// <exception cref="PlayerNotFoundException">If the connectionId was not found</exception>
-    public Player? GetPlayer(string gameId, string playerIdentifier)
+    private ActiveGame GetActiveGame(string gameId)
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
         if (activeGame == null)
         {
             throw new GameNotFoundException($"No active game for gameId: {gameId}");
         }
-        Player? player = activeGame.GetPlayer(playerIdentifier);
-        if (player == null)
-        {
-            throw new PlayerNotFoundException($"No player with identifier {playerIdentifier} found in game {gameId}");
-        }
-        return player;
+        return activeGame;
     }
 
-    private void DeleteGame(string gameId)
+    /// <summary>
+    /// Gets the player corresponding to the provided <paramref name="gameId"/> and <paramref name="playerIdentifier"/>.
+    /// </summary>
+    /// <param name="gameId">The game id for the to find the <see cref="Player"/> for</param>
+    /// <param name="playerIdentifier">The unique identifier for the <see cref="Player"/> to find</param>
+    /// <returns>The player if found</returns>
+    /// <exception cref="PlayerNotFoundException">Is raised if there is no such player for the supplied gameId</exception>
+    public Player GetPlayer(string gameId, string playerIdentifier)
+    {
+        var activeGame = GetActiveGame(gameId);
+        var player = activeGame.GetPlayer(playerIdentifier);
+        if (player == null)
+        {
+            throw new PlayerNotFoundException($"No player with identifier '{playerIdentifier}' found for game with gameId '{gameId}'");
+        }
+        return (Player) player;
+    }
+
+    /// <summary>
+    /// Swaps the active players colors to the opposite. Only works if the requester is the admin.
+    /// </summary>
+    /// <param name="gameId">The game to swap colors in</param>
+    /// <param name="playerIdentifier">The player requesting the swap</param>
+    public void SwapColors(string gameId, string playerIdentifier)
+    {
+        var activeGame = GetActiveGame(gameId);
+        activeGame.SwapColors(playerIdentifier);
+    }
+
+    /// <summary>
+    /// Removes a game
+    /// </summary>
+    /// <param name="gameId">The game to remove</param>
+    public void DeleteGame(string gameId)
     {
         _activeGames.Remove(gameId);
     }
-}
-
-/// <summary>
-/// Represents an active game (not necessarily in started) which maps player identifiers to a <see cref="Player"/> type,
-/// and the game they are mapped to.
-/// </summary>
-public class ActiveGame
-{
-
-    private readonly Game _game;
-    private readonly Dictionary<string, Player?> _playerDict;
-
-    public ActiveGame(Game game)
-    {
-        _game = game;
-        _playerDict = new Dictionary<string, Player?>();
-    }
 
     /// <summary>
-    /// Maps the <paramref name="playerIdentifier"/> to a color as supplied.
+    /// Gets the current state of the game as a json string
     /// </summary>
-    /// <param name="playerIdentifier">The player identifier</param>
-    /// <param name="color">The color to map the player identifier to</param>
-    /// <exception cref="InvalidColorException">If the color is null</exception>
-    /// <exception cref="PlayerAlreadyExistsException">If a player is already mapped to <paramref name="color"/></exception>
-    public void AddPlayer(string playerIdentifier, Player? color)
+    /// <param name="gameId">The game to get the state for</param>
+    /// <returns>A json-formatted string of current game state</returns>
+    public string GetStateAsJson(string gameId)
     {
-        if (color == null)
-        {
-            throw new InvalidColorException($"{color} is not a valid color. Only 'black' or 'white' are valid as colors.");
-        }
-        if (_playerDict.ContainsValue(color))
-        {
-            throw new PlayerAlreadyExistsException($"A player of color {color} already exists in this game");
-        }
-        _playerDict.Add(playerIdentifier, color);
+        var game = GetGame(gameId);
+        return game.ExportStateAsJson();
+    } 
+
+    #endregion
+
+    #region GameControl
+
+    public GameEvent Move(string move, string gameId, string playerIdentifier)
+    {
+        var game = GetGame(gameId);
+        var player = GetPlayer(gameId, playerIdentifier);
+        GameEvent result = game.MakeMove(move, player);
+        return result;
     }
 
-    /// <summary>
-    /// Removes a player from the active game, if they are in it.
-    /// </summary>
-    /// <param name="playerIdentifier">The identifier for the player to remove</param>
-    /// <returns>True if the player was removed, otherwise false</returns>
-    public bool RemovePlayer(string playerIdentifier)
-    {
-        return _playerDict.Remove(playerIdentifier);
-    }
-
-    /// <summary>
-    /// Returns the <see cref="Player"/> enum mapped to the <paramref name="playerIdentifier"/>.
-    /// If not found then returns null.
-    /// </summary>
-    /// <param name="playerIdentifier"></param>
-    /// <returns>The player if found, otherwise null.</returns>
-    public Player? GetPlayer(string playerIdentifier)
-    {
-        return _playerDict.GetValueOrDefault(playerIdentifier, null);
-    }
-
-    /// <summary>
-    /// Returns the game
-    /// </summary>
-    /// <returns>returns the game</returns>
-    public Game GetGame()
-    {
-        return _game;
-    }
+    #endregion
 }
 
-/// <summary>
-/// Exception for when a game is not found amongst the active games.
-/// </summary>
-public class GameNotFoundException : Exception
-{
-    public GameNotFoundException(string message) : base(message) { }
-}
 
-/// <summary>
-/// Exception for when a supplied chess color is not one of the valid ones (black/white)
-/// </summary>
-public class InvalidColorException : Exception
-{
-    public InvalidColorException(string message) : base(message) { }
-}
-
-/// <summary>
-/// Exception for when a player of a certain type already exists.
-/// </summary>
-public class PlayerAlreadyExistsException : Exception
-{
-    public PlayerAlreadyExistsException(string message) : base(message) { }
-}
-
-/// <summary>
-/// Exception for when a player is not found in a game.
-/// </summary>
-public class PlayerNotFoundException : Exception
-{
-    public PlayerNotFoundException(string message) : base(message) { }
-}

@@ -19,6 +19,10 @@ public static class GameFactory
     private static OperatorType EQUALS = OperatorType.EQUALS;
     private static OperatorType NOT = OperatorType.NOT;
 
+    public const string StandardIdentifier = "standard";
+    public const string CaptureTheKingIdentifier = "captureTheKing";
+    public const string AntiChessIdentifier = "antiChess";
+
     public static Game StandardChess()
     {
         IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
@@ -65,7 +69,6 @@ public static class GameFactory
 
 
 
-        return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
     public static Game CaptureTheKing()
@@ -80,7 +83,8 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         
-        return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
+
     }
 
     public static Game AntiChess()

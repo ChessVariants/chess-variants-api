@@ -6,16 +6,16 @@ using System;
 
 public class Game {
 
-    private readonly IBoardState _board;
+    private readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(IBoardState board, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
-        _board = board;
+        _moveWorker = moveWorker;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
@@ -42,23 +42,32 @@ public class Game {
     private GameEvent MakeMoveImpl(string move) {
         IEnumerable<Move> validMoves;
         if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         } else {
-            validMoves = _blackRules.ApplyMoveRule(_board, _playerTurn);
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
         }
-        Move? movePerformed = GetMove(validMoves, move);
+        if (validMoves.Contains(move)) {
+        
+            GameEvent gameEvent = _moveWorker.Move(move);
 
-        if (movePerformed != null) {
-            movePerformed.Perform(_board);
+            if(gameEvent == GameEvent.InvalidMove) {
+                return gameEvent;
+            }
 
-            
+            /// TODO: Check for a tie
 
-            if (false) { // check if game is won via rules
+            if(_whiteRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.WhiteWon;
+            } 
+            if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
+                return GameEvent.BlackWon;
+
+            if (false) {
                 return GameEvent.Tie;
             }
-            
+
             DecrementPlayerMoves();
-            return GameEvent.MoveSucceeded;
+            return gameEvent;
         }
         return GameEvent.InvalidMove;
     }
@@ -85,6 +94,12 @@ public class Game {
             _playerMovesRemaining = _movesPerTurn;
         }
     }
+
+    public string ExportStateAsJson()
+    {
+        RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
+        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _board));
+    }
 }
 
 public enum GameEvent {
@@ -99,4 +114,17 @@ public enum Player {
     White,
     Black,
     None
+}
+
+public static class PlayerExtensions
+{
+    public static string AsString(this Player player)
+    {
+        return player switch
+        {
+            Player.White => "white",
+            Player.Black => "black",
+            _ => throw new ArgumentException("Player must be either white or black"),
+        };
+    }
 }
