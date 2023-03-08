@@ -27,6 +27,18 @@ public class Utils
         }
         return false;
     }
+    public static bool SquareAttacked(IBoardState board, string position, Player attacker)
+    {
+        foreach (var attackerMove in board.GetAllValidMoves(attacker))
+        {
+            var (_, to) = board.parseMove(attackerMove);
+            if (position.Equals(to))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// Returns the owner of the piece with the supplied <paramref name="pieceIdentifier"/>.

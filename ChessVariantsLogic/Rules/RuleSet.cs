@@ -38,12 +38,6 @@ public class RuleSet
 
             BoardTransition transition = new BoardTransition(board, futureBoard, move);
 
-            (string from, string _) = board.parseMove(move);
-
-            Tuple<int, int>? fromPos = board.Board.ParseCoordinate(from);
-            
-            if (fromPos == null) continue;
-
             bool ruleSatisfied = _moveRule.Evaluate(transition);
             if (ruleSatisfied)
             {

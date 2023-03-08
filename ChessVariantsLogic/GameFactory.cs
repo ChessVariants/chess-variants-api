@@ -43,14 +43,20 @@ public static class GameFactory
         ISet<MoveData> movesWhite = new HashSet<MoveData>
         {
             MoveData.CastleMove(Player.White, true),
-            MoveData.CastleMove(Player.White, false)
+            MoveData.CastleMove(Player.White, false),
+            MoveData.PawnDoubleMove(Player.White),
+            MoveData.EnPassantMove(Player.White, true),
+            MoveData.EnPassantMove(Player.White, false),
         };
 
 
         ISet<MoveData> movesBlack = new HashSet<MoveData>
         {
             MoveData.CastleMove(Player.Black, true),
-            MoveData.CastleMove(Player.Black, false)
+            MoveData.CastleMove(Player.Black, false),
+            MoveData.PawnDoubleMove(Player.Black),
+            MoveData.EnPassantMove(Player.Black, true),
+            MoveData.EnPassantMove(Player.Black, false),
         };
 
 

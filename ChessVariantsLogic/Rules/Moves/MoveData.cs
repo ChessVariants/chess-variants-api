@@ -13,6 +13,9 @@ public class MoveData
     private readonly string _pieceIdentifier;
     private readonly Tuple<int, int> _relativeTo;
 
+    public IEnumerable<IAction> Actions => _actions;
+    public string PieceIdentifier => _pieceIdentifier;
+
     public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, Tuple<int, int> relativeTo)
     {
         _actions = actions;
@@ -20,9 +23,6 @@ public class MoveData
         _pieceIdentifier = pieceIdentifier;
         _relativeTo = relativeTo;
     }
-
-    public IEnumerable<IAction> Actions => _actions;
-    public string PieceIdentifier => _pieceIdentifier;
 
     public IEnumerable<Move> GetValidMoves(IBoardState thisBoard, IPredicate moveRule)
     {
@@ -40,10 +40,10 @@ public class MoveData
 
             Move move = new Move(_actions, from + to);
             IBoardState futureBoard = thisBoard.CopyBoardState();
-            move.Perform(futureBoard);
+            GameEvent result = move.Perform(futureBoard);
             
             BoardTransition transition = new BoardTransition(thisBoard, futureBoard, fromPos, toPos);
-            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition))
+            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && result != GameEvent.InvalidMove)
             {
                 moves.Add(move);
             }
@@ -114,7 +114,7 @@ public class MoveData
         return new MoveData(actions, !hasMoved, PawnIdentifier, forwardPosition);
     }
 
-    public static MoveData EnPassantRightMove(Player player, bool right)
+    public static MoveData EnPassantMove(Player player, bool right)
     {
         int playerMultiplier = player == Player.White ? -1 : 1;
         int sideMultiplier = right ? 1 : -1;
