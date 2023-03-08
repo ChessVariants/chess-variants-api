@@ -7,13 +7,13 @@ using ChessVariantsLogic.Rules;
 namespace ChessVariantsLogic.Tests;
 
 public class PiecesLeftTests : IDisposable {
-    IBoardState board;
+    MoveWorker board;
     BoardTransition boardTransition;
 
     public PiecesLeftTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard());
-        boardTransition = new BoardTransition(board, board, "");
+        boardTransition = new BoardTransition(board, board, "a1a1");
     }
 
     public void Dispose()

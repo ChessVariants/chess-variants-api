@@ -8,16 +8,15 @@ using ChessVariantsLogic.Rules;
 namespace ChessVariantsLogic.Tests;
 
 public class AttackedTests : IDisposable {
-    IBoardState board;
-    IBoardState whiteKingAttackedBoard;
-    IBoardState blackKingAttackedBoard;
-    IBoardState blackBishopOnE2;
+    MoveWorker board;
+    MoveWorker whiteKingAttackedBoard;
+    MoveWorker blackKingAttackedBoard;
+    MoveWorker blackBishopOnE2;
 
     BoardTransition boardBoard;
     BoardTransition whiteKingAttackedTransition;
     BoardTransition blackToWhiteKingAttackedTransition;
     BoardTransition blackBishopOnE2Transition;
-    BoardTransition blackKingAttackedTransition;
 
     public AttackedTests()
     {
@@ -31,11 +30,11 @@ public class AttackedTests : IDisposable {
         blackBishopOnE2 = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         blackBishopOnE2.Board.Insert(Constants.BlackBishopIdentifier, "e2");
 
-        boardBoard = new BoardTransition(board, board, "");
-        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, whiteKingAttackedBoard, "");
-        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, blackBishopOnE2, "");
+        boardBoard = new BoardTransition(board, board, "a1a1");
+        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
+        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, blackBishopOnE2, "a1a1");
 
-        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, whiteKingAttackedBoard, "");
+        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
 
     }
 
@@ -48,15 +47,15 @@ public class AttackedTests : IDisposable {
     [Fact]
     public void WhitePawnIsAttacked_ShouldReturnTrue()
     {
-        IPredicate whiteKingAttacked = new Attacked(BoardState.THIS, Constants.WhitePawnIdentifier);
-        Assert.True(whiteKingAttacked.Evaluate(whiteKingAttackedTransition));
+        IPredicate whitePawnAttacked = new Attacked(BoardState.THIS, Constants.WhitePawnIdentifier);
+        Assert.True(whitePawnAttacked.Evaluate(whiteKingAttackedTransition));
     }
     
     [Fact]
     public void WhitePawnIsAttacked_ShouldReturnFalse()
     {
-        IPredicate whiteKingAttacked = new Attacked(BoardState.THIS, Constants.WhitePawnIdentifier);
-        Assert.False(whiteKingAttacked.Evaluate(blackBishopOnE2Transition));
+        IPredicate whitePawnAttacked = new Attacked(BoardState.THIS, Constants.WhitePawnIdentifier);
+        Assert.False(whitePawnAttacked.Evaluate(blackBishopOnE2Transition));
     }
 
     [Fact]

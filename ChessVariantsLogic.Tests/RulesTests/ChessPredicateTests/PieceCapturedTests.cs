@@ -8,8 +8,8 @@ using ChessVariantsLogic.Rules;
 namespace ChessVariantsLogic.Tests;
 
 public class PieceCapturedTests : IDisposable {
-    IBoardState board0;
-    IBoardState board1;
+    MoveWorker board0;
+    MoveWorker board1;
 
     BoardTransition board01;
     BoardTransition board00;
@@ -46,7 +46,7 @@ public class PieceCapturedTests : IDisposable {
 
         board1.Move("h5f7");
 
-        board00 = new BoardTransition(board0, board0, "");
+        board00 = new BoardTransition(board0, board0, "a1a1");
         board01 = new BoardTransition(board0, board1, "h5f7");
 
     }

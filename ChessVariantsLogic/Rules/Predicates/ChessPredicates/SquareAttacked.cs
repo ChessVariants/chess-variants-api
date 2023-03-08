@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
-internal class SquareAttacked : IPredicate
+/// <summary>
+/// This predicate determines if a square is attacked or not by the given player, either in the current board state or the next.
+/// The target position can be calculated relatively or absolutely.
+/// </summary>
+public class SquareAttacked : IPredicate
 {
     private readonly Tuple<int, int> _position;
     private readonly BoardState _boardState;
@@ -20,12 +19,18 @@ internal class SquareAttacked : IPredicate
         _positionType = positionType;
         _attacker = attacker;
     }
+    /// <summary>
+    /// Evaluates to true/false if a square is attacked or not in either the current board state or the next, depending on what was specified at object-creation.
+    /// If _positionType is PositionType.RELATIVE, the target position will be calculated relative to the piece being moved in the boardTransition
+    /// </summary>
+    /// <inheritdoc/>
+    /// <returns>true/false if a square is attacked or not in either the current board state or the next, depending on what was specified at object-creation.</returns>
 
-    public bool Evaluate(BoardTransition transition)
+    public bool Evaluate(BoardTransition boardTransition)
     {
         bool isThisBoardState = _boardState == BoardState.THIS;
-        var board = isThisBoardState ? transition.ThisState : transition.NextState;
-        var relativePosition = isThisBoardState ? transition.MoveFrom : transition.MoveTo;
+        var board = isThisBoardState ? boardTransition.ThisState : boardTransition.NextState;
+        var relativePosition = boardTransition.MoveFrom;
 
         var finalPosition = _position;
 

@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
 /// </summary>
-public class MoveWorker : IBoardState
+public class MoveWorker
 {
 
 #region Fields, properties and constructors
@@ -67,6 +67,35 @@ public class MoveWorker : IBoardState
                 }
             }
             catch (KeyNotFoundException) {}
+        }
+        return GameEvent.InvalidMove;
+
+    }
+    public GameEvent ForceMove(string move)
+    {
+        var splitMove = parseMove(move);
+        if (splitMove == null)
+            return GameEvent.InvalidMove;
+
+        string from = splitMove.Item1;
+        string to = splitMove.Item2;
+
+        string? strPiece = this.board.GetPieceIdentifier(from);
+        if (strPiece != null)
+        {
+            try
+            {
+                Piece piece = stringToPiece[strPiece];
+                var moves = getAllValidMovesByPiece(piece, this.board.CoorToIndex[from]);
+                var coor = this.board.ParseCoordinate(to);
+                if (coor != null)
+                {
+                    this.board.Insert(strPiece, to);
+                    this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    return GameEvent.MoveSucceeded;
+                }
+            }
+            catch (KeyNotFoundException) { }
         }
         return GameEvent.InvalidMove;
 
@@ -413,7 +442,7 @@ public class MoveWorker : IBoardState
     /// <summary>
     /// Copies this move worker to a new move worker object
     /// </summary>
-    public IBoardState CopyBoardState()
+    public MoveWorker CopyBoardState()
     {
         Chessboard newBoard = board.CopyBoard();
         HashSet<Piece> newPieces = new HashSet<Piece>(pieces);

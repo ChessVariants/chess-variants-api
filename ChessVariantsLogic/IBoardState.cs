@@ -49,5 +49,5 @@ public interface IBoardState
     /// <summary>
     /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   
     /// </summary>
-    public IBoardState CopyBoardState();
+    public MoveWorker CopyBoardState();
 }

@@ -68,7 +68,7 @@ public static class GameFactory
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack);
 
 
-        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 2, rulesWhite, rulesBlack);
     }
 
     public static Game CaptureTheKing()

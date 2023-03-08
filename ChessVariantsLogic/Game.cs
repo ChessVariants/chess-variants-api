@@ -48,9 +48,10 @@ public class Game {
             validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
         }
         SpecialMove movePerformed = GetMove(validMoves, move);
+        if (movePerformed == null) return GameEvent.InvalidMove;
         if (validMoves.Contains(movePerformed)) {
         
-            GameEvent gameEvent = _moveWorker.Move(move);
+            GameEvent gameEvent = movePerformed.Perform(_moveWorker);
 
             if(gameEvent == GameEvent.InvalidMove) {
                 return gameEvent;

@@ -21,7 +21,7 @@ public class RuleSet
         _customMoves = customMoves;
     }
 
-    public Dictionary<string, List<string>> GetLegalMoveDict(Player player, IBoardState board)
+    public Dictionary<string, List<string>> GetLegalMoveDict(Player player, MoveWorker board)
     {
         var moveDict = new Dictionary<string, List<string>>();
         var moves = ApplyMoveRule(board, player);
@@ -51,10 +51,10 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public IEnumerable<Move> ApplyMoveRule(IBoardState board, Player sideToPlay)
+    public IEnumerable<SpecialMove> ApplyMoveRule(MoveWorker board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
-        var acceptedMoves = new List<Move>();
+        var acceptedMoves = new List<SpecialMove>();
         foreach (var move in possibleMoves)
         {
             var futureBoard = board.CopyBoardState();
@@ -74,7 +74,6 @@ public class RuleSet
             acceptedMoves.AddRange(moveData.GetValidMoves(board, _moveRule));
         }
 
-
         return acceptedMoves;
     }
 
@@ -83,8 +82,8 @@ public class RuleSet
     /// </summary>
     /// <param name="thisBoard"></param>
     /// <returns></returns>
-    public bool ApplyWinRule(IBoardState thisBoard)
+    public bool ApplyWinRule(MoveWorker thisBoard)
     {
-        return _winRule.Evaluate(new BoardTransition(thisBoard, thisBoard, ""));
+        return _winRule.Evaluate(new BoardTransition(thisBoard, thisBoard, "a1a1"));
     }
 }

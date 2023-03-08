@@ -8,9 +8,9 @@ using ChessVariantsLogic.Rules;
 namespace ChessVariantsLogic.Tests;
 
 public class ForEveryTests : IDisposable {
-    IBoardState board;
-    IBoardState scholarsMateBoard;
-    IBoardState notScholarsMateBoard;
+    MoveWorker board;
+    MoveWorker scholarsMateBoard;
+    MoveWorker notScholarsMateBoard;
     IPredicate whiteWinRule;
     BoardTransition scholarsMateBoardTransition;
     BoardTransition notScholarsMateBoardTransition;
@@ -62,9 +62,9 @@ public class ForEveryTests : IDisposable {
 
         whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
 
-        scholarsMateBoardTransition = new BoardTransition(scholarsMateBoard, scholarsMateBoard, "");
-        notScholarsMateBoardTransition = new BoardTransition(notScholarsMateBoard, notScholarsMateBoard, "");
-        boardTransition = new BoardTransition(board, board, "");
+        scholarsMateBoardTransition = new BoardTransition(scholarsMateBoard, scholarsMateBoard, "a1a1");
+        notScholarsMateBoardTransition = new BoardTransition(notScholarsMateBoard, notScholarsMateBoard, "a1a1");
+        boardTransition = new BoardTransition(board, board, "a1a1");
 
     }
 

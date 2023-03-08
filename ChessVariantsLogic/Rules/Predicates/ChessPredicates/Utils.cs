@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
@@ -12,7 +14,7 @@ public class Utils
     /// <param name="board">The board state which you want to find information about</param>
     /// <param name="pieceIdentifier">The identifier for the piece you're trying to see if attacked</param>
     /// <returns>True if a piece with the supplied <paramref name="pieceIdentifier"/> is attacked, otherwise false.</returns>
-    public static bool PieceAttacked(IBoardState board, string pieceIdentifier)
+    public static bool PieceAttacked(MoveWorker board, string pieceIdentifier)
     {
         var player = GetPlayer(pieceIdentifier);
         var attacker = player == Player.White ? Player.Black : Player.White;
@@ -27,7 +29,7 @@ public class Utils
         }
         return false;
     }
-    public static bool SquareAttacked(IBoardState board, string position, Player attacker)
+    public static bool SquareAttacked(MoveWorker board, string position, Player attacker)
     {
         foreach (var attackerMove in board.GetAllValidMoves(attacker))
         {
@@ -64,7 +66,7 @@ public class Utils
     /// <param name="board">The board to find pieces on</param>
     /// <param name="pieceIdentifier">The identifier for the piece type whose locations to find</param>
     /// <returns>All positions where a piece with <paramref name="pieceIdentifier"/> are located.</returns>
-    public static IEnumerable<string> FindPiecesOfType(IBoardState board, string pieceIdentifier)
+    public static IEnumerable<string> FindPiecesOfType(MoveWorker board, string pieceIdentifier)
     {
         var pieceLocations = new List<string>();
         foreach (var position in board.Board.CoorToIndex.Keys)
@@ -84,7 +86,7 @@ public class Utils
     /// <param name="board">The board to check on</param>
     /// <param name="pieceIdentifier">The identifier for the type</param>
     /// <returns>True if the piece at <paramref name="position"/> conforms to the type of the <paramref name="pieceIdentifier"/></returns>
-    public static bool IsOfType(string position, IBoardState board, string pieceIdentifier)
+    public static bool IsOfType(string position, MoveWorker board, string pieceIdentifier)
     {
         var piece = board.Board.GetPieceIdentifier(position);
         switch (pieceIdentifier)
@@ -111,4 +113,8 @@ public class Utils
                 return piece == pieceIdentifier;
         }
     }
+
+    static string letters = "abcdefghijklmnopqrst";
+
+
 }

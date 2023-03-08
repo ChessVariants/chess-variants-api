@@ -9,7 +9,7 @@ public class OperatorTests : IDisposable {
 
     IPredicate constTrue;
     IPredicate constFalse;
-    IBoardState board;
+    MoveWorker board;
     BoardTransition transition;
 
     public OperatorTests()
@@ -17,7 +17,7 @@ public class OperatorTests : IDisposable {
         constTrue = new Const(true);
         constFalse = new Const(false);
         board = new MoveWorker(new Chessboard(8));
-        transition = new BoardTransition(board, board, "");
+        transition = new BoardTransition(board, board, "a1a1");
     }
 
     public void Dispose()

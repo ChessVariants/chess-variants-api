@@ -1,12 +1,12 @@
 ﻿namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
-/// Represents a logical predicate which can evaluate two <see cref="Chessboard"/> objects to either true or false.
+/// Represents a logical predicate which can evaluate a <see cref="BoardTransition"/> object to either true or false.
 /// </summary>
 public interface IPredicate
 {
     /// <summary>
-    /// Evaluates two <see cref="Chessboard"/> objects to either true or false according to implementation.
+    /// Evaluates a <see cref="BoardTransition"/> object to either true or false according to implementation.
     /// </summary>
     /// <param name="transition"></param>
     /// 
