@@ -2,6 +2,7 @@ namespace ChessVariantsLogic;
 
 using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
+using ChessVariantsLogic.Export;
 using System;
 
 public class Game {
@@ -40,13 +41,14 @@ public class Game {
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
     private GameEvent MakeMoveImpl(string move) {
-        IEnumerable<Move> validMoves;
+        IEnumerable<SpecialMove> validMoves;
         if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
         } else {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker.Board, _playerTurn);
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
         }
-        if (validMoves.Contains(move)) {
+        SpecialMove movePerformed = GetMove(validMoves, move);
+        if (validMoves.Contains(movePerformed)) {
         
             GameEvent gameEvent = _moveWorker.Move(move);
 
@@ -56,12 +58,13 @@ public class Game {
 
             /// TODO: Check for a tie
 
-            if(_whiteRules.ApplyWinRule(_moveWorker.Board)) {
+            if(_whiteRules.ApplyWinRule(_moveWorker)) {
                 return GameEvent.WhiteWon;
-            } 
-            if(_blackRules.ApplyWinRule(_moveWorker.Board)) {
+            }
+            if (_blackRules.ApplyWinRule(_moveWorker))
+            {
                 return GameEvent.BlackWon;
-
+            }
             if (false) {
                 return GameEvent.Tie;
             }
@@ -72,11 +75,11 @@ public class Game {
         return GameEvent.InvalidMove;
     }
 
-    private Move? GetMove(IEnumerable<Move> validMoves, string fromPos)
+    private SpecialMove? GetMove(IEnumerable<SpecialMove> validMoves, string moveCoords)
     {
-        foreach(Move move in validMoves)
+        foreach(SpecialMove move in validMoves)
         {
-            if(move.FromTo.Equals(fromPos))
+            if(move.FromTo.Equals(moveCoords))
             {
                 return move;
             }
@@ -98,7 +101,7 @@ public class Game {
     public string ExportStateAsJson()
     {
         RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
-        return GameExporter.ExportGameStateAsJson(_board.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _board));
+        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
     }
 }
 

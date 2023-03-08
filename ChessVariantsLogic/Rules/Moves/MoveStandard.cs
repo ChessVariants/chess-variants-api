@@ -4,7 +4,7 @@ namespace ChessVariantsLogic.Rules.Moves;
 
 using Predicates;
 
-public class MoveStandard : Move
+public class MoveStandard : SpecialMove
 {
     public MoveStandard(string fromTo) : base(new List<IAction> { new ActionMovePieceAbsolute(fromTo) }, fromTo)
     {

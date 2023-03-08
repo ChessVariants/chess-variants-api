@@ -68,7 +68,7 @@ public static class GameFactory
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack);
 
 
-
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
     public static Game CaptureTheKing()
@@ -83,7 +83,7 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         
-        return new Game(moveWorker, Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
 
     }
 
@@ -99,6 +99,24 @@ public static class GameFactory
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
         RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, new HashSet<MoveData>());
 
-        return new Game(new MoveWorker(Chessboard.StandardChessboard()), Player.White, 1, rulesWhite, rulesBlack);
+        return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+    }
+
+    /// <summary>
+    /// Returns a game corresponding to the <paramref name="identifier"/>>.
+    /// </summary>
+    /// <param name="identifier">Variant identifier for the variant to create</param>
+    /// <returns>A game corresponding to the <paramref name="identifier"/>>.</returns>
+    /// <exception cref="ArgumentException">If there's no correspondence to the identifier</exception>
+    public static Game FromIdentifier(string identifier)
+    {
+        return identifier switch
+        {
+            StandardIdentifier => StandardChess(),
+            AntiChessIdentifier => AntiChess(),
+            CaptureTheKingIdentifier => CaptureTheKing(),
+            _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
+        };
+
     }
 }

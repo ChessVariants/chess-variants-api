@@ -2,7 +2,7 @@ using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Rules.Moves.Actions;
-
+using ChessVariantsLogic;
 namespace ChessVariantsLogic.Rules;
 
 /// <summary>
@@ -18,6 +18,7 @@ public class RuleSet
     {
         _moveRule = moveRule;
         _winRule = winRule;
+        _customMoves = customMoves;
     }
 
     public Dictionary<string, List<string>> GetLegalMoveDict(Player player, IBoardState board)
@@ -26,7 +27,7 @@ public class RuleSet
         var moves = ApplyMoveRule(board, player);
         foreach (var move in moves)
         {
-            var fromTo = board.parseMove(move);
+            var fromTo = board.parseMove(move.FromTo);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
