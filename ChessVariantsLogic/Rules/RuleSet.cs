@@ -51,10 +51,10 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public IEnumerable<SpecialMove> ApplyMoveRule(MoveWorker board, Player sideToPlay)
+    public IEnumerable<Move> ApplyMoveRule(MoveWorker board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
-        var acceptedMoves = new List<SpecialMove>();
+        var acceptedMoves = new List<Move>();
         foreach (var move in possibleMoves)
         {
             var futureBoard = board.CopyBoardState();
@@ -63,9 +63,12 @@ public class RuleSet
             BoardTransition transition = new BoardTransition(board, futureBoard, move);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
+            (string moveFrom, string moveTo) = board.parseMove(move);
+            if(moveFrom == null || moveTo == null) { continue; }
+
             if (ruleSatisfied)
             {
-                acceptedMoves.Add(new MoveStandard(move));
+                acceptedMoves.Add(new MoveStandard(moveFrom, moveTo));
             }
         }
 

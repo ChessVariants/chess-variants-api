@@ -17,56 +17,49 @@ public class MoveData
     private readonly IEnumerable<IAction> _actions;
     private readonly IPredicate _predicate;
     private readonly string _pieceIdentifier;
-    private readonly Tuple<int, int> _relativeTo;
+    private readonly IPosition _to;
 
     public IEnumerable<IAction> Actions => _actions;
     public string PieceIdentifier => _pieceIdentifier;
 
-    public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, Tuple<int, int> relativeTo)
+    public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
     {
         _actions = actions;
         _predicate = predicate;
         _pieceIdentifier = pieceIdentifier;
-        _relativeTo = relativeTo;
+        _to = to;
     }
 
     /// <summary>
     /// Constructs a SpecialMove for each piece with the given _pieceIdentifier.
-    /// The SpecialMove is constructed from the internal _actions, _relativeTo and that pieces position.
+    /// The SpecialMove is constructed from the internal _actions, _to and that pieces position.
     /// 
-    /// <para> Loops through all pieces of the given _pieceIdentifier.</para>
-    /// <para>For each piece, calculate a move coordinate with a from and to coordinate.</para>
-    /// <para>From is retrieved from the current piece position.</para>
-    /// <para>To is the internal _relativeTo position relative to the current piece position´.</para>
-    /// <para>Then construct a SpecialMove object with the internal _actions list and the calculated move coordinate.</para>
-    /// <para>Perform the SpecialMove on a copied board</para>
-    /// <para>Evaluate the internal _predicate, the supplied moveRule and check if the SpecialMove was performed successfully</para>
-    /// <para>If the above is true, add it to the list of SpecialMove</para>
+    /// <para>Loops through all pieces of the given _pieceIdentifier.</para>
+    /// <para>Then constructs a SpecialMove object with the internal _actions list and the calculated move coordinate.</para>
+    /// <para>Performs the SpecialMove on a copied board</para>
+    /// <para>Evaluates the internal _predicate, the supplied moveRule and check if the SpecialMove was performed successfully</para>
+    /// <para>If the above is true, it is added to the list of SpecialMove</para>
     /// </summary>
     /// <param name="thisBoard">The current board state used to construct the SpecialMove list from</param>
     /// <param name="moveRule">The moveRule of the RuleSet retrieving the valid moves</param>
     /// 
     /// <returns>A list of special moves that can be performed on the given board state.</returns>
     /// 
-    public IEnumerable<SpecialMove> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
+    public IEnumerable<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
     {
         List<string> positions = (List<string>) Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
-        HashSet<SpecialMove> moves = new HashSet<SpecialMove>();
+        HashSet<Move> moves = new HashSet<Move>();
 
         foreach(string from in positions)
         {
-            Tuple<int, int>? fromPos = thisBoard.Board.ParseCoordinate(from);
-            if (fromPos == null) continue;
-            Tuple<int, int> toPos = Tuple.Create(fromPos.Item1 + _relativeTo.Item1, fromPos.Item2 + _relativeTo.Item2);
-            string? to;
-            thisBoard.Board.IndexToCoor.TryGetValue(toPos, out to);
+            string? to = _to.GetPosition(thisBoard, from);
             if (to == null) continue;
 
-            SpecialMove move = new SpecialMove(_actions, from + to);
+            Move move = new Move(_actions, from + to);
             MoveWorker futureBoard = thisBoard.CopyBoardState();
             GameEvent result = move.Perform(futureBoard);
             
-            BoardTransition transition = new BoardTransition(thisBoard, futureBoard, fromPos, toPos);
+            BoardTransition transition = new BoardTransition(thisBoard, futureBoard, from, to);
             if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && result != GameEvent.InvalidMove)
             {
                 moves.Add(move);
@@ -77,9 +70,10 @@ public class MoveData
         return moves;
     }
 
-    public static MoveData CastleMove(Player player, bool kingSide)
+    public static MoveData CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)
     {
         string KingIdentifier = player == Player.White ? Constants.WhiteKingIdentifier : Constants.BlackKingIdentifier;
+        string RookIdentifier = player == Player.White ? Constants.WhiteRookIdentifier : Constants.BlackRookIdentifier;
         Player attacker = player == Player.White ? Player.Black : Player.White;
         
         IPredicate castlePredicate;
@@ -93,33 +87,54 @@ public class MoveData
 
         int relativeRookX = kingSide ? 3 : -4;
 
-        Tuple<int, int> relativeRookPosition = Tuple.Create(0, relativeRookX);
+        IPosition kingPosition = new PositionRelative(row: 0, col: 0);
+        IPosition squareBetween = new PositionRelative(row: 0, col: kingSideMultiplier);
+        IPosition rookPosition = new PositionRelative(row: 0, col: relativeRookX);
 
         IPredicate kingCheckedThisState = new Attacked(BoardState.THIS, KingIdentifier);
         IPredicate kingCheckedNextState = new Attacked(BoardState.NEXT, KingIdentifier);
 
-        IPredicate squareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, Tuple.Create(0, 1 * kingSideMultiplier), BoardState.THIS, PositionType.RELATIVE);
-        IPredicate squareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, Tuple.Create(0, 2 * kingSideMultiplier), BoardState.THIS, PositionType.RELATIVE);
-        IPredicate squareEmpty3 = new PieceAt(Constants.UnoccupiedSquareIdentifier, Tuple.Create(0, 3 * kingSideMultiplier), BoardState.THIS, PositionType.RELATIVE);
 
-        IPredicate squareAttacked1 = new SquareAttacked(Tuple.Create(0, 1 * kingSideMultiplier), BoardState.THIS, attacker, PositionType.RELATIVE);
-        IPredicate squareAttacked2 = new SquareAttacked(Tuple.Create(0, 2 * kingSideMultiplier), BoardState.THIS, attacker, PositionType.RELATIVE);
+        IPredicate squareBetweenAttacked = new SquareAttacked(squareBetween, BoardState.THIS, attacker);
 
-        IPredicate kingMoved = new HasMoved(Tuple.Create(0, 0), PositionType.RELATIVE);
-        IPredicate rookMoved = new HasMoved(relativeRookPosition, PositionType.RELATIVE);
+        IPredicate kingMovesThroughCheck = kingCheckedThisState | squareBetweenAttacked | kingCheckedNextState;
 
-        castlePredicate = !kingCheckedThisState & !kingCheckedNextState & squareEmpty1 & squareEmpty2 & !squareAttacked1 & !squareAttacked2 & !kingMoved & !rookMoved;
+        IPredicate squareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 1 * kingSideMultiplier), BoardState.THIS);
+        IPredicate squareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 2 * kingSideMultiplier), BoardState.THIS);
+        IPredicate squareEmpty3 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 3 * kingSideMultiplier), BoardState.THIS);
+
+        IPredicate kingHasNotMoved = new TimesMoved(kingPosition, Comparator.EQUALS, 0);
+        IPredicate rookHasNotMoved = new TimesMoved(rookPosition, Comparator.EQUALS, 0);
+
+        IPredicate kingAtSquare = new PieceAt(KingIdentifier, kingPosition, BoardState.THIS);
+        IPredicate rookAtSquare = new PieceAt(RookIdentifier, rookPosition, BoardState.THIS);
+
+        castlePredicate = squareEmpty1 & squareEmpty2 & kingAtSquare & rookAtSquare;
+
+        // TimesMoved not yet implemented but we should also check if the king and rook hasn't moved yet
+        // castlePredicate &= !kingHasNotMoved & !rookHasNotMoved;
 
         if (!kingSide)
             castlePredicate &= squareEmpty3;
 
+        if (!kingCanMoveThroughChecks)
+        {
+            castlePredicate &= !kingMovesThroughCheck;
+        }
+
+        IPosition kingFromPos = new PositionAbsolute(kingFromFile + rank);
+        IPosition kingToPos = new PositionAbsolute(kingToFile + rank);
+
+        IPosition rookFromPos = new PositionAbsolute(rookFromFile + rank);
+        IPosition rookToPos = new PositionAbsolute(rookToFile + rank);
+
         IEnumerable<IAction> castleActions = new List<IAction>
         {
-            new ActionMovePieceAbsolute(kingFromFile + rank + kingToFile + rank),
-            new ActionMovePieceAbsolute(rookFromFile + rank + rookToFile + rank)
+            new ActionMovePiece(kingFromPos, kingToPos),
+            new ActionMovePiece(rookFromPos, rookToPos)
         };
 
-        return new MoveData(castleActions, castlePredicate, KingIdentifier, relativeRookPosition);
+        return new MoveData(castleActions, castlePredicate, KingIdentifier, rookPosition);
     }
 
     
@@ -128,19 +143,20 @@ public class MoveData
     {
         int playerMultiplier = player == Player.White ? -1 : 1;
         string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
-        Tuple<int, int> forwardPosition1 = Tuple.Create(1 * playerMultiplier, 0);
-        Tuple<int, int> forwardPosition2 = Tuple.Create(2 * playerMultiplier, 0);
+        IPosition thisPawnPosition = new PositionRelative(row: 0, col: 0);
+        IPosition forwardPosition1 = new PositionRelative(row: 1 * playerMultiplier, col: 0);
+        IPosition forwardPosition2 = new PositionRelative(row: 2 * playerMultiplier, col: 0);
 
-        IPredicate hasMoved = new Const(false);// new HasMoved(Tuple.Create(0, 0), PositionType.RELATIVE);
-        IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS, PositionType.RELATIVE);
-        IPredicate targetSquareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition2, BoardState.THIS, PositionType.RELATIVE);
+        IPredicate hasNotMoved = new TimesMoved(thisPawnPosition, Comparator.EQUALS, 0);
+        IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS);
+        IPredicate targetSquareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition2, BoardState.THIS);
 
         IEnumerable<IAction> actions = new List<IAction>
         {
-            new ActionMovePieceRelative(forwardPosition2)
+            new ActionMovePiece(forwardPosition2)
         };
-
-        return new MoveData(actions, !hasMoved & targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
+        //Times moved not yet implemented but we need to check that pawn hasn't moved before
+        return new MoveData(actions, /*hasNotMoved &*/ targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
     }
 
 
@@ -152,20 +168,22 @@ public class MoveData
         string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
         string OpponentPawnIdentifier = player == Player.White ? Constants.BlackPawnIdentifier : Constants.WhitePawnIdentifier;
 
-        Tuple<int, int> finalPositionRelative = Tuple.Create(1 * playerMultiplier, 1 * sideMultiplier);
-        Tuple<int, int> enemyPawnPositionRelative = Tuple.Create(0, 1 * sideMultiplier);
+        IPosition finalPosition = new PositionRelative(row: playerMultiplier, col: sideMultiplier);
+        IPosition enemyPawnPosition = new PositionRelative(row: 0, col: sideMultiplier);
 
-        IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPositionRelative, BoardState.THIS, PositionType.RELATIVE);
-        IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPositionRelative, BoardState.THIS, PositionType.RELATIVE);
-        //IPredicate enemyPawnHasMoved = new HasMoved(enemyPawnPositionRelative, PositionType.RELATIVE);
+        IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPosition, BoardState.THIS);
+        IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
+        IPredicate enemyPawnHasMovedOnce = new TimesMoved(enemyPawnPosition, Comparator.EQUALS, 1);
 
         IEnumerable<IAction> actions = new List<IAction>
         {
-            new ActionMovePieceRelative(finalPositionRelative),
-            new ActionDeletePieceRelative(enemyPawnPositionRelative)
+            new ActionMovePiece(finalPosition),
+            new ActionDeletePiece(enemyPawnPosition)
         };
 
-        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty/* & enemyPawnHasMoved*/, PawnIdentifier, finalPositionRelative);
+        // Times moved not yet implemented but we need to check that the enemy pawn has only moved once
+        // We also need to check that we're on the correct rank
+        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty/* & enemyPawnHasMoved*/, PawnIdentifier, finalPosition);
     }
 
 }

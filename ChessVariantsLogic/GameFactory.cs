@@ -40,14 +40,11 @@ public static class GameFactory
         IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn);
 
         
-        IPredicate blackPawnRight = new PieceAt(Constants.BlackPawnIdentifier, Tuple.Create(1, 0), BoardState.THIS, PositionType.RELATIVE);
-        IEnumerable<IAction> actions = new List<IAction> { new ActionMovePieceRelative(Tuple.Create(1, 1)) };
-
 
         ISet<MoveData> movesWhite = new HashSet<MoveData>
         {
-            MoveData.CastleMove(Player.White, true),
-            MoveData.CastleMove(Player.White, false),
+            MoveData.CastleMove(Player.White, true, false),
+            MoveData.CastleMove(Player.White, false, false),
             MoveData.PawnDoubleMove(Player.White),
             MoveData.EnPassantMove(Player.White, true),
             MoveData.EnPassantMove(Player.White, false),
@@ -56,8 +53,8 @@ public static class GameFactory
 
         ISet<MoveData> movesBlack = new HashSet<MoveData>
         {
-            MoveData.CastleMove(Player.Black, true),
-            MoveData.CastleMove(Player.Black, false),
+            MoveData.CastleMove(Player.Black, true, false),
+            MoveData.CastleMove(Player.Black, false, false),
             MoveData.PawnDoubleMove(Player.Black),
             MoveData.EnPassantMove(Player.Black, true),
             MoveData.EnPassantMove(Player.Black, false),
@@ -80,9 +77,29 @@ public static class GameFactory
         IPredicate blackMoveRule = new Const(true);
         IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
-        RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveData>());
-        
+        ISet<MoveData> movesWhite = new HashSet<MoveData>
+        {
+            MoveData.CastleMove(Player.White, true, true),
+            MoveData.CastleMove(Player.White, false, true),
+            MoveData.PawnDoubleMove(Player.White),
+            MoveData.EnPassantMove(Player.White, true),
+            MoveData.EnPassantMove(Player.White, false),
+        };
+
+
+        ISet<MoveData> movesBlack = new HashSet<MoveData>
+        {
+            MoveData.CastleMove(Player.Black, true, true),
+            MoveData.CastleMove(Player.Black, false, true),
+            MoveData.PawnDoubleMove(Player.Black),
+            MoveData.EnPassantMove(Player.Black, true),
+            MoveData.EnPassantMove(Player.Black, false),
+        };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite);
+        RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, movesBlack);
+
+
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
 
     }

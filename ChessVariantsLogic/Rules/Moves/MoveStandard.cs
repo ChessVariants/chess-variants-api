@@ -4,12 +4,15 @@ namespace ChessVariantsLogic.Rules.Moves;
 
 using Predicates;
 
-public class MoveStandard : SpecialMove
+/// <summary>
+/// Creates a standard move
+/// </summary>
+
+public class MoveStandard : Move
 {
-    public MoveStandard(string fromTo) : base(new List<IAction> { new ActionMovePieceAbsolute(fromTo) }, fromTo)
+    public MoveStandard(string from, string to) : base(new List<IAction> { new ActionMovePiece(new PositionAbsolute(from), new PositionAbsolute(to)) }, from + to)
     {
 
     }
-
 
 }

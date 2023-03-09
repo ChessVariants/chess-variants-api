@@ -46,14 +46,14 @@ public class SquareAttackedTests : IDisposable {
     [Fact]
     public void WhiteKingIsAttacked_ShouldReturnTrue()
     {
-        IPredicate whiteKingAttacked = new SquareAttacked(Tuple.Create(7, 4), BoardState.THIS, Player.Black);
+        IPredicate whiteKingAttacked = new SquareAttacked(new PositionAbsolute("e1"), BoardState.THIS, Player.Black);
         Assert.True(whiteKingAttacked.Evaluate(whiteKingAttackedTransition));
     }
     
     [Fact]
     public void WhiteKingIsAttacked_ShouldReturnFalse()
     {
-        IPredicate whiteKingAttacked = new SquareAttacked(Tuple.Create(7, 4), BoardState.THIS, Player.Black);
+        IPredicate whiteKingAttacked = new SquareAttacked(new PositionAbsolute("e1"), BoardState.THIS, Player.Black);
         Assert.False(whiteKingAttacked.Evaluate(blackBishopOnE2Transition));
     }
 }

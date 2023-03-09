@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessVariantsLogic.Rules.Moves.Actions;
+﻿using ChessVariantsLogic.Rules.Moves.Actions;
 
 namespace ChessVariantsLogic.Rules.Moves;
 /// <summary>
@@ -11,14 +6,14 @@ namespace ChessVariantsLogic.Rules.Moves;
 /// _actions is a list of actions that will be performed when the SpecialMove is performed
 /// _fromTo is a pair of coordinates that represent which piece performs the move and where to click to perform the move respectively.
 /// </summary>
-public class SpecialMove
+public class Move
 {
     private readonly IEnumerable<IAction> _actions;
     private readonly string _fromTo;
 
     public string FromTo => _fromTo;
 
-    public SpecialMove(IEnumerable<IAction> actions, string fromTo)
+    public Move(IEnumerable<IAction> actions, string fromTo)
     {
         _actions = actions;
         _fromTo = fromTo;
@@ -35,6 +30,7 @@ public class SpecialMove
     public GameEvent Perform(MoveWorker moveWorker)
     {
         (string from, string _) = moveWorker.parseMove(_fromTo);
+        if (from == null) throw new Exception("SpecialMove needs to contain proper fromTo coordinate");
         foreach (var action in _actions)
         {
             GameEvent gameEvent = action.Perform(moveWorker, from);

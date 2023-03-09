@@ -41,13 +41,13 @@ public class Game {
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
     private GameEvent MakeMoveImpl(string move) {
-        IEnumerable<SpecialMove> validMoves;
+        IEnumerable<Move> validMoves;
         if (_playerTurn == Player.White) {
             validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
         } else {
             validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
         }
-        SpecialMove movePerformed = GetMove(validMoves, move);
+        Move movePerformed = GetMove(validMoves, move);
         if (movePerformed == null) return GameEvent.InvalidMove;
         if (validMoves.Contains(movePerformed)) {
         
@@ -76,9 +76,9 @@ public class Game {
         return GameEvent.InvalidMove;
     }
 
-    private SpecialMove? GetMove(IEnumerable<SpecialMove> validMoves, string moveCoords)
+    private Move? GetMove(IEnumerable<Move> validMoves, string moveCoords)
     {
-        foreach(SpecialMove move in validMoves)
+        foreach(Move move in validMoves)
         {
             if(move.FromTo.Equals(moveCoords))
             {
