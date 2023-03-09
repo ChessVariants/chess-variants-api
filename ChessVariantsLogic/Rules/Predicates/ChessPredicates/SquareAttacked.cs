@@ -3,6 +3,7 @@ namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square is attacked or not by the given player, either in the current board state or the next.
 /// The target position can be calculated relatively or absolutely.
+/// THIS DOESN'T WORK YET FOR CAPTURE PATTERNS
 /// </summary>
 public class SquareAttacked : IPredicate
 {

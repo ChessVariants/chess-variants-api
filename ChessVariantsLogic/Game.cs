@@ -7,16 +7,16 @@ using System;
 
 public class Game {
 
-    private readonly IBoardState _boardState;
+    private readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(IBoardState boardState, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
-        _boardState = boardState;
+        _moveWorker = moveWorker;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
@@ -49,7 +49,7 @@ public class Game {
         } else {
             validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
         }
-        Move movePerformed = GetMove(validMoves, move);
+        Move? movePerformed = GetMove(validMoves, move);
         if (movePerformed == null) return GameEvent.InvalidMove;
         if (validMoves.Contains(movePerformed)) {
         

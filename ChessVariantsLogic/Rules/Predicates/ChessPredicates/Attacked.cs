@@ -2,6 +2,7 @@
 
 /// <summary>
 /// This predicate determines if a piece is attacked or not, either in the current board state or the next.
+/// THIS DOESN'T WORK YET FOR CAPTURE PATTERNS
 /// </summary>
 public class Attacked : IPredicate
 {
