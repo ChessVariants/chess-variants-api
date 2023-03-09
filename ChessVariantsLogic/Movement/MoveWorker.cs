@@ -18,6 +18,7 @@ public class MoveWorker
         set { this.board = value; }
     }
 
+
     private readonly Dictionary<string, Piece> stringToPiece;
     
     /// <summary>
