@@ -1,5 +1,7 @@
 namespace ChessVariantsLogic.Predicates;
 
+using static ChessVariantsLogic.Game;
+
 /// <summary>
 /// This predicates evaluates a rule which has to hold for every possible move from the current board state.
 /// </summary>

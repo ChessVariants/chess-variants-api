@@ -26,8 +26,10 @@ public class Game {
     /// </summary>
     /// <param name="move">The move requested to be made</param>
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
-    public GameEvent MakeMove(string move, Player? playerRequestingMove) {
-        if (playerRequestingMove != _playerTurn) {
+    public GameEvent MakeMove(string move, Player? playerRequestingMove)
+    {
+        if (playerRequestingMove != _playerTurn)
+        {
             return GameEvent.InvalidMove;
         }
         return MakeMoveImpl(move);
@@ -38,20 +40,22 @@ public class Game {
     /// </summary>
     /// <param name="move">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
-    private GameEvent MakeMoveImpl(string move) {
+    private GameEvent MakeMoveImpl(string move)
+    {
         ISet<string> validMoves;
-        if (_playerTurn == Player.White) {
+        if (_playerTurn == Player.White) 
+        {
             validMoves = _whiteRules.ApplyMoveRule(_boardState, _playerTurn);
-        } else {
+        } else 
+        {
             validMoves = _blackRules.ApplyMoveRule(_boardState, _playerTurn);
         }
         if (validMoves.Contains(move)) {
         
             GameEvent gameEvent = _boardState.Move(move);
 
-            if(gameEvent == GameEvent.InvalidMove) {
+            if(gameEvent == GameEvent.InvalidMove)
                 return gameEvent;
-            }
 
             /// TODO: Check for a tie
 
@@ -63,9 +67,8 @@ public class Game {
                 return GameEvent.BlackWon;
             }
 
-            if (false) {
+            if (false)
                 return GameEvent.Tie;
-            }
 
             DecrementPlayerMoves();
             return gameEvent;

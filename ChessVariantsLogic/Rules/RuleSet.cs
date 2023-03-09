@@ -1,5 +1,7 @@
 ﻿namespace ChessVariantsLogic.Predicates;
 
+using static ChessVariantsLogic.Game;
+
 /// <summary>
 /// This class represents an accumulation of rules defined as <see cref="IPredicate"/>s, separated into move and win rules.
 /// </summary>

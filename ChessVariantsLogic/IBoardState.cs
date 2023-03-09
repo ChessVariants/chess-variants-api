@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Generic;
-
-namespace ChessVariantsLogic;
+﻿namespace ChessVariantsLogic;
 
 /// <summary>
 /// A board state interface with useful functions that the rule system uses. This is a a temporary solution to make sure the rule system isn't directly dependent on the chessboard system.
@@ -28,7 +25,7 @@ public interface IBoardState
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid moves.</returns>
-    public List<string> GetAllValidMoves(Player player);
+    public HashSet<string> GetAllValidMoves(Player player);
 
     /// <summary>
     /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   

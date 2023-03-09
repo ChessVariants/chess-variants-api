@@ -62,6 +62,7 @@ public class Chessboard
 
     public Chessboard(int length) : this(length, length) {}
 
+#endregion
 
     /// <summary>
     /// Yield returns all coordinates for this Chessboard.
@@ -339,13 +340,6 @@ public class Chessboard
         }
         return strBoard;
     }
-
-    internal IEnumerable<string> GetAllValidMoves(Player playerTurn)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
 
 }
 
