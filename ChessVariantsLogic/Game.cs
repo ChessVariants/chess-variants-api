@@ -28,8 +28,10 @@ public class Game {
     /// </summary>
     /// <param name="move">The move requested to be made</param>
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
-    public GameEvent MakeMove(string move, Player? playerRequestingMove) {
-        if (playerRequestingMove != _playerTurn) {
+    public GameEvent MakeMove(string move, Player? playerRequestingMove)
+    {
+        if (playerRequestingMove != _playerTurn)
+        {
             return GameEvent.InvalidMove;
         }
         return MakeMoveImpl(move);
@@ -53,9 +55,8 @@ public class Game {
         
             GameEvent gameEvent = movePerformed.Perform(_moveWorker);
 
-            if(gameEvent == GameEvent.InvalidMove) {
+            if(gameEvent == GameEvent.InvalidMove)
                 return gameEvent;
-            }
 
             /// TODO: Check for a tie
 
@@ -66,9 +67,9 @@ public class Game {
             {
                 return GameEvent.BlackWon;
             }
-            if (false) {
+
+            if (false)
                 return GameEvent.Tie;
-            }
 
             DecrementPlayerMoves();
             return gameEvent;

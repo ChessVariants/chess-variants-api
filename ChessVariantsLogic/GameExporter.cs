@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-
+using static ChessVariantsLogic.Game;
 namespace ChessVariantsLogic.Export;
 public static class GameExporter
 {
