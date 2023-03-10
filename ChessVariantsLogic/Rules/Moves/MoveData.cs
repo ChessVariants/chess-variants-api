@@ -170,10 +170,11 @@ public class MoveData
 
         IPosition finalPosition = new PositionRelative(row: playerMultiplier, col: sideMultiplier);
         IPosition enemyPawnPosition = new PositionRelative(row: 0, col: sideMultiplier);
+        IPosition enemyPawnPositionFrom = new PositionRelative(row: 2 * playerMultiplier, col: sideMultiplier);
 
         IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPosition, BoardState.THIS);
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
-        IPredicate enemyPawnHasMovedOnce = new TimesMoved(enemyPawnPosition, Comparator.EQUALS, 1);
+        IPredicate pawnJustDidDoubleMove = new Const(true); // new LastMoveWas(enemyPawnPositionFrom, enemyPawnPosition);
 
         IEnumerable<IAction> actions = new List<IAction>
         {
@@ -183,7 +184,7 @@ public class MoveData
 
         // Times moved not yet implemented but we need to check that the enemy pawn has only moved once
         // We also need to check that we're on the correct rank
-        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty/* & enemyPawnHasMoved*/, PawnIdentifier, finalPosition);
+        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty/* & pieceWasJustMoved*/, PawnIdentifier, finalPosition);
     }
 
 }

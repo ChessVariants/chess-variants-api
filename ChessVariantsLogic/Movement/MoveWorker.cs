@@ -72,6 +72,12 @@ public class MoveWorker
         return GameEvent.InvalidMove;
 
     }
+    /// <summary>
+    /// Updates the chessboard by forcefully moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
+    /// This does not take into account whether or not this is a valid move for the piece.
+    /// </summary>
+    /// <param name="move"> consists of two coordinates without any space between them. </param>
+    /// <returns> A GameEvent representing whether the move was successful or not. </returns>
     public GameEvent ForceMove(string move)
     {
         var splitMove = parseMove(move);
