@@ -63,6 +63,7 @@ public class MoveWorker
                 {
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
                     return GameEvent.MoveSucceeded;
                 }
             }
@@ -92,6 +93,7 @@ public class MoveWorker
                 {
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
                     return GameEvent.MoveSucceeded;
                 }
             }
@@ -430,7 +432,6 @@ public class MoveWorker
             return null;
         
         return new Tuple<int,int>(newRow, newCol); 
-
     }
 
 #endregion
