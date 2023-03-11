@@ -340,7 +340,7 @@ public class Chessboard
         {
             for(int j = 0; j < hasMovedBoard.GetLength(1); j++)
             {
-                hasMovedBoard[i,j] = true;
+                hasMovedBoard[i,j] = false;
             }
         }
         return hasMovedBoard;

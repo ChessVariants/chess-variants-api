@@ -103,16 +103,13 @@ public class MoveData
         IPredicate squareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 2 * kingSideMultiplier), BoardState.THIS);
         IPredicate squareEmpty3 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 3 * kingSideMultiplier), BoardState.THIS);
 
-        IPredicate kingHasNotMoved = new TimesMoved(kingPosition, Comparator.EQUALS, 0);
-        IPredicate rookHasNotMoved = new TimesMoved(rookPosition, Comparator.EQUALS, 0);
+        IPredicate kingHasMoved = new HasMoved(kingPosition);
+        IPredicate rookHasMoved = new HasMoved(rookPosition);
 
         IPredicate kingAtSquare = new PieceAt(KingIdentifier, kingPosition, BoardState.THIS);
         IPredicate rookAtSquare = new PieceAt(RookIdentifier, rookPosition, BoardState.THIS);
 
-        castlePredicate = squareEmpty1 & squareEmpty2 & kingAtSquare & rookAtSquare;
-
-        // TimesMoved not yet implemented but we should also check if the king and rook hasn't moved yet
-        // castlePredicate &= !kingHasNotMoved & !rookHasNotMoved;
+        castlePredicate = squareEmpty1 & squareEmpty2 & kingAtSquare & rookAtSquare & !kingHasMoved & !rookHasMoved; ;
 
         if (!kingSide)
             castlePredicate &= squareEmpty3;
@@ -147,7 +144,7 @@ public class MoveData
         IPosition forwardPosition1 = new PositionRelative(row: 1 * playerMultiplier, col: 0);
         IPosition forwardPosition2 = new PositionRelative(row: 2 * playerMultiplier, col: 0);
 
-        IPredicate hasNotMoved = new TimesMoved(thisPawnPosition, Comparator.EQUALS, 0);
+        IPredicate hasMoved = new HasMoved(thisPawnPosition);
         IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS);
         IPredicate targetSquareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition2, BoardState.THIS);
 
@@ -156,7 +153,7 @@ public class MoveData
             new ActionMovePiece(forwardPosition2)
         };
         //Times moved not yet implemented but we need to check that pawn hasn't moved before
-        return new MoveData(actions, /*hasNotMoved &*/ targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
+        return new MoveData(actions, !hasMoved & targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
     }
 
 
@@ -174,7 +171,7 @@ public class MoveData
 
         IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPosition, BoardState.THIS);
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
-        IPredicate pawnJustDidDoubleMove = new Const(true); // new LastMoveWas(enemyPawnPositionFrom, enemyPawnPosition);
+        IPredicate pawnJustDidDoubleMove = new LastMove(enemyPawnPositionFrom, enemyPawnPosition);
 
         IEnumerable<IAction> actions = new List<IAction>
         {
@@ -182,9 +179,7 @@ public class MoveData
             new ActionDeletePiece(enemyPawnPosition)
         };
 
-        // Times moved not yet implemented but we need to check that the enemy pawn has only moved once
-        // We also need to check that we're on the correct rank
-        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty/* & pieceWasJustMoved*/, PawnIdentifier, finalPosition);
+        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty & pawnJustDidDoubleMove, PawnIdentifier, finalPosition);
     }
 
 }

@@ -23,11 +23,10 @@ public class ActionMovePiece : IAction
 
     /// <summary>
     /// Forcefully move a piece on the board according to the given positions.
-    /// If _from is relative it will be calculated relative to performingPiecePosition
-    /// If _to is relative it will be calculated relative to the calculated from position
+    /// If Positions are defined as relative, it will be calculated relative to the piece performing the action.
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="performingPiecePosition">This variable is used to calculate the from position if it is relative.</param>
+    /// <param name="performingPiecePosition">This variable is used to calculate the from and to positions if they are relative.</param>
     /// 
     /// <returns>A GameEvent that represents whether or not the action was successfully performed.</returns>
     /// 
@@ -35,7 +34,7 @@ public class ActionMovePiece : IAction
     {
         string? from = _from.GetPosition(moveWorker, performingPiecePosition);
         if (from == null) return GameEvent.InvalidMove;
-        string? to = _to.GetPosition(moveWorker, from);
+        string? to = _to.GetPosition(moveWorker, performingPiecePosition);
         if (to == null) return GameEvent.InvalidMove;
         string move = from + to;
         return moveWorker.ForceMove(move);

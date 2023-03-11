@@ -114,7 +114,4 @@ public class Utils
         }
     }
 
-    static string letters = "abcdefghijklmnopqrst";
-
-
 }
