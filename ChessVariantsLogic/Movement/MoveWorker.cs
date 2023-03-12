@@ -20,6 +20,13 @@ public class MoveWorker
 
 
     private readonly Dictionary<string, Piece> stringToPiece;
+
+    private readonly Stack<string> movelog = new Stack<string>();
+
+    public Stack<string> Movelog
+    {
+        get { return this.movelog; }
+    }
     
     /// <summary>
     /// Constructor that takes a Chessboard and a HashSet of Piece
@@ -64,6 +71,7 @@ public class MoveWorker
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                     this.board.PieceHasMoved(coor.Item1,coor.Item2);
+                    movelog.Push(move);
                     return GameEvent.MoveSucceeded;
                 }
             }
@@ -100,6 +108,7 @@ public class MoveWorker
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                     this.board.PieceHasMoved(coor.Item1,coor.Item2);
+                    movelog.Push(move);
                     return GameEvent.MoveSucceeded;
                 }
             }
@@ -440,6 +449,120 @@ public class MoveWorker
         return new Tuple<int,int>(newRow, newCol); 
     }
 
+    public HashSet<string> GetAllCaptureMoves(Player player)
+    {
+        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
+
+        foreach (var coor in this.board.GetAllCoordinates())
+        {
+            int row = coor.Item1;
+            int col = coor.Item2;
+            var square = this.board.GetPieceIdentifier(row, col);
+
+            if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? p = null;
+            try
+            {
+                p = this.stringToPiece[square];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if(pieceBelongsToPlayer(p, player))
+            {
+                var startPosition = new Tuple<int,int>(row, col);
+                var legalMoves = getAllValidMovesByPiece(p, startPosition);
+                foreach (var pos in legalMoves)
+                {
+                    coorMoves.Add((startPosition, pos));
+                }
+            }
+        }
+        return coorSetToStringSet(coorMoves);
+    }
+
+    private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int,int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        var capturemoves = new HashSet<Tuple<int, int>>();
+        
+        int repeat = piece.Repeat;
+
+        if (repeat == 0)
+        {
+            foreach(var pattern in piece.GetAllCapturePatterns())
+            {
+                if (pattern is RegularPattern)
+                    {
+                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                    }
+                    else
+                    {
+                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                        if (captureMove == null)
+                            continue;
+                        capturemoves.Add(captureMove);
+                    }
+            }
+            return capturemoves;
+        }
+
+        foreach (var pattern in piece.GetAllMovementPatterns())
+        {
+            if(pattern is RegularPattern)
+                moves.UnionWith(getRegularMoves(piece, pattern, pos));
+            else
+                moves.UnionWith(getJumpMove(piece, pattern, pos));
+        }
+
+        
+        var movesTmp = moves.ToHashSet();
+        
+        
+        while (repeat - 1 >= 1)
+        {
+            foreach (var move in movesTmp)
+            {
+                foreach (var pattern in piece.GetAllMovementPatterns())
+                {
+                    if (pattern is RegularPattern)
+                        moves.UnionWith(getRegularMoves(piece, pattern, move));
+                    else
+                        moves.UnionWith(getJumpMove(piece, pattern, move));
+                }
+
+                
+            }
+            movesTmp = moves;
+            repeat--;
+        }
+
+        foreach (var move in moves)
+        {
+            foreach(var pattern in piece.GetAllCapturePatterns())
+            {
+                if (pattern is RegularPattern)
+                    {
+                        capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                    }
+                    else
+                    {
+                        var captureMove = getJumpMove(piece, pattern, move);
+                        if (captureMove == null)
+                            continue;
+                        capturemoves.UnionWith(captureMove);
+                    }
+            }
+        }
+
+        return capturemoves;
+
+    }
+
 #endregion
 
 #region Auxiliary methods
@@ -502,6 +625,12 @@ public class MoveWorker
         Chessboard newBoard = board.CopyBoard();
         HashSet<Piece> newPieces = new HashSet<Piece>(pieces);
         return new MoveWorker(newBoard, newPieces);
+    }
+
+    public Tuple<string,string>? getLastMove()
+    {
+        var move = movelog.Peek();
+        return parseMove(move);
     }
 
     #endregion
