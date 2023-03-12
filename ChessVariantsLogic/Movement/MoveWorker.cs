@@ -475,7 +475,7 @@ public class MoveWorker
             if(pieceBelongsToPlayer(p, player))
             {
                 var startPosition = new Tuple<int,int>(row, col);
-                var legalMoves = getAllValidMovesByPiece(p, startPosition);
+                var legalMoves = getAllValidCaptureMovesByPiece(p, startPosition);
                 foreach (var pos in legalMoves)
                 {
                     coorMoves.Add((startPosition, pos));
@@ -498,14 +498,14 @@ public class MoveWorker
             {
                 if (pattern is RegularPattern)
                     {
-                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                        capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
                     }
                     else
                     {
-                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                        var captureMove = getJumpMove(piece, pattern, pos);
                         if (captureMove == null)
                             continue;
-                        capturemoves.Add(captureMove);
+                        capturemoves.UnionWith(captureMove);
                     }
             }
             return capturemoves;
