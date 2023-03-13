@@ -59,7 +59,7 @@ public class RuleSet
         var acceptedMoves = new List<Move>();
         foreach (var moveCoordinates in possibleMoves)
         {
-            Move move = new MoveStandard(moveCoordinates);
+            Move move = new Move(moveCoordinates);
             BoardTransition transition = new BoardTransition(board, move);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);

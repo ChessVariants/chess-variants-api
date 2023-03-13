@@ -26,8 +26,8 @@ public class LastMoveTests
         toStr1 = "e4";
         from = new PositionAbsolute(fromStr);
         to = new PositionAbsolute(toStr0);
-        Move move0 = new MoveStandard(fromStr + toStr0);
-        Move move1 = new MoveStandard(toStr0 + toStr1);
+        Move move0 = new Move(fromStr + toStr0);
+        Move move1 = new Move(toStr0 + toStr1);
 
         boardTransition0 = new BoardTransition(board, move0);
         boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);

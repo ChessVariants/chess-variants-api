@@ -54,7 +54,7 @@ public class BoardTransition
         _nextState = nextState;
         Tuple<string, string>? fromToTuple = thisState.parseMove(fromTo);
         if (fromToTuple == null) throw new ArgumentException("The given fromTo parameter is not a proper move string");
-        _move = new MoveStandard(fromTo);
+        _move = new Move(fromTo);
 
         _moveFrom = fromToTuple.Item1;
         _moveTo = fromToTuple.Item2;

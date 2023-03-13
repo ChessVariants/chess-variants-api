@@ -7,10 +7,8 @@ using Predicates;
 using System;
 
 /// <summary>
-/// A MoveData object represents a special move that can be performed by all pieces with the given _pieceIdentifier.
+/// A MoveTemplate object represents a special move that can be performed by all pieces with the given _pieceIdentifier.
 /// The core idea is that you have a _predicate and a list of _actions. The predicate must hold for the actions to be performed.
-/// A RuleSet is supplied with a list of MoveData. When appliedMoveRule is performed, it will loop through all MoveData
-/// and retrieve all SpecialMoves from the GetValidMoves method.
 /// </summary>
 public class MoveTemplate
 {
@@ -31,16 +29,10 @@ public class MoveTemplate
     }
 
     /// <summary>
-    /// Constructs a SpecialMove for each piece with the given _pieceIdentifier.
-    /// The SpecialMove is constructed from the internal _actions, _to and that pieces position.
-    /// 
-    /// <para>Loops through all pieces of the given _pieceIdentifier.</para>
-    /// <para>Then constructs a SpecialMove object with the internal _actions list and the calculated move coordinate.</para>
-    /// <para>Performs the SpecialMove on a copied board</para>
-    /// <para>Evaluates the internal _predicate, the supplied moveRule and check if the SpecialMove was performed successfully</para>
-    /// <para>If the above is true, it is added to the list of SpecialMove</para>
+    /// Constructs a Move for each piece with the given _pieceIdentifier.
+    /// The Move is constructed from the internal _actions, _to and that piece's position.
     /// </summary>
-    /// <param name="thisBoard">The current board state used to construct the SpecialMove list from</param>
+    /// <param name="thisBoard">The current board state used to construct the Move list from</param>
     /// <param name="moveRule">The moveRule of the RuleSet retrieving the valid moves</param>
     /// 
     /// <returns>A list of special moves that can be performed on the given board state.</returns>
