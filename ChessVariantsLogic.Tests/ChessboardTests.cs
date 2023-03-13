@@ -351,6 +351,9 @@ public class ChessboardTests
         Assert.Equal(27, movesQueen.Count);
     }
 
+    /// <summary>
+    /// Test that the correct amount of valid capture moves to empty squares are found.
+    /// </summary>
     [Fact]
     public void Test_GetAllCaptureMoves()
     {
@@ -361,8 +364,12 @@ public class ChessboardTests
         Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
         var moves2 = moveWorker.GetAllCaptureMoves(Player.White);
         Assert.Equal(27, moves2.Count);
-
+        
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e7e6"));
+        Assert.Equal(2, moveWorker.Movelog.Count);
+        
         moveWorker.Board = new Chessboard(8);
+
         Assert.True(moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "e4"));
         var movesQueen = moveWorker.GetAllCaptureMoves(Player.White);
         Assert.Equal(27, movesQueen.Count);

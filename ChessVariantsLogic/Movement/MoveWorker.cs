@@ -449,6 +449,11 @@ public class MoveWorker
         return new Tuple<int,int>(newRow, newCol); 
     }
 
+    /// <summary>
+    /// Gets all valid capture moves to empty squares for a given player.
+    /// </summary>
+    /// <param name="player"> is the player whose moves should be calculated. </param>
+    /// <returns>an iterable collection of all valid capture moves to empty squares.</returns>
     public HashSet<string> GetAllCaptureMoves(Player player)
     {
         var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
@@ -485,6 +490,7 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
+    // Generates all capture moves to an empty square for a piece.
     private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
@@ -615,6 +621,9 @@ public class MoveWorker
         return new MoveWorker(newBoard, newPieces);
     }
 
+    /// <summary>
+    /// Returns the last move from the movelog
+    /// </summary>
     public string getLastMove()
     {
         return movelog.Peek();
