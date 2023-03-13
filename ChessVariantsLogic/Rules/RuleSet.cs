@@ -14,9 +14,9 @@ public class RuleSet
 {
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
-    private readonly ISet<MoveData> _customMoves;
+    private readonly ISet<MoveTemplate> _customMoves;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveData> customMoves)
+    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> customMoves)
     {
         _moveRule = moveRule;
         _winRule = winRule;
@@ -59,18 +59,17 @@ public class RuleSet
         var acceptedMoves = new List<Move>();
         foreach (var move in possibleMoves)
         {
-            var futureBoard = board.CopyBoardState();
-            futureBoard.Move(move);
+            Move movePerformed = new MoveStandard(move);
+            MoveWorker futureBoard = board.CopyBoardState();
+            movePerformed.Perform(futureBoard);
 
-            BoardTransition transition = new BoardTransition(board, futureBoard, move);
+            BoardTransition transition = new BoardTransition(board, futureBoard, movePerformed);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
-            (string moveFrom, string moveTo) = board.parseMove(move);
-            if(moveFrom == null || moveTo == null) { continue; }
 
             if (ruleSatisfied)
             {
-                acceptedMoves.Add(new MoveStandard(moveFrom, moveTo));
+                acceptedMoves.Add(movePerformed);
             }
         }
 

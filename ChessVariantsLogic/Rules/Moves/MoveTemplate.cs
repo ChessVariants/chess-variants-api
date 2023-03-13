@@ -12,7 +12,7 @@ using System;
 /// A RuleSet is supplied with a list of MoveData. When appliedMoveRule is performed, it will loop through all MoveData
 /// and retrieve all SpecialMoves from the GetValidMoves method.
 /// </summary>
-public class MoveData
+public class MoveTemplate
 {
     private readonly IEnumerable<IAction> _actions;
     private readonly IPredicate _predicate;
@@ -22,7 +22,7 @@ public class MoveData
     public IEnumerable<IAction> Actions => _actions;
     public string PieceIdentifier => _pieceIdentifier;
 
-    public MoveData(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
+    public MoveTemplate(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
     {
         _actions = actions;
         _predicate = predicate;
@@ -59,7 +59,7 @@ public class MoveData
             MoveWorker futureBoard = thisBoard.CopyBoardState();
             GameEvent result = move.Perform(futureBoard);
             
-            BoardTransition transition = new BoardTransition(thisBoard, futureBoard, from, to);
+            BoardTransition transition = new BoardTransition(thisBoard, futureBoard, move);
             if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && result != GameEvent.InvalidMove)
             {
                 moves.Add(move);
@@ -70,7 +70,7 @@ public class MoveData
         return moves;
     }
 
-    public static MoveData CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)
+    public static MoveTemplate CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)
     {
         string KingIdentifier = player == Player.White ? Constants.WhiteKingIdentifier : Constants.BlackKingIdentifier;
         string RookIdentifier = player == Player.White ? Constants.WhiteRookIdentifier : Constants.BlackRookIdentifier;
@@ -131,12 +131,12 @@ public class MoveData
             new ActionMovePiece(rookFromPos, rookToPos)
         };
 
-        return new MoveData(castleActions, castlePredicate, KingIdentifier, rookPosition);
+        return new MoveTemplate(castleActions, castlePredicate, KingIdentifier, kingToPos);
     }
 
     
     
-    public static MoveData PawnDoubleMove(Player player)
+    public static MoveTemplate PawnDoubleMove(Player player)
     {
         int playerMultiplier = player == Player.White ? -1 : 1;
         string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
@@ -153,12 +153,12 @@ public class MoveData
             new ActionMovePiece(forwardPosition2)
         };
         //Times moved not yet implemented but we need to check that pawn hasn't moved before
-        return new MoveData(actions, !hasMoved & targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
+        return new MoveTemplate(actions, !hasMoved & targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
     }
 
 
 
-    public static MoveData EnPassantMove(Player player, bool right)
+    public static MoveTemplate EnPassantMove(Player player, bool right)
     {
         int playerMultiplier = player == Player.White ? -1 : 1;
         int sideMultiplier = right ? 1 : -1;
@@ -179,7 +179,7 @@ public class MoveData
             new ActionDeletePiece(enemyPawnPosition)
         };
 
-        return new MoveData(actions, enemyPawnNextTo & targetSquareEmpty & pawnJustDidDoubleMove, PawnIdentifier, finalPosition);
+        return new MoveTemplate(actions, enemyPawnNextTo & targetSquareEmpty & pawnJustDidDoubleMove, PawnIdentifier, finalPosition);
     }
 
 }

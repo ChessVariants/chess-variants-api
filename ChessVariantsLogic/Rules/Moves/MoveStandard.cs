@@ -10,7 +10,7 @@ using Predicates;
 
 public class MoveStandard : Move
 {
-    public MoveStandard(string from, string to) : base(new List<IAction> { new ActionMovePiece(new PositionAbsolute(from), new PositionAbsolute(to)) }, from + to)
+    public MoveStandard(string fromTo) : base(null, fromTo)
     {
 
     }
