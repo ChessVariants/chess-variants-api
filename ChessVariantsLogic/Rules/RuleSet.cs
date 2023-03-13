@@ -14,13 +14,13 @@ public class RuleSet
 {
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
-    private readonly ISet<MoveTemplate> _customMoves;
+    private readonly ISet<MoveTemplate> _moveTemplates;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> customMoves)
+    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates)
     {
         _moveRule = moveRule;
         _winRule = winRule;
-        _customMoves = customMoves;
+        _moveTemplates = moveTemplates;
     }
 
     public Dictionary<string, List<string>> GetLegalMoveDict(Player player, MoveWorker board)
@@ -57,25 +57,22 @@ public class RuleSet
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
         var acceptedMoves = new List<Move>();
-        foreach (var move in possibleMoves)
+        foreach (var moveCoordinates in possibleMoves)
         {
-            Move movePerformed = new MoveStandard(move);
-            MoveWorker futureBoard = board.CopyBoardState();
-            movePerformed.Perform(futureBoard);
-
-            BoardTransition transition = new BoardTransition(board, futureBoard, movePerformed);
+            Move move = new MoveStandard(moveCoordinates);
+            BoardTransition transition = new BoardTransition(board, move);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
 
             if (ruleSatisfied)
             {
-                acceptedMoves.Add(movePerformed);
+                acceptedMoves.Add(move);
             }
         }
 
-        foreach (var moveData in _customMoves)
+        foreach (var moveTemplate in _moveTemplates)
         {
-            acceptedMoves.AddRange(moveData.GetValidMoves(board, _moveRule));
+            acceptedMoves.AddRange(moveTemplate.GetValidMoves(board, _moveRule));
         }
 
         return acceptedMoves;

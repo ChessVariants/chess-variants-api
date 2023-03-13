@@ -30,6 +30,13 @@ public class Utils
         }
         return false;
     }
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="board"></param>
+    /// <param name="position"></param>
+    /// <param name="attacker"></param>
+    /// <returns></returns>
     public static bool SquareAttacked(MoveWorker board, string position, Player attacker)
     {
         var attackedPieces = board.GetAllCaptureMoves(attacker);

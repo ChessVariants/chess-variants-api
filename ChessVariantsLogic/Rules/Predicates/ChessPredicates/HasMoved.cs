@@ -5,19 +5,21 @@
 public class HasMoved : IPredicate
 {
     private readonly IPosition _position;
+    private readonly BoardState _boardState;
 
-
-    public HasMoved(IPosition position)
+    public HasMoved(IPosition position, BoardState boardState = BoardState.THIS)
     {
         _position = position;
+        _boardState = boardState;
     }
 
     public bool Evaluate(BoardTransition transition)
     {
-        string? coordinate = _position.GetPosition(transition.ThisState, transition.MoveFrom);
+        MoveWorker boardState = _boardState == BoardState.THIS ? transition.ThisState : transition.NextState;
+        string? coordinate = _position.GetPosition(boardState, transition.MoveFrom);
         if (coordinate == null) return false;
-        Tuple<int, int>? tupleCoordinate = transition.ThisState.Board.ParseCoordinate(coordinate);
+        Tuple<int, int>? tupleCoordinate = boardState.Board.ParseCoordinate(coordinate);
         if (tupleCoordinate == null) return false;
-        return transition.ThisState.Board.HasPieceMoved(tupleCoordinate.Item1, tupleCoordinate.Item2);
+        return boardState.Board.HasPieceMoved(tupleCoordinate.Item1, tupleCoordinate.Item2);
     }
 }

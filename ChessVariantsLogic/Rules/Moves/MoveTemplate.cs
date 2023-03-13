@@ -56,11 +56,9 @@ public class MoveTemplate
             if (to == null) continue;
 
             Move move = new Move(_actions, from + to);
-            MoveWorker futureBoard = thisBoard.CopyBoardState();
-            GameEvent result = move.Perform(futureBoard);
             
-            BoardTransition transition = new BoardTransition(thisBoard, futureBoard, move);
-            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && result != GameEvent.InvalidMove)
+            BoardTransition transition = new BoardTransition(thisBoard, move);
+            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
             {
                 moves.Add(move);
             }

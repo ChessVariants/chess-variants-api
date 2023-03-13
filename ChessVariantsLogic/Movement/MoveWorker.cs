@@ -626,8 +626,10 @@ public class MoveWorker
     /// <summary>
     /// Returns the last move from the movelog
     /// </summary>
-    public string getLastMove()
+    public string? getLastMove()
     {
+        if (movelog.Count == 0)
+            return null;
         return movelog.Peek();
     }
 

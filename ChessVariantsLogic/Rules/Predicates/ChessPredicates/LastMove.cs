@@ -2,7 +2,6 @@
 
 /// <summary>
 /// This predicate evaluates if the last move is equal to the compare values.
-/// THIS IS WIP
 /// </summary>
 public class LastMove : IPredicate
 {
@@ -17,14 +16,12 @@ public class LastMove : IPredicate
 
     public bool Evaluate(BoardTransition transition)
     {
-        string lastMove = transition.ThisState.getLastMove();
-
+        string? lastMove = transition.ThisState.getLastMove();
         string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFrom);
         string? to   = _compareTo.GetPosition(transition.ThisState, transition.MoveFrom);
-        if (from == null || to == null) return false;
 
+        if (lastMove == null || from == null || to == null) return false;
         string compareMove = from + to;
-
         return compareMove == lastMove;
     }
 }

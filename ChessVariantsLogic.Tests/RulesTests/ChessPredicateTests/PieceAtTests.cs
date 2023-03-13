@@ -12,13 +12,13 @@ public class PieceAtTests : IDisposable {
 
     public PieceAtTests()
     {
-        board = new MoveWorker(Chessboard.StandardChessboard());
+        board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         boardTransition = new BoardTransition(board, board, "a1a1");
     }
 
     public void Dispose()
     {
-        board = new MoveWorker(Chessboard.StandardChessboard());
+        board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         GC.SuppressFinalize(this);
     }
 

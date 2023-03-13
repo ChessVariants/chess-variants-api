@@ -12,7 +12,7 @@ public class PiecesLeftTests : IDisposable {
 
     public PiecesLeftTests()
     {
-        board = new MoveWorker(Chessboard.StandardChessboard());
+        board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         boardTransition = new BoardTransition(board, board, "a1a1");
     }
 
