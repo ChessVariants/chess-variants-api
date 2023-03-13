@@ -352,6 +352,23 @@ public class ChessboardTests
     }
 
     [Fact]
+    public void Test_GetAllCaptureMoves()
+    {
+        var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+
+        var moves = moveWorker.GetAllCaptureMoves(Player.White);
+        Assert.Equal(18, moves.Count);
+        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
+        var moves2 = moveWorker.GetAllCaptureMoves(Player.White);
+        Assert.Equal(27, moves2.Count);
+
+        moveWorker.Board = new Chessboard(8);
+        Assert.True(moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "e4"));
+        var movesQueen = moveWorker.GetAllCaptureMoves(Player.White);
+        Assert.Equal(27, movesQueen.Count);
+    }
+
+    [Fact]
     public void TestDifferentCapturePattern()
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
