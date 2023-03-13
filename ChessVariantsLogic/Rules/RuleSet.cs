@@ -66,12 +66,25 @@ public class RuleSet
     }
 
     /// <summary>
-    /// WIP
+    /// Using the moves generated from ApplyMoveRule, this method checks if the opponent can make a move. If not, the game is won.
     /// </summary>
-    /// <param name="thisBoard"></param>
-    /// <returns></returns>
-    public bool ApplyWinRule(IBoardState thisBoard)
+    /// <param name="board">The current board state</param>
+    /// <param name="playerTurn">Side that made last move a move</param>
+    /// <returns>true if game is one for the side that just made a move</returns>
+    public bool ApplyWinRule(IBoardState board, Player playerTurn)
     {
-        return _winRule.Evaluate(thisBoard, thisBoard);
+        Player opponent = playerTurn == Player.White ? Player.Black : Player.White;
+        var acceptedMoves = ApplyMoveRule(board, opponent);
+        foreach (var move in acceptedMoves)
+        {
+            var futureBoard = board.CopyBoardState();
+            futureBoard.Move(move);
+            bool ruleSatisfied = _winRule.Evaluate(board, futureBoard);
+            if (!ruleSatisfied)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

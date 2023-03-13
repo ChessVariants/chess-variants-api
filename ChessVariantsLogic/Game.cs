@@ -54,22 +54,22 @@ public class Game {
         
             GameEvent gameEvent = _boardState.Move(move);
 
-            if(gameEvent == GameEvent.InvalidMove)
+            if(gameEvent == GameEvent.InvalidMove) {
                 return gameEvent;
-
-            /// TODO: Check for a tie
-
-            if(_whiteRules.ApplyWinRule(_boardState)) {
-                return GameEvent.WhiteWon;
-            }
-            if (_blackRules.ApplyWinRule(_boardState))
-            {
-                return GameEvent.BlackWon;
             }
 
-            if (false)
+            if (GameIsWon()) {
+                if (_playerTurn == Player.White) {
+                    return GameEvent.WhiteWon;
+                } else {
+                    return GameEvent.BlackWon;
+                }
+            }
+
+            if(_playerMovesRemaining == 1 & GameIsTie()) {
                 return GameEvent.Tie;
-
+            }
+            
             DecrementPlayerMoves();
             return gameEvent;
         }
@@ -85,6 +85,38 @@ public class Game {
             _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;
             _playerMovesRemaining = _movesPerTurn;
         }
+    }
+
+    /// <summary>
+    /// Checks whether the game is won.
+    /// </summary>
+    /// <returns>bool of value true if the game is won</returns>
+    private bool GameIsWon(){
+        if (_playerTurn == Player.White) {
+            return _whiteRules.ApplyWinRule(_boardState, _playerTurn);
+        } else {
+            return _blackRules.ApplyWinRule(_boardState, _playerTurn);
+        }
+    }
+
+    /// <summary>
+    /// Checks whether the game is tied.
+    /// </summary>
+    /// <returns>bool of value true if the game is tied</returns>
+    private bool GameIsTie() {
+        ISet<string> nextMoves;
+        bool lost;
+        if (_playerTurn == Player.Black) {
+            nextMoves = _whiteRules.ApplyMoveRule(_boardState, _playerTurn);
+            lost = _blackRules.ApplyWinRule(_boardState, _playerTurn);
+        } else {
+            nextMoves = _blackRules.ApplyMoveRule(_boardState, _playerTurn);
+            lost = _blackRules.ApplyWinRule(_boardState, _playerTurn);
+        }
+        if (nextMoves.Count == 0 & !lost) {
+            return true;
+        }
+        return false;
     }
 
     public string ExportStateAsJson()
