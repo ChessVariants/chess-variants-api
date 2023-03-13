@@ -615,10 +615,9 @@ public class MoveWorker
         return new MoveWorker(newBoard, newPieces);
     }
 
-    public Tuple<string,string>? getLastMove()
+    public string getLastMove()
     {
-        var move = movelog.Peek();
-        return parseMove(move);
+        return movelog.Peek();
     }
 
     #endregion
