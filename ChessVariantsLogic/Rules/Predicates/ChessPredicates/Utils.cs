@@ -31,12 +31,12 @@ public class Utils
         return false;
     }
     /// <summary>
-    /// TODO
+    /// Returns whether a square with coordinate <paramref name="position"/> is attacked or not.
     /// </summary>
-    /// <param name="board"></param>
-    /// <param name="position"></param>
-    /// <param name="attacker"></param>
-    /// <returns></returns>
+    /// <param name="board">The board state which you want to find information about</param>
+    /// <param name="position">The position of the square you're trying to see if attacked</param>
+    /// <param name="attacker">The side that's attacking the square</param>
+    /// <returns>True if the square with coordinate <paramref name="position"/> is attacked by <paramref name="attacker"/> </returns>
     public static bool SquareAttacked(MoveWorker board, string position, Player attacker)
     {
         var attackedPieces = board.GetAllCaptureMoves(attacker);
