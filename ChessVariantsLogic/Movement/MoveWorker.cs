@@ -453,7 +453,7 @@ public class MoveWorker
     /// Gets all valid capture moves to empty squares for a given player.
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
-    /// <returns>an iterable collection of all valid capture moves to empty squares.</returns>
+    /// <returns>an iterable collection of all valid capture moves.</returns>
     public HashSet<string> GetAllCaptureMoves(Player player)
     {
         var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
@@ -490,7 +490,7 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
-    // Generates all capture moves to an empty square for a piece.
+    // Generates all capture moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
@@ -545,9 +545,18 @@ public class MoveWorker
                     foreach (var pattern in piece.GetAllCapturePatterns())
                     {
                         if (pattern is RegularPattern)
+                        {    
                             capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                            capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                        }
                         else
+                        {
                             capturemoves.UnionWith(getJumpMove(piece, pattern, move));
+                            var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                            if(captureMove == null)
+                                continue;
+                            capturemoves.Add(captureMove);
+                        }
                     }
 
 
