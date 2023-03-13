@@ -352,7 +352,7 @@ public class ChessboardTests
     }
 
     /// <summary>
-    /// Test that the correct amount of valid capture moves to empty squares are found.
+    /// Test that the correct amount of valid capture movesare found. 
     /// </summary>
     [Fact]
     public void Test_GetAllCaptureMoves()
