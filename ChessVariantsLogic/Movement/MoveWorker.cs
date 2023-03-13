@@ -505,13 +505,15 @@ public class MoveWorker
                 if (pattern is RegularPattern)
                 {
                     capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                    capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
                 }
                 else
                 {
-                    var captureMove = getJumpMove(piece, pattern, pos);
-                    if (captureMove == null)
+                    capturemoves.UnionWith(getJumpMove(piece, pattern, pos));
+                    var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                    if(captureMove == null)
                         continue;
-                    capturemoves.UnionWith(captureMove);
+                    capturemoves.Add(captureMove);
                 }
             }
 
