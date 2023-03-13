@@ -485,83 +485,71 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
-    private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int,int> pos)
+    private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         var capturemoves = new HashSet<Tuple<int, int>>();
-        
+
         int repeat = piece.Repeat;
 
-        if (repeat == 0)
-        {
-            foreach(var pattern in piece.GetAllCapturePatterns())
+
+        
+            foreach (var pattern in piece.GetAllCapturePatterns())
             {
                 if (pattern is RegularPattern)
+                {
+                    capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                }
+                else
+                {
+                    var captureMove = getJumpMove(piece, pattern, pos);
+                    if (captureMove == null)
+                        continue;
+                    capturemoves.UnionWith(captureMove);
+                }
+            }
+
+
+
+            foreach (var pattern in piece.GetAllMovementPatterns())
+            {
+                if (pattern is RegularPattern)
+                    moves.UnionWith(getRegularMoves(piece, pattern, pos));
+                else
+                    moves.UnionWith(getJumpMove(piece, pattern, pos));
+            }
+
+
+            var movesTmp = moves.ToHashSet();
+
+
+            while (repeat >= 1)
+            {
+                foreach (var move in movesTmp)
+                {
+                    foreach (var pattern in piece.GetAllMovementPatterns())
                     {
-                        capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                        if (pattern is RegularPattern)
+                            moves.UnionWith(getRegularMoves(piece, pattern, move));
+                        else
+                            moves.UnionWith(getJumpMove(piece, pattern, move));
                     }
-                    else
+                    foreach (var pattern in piece.GetAllCapturePatterns())
                     {
-                        var captureMove = getJumpMove(piece, pattern, pos);
-                        if (captureMove == null)
-                            continue;
-                        capturemoves.UnionWith(captureMove);
+                        if (pattern is RegularPattern)
+                            capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                        else
+                            capturemoves.UnionWith(getJumpMove(piece, pattern, move));
                     }
+
+
+                }
+                movesTmp = moves;
+                repeat--;
             }
             return capturemoves;
+
         }
-
-        foreach (var pattern in piece.GetAllMovementPatterns())
-        {
-            if(pattern is RegularPattern)
-                moves.UnionWith(getRegularMoves(piece, pattern, pos));
-            else
-                moves.UnionWith(getJumpMove(piece, pattern, pos));
-        }
-
-        
-        var movesTmp = moves.ToHashSet();
-        
-        
-        while (repeat - 1 >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                foreach (var pattern in piece.GetAllMovementPatterns())
-                {
-                    if (pattern is RegularPattern)
-                        moves.UnionWith(getRegularMoves(piece, pattern, move));
-                    else
-                        moves.UnionWith(getJumpMove(piece, pattern, move));
-                }
-
-                
-            }
-            movesTmp = moves;
-            repeat--;
-        }
-
-        foreach (var move in moves)
-        {
-            foreach(var pattern in piece.GetAllCapturePatterns())
-            {
-                if (pattern is RegularPattern)
-                    {
-                        capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
-                    }
-                    else
-                    {
-                        var captureMove = getJumpMove(piece, pattern, move);
-                        if (captureMove == null)
-                            continue;
-                        capturemoves.UnionWith(captureMove);
-                    }
-            }
-        }
-
-        return capturemoves;
-
-    }
 
 #endregion
 
