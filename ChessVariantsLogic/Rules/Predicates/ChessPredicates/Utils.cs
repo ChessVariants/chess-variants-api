@@ -20,7 +20,6 @@ public class Utils
         var attacker = player == Player.White ? Player.Black : Player.White;
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         var attackedPieces = board.GetAllCaptureMoves(attacker);
-        attackedPieces.UnionWith(board.GetAllValidMoves(attacker));
         foreach (var attackerMove in attackedPieces)
         {
             var (_, to) = board.parseMove(attackerMove);
@@ -34,7 +33,6 @@ public class Utils
     public static bool SquareAttacked(MoveWorker board, string position, Player attacker)
     {
         var attackedPieces = board.GetAllCaptureMoves(attacker);
-        attackedPieces.UnionWith(board.GetAllValidMoves(attacker));
         foreach (var attackerMove in attackedPieces)
         {
             var (_, to) = board.parseMove(attackerMove);
