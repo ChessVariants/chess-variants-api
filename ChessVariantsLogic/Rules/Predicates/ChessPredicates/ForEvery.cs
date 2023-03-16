@@ -23,11 +23,11 @@ public class ForEvery : IPredicate
     /// <returns>True if the internal rule holds for every possible move in the nextState of the supplied boardTransition state for the internal player, otherwise false.</returns>
     public bool Evaluate(BoardTransition transition)
     {
-        var possibleMoves = transition._nextState.GetAllValidMoves(_player);
+        var possibleMoves = transition.NextState.GetAllValidMoves(_player);
         foreach (var moveCoordinates in possibleMoves)
         {
             Move move = new Move(moveCoordinates);
-            BoardTransition newTransition = new BoardTransition(transition._nextState, move);
+            BoardTransition newTransition = new BoardTransition(transition.NextState, move);
             bool ruleSatisfied = _rule.Evaluate(newTransition);
             if (!ruleSatisfied)
             {

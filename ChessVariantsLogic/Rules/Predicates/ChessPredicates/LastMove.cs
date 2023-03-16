@@ -16,9 +16,9 @@ public class LastMove : IPredicate
 
     public bool Evaluate(BoardTransition transition)
     {
-        string? lastMove = transition._thisState.getLastMove();
-        string? from = _compareFrom.GetPosition(transition._thisState, transition._moveFrom);
-        string? to   = _compareTo.GetPosition(transition._thisState, transition._moveFrom);
+        string? lastMove = transition.ThisState.getLastMove();
+        string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFrom);
+        string? to   = _compareTo.GetPosition(transition.ThisState, transition.MoveFrom);
 
         if (lastMove == null || from == null || to == null) return false;
         string compareMove = from + to;

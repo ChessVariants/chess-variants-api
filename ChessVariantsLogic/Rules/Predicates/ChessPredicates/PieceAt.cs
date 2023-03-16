@@ -25,8 +25,8 @@ public class PieceAt : IPredicate
     public bool Evaluate(BoardTransition transition)
     {
         bool isThisBoardState = _boardState == BoardState.THIS;
-        var board = isThisBoardState ? transition._thisState : transition._nextState;
-        var relativePosition = transition._moveFrom;
+        var board = isThisBoardState ? transition.ThisState : transition.NextState;
+        var relativePosition = transition.MoveFrom;
 
         string? finalPosition = _position.GetPosition(board, relativePosition);
         if (finalPosition == null) return false;

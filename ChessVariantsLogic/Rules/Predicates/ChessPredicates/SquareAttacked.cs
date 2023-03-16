@@ -26,8 +26,8 @@ public class SquareAttacked : IPredicate
     public bool Evaluate(BoardTransition boardTransition)
     {
         bool isThisBoardState = _boardState == BoardState.THIS;
-        var board = isThisBoardState ? boardTransition._thisState : boardTransition._nextState;
-        var pivotPosition = boardTransition._moveFrom;
+        var board = isThisBoardState ? boardTransition.ThisState : boardTransition.NextState;
+        var pivotPosition = boardTransition.MoveFrom;
 
         string? finalPosition = _position.GetPosition(board, pivotPosition);
         if (finalPosition == null) return false;

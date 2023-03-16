@@ -15,8 +15,8 @@ public class HasMoved : IPredicate
 
     public bool Evaluate(BoardTransition transition)
     {
-        MoveWorker boardState = _boardState == BoardState.THIS ? transition._thisState : transition._nextState;
-        string? coordinate = _position.GetPosition(boardState, transition._moveFrom);
+        MoveWorker boardState = _boardState == BoardState.THIS ? transition.ThisState : transition.NextState;
+        string? coordinate = _position.GetPosition(boardState, transition.MoveFrom);
         if (coordinate == null) return false;
         Tuple<int, int>? tupleCoordinate = boardState.Board.ParseCoordinate(coordinate);
         if (tupleCoordinate == null) return false;

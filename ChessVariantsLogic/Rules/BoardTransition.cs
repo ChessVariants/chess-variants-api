@@ -7,31 +7,30 @@ namespace ChessVariantsLogic.Rules;
 /// </summary>
 public class BoardTransition
 {
-
-    public readonly MoveWorker _thisState;
-    public readonly MoveWorker _nextState;
-    public readonly Move _move;
-    public readonly GameEvent _result;
-    public readonly string _moveFrom;
-    public readonly string _moveTo;
+    public readonly MoveWorker ThisState;
+    public readonly MoveWorker NextState;
+    public readonly Move Move;
+    public readonly GameEvent Result;
+    public readonly string MoveFrom;
+    public readonly string MoveTo;
 
     public BoardTransition(MoveWorker thisState, Move move)
     {
-        _thisState = thisState;
-        _nextState = thisState.CopyBoardState();
-        _move = move;
-        _result = _move.Perform(_nextState);
+        ThisState = thisState;
+        NextState = thisState.CopyBoardState();
+        Move = move;
+        Result = Move.Perform(NextState);
 
         Tuple<string, string>? fromTo = thisState.ParseMove(move.FromTo);
         if (fromTo == null) throw new ArgumentException("The given move parameter does not contain a proper move string. Supplied move string: " + move.FromTo);
 
-        _moveFrom = fromTo.Item1;
-        _moveTo = fromTo.Item2;
+        MoveFrom = fromTo.Item1;
+        MoveTo = fromTo.Item2;
     }
     
     public bool IsValid()
     {
-        return _result != GameEvent.InvalidMove;
+        return Result != GameEvent.InvalidMove;
     }
 
 }

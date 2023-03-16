@@ -30,7 +30,7 @@ public class LastMoveTests
         Move move1 = new Move(toStr0 + toStr1);
 
         boardTransition0 = new BoardTransition(board, move0);
-        boardTransition1 = new BoardTransition(boardTransition0._nextState, move1);
+        boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);
     }
 
     [Fact]
