@@ -4,6 +4,7 @@ using System.Diagnostics;
 using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -13,9 +14,7 @@ public class SquareAttackedTests : IDisposable {
     private readonly MoveWorker blackKingAttackedBoard;
     private readonly MoveWorker blackBishopOnE2;
     
-    private readonly BoardTransition boardBoard;
     private readonly BoardTransition whiteKingAttackedTransition;
-    private readonly BoardTransition blackToWhiteKingAttackedTransition;
     private readonly BoardTransition blackBishopOnE2Transition;
 
     public SquareAttackedTests()
@@ -30,11 +29,8 @@ public class SquareAttackedTests : IDisposable {
         blackBishopOnE2 = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         blackBishopOnE2.Board.Insert(Constants.BlackBishopIdentifier, "e2");
 
-        boardBoard = new BoardTransition(board, board, "a1a1");
-        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
-        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, blackBishopOnE2, "a1a1");
-
-        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
+        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1"));
+        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1"));
 
     }
 

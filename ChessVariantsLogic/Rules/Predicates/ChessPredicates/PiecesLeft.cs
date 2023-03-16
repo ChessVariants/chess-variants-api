@@ -41,7 +41,7 @@ public class PiecesLeft : IPredicate
     /// <returns>The boolean value of how many pieces left there are compared to the internal <see cref="Comparator"/>.</returns>
     public bool Evaluate(BoardTransition transition)
     {
-        var board = _state == BoardState.THIS ? transition.ThisState : transition.NextState;
+        var board = _state == BoardState.THIS ? transition._thisState : transition._nextState;
         int piecesLeft = Utils.FindPiecesOfType(board, _pieceIdentifier).Count();
         return CompareValue(piecesLeft);
     }

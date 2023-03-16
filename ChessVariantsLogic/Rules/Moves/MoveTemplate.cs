@@ -54,7 +54,6 @@ public class MoveTemplate
             {
                 moves.Add(move);
             }
-
         }
 
         return moves;

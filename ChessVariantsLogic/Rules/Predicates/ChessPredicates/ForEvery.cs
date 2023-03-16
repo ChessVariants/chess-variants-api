@@ -1,6 +1,6 @@
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
-using static ChessVariantsLogic.Game;
+using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
 /// This predicates evaluates a rule which has to hold for every possible move from the current board state.
@@ -17,19 +17,17 @@ public class ForEvery : IPredicate
     }
 
     /// <summary>
-    /// Evaluates to true if the internal rule holds for every possible move in the current board state for the internal player, otherwise false.
+    /// Evaluates to true if the internal rule holds for every possible move in the nextState of the supplied boardTransition state for the internal player, otherwise false.
     /// </summary>
-    /// <param name="_">Irrelevant since this method looks at every possible future board, not just one</param>
-    /// <param name="thisBoard">The current board state</param>
-    /// <returns>True if the internal rule holds for every possible move in the current board state for the internal player, otherwise false.</returns>
+    /// <param name="transition">The board transition to be evaluated.</param>
+    /// <returns>True if the internal rule holds for every possible move in the nextState of the supplied boardTransition state for the internal player, otherwise false.</returns>
     public bool Evaluate(BoardTransition transition)
     {
-        var possibleMoves = transition.NextState.GetAllValidMoves(_player);
-        foreach (var move in possibleMoves)
+        var possibleMoves = transition._nextState.GetAllValidMoves(_player);
+        foreach (var moveCoordinates in possibleMoves)
         {
-            var nextBoard = transition.ThisState.CopyBoardState();
-            nextBoard.Move(move);
-            BoardTransition newTransition = new BoardTransition(transition.NextState, nextBoard, move);
+            Move move = new Move(moveCoordinates);
+            BoardTransition newTransition = new BoardTransition(transition._nextState, move);
             bool ruleSatisfied = _rule.Evaluate(newTransition);
             if (!ruleSatisfied)
             {

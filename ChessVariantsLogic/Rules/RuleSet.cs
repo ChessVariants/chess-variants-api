@@ -29,7 +29,7 @@ public class RuleSet
         var moves = ApplyMoveRule(board, player);
         foreach (var move in moves)
         {
-            var fromTo = board.parseMove(move.FromTo);
+            var fromTo = board.ParseMove(move.FromTo);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
@@ -85,6 +85,6 @@ public class RuleSet
     /// <returns></returns>
     public bool ApplyWinRule(MoveWorker thisBoard)
     {
-        return _winRule.Evaluate(new BoardTransition(thisBoard, thisBoard, "a1a1"));
+        return _winRule.Evaluate(new BoardTransition(thisBoard, new Move("a1a1")));
     }
 }

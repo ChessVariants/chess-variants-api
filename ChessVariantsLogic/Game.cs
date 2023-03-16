@@ -38,22 +38,22 @@ public class Game {
     }
 
     /// <summary>
-    /// Checks whether the given <paramref name="move"/> is valid and if so does the move and return correct GameEvent.
+    /// Checks whether the given <paramref name="moveCoordinates"/> is valid and if so does the move and return correct GameEvent.
     /// </summary>
-    /// <param name="move">The move requested to be made</param>
+    /// <param name="moveCoordinates">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
-    private GameEvent MakeMoveImpl(string move) {
+    private GameEvent MakeMoveImpl(string moveCoordinates) {
         IEnumerable<Move> validMoves;
         if (_playerTurn == Player.White) {
             validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
         } else {
             validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
         }
-        Move? movePerformed = GetMove(validMoves, move);
-        if (movePerformed == null) return GameEvent.InvalidMove;
-        if (validMoves.Contains(movePerformed)) {
+        Move? move = GetMove(validMoves, moveCoordinates);
+        if (move == null) return GameEvent.InvalidMove;
+        if (validMoves.Contains(move)) {
         
-            GameEvent gameEvent = movePerformed.Perform(_moveWorker);
+            GameEvent gameEvent = move.Perform(_moveWorker);
 
             if(gameEvent == GameEvent.InvalidMove)
                 return gameEvent;

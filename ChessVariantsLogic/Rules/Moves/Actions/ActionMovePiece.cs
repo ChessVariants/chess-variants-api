@@ -37,6 +37,6 @@ public class ActionMovePiece : IAction
         string? to = _to.GetPosition(moveWorker, performingPiecePosition);
         if (to == null) return GameEvent.InvalidMove;
         string move = from + to;
-        return moveWorker.ForceMove(move);
+        return moveWorker.Move(move, true);
     }
 }

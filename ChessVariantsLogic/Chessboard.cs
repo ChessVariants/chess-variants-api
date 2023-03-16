@@ -38,6 +38,9 @@ public class Chessboard
         get { return cols; }
     }
 
+    /// <summary>
+    /// A Matrix which returns for each square on the chessboard whether the piece located there has moved or not.
+    /// </summary>
     public bool[,] HasMoved
     {
         get { return hasMoved;}

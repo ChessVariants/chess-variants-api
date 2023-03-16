@@ -47,15 +47,15 @@ public class Move
     /// 
     public GameEvent Perform(MoveWorker moveWorker)
     {
-        (string from, string _) = moveWorker.parseMove(_fromTo);
-        if (from == null) throw new Exception("Move needs to contain proper fromTo coordinate");
+        var fromTo = moveWorker.ParseMove(_fromTo);
+        if (fromTo == null) throw new ArgumentException("Move needs to contain proper fromTo coordinate, supplied fromTo coordinate: " + _fromTo);
         if(_actions == null)
         {
             return moveWorker.Move(_fromTo);
         }
         foreach (var action in _actions)
         {
-            GameEvent gameEvent = action.Perform(moveWorker, from);
+            GameEvent gameEvent = action.Perform(moveWorker, fromTo.Item1);
             if(gameEvent == GameEvent.InvalidMove)
                 return GameEvent.InvalidMove;
         }

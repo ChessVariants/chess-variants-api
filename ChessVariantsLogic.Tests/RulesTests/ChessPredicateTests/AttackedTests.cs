@@ -4,6 +4,7 @@ using System.Diagnostics;
 using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -30,11 +31,11 @@ public class AttackedTests : IDisposable {
         blackBishopOnE2 = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         blackBishopOnE2.Board.Insert(Constants.BlackBishopIdentifier, "e2");
 
-        boardBoard = new BoardTransition(board, board, "a1a1");
-        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
-        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, blackBishopOnE2, "a1a1");
+        boardBoard = new BoardTransition(board, new Move("a1a1"));
+        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1"));
+        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1"));
 
-        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, whiteKingAttackedBoard, "a1a1");
+        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, new Move("a1a1"));
 
     }
 

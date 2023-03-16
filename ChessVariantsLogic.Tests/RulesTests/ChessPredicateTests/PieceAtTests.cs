@@ -3,6 +3,7 @@ using System;
 using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -13,7 +14,7 @@ public class PieceAtTests : IDisposable {
     public PieceAtTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        boardTransition = new BoardTransition(board, board, "a1a1");
+        boardTransition = new BoardTransition(board, new Move("a1a1"));
     }
 
     public void Dispose()

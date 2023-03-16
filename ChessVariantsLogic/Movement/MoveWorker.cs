@@ -18,14 +18,13 @@ public class MoveWorker
         set { this.board = value; }
     }
 
-
     private readonly Dictionary<string, Piece> stringToPiece;
 
-    private readonly Stack<string> movelog = new Stack<string>();
+    private readonly List<string> movelog = new List<string>();
 
-    public Stack<string> Movelog
+    public List<string> Movelog
     {
-        get { return this.movelog; }
+        get { return movelog; }
     }
     
     /// <summary>
@@ -42,80 +41,45 @@ public class MoveWorker
 
     public MoveWorker(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
 
-#endregion
+    #endregion
 
-    /// <summary>
-    /// Updates the chessboard by moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
-    /// </summary>
-    /// <param name="move"> consists of two coordinates without any space between them. </param>
-    /// <returns> A GameEvent representing whether the move was successful or not. </returns>
-    public GameEvent Move(string move)
-    {
-        var splitMove = parseMove(move);
-        if(splitMove == null)
-            return GameEvent.InvalidMove;
-
-        string from = splitMove.Item1;
-        string to = splitMove.Item2;
-        
-        string? strPiece = this.board.GetPieceIdentifier(from);
-        if(strPiece != null)
-        {
-            try
-            {
-                Piece piece = stringToPiece[strPiece];
-                var moves = getAllValidMovesByPiece(piece, this.board.CoorToIndex[from]);
-                var coor = this.board.ParseCoordinate(to);
-                if(coor != null && moves.Contains(coor))
-                {
-                    this.board.Insert(strPiece, to);
-                    this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
-                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
-                    movelog.Push(move);
-                    return GameEvent.MoveSucceeded;
-                }
-            }
-            catch (KeyNotFoundException) {}
-        }
-        return GameEvent.InvalidMove;
-
-    }
     /// <summary>
     /// Updates the chessboard by forcefully moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
-    /// This does not take into account whether or not this is a valid move for the piece.
     /// </summary>
     /// <param name="move"> consists of two coordinates without any space between them. </param>
+    /// <param name="force"> If this is true it will not take into account whether or not this is a valid move for the piece. </param>
     /// <returns> A GameEvent representing whether the move was successful or not. </returns>
-    public GameEvent ForceMove(string move)
+    public GameEvent Move(string move, bool force = false)
     {
-        var splitMove = parseMove(move);
+        var splitMove = ParseMove(move);
         if (splitMove == null)
             return GameEvent.InvalidMove;
 
         string from = splitMove.Item1;
         string to = splitMove.Item2;
 
-        string? strPiece = this.board.GetPieceIdentifier(from);
-        if (strPiece != null)
+        string? strPiece = board.GetPieceIdentifier(from);
+        if (strPiece == null) return GameEvent.InvalidMove;
+        
+        try
         {
-            try
-            {
-                Piece piece = stringToPiece[strPiece];
-                var moves = getAllValidMovesByPiece(piece, this.board.CoorToIndex[from]);
-                var coor = this.board.ParseCoordinate(to);
-                if (coor != null)
-                {
-                    this.board.Insert(strPiece, to);
-                    this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
-                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
-                    movelog.Push(move);
-                    return GameEvent.MoveSucceeded;
-                }
-            }
-            catch (KeyNotFoundException) { }
-        }
-        return GameEvent.InvalidMove;
+            Piece piece = stringToPiece[strPiece];
+            var moves = getAllValidMovesByPiece(piece, board.CoorToIndex[from]);
+            var coor = board.ParseCoordinate(to);
+            if (coor == null) return GameEvent.InvalidMove;
 
+            if (moves.Contains(coor) || force)
+            {
+                board.Insert(strPiece, to);
+                board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                board.PieceHasMoved(coor.Item1,coor.Item2);
+                movelog.Add(move);
+                return GameEvent.MoveSucceeded;
+            }
+        }
+        catch (KeyNotFoundException) { }
+        
+        return GameEvent.InvalidMove;
     }
 
     /// <summary>
@@ -123,7 +87,7 @@ public class MoveWorker
     /// </summary>
     /// <param name="move"> is a string representing two coordinates on the chessboard.</param>
     /// <returns> the two squares split into separate strings. </returns>
-    public Tuple<string, string>? parseMove(string move)
+    public Tuple<string, string>? ParseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
@@ -215,7 +179,7 @@ public class MoveWorker
         var moves = GetAllValidMoves(player);
         foreach (var move in moves)
         {
-            var fromTo = parseMove(move);
+            var fromTo = ParseMove(move);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
@@ -497,76 +461,67 @@ public class MoveWorker
         var capturemoves = new HashSet<Tuple<int, int>>();
 
         int repeat = piece.Repeat;
-
-
         
-            foreach (var pattern in piece.GetAllCapturePatterns())
+        foreach (var pattern in piece.GetAllCapturePatterns())
+        {
+            if (pattern is RegularPattern)
             {
-                if (pattern is RegularPattern)
-                {
-                    capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
-                    capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-                }
-                else
-                {
-                    capturemoves.UnionWith(getJumpMove(piece, pattern, pos));
-                    var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                    if(captureMove == null)
-                        continue;
-                    capturemoves.Add(captureMove);
-                }
+                capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
             }
-
-
-
-            foreach (var pattern in piece.GetAllMovementPatterns())
+            else
             {
-                if (pattern is RegularPattern)
-                    moves.UnionWith(getRegularMoves(piece, pattern, pos));
-                else
-                    moves.UnionWith(getJumpMove(piece, pattern, pos));
+                capturemoves.UnionWith(getJumpMove(piece, pattern, pos));
+                var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                if(captureMove == null)
+                    continue;
+                capturemoves.Add(captureMove);
             }
-
-
-            var movesTmp = moves.ToHashSet();
-
-
-            while (repeat >= 1)
-            {
-                foreach (var move in movesTmp)
-                {
-                    foreach (var pattern in piece.GetAllMovementPatterns())
-                    {
-                        if (pattern is RegularPattern)
-                            moves.UnionWith(getRegularMoves(piece, pattern, move));
-                        else
-                            moves.UnionWith(getJumpMove(piece, pattern, move));
-                    }
-                    foreach (var pattern in piece.GetAllCapturePatterns())
-                    {
-                        if (pattern is RegularPattern)
-                        {    
-                            capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
-                            capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-                        }
-                        else
-                        {
-                            capturemoves.UnionWith(getJumpMove(piece, pattern, move));
-                            var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                            if(captureMove == null)
-                                continue;
-                            capturemoves.Add(captureMove);
-                        }
-                    }
-
-
-                }
-                movesTmp = moves;
-                repeat--;
-            }
-            return capturemoves;
-
         }
+
+        foreach (var pattern in piece.GetAllMovementPatterns())
+        {
+            if (pattern is RegularPattern)
+                moves.UnionWith(getRegularMoves(piece, pattern, pos));
+            else
+                moves.UnionWith(getJumpMove(piece, pattern, pos));
+        }
+
+        var movesTmp = moves.ToHashSet();
+
+        while (repeat >= 1)
+        {
+            foreach (var move in movesTmp)
+            {
+                foreach (var pattern in piece.GetAllMovementPatterns())
+                {
+                    if (pattern is RegularPattern)
+                        moves.UnionWith(getRegularMoves(piece, pattern, move));
+                    else
+                        moves.UnionWith(getJumpMove(piece, pattern, move));
+                }
+                foreach (var pattern in piece.GetAllCapturePatterns())
+                {
+                    if (pattern is RegularPattern)
+                    {    
+                        capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                    }
+                    else
+                    {
+                        capturemoves.UnionWith(getJumpMove(piece, pattern, move));
+                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                        if(captureMove == null)
+                            continue;
+                        capturemoves.Add(captureMove);
+                    }
+                }
+            }
+            movesTmp = moves;
+            repeat--;
+        }
+        return capturemoves;
+    }
 
 #endregion
 
@@ -637,9 +592,9 @@ public class MoveWorker
     /// </summary>
     public string? getLastMove()
     {
-        if (movelog.Count == 0)
+        if (Movelog.Count == 0)
             return null;
-        return movelog.Peek();
+        return Movelog.Last();
     }
 
     #endregion

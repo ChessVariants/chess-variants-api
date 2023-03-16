@@ -21,7 +21,7 @@ public class Attacked : IPredicate
     /// <returns>true/false if a piece is attacked or not in either the current board state or the next, depending on what was specified at object-creation.</returns>
     public bool Evaluate(BoardTransition transition)
     {
-        var board = _boardState == BoardState.NEXT ? transition.NextState : transition.ThisState;
+        var board = _boardState == BoardState.NEXT ? transition._nextState : transition._thisState;
         var attacked = Utils.PieceAttacked(board, _pieceIdentifier);
         return attacked;
     }
