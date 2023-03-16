@@ -1,15 +1,21 @@
 using Xunit;
-using ChessVariantsLogic.Predicates;
 using System;
 using System.Diagnostics;
+using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
 public class ForEveryTests : IDisposable {
-    IBoardState board;
-    IBoardState scholarsMateBoard;
-    IBoardState notScholarsMateBoard;
+    MoveWorker board;
+    MoveWorker scholarsMateBoard;
+    MoveWorker notScholarsMateBoard;
     IPredicate whiteWinRule;
+    BoardTransition scholarsMateBoardTransition;
+    BoardTransition notScholarsMateBoardTransition;
+    BoardTransition boardTransition;
 
     public ForEveryTests()
     {
@@ -57,6 +63,10 @@ public class ForEveryTests : IDisposable {
 
         whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
 
+        scholarsMateBoardTransition = new BoardTransition(scholarsMateBoard, new Move("a1a1"));
+        notScholarsMateBoardTransition = new BoardTransition(notScholarsMateBoard, new Move("a1a1"));
+        boardTransition = new BoardTransition(board, new Move("a1a1"));
+
     }
 
     public void Dispose()
@@ -68,13 +78,13 @@ public class ForEveryTests : IDisposable {
     [Fact]
     public void CheckMate_ShouldReturnTrue()
     {
-        Assert.True(whiteWinRule.Evaluate(scholarsMateBoard, scholarsMateBoard));
+        Assert.True(whiteWinRule.Evaluate(scholarsMateBoardTransition));
     }
     [Fact]
     public void CheckMate_ShouldReturnFalse()
     {
-        Assert.False(whiteWinRule.Evaluate(notScholarsMateBoard, notScholarsMateBoard));
-        Assert.False(whiteWinRule.Evaluate(board, board));
+        Assert.False(whiteWinRule.Evaluate(notScholarsMateBoardTransition));
+        Assert.False(whiteWinRule.Evaluate(boardTransition));
     }
 
 }
