@@ -269,10 +269,10 @@ public class MoveWorker
         if(pattern != null)
         
         
-            for (int j = pattern.GetMinLength(); j < maxIndex; j++)
+            for (int j = pattern.MinLength; j < maxIndex; j++)
             {
-                int newRow = pos.Item1 + pattern.GetXDir() * j;
-                int newCol = pos.Item2 + pattern.GetYDir() * j;
+                int newRow = pos.Item1 + pattern.XDir * j;
+                int newCol = pos.Item2 + pattern.YDir * j;
 
                 if(!insideBoard(newRow, newCol))
                     break;
@@ -283,8 +283,8 @@ public class MoveWorker
                 if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
                     break;
 
-                var minLength = pattern.GetMinLength();
-                var maxLength = pattern.GetMaxLength();
+                var minLength = pattern.MinLength;
+                var maxLength = pattern.MaxLength;
 
                 if(maxLength < j || j < minLength)
                     break;
@@ -312,8 +312,8 @@ public class MoveWorker
             if (pattern == null)
                 continue;
 
-            int newRow = pos.Item1 + pattern.GetXDir() * j;
-            int newCol = pos.Item2 + pattern.GetYDir() * j;
+            int newRow = pos.Item1 + pattern.XDir * j;
+            int newCol = pos.Item2 + pattern.YDir * j;
 
             if (!insideBoard(newRow, newCol))
                 break;
@@ -324,8 +324,8 @@ public class MoveWorker
             if (pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
                 continue;
 
-            var minLength = pattern.GetMinLength();
-            var maxLength = pattern.GetMaxLength();
+            var minLength = pattern.MinLength;
+            var maxLength = pattern.MaxLength;
 
             if (maxLength < j || j < minLength)
                 continue;
@@ -362,8 +362,8 @@ public class MoveWorker
     {
         var moves = new HashSet<Tuple<int, int>>();
 
-        int newRow = pos.Item1 + pattern.GetXDir();
-        int newCol = pos.Item2 + pattern.GetYDir();
+        int newRow = pos.Item1 + pattern.XDir;
+        int newCol = pos.Item2 + pattern.YDir;
 
         string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
         string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
@@ -385,8 +385,8 @@ public class MoveWorker
         if (pattern == null)
             return null;
 
-        int newRow = pos.Item1 + pattern.GetXDir();
-        int newCol = pos.Item2 + pattern.GetYDir();
+        int newRow = pos.Item1 + pattern.XDir;
+        int newCol = pos.Item2 + pattern.YDir;
 
         string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
         string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
