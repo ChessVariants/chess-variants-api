@@ -1,3 +1,4 @@
+using ChessVariantsLogic.Rules.Moves;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -359,13 +360,16 @@ public class ChessboardTests
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
 
+        Move move0 = new Move("e2e3", PieceClassifier.WHITE);
+        Move move1 = new Move("e7e6", PieceClassifier.BLACK);
+
         var moves = moveWorker.GetAllCaptureMoves(Player.White);
         Assert.Equal(18, moves.Count);
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e2e3"));
+        Assert.Equal(GameEvent.MoveSucceeded, move0.Perform(moveWorker));
         var moves2 = moveWorker.GetAllCaptureMoves(Player.White);
         Assert.Equal(27, moves2.Count);
         
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("e7e6"));
+        Assert.Equal(GameEvent.MoveSucceeded, move1.Perform(moveWorker));
         Assert.Equal(2, moveWorker.Movelog.Count);
         
         moveWorker.Board = new Chessboard(8);

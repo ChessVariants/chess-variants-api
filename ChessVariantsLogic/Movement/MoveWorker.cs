@@ -1,5 +1,6 @@
 namespace ChessVariantsLogic;
 using System;
+using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
@@ -20,9 +21,9 @@ public class MoveWorker
 
     private readonly Dictionary<string, Piece> stringToPiece;
 
-    private readonly List<string> movelog = new List<string>();
+    private readonly List<Move> movelog = new List<Move>();
 
-    public List<string> Movelog
+    public List<Move> Movelog
     {
         get { return movelog; }
     }
@@ -73,13 +74,17 @@ public class MoveWorker
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                 board.PieceHasMoved(coor.Item1,coor.Item2);
-                movelog.Add(move);
                 return GameEvent.MoveSucceeded;
             }
         }
         catch (KeyNotFoundException) { }
         
         return GameEvent.InvalidMove;
+    }
+
+    public void AddMove(Move move)
+    {
+        movelog.Add(move);
     }
 
     /// <summary>
@@ -169,6 +174,13 @@ public class MoveWorker
             }
         }
         return coorSetToStringSet(coorMoves);
+    }
+
+
+    public PieceClassifier GetPieceClassifier(string pieceIdentifier)
+    {
+        Piece p = stringToPiece[pieceIdentifier];
+        return p.PieceClassifier;
     }
 
     /// <inheritdoc/>
@@ -544,7 +556,8 @@ public class MoveWorker
     private bool pieceBelongsToPlayer(Piece piece, Player player)
     {
         return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
-            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
+            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK)
+            || piece.PieceClassifier.Equals(PieceClassifier.SHARED);
     }
     
     private bool insideBoard(int row, int col)
@@ -590,7 +603,7 @@ public class MoveWorker
     /// <summary>
     /// Returns the last move from the movelog
     /// </summary>
-    public string? getLastMove()
+    public Move? getLastMove()
     {
         if (Movelog.Count == 0)
             return null;

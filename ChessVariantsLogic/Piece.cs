@@ -261,6 +261,27 @@ public class Piece
         return new Piece(mp, cp, false, PieceClassifier.WHITE, Constants.WhitePawnIdentifier);
     }
 
+    public static Piece Duck(int boardWidth, int boardHeight)
+    {
+        var capturePatterns = new List<IPattern> {
+        };
+        var patterns = new List<IPattern> {
+        };
+
+        for (int i = -boardWidth; i < boardWidth; i++)
+        {
+            for (int j = -boardHeight; j < boardHeight; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                patterns.Add(new JumpPattern(i, j));
+            }
+        }
+
+        var mp = new MovementPattern(patterns);
+        var cp = new MovementPattern(capturePatterns);
+        return new Piece(mp, cp, false, PieceClassifier.SHARED, Constants.DuckIdentifier);
+    }
+
     /// <summary>
     /// Instantiates a HashSet of all the standard pieces.
     /// </summary>
@@ -277,7 +298,20 @@ public class Piece
             WhitePawn(), BlackPawn()
         };
     }
-    
-#endregion
+
+    public static HashSet<Piece> AllDuckChessPieces()
+    {
+        return new HashSet<Piece>
+        {
+            Rook(PieceClassifier.WHITE), Rook(PieceClassifier.BLACK),
+            Knight(PieceClassifier.WHITE), Knight(PieceClassifier.BLACK),
+            Bishop(PieceClassifier.WHITE), Bishop(PieceClassifier.BLACK),
+            Queen(PieceClassifier.WHITE), Queen(PieceClassifier.BLACK),
+            King(PieceClassifier.WHITE), King(PieceClassifier.BLACK),
+            WhitePawn(), BlackPawn(), Duck(8, 8)
+        };
+    }
+
+    #endregion
 
 }

@@ -63,9 +63,9 @@ public class ForEveryTests : IDisposable {
 
         whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
 
-        scholarsMateBoardTransition = new BoardTransition(scholarsMateBoard, new Move("a1a1"));
-        notScholarsMateBoardTransition = new BoardTransition(notScholarsMateBoard, new Move("a1a1"));
-        boardTransition = new BoardTransition(board, new Move("a1a1"));
+        scholarsMateBoardTransition = new BoardTransition(scholarsMateBoard, new Move("a1a1", PieceClassifier.WHITE));
+        notScholarsMateBoardTransition = new BoardTransition(notScholarsMateBoard, new Move("a1a1", PieceClassifier.WHITE));
+        boardTransition = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
 
     }
 

@@ -26,7 +26,10 @@ public class ForEvery : IPredicate
         var possibleMoves = transition.NextState.GetAllValidMoves(_player);
         foreach (var moveCoordinates in possibleMoves)
         {
-            Move move = new Move(moveCoordinates);
+            var (from, _) = transition.NextState.ParseMove(moveCoordinates);
+
+            var pieceIdentifier = transition.NextState.Board.GetPieceIdentifier(from);
+            Move move = new Move(moveCoordinates, transition.NextState.GetPieceClassifier(pieceIdentifier));
             BoardTransition newTransition = new BoardTransition(transition.NextState, move);
             bool ruleSatisfied = _rule.Evaluate(newTransition);
             if (!ruleSatisfied)

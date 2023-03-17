@@ -40,6 +40,7 @@ public class MoveTemplate
     public IEnumerable<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
     {
         List<string> positions = (List<string>) Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
+        PieceClassifier pieceClassifier = thisBoard.GetPieceClassifier(_pieceIdentifier);
         HashSet<Move> moves = new HashSet<Move>();
 
         foreach(string from in positions)
@@ -47,7 +48,7 @@ public class MoveTemplate
             string? to = _to.GetPosition(thisBoard, from);
             if (to == null) continue;
 
-            Move move = new Move(_actions, from + to);
+            Move move = new Move(_actions, from + to, pieceClassifier);
             
             BoardTransition transition = new BoardTransition(thisBoard, move);
             if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())

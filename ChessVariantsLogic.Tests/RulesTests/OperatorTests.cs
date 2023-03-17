@@ -18,7 +18,7 @@ public class OperatorTests : IDisposable {
         constTrue = new Const(true);
         constFalse = new Const(false);
         board = new MoveWorker(new Chessboard(8));
-        transition = new BoardTransition(board, new Move("a1a1"));
+        transition = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
     }
 
     public void Dispose()

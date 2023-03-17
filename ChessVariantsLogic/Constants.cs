@@ -23,9 +23,10 @@ public static class Constants
     public const string WhiteQueenIdentifier = "QU";
     public const string WhiteKingIdentifier = "KI";
     public const string WhitePawnIdentifier = "PA";
-#endregion
+    public const string DuckIdentifier = "DU";
+    #endregion
 
-#region Directions
+    #region Directions
     public static Tuple<int, int> North = new Tuple<int, int>(-1,0);
     public static Tuple<int, int> East = new Tuple<int, int>(0,1);
     public static Tuple<int, int> South = new Tuple<int, int>(1,0);

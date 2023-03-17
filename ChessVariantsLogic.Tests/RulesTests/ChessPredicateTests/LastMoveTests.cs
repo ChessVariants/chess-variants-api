@@ -26,8 +26,8 @@ public class LastMoveTests
         toStr1 = "e4";
         from = new PositionAbsolute(fromStr);
         to = new PositionAbsolute(toStr0);
-        Move move0 = new Move(fromStr + toStr0);
-        Move move1 = new Move(toStr0 + toStr1);
+        Move move0 = new Move(fromStr + toStr0, PieceClassifier.WHITE);
+        Move move1 = new Move(toStr0 + toStr1, PieceClassifier.WHITE);
 
         boardTransition0 = new BoardTransition(board, move0);
         boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);
@@ -38,6 +38,7 @@ public class LastMoveTests
     {
         IPredicate lastMoveWasE2E3 = new LastMove(from, to);
         Assert.True(lastMoveWasE2E3.Evaluate(boardTransition1));
+        //Assert.Equal("e2e3", boardTransition1.ThisState.getLastMove().FromTo);
     }
     [Fact]
     public void LastMoveWasE2E3_ShouldReturnFalse()

@@ -156,6 +156,39 @@ public class Chessboard
 
         return chessboard;
     }
+    public static Chessboard DuckChessboard()
+    {
+        var chessboard = new Chessboard(8);
+
+        chessboard.board[0, 0] = Constants.BlackRookIdentifier;
+        chessboard.board[0, 1] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 2] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 3] = Constants.BlackQueenIdentifier;
+        chessboard.board[0, 4] = Constants.BlackKingIdentifier;
+        chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
+        chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
+        chessboard.board[0, 7] = Constants.BlackRookIdentifier;
+
+        chessboard.fillRank(1, Constants.BlackPawnIdentifier);
+        chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
+        chessboard.fillRank(6, Constants.WhitePawnIdentifier);
+
+        chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
+        chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 3] = Constants.WhiteQueenIdentifier;
+        chessboard.board[7, 4] = Constants.WhiteKingIdentifier;
+        chessboard.board[7, 5] = Constants.WhiteBishopIdentifier;
+        chessboard.board[7, 6] = Constants.WhiteKnightIdentifier;
+        chessboard.board[7, 7] = Constants.WhiteRookIdentifier;
+
+        chessboard.board[4, 4] = Constants.DuckIdentifier;
+
+        return chessboard;
+    }
 
     public Tuple<int, int>? ParseCoordinate(string coor)
     {

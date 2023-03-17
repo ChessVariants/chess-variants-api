@@ -31,8 +31,8 @@ public class PieceCapturedTests {
         board.Move("f1c4");
         board.Move("g8f6");
 
-        pieceWasNotCapturedTransition = new BoardTransition(board, new Move("a2a3"));
-        pieceWasCapturedTransition = new BoardTransition(board, new Move("h5f7"));
+        pieceWasNotCapturedTransition = new BoardTransition(board, new Move("a2a3", PieceClassifier.WHITE));
+        pieceWasCapturedTransition = new BoardTransition(board, new Move("h5f7", PieceClassifier.WHITE));
     }
 
     [Fact]
