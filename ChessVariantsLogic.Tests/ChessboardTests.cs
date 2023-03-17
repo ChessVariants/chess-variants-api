@@ -7,8 +7,24 @@ namespace ChessVariantsLogic.Tests;
 /// <summary>
 /// This class contains unit tests on Chessboard.cs and ChessDriver.cs.
 /// </summary>
-public class ChessboardTests
+public class ChessboardTests //: IDisposable
 {
+    /*private MoveWorker moveWorker;
+    private Chessboard board;
+
+    public ChessboardTests()
+    {
+        this.board = Chessboard.StandardChessboard();
+        this.moveWorker = new MoveWorker(this.board, Piece.AllStandardPieces());
+    }
+
+    public void Dispose()
+    {
+        this.board = new Chessboard(8);
+        this.moveWorker = new MoveWorker(this.board);
+        GC.SuppressFinalize(this);
+    }
+    */
 
     /// <summary>
     /// Tests that the FEN representation of the board is of the correct format.
