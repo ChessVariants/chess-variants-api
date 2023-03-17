@@ -5,27 +5,25 @@ namespace ChessVariantsLogic.Rules.Moves;
 /// Represents a special move that can be performed on the board. (examples: castling, en passant, double pawn move...).
 /// _actions is a list of actions that will be performed when the Move is performed.
 /// _fromTo is a pair of coordinates (e.g. "e2e4) that represent which piece performs the move and where to click to perform the move respectively.
-/// <para>IMPORTANT: If _actions == null, a standard move will be performed.</para>
 /// </summary>
 public class Move
 {
-    private readonly IEnumerable<IAction>? _actions;
+    private readonly IEnumerable<IAction> _actions;
     private readonly string _fromTo;
 
-
     public string FromTo => _fromTo;
-    public readonly PieceClassifier Player;
+    public readonly PieceClassifier PieceClassifier;
 
     /// <summary>
     /// Constructor that takes a list of actions and a string fromTo.
     /// </summary>
     /// <param name="actions">The list of actions that the move performs.</param>
     /// <param name="fromTo">A pair of coordinates, the position of the performing piece and where it ends up.</param>
-    public Move(IEnumerable<IAction>? actions, string fromTo, PieceClassifier player)
+    public Move(IEnumerable<IAction> actions, string fromTo, PieceClassifier pieceClassifier)
     {
         _actions = actions;
         _fromTo = fromTo;
-        Player = player;
+        PieceClassifier = pieceClassifier;
     }
 
     /// <summary>
@@ -34,15 +32,14 @@ public class Move
     /// <param name="fromTo">A pair of coordinates, the position of the piece to be moved and where it ends up.</param>
     public Move(string fromTo, PieceClassifier pieceClassifier)
     {
-        _actions = null;
+        _actions = new List<IAction>() { new ActionMovePiece(fromTo) };
         _fromTo = fromTo;
-        Player = pieceClassifier;
+        PieceClassifier = pieceClassifier;
     }
 
     /// <summary>
     /// Performs all actions in the internal list _actions on the given moveWorker.
     /// If any single action fails, the whole move fails.
-    /// <para> If _actions == null, a standard move will be performed.</para>
     /// </summary>
     /// <param name="moveWorker">The board state to perform the actions on.</param>
     /// 
@@ -50,19 +47,16 @@ public class Move
     /// 
     public GameEvent Perform(MoveWorker moveWorker)
     {
-        var fromTo = moveWorker.ParseMove(_fromTo);
+        var fromTo = MoveWorker.ParseMove(_fromTo);
         if (fromTo == null) throw new ArgumentException("Move needs to contain proper fromTo coordinate, supplied fromTo coordinate: " + _fromTo);
-        if(_actions == null)
-        {
-            moveWorker.AddMove(this);
-            return moveWorker.Move(_fromTo);
-        }
+        
         foreach (var action in _actions)
         {
             GameEvent gameEvent = action.Perform(moveWorker, fromTo.Item1);
             if(gameEvent == GameEvent.InvalidMove)
                 return GameEvent.InvalidMove;
         }
+
         moveWorker.AddMove(this);
         return GameEvent.MoveSucceeded;
     }

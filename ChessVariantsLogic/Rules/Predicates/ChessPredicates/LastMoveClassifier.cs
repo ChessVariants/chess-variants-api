@@ -2,7 +2,7 @@
 using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
-/// This predicate evaluates if the last move is equal to the compare values.
+/// This predicate evaluates if the piece performing the last move has the same classifier as the internal _pieceClassifier.
 /// </summary>
 public class LastMoveClassifier : IPredicate
 {
@@ -17,7 +17,7 @@ public class LastMoveClassifier : IPredicate
     {
         Move? move = transition.ThisState.getLastMove();
         if (move == null) return false;
-        PieceClassifier lastMovePlayer = move.Player;
+        PieceClassifier lastMovePlayer = move.PieceClassifier;
         return _pieceClassifier == lastMovePlayer;
     }
 }

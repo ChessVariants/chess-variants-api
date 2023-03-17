@@ -29,7 +29,7 @@ public class RuleSet
         var moves = ApplyMoveRule(board, player);
         foreach (var move in moves)
         {
-            var fromTo = board.ParseMove(move.FromTo);
+            var fromTo = MoveWorker.ParseMove(move.FromTo);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
@@ -59,7 +59,7 @@ public class RuleSet
         var acceptedMoves = new List<Move>();
         foreach (var moveCoordinates in possibleMoves)
         {
-            var (from, _) = board.ParseMove(moveCoordinates);
+            var (from, _) = MoveWorker.ParseMove(moveCoordinates);
 
             var pieceIdentifier = board.Board.GetPieceIdentifier(from);
 

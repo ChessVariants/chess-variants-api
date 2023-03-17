@@ -1,7 +1,7 @@
 ﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
-/// This predicate determines if a piece has been captured when transitioning to a new board state.
+/// This predicate determines if a piece with the internal _pieceIdentifier was moved during the board transition.
 /// </summary>
 public class PieceMoved : IPredicate
 {
@@ -12,11 +12,7 @@ public class PieceMoved : IPredicate
         _pieceIdentifier = pieceIdentifier;
     }
 
-    /// <summary>
-    /// Returns true if a piece was captured when transitioning from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.
-    /// </summary>
-    /// <inheritdoc/>
-    /// <returns>True if a piece was captured during transition from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.</returns>
+    
     public bool Evaluate(BoardTransition transition)
     {
         string piece = transition.ThisState.Board.GetPieceIdentifier(transition.MoveFrom);

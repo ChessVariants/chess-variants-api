@@ -115,14 +115,12 @@ public static class GameFactory
 
         IPredicate thisMoveWasDuckMove = new PieceMoved(Constants.DuckIdentifier);
 
-        IPredicate duckCaptured = new PieceCaptured(Constants.DuckIdentifier);
-
         IPredicate firstMove = new FirstMove();
 
-        IPredicate whiteMoveRule = ((thisMoveWasDuckMove & lastMoveWasWhite & !firstMove) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove))) & !duckCaptured;
+        IPredicate whiteMoveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
         IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
-        IPredicate blackMoveRule = ((thisMoveWasDuckMove & lastMoveWasBlack & !firstMove) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove))) & !duckCaptured;
+        IPredicate blackMoveRule = ((thisMoveWasDuckMove & lastMoveWasBlack) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
         IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>

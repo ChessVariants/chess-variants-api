@@ -3,7 +3,7 @@ namespace ChessVariantsLogic;
 public static class Constants
 {
     public const int MaxBoardWidth = 20;
-    public const int MaxBoardHeigth = 20;
+    public const int MaxBoardHeight = 20;
 
     public const string BoardFiles = "abcdefghijklmnopqrst";
 

@@ -21,6 +21,13 @@ public class ActionMovePiece : IAction
         _to = to;
     }
 
+    public ActionMovePiece(string fromTo)
+    {
+        var (from, to) = MoveWorker.ParseMove(fromTo);
+        _from = new PositionAbsolute(from);
+        _to = new PositionAbsolute(to);
+    }
+
     /// <summary>
     /// Forcefully move a piece on the board according to the given positions.
     /// If Positions are defined as relative, it will be calculated relative to the piece performing the action.

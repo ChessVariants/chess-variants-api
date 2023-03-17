@@ -21,7 +21,7 @@ public class BoardTransition
         Move = move;
         Result = Move.Perform(NextState);
 
-        Tuple<string, string>? fromTo = thisState.ParseMove(move.FromTo);
+        Tuple<string, string>? fromTo = MoveWorker.ParseMove(move.FromTo);
         if (fromTo == null) throw new ArgumentException("The given move parameter does not contain a proper move string. Supplied move string: " + move.FromTo);
 
         MoveFrom = fromTo.Item1;

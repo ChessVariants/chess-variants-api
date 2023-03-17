@@ -156,6 +156,8 @@ public class Chessboard
 
         return chessboard;
     }
+
+    /// <returns> an instance of Chessboard with the duck chess set up. </returns>
     public static Chessboard DuckChessboard()
     {
         var chessboard = new Chessboard(8);

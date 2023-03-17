@@ -82,6 +82,9 @@ public class MoveWorker
         return GameEvent.InvalidMove;
     }
 
+    /// <summary>
+    /// Adds the given move to the internal movelog. 
+    /// </summary>
     public void AddMove(Move move)
     {
         movelog.Add(move);
@@ -92,7 +95,7 @@ public class MoveWorker
     /// </summary>
     /// <param name="move"> is a string representing two coordinates on the chessboard.</param>
     /// <returns> the two squares split into separate strings. </returns>
-    public Tuple<string, string>? ParseMove(string move)
+    public static Tuple<string, string>? ParseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
@@ -176,6 +179,10 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
+
+    /// <summary>
+    /// <returns>The classifier of the given pieceIdentifier</returns>
+    /// </summary>
 
     public PieceClassifier GetPieceClassifier(string pieceIdentifier)
     {
