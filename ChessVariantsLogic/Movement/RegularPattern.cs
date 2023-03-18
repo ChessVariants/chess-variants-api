@@ -10,15 +10,12 @@ public class RegularPattern : IPattern
     private readonly int minLength;
     private readonly int maxLength;
 
-    private readonly Tuple<int, int, int, int> pattern;
-
     public RegularPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         this.xDir = xDir;
         this.yDir = yDir;
         this.minLength = minLength;
         this.maxLength = maxLength;
-        this.pattern = new Tuple<int,int,int,int>(xDir, yDir, minLength, maxLength);
     }
 
     public RegularPattern(Tuple<int,int> direction, int minLength, int maxLength) : this(direction.Item1, direction.Item2, minLength, maxLength) {}

@@ -8,14 +8,13 @@ public class JumpPattern : IPattern
     private readonly int xDir;
     private readonly int yDir;
 
-    private readonly Tuple<int, int> pattern;
-
     public JumpPattern(int xOffset, int yOffset)
     {
         this.xDir = xOffset;
         this.yDir = yOffset;
-        this.pattern = new Tuple<int, int>(xOffset, yOffset);
     }
+
+    public JumpPattern(Tuple<int,int> offsets) : this(offsets.Item1, offsets.Item2) {}
 
 #region Interface overrides
 
