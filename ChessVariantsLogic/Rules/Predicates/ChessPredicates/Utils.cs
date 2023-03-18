@@ -19,7 +19,7 @@ public class Utils
         var player = GetPlayer(pieceIdentifier);
         var attacker = player == Player.White ? Player.Black : Player.White;
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
-        var attackedPieces = board.GetAllCaptureMoves(attacker);
+        var attackedPieces = board.GetAllCapturePatternMoves(attacker);
         foreach (var attackerMove in attackedPieces)
         {
             var (_, to) = board.ParseMove(attackerMove);
@@ -39,7 +39,7 @@ public class Utils
     /// <returns>True if the square with coordinate <paramref name="position"/> is attacked by <paramref name="attacker"/> </returns>
     public static bool SquareAttacked(MoveWorker board, string position, Player attacker)
     {
-        var attackedPieces = board.GetAllCaptureMoves(attacker);
+        var attackedPieces = board.GetAllCapturePatternMoves(attacker);
         foreach (var attackerMove in attackedPieces)
         {
             var (_, to) = board.ParseMove(attackerMove);

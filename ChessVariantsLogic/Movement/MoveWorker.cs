@@ -418,7 +418,7 @@ public class MoveWorker
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid capture moves.</returns>
-    public HashSet<string> GetAllCaptureMoves(Player player)
+    public HashSet<string> GetAllCapturePatternMoves(Player player)
     {
         var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
 
