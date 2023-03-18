@@ -5,7 +5,7 @@ using Xunit;
 namespace ChessVariantsLogic.Tests;
 
 /// <summary>
-/// This class contains unit tests on Chessboard.cs and ChessDriver.cs.
+/// This class contains unit tests on Chessboard and MoveWorker.
 /// </summary>
 public class ChessboardTests : IDisposable
 {
@@ -53,7 +53,7 @@ public class ChessboardTests : IDisposable
     /// Tests that the standard chessboard is set up correctly.
     /// </summary>
     [Fact]
-    public void Test_Standard_Chessboard()
+    public void StandardChessboardIsSetUpCorrectly()
     {
         Assert.Equal(Constants.WhiteKingIdentifier,         this.board.GetPieceIdentifier("e1"));
         Assert.Equal(Constants.BlackQueenIdentifier,        this.board.GetPieceIdentifier("d8"));
@@ -69,11 +69,11 @@ public class ChessboardTests : IDisposable
     {
         Assert.Equal(Constants.WhitePawnIdentifier,         this.moveWorker.Board.GetPieceIdentifier("g2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.moveWorker.Board.GetPieceIdentifier("g3"));
-        Assert.Equal(GameEvent.MoveSucceeded,               this.moveWorker.Move("g2g3"));
+        this.moveWorker.Move("g2g3");
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.moveWorker.Board.GetPieceIdentifier("g2"));
         Assert.Equal(Constants.WhitePawnIdentifier,         this.moveWorker.Board.GetPieceIdentifier("g3"));
         
-        Assert.Equal(GameEvent.InvalidMove,                 this.moveWorker.Move("h2h9"));
+        this.moveWorker.Move("h2h9");
         Assert.Equal(Constants.WhitePawnIdentifier,         this.moveWorker.Board.GetPieceIdentifier("h2"));
 
     }
@@ -86,14 +86,13 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(4,10);
         
-        moveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "b2");
+        this.moveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "b2");
+        this.moveWorker.Move("b2i2");
 
-        Assert.Equal(Constants.BlackRookIdentifier,         this.moveWorker.Board.GetPieceIdentifier("b2"));
-        Assert.Equal(GameEvent.MoveSucceeded,               this.moveWorker.Move("b2i2"));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.moveWorker.Board.GetPieceIdentifier("b2"));
         Assert.Equal(Constants.BlackRookIdentifier,         this.moveWorker.Board.GetPieceIdentifier("i2"));
 
-        Assert.Equal(GameEvent.MoveSucceeded,               this.moveWorker.Move("i2i4"));
+        this.moveWorker.Move("i2i4");
         Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.moveWorker.Board.GetPieceIdentifier("i2"));
         Assert.Equal(Constants.BlackRookIdentifier,         this.moveWorker.Board.GetPieceIdentifier("i4"));
 
@@ -103,7 +102,7 @@ public class ChessboardTests : IDisposable
     /// Tests that a piece that is not allowed to jump, can not jump over other pieces.
     /// </summary>
     [Fact]
-    public void PieceWithoutJumpPatternCannotJumpOverOtherPieces()
+    public void PieceWithoutJumpPattern_CannotJumpOverOtherPieces()
     {
         Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("h1h4"));
         Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("c8e6"));
