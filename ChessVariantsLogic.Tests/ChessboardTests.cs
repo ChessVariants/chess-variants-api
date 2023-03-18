@@ -10,7 +10,7 @@ namespace ChessVariantsLogic.Tests;
 public class ChessboardTests : IDisposable
 {
     private MoveWorker moveWorker;
-    private const string pieceNotation = "CA";
+    private const string customPieceNotation = "CA";
 
     public ChessboardTests()
     {
@@ -282,7 +282,7 @@ public class ChessboardTests : IDisposable
 
         };
         var mp = new MovementPattern(patterns);
-        Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, pieceNotation);
+        Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "c4");
 
@@ -293,7 +293,7 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("b4d2");
         this.moveWorker.Move("d2a5");
 
-        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("a5"));
+        Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("a5"));
 
         // Invalid moves
         this.moveWorker.Move("a5b5");
@@ -316,7 +316,7 @@ public class ChessboardTests : IDisposable
             new RegularPattern(Constants.West,  1, 8),
         };
         var mp = new MovementPattern(patterns);
-        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, pieceNotation);
+        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation);
         var piece2 = Piece.BlackPawn();
 
         this.moveWorker.InsertOnBoard(piece1, "h4");
@@ -325,7 +325,7 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("h4h7"); // Invalid move
         this.moveWorker.Move("h4c5"); // Valid move
 
-        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("c5"));
+        Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("c5"));
         
     }
 
@@ -399,7 +399,7 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, pieceNotation);
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         this.moveWorker.Move("h2h3");
@@ -409,7 +409,7 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("h3e6"); // Invalid move
         this.moveWorker.Move("h3d7"); // Valid move
 
-        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("d7"));
+        Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("d7"));
 
     }
 
@@ -436,7 +436,7 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePattern);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, pieceNotation);
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         
@@ -446,7 +446,7 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("h1c6"); // Valid move
         this.moveWorker.Move("c6d8"); // Valid move
 
-        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("d8"));
+        Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("d8"));
 
     }
 
@@ -475,7 +475,7 @@ public class ChessboardTests : IDisposable
         
         var mp = new MovementPattern(patterns);
         var cp = new  MovementPattern(capturePatterns);
-        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , pieceNotation);
+        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , customPieceNotation);
         Piece piece2 = Piece.BlackPawn();
         
         this.moveWorker.InsertOnBoard(piece1, "d4");
@@ -483,6 +483,6 @@ public class ChessboardTests : IDisposable
 
         this.moveWorker.Move("d4e7");
 
-        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("e7"));
+        Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("e7"));
     }
 }
