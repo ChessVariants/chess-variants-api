@@ -10,18 +10,16 @@ namespace ChessVariantsLogic.Tests;
 public class ChessboardTests : IDisposable
 {
     private MoveWorker moveWorker;
-    private Chessboard board;
+    private const string pieceNotation = "CA";
 
     public ChessboardTests()
     {
-        this.board = Chessboard.StandardChessboard();
-        this.moveWorker = new MoveWorker(this.board, Piece.AllStandardPieces());
+        this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
     }
 
     public void Dispose()
     {
-        this.board = Chessboard.StandardChessboard();
-        this.moveWorker = new MoveWorker(this.board, Piece.AllStandardPieces());
+        this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         GC.SuppressFinalize(this);
     }
 
@@ -55,10 +53,10 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void StandardChessboardIsSetUpCorrectly()
     {
-        Assert.Equal(Constants.WhiteKingIdentifier,         this.board.GetPieceIdentifier("e1"));
-        Assert.Equal(Constants.BlackQueenIdentifier,        this.board.GetPieceIdentifier("d8"));
-        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.board.GetPieceIdentifier("e4"));
-        Assert.Equal(Constants.BlackRookIdentifier,         this.board.GetPieceIdentifier("a8"));
+        Assert.Equal(Constants.WhiteKingIdentifier,         this.moveWorker.Board.GetPieceIdentifier("e1"));
+        Assert.Equal(Constants.BlackQueenIdentifier,        this.moveWorker.Board.GetPieceIdentifier("d8"));
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier,  this.moveWorker.Board.GetPieceIdentifier("e4"));
+        Assert.Equal(Constants.BlackRookIdentifier,         this.moveWorker.Board.GetPieceIdentifier("a8"));
     }
 
     /// <summary>
@@ -104,8 +102,11 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void PieceWithoutJumpPattern_CannotJumpOverOtherPieces()
     {
-        Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("h1h4"));
-        Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("c8e6"));
+        this.moveWorker.Move("h1h4");
+        this.moveWorker.Move("c8e6");
+
+        Assert.Equal(Constants.WhiteRookIdentifier,     this.moveWorker.Board.GetPieceIdentifier("h1"));
+        Assert.Equal(Constants.BlackBishopIdentifier,   this.moveWorker.Board.GetPieceIdentifier("c8"));
     }
 
     /// <summary>
@@ -114,8 +115,11 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void CannotMovePieceToOccupiedSquare()
     {
-        Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("b8d7"));
-        Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("h1h2"));
+        this.moveWorker.Move("h1h2");
+        this.moveWorker.Move("b8d7");
+
+        Assert.Equal(Constants.WhiteRookIdentifier,     this.moveWorker.Board.GetPieceIdentifier("h1"));
+        Assert.Equal(Constants.BlackKnightIdentifier,   this.moveWorker.Board.GetPieceIdentifier("b8"));
     }
 
     /// <summary>
@@ -124,7 +128,8 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void TestMoveUnnoccupiedSquare()
     {
-        Assert.Equal(GameEvent.InvalidMove, this.moveWorker.Move("e4e5"));
+        this.moveWorker.Move("e4e5");
+        Assert.Equal(0, this.moveWorker.Movelog.Count);
     }
 
     /// <summary>
@@ -149,8 +154,9 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void KnightCanMoveProperly()
     {
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("g1h3"));
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("h3f4"));
+        this.moveWorker.Move("g1h3");
+        this.moveWorker.Move("h3f4");
+        Assert.Equal(Constants.WhiteKnightIdentifier, this.moveWorker.Board.GetPieceIdentifier("f4"));
     }
       
     /// <summary>
@@ -230,7 +236,7 @@ public class ChessboardTests : IDisposable
     [InlineData(10, 7)]
     public void TestFaultyIndicesByIndex(int row, int col)
     {
-        Assert.False(board.Insert(Constants.BlackBishopIdentifier, row, col));
+        Assert.False(this.moveWorker.Board.Insert(Constants.BlackBishopIdentifier, row, col));
     }
 
     [Theory]
@@ -239,7 +245,7 @@ public class ChessboardTests : IDisposable
     public void TestFaultyIndicesByString(string square)
     {
         this.moveWorker.Board = new Chessboard(12);
-        Assert.False(board.Insert(Constants.WhiteBishopIdentifier, square));
+        Assert.False(this.moveWorker.Board.Insert(Constants.WhiteBishopIdentifier, square));
     }
 
     /// <summary>
@@ -276,7 +282,6 @@ public class ChessboardTests : IDisposable
 
         };
         var mp = new MovementPattern(patterns);
-        string pieceNotation = "CA";
         Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, pieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "c4");
@@ -288,18 +293,14 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("b4d2");
         this.moveWorker.Move("d2a5");
 
-        var expected = pieceNotation;
-        var actual = this.moveWorker.Board.GetPieceIdentifier("a5");
-        Assert.Equal(expected, actual);
+        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("a5"));
 
         // Invalid moves
         this.moveWorker.Move("a5b5");
         this.moveWorker.Move("a5b4");
         this.moveWorker.Move("a5a4");
 
-        expected = Constants.UnoccupiedSquareIdentifier;
-        actual = this.moveWorker.Board.GetPieceIdentifier("a4");
-        Assert.Equal(expected, actual);
+        Assert.Equal(Constants.UnoccupiedSquareIdentifier, this.moveWorker.Board.GetPieceIdentifier("a4"));
     }
 
     /// <summary>
@@ -315,14 +316,16 @@ public class ChessboardTests : IDisposable
             new RegularPattern(Constants.West,  1, 8),
         };
         var mp = new MovementPattern(patterns);
-        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, "CA");
+        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, pieceNotation);
         var piece2 = Piece.BlackPawn();
 
         this.moveWorker.InsertOnBoard(piece1, "h4");
         this.moveWorker.InsertOnBoard(piece2, "h6");
 
-        Assert.Equal(GameEvent.InvalidMove,     this.moveWorker.Move("h4h7"));
-        Assert.Equal(GameEvent.MoveSucceeded,   this.moveWorker.Move("h4c5"));
+        this.moveWorker.Move("h4h7"); // Invalid move
+        this.moveWorker.Move("h4c5"); // Valid move
+
+        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("c5"));
         
     }
 
@@ -396,15 +399,17 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "CA");
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, pieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         this.moveWorker.Move("h2h3");
         this.moveWorker.Move("h3h4");
         this.moveWorker.Move("h1h3");
         
-        Assert.Equal(GameEvent.InvalidMove,     this.moveWorker.Move("h3e6"));
-        Assert.Equal(GameEvent.MoveSucceeded,   this.moveWorker.Move("h3d7"));
+        this.moveWorker.Move("h3e6"); // Invalid move
+        this.moveWorker.Move("h3d7"); // Valid move
+
+        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("d7"));
 
     }
 
@@ -431,15 +436,17 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePattern);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, "CA");
+        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, pieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         
-        Assert.Equal(GameEvent.InvalidMove,     this.moveWorker.Move("h1g3"));
-        Assert.Equal(GameEvent.MoveSucceeded,   this.moveWorker.Move("g2g3"));
-        Assert.Equal(GameEvent.InvalidMove,     this.moveWorker.Move("h1b7"));
-        Assert.Equal(GameEvent.MoveSucceeded,   this.moveWorker.Move("h1c6"));
-        Assert.Equal(GameEvent.MoveSucceeded,   this.moveWorker.Move("c6d8"));
+        this.moveWorker.Move("h1g3"); // Invalid move
+        this.moveWorker.Move("g2g3"); // Valid move
+        this.moveWorker.Move("h1b7"); // Invalid move
+        this.moveWorker.Move("h1c6"); // Valid move
+        this.moveWorker.Move("c6d8"); // Valid move
+
+        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("d8"));
 
     }
 
@@ -468,12 +475,14 @@ public class ChessboardTests : IDisposable
         
         var mp = new MovementPattern(patterns);
         var cp = new  MovementPattern(capturePatterns);
-        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , "CA");
+        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , pieceNotation);
         Piece piece2 = Piece.BlackPawn();
         
         this.moveWorker.InsertOnBoard(piece1, "d4");
         this.moveWorker.InsertOnBoard(piece2, "e7");
 
-        Assert.Equal(GameEvent.MoveSucceeded, this.moveWorker.Move("d4e7"));
+        this.moveWorker.Move("d4e7");
+
+        Assert.Equal(pieceNotation, this.moveWorker.Board.GetPieceIdentifier("e7"));
     }
 }
