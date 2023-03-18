@@ -13,10 +13,10 @@ public class PieceCaptured : IPredicate
     }
 
     /// <summary>
-    /// Returns true if a piece was captured when transitioning from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.
+    /// Returns true if a piece was captured during the given <paramref name="transition"/>.
     /// </summary>
     /// <inheritdoc/>
-    /// <returns>True if a piece was captured during transition from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.</returns>
+    /// <returns>True if a piece was captured during the given <paramref name="transition"/></returns>
     public bool Evaluate(BoardTransition transition)
     {
         int amountOfPieces = Utils.FindPiecesOfType(transition.ThisState, _pieceIdentifier).Count();
@@ -24,5 +24,4 @@ public class PieceCaptured : IPredicate
         int diff = amountOfPieces - amountOfPieces_nextState;
         return diff > 0;
     }
-
 }

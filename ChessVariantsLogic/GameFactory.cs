@@ -22,6 +22,7 @@ public static class GameFactory
     public const string StandardIdentifier = "standard";
     public const string CaptureTheKingIdentifier = "captureTheKing";
     public const string AntiChessIdentifier = "antiChess";
+    public const string DuckChessIdentifier = "duckChess";
 
     public static Game StandardChess()
     {
@@ -97,10 +98,54 @@ public static class GameFactory
         };
 
         RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite);
-        RuleSet rulesBlack = new RuleSet(whiteMoveRule, whiteWinRule, movesBlack);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack);
 
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+
+    }
+
+
+    public static Game DuckChess()
+    {
+
+        IPredicate lastMoveWasDuck = new LastMoveClassifier(PieceClassifier.SHARED);
+        IPredicate lastMoveWasBlack = new LastMoveClassifier(PieceClassifier.BLACK);
+        IPredicate lastMoveWasWhite = new LastMoveClassifier(PieceClassifier.WHITE);
+
+        IPredicate thisMoveWasDuckMove = new PieceMoved(Constants.DuckIdentifier);
+
+        IPredicate firstMove = new FirstMove();
+
+        IPredicate whiteMoveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
+        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+
+        IPredicate blackMoveRule = ((thisMoveWasDuckMove & lastMoveWasBlack) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
+        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+
+        ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.White, true, true),
+            MoveTemplate.CastleMove(Player.White, false, true),
+            MoveTemplate.PawnDoubleMove(Player.White),
+            MoveTemplate.EnPassantMove(Player.White, true),
+            MoveTemplate.EnPassantMove(Player.White, false),
+        };
+
+        ISet<MoveTemplate> movesBlack = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.Black, true, true),
+            MoveTemplate.CastleMove(Player.Black, false, true),
+            MoveTemplate.PawnDoubleMove(Player.Black),
+            MoveTemplate.EnPassantMove(Player.Black, true),
+            MoveTemplate.EnPassantMove(Player.Black, false),
+        };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack);
+
+
+        return new Game(new MoveWorker(Chessboard.DuckChessboard(), Piece.AllDuckChessPieces()), Player.White, 2, rulesWhite, rulesBlack);
 
     }
 
@@ -132,6 +177,7 @@ public static class GameFactory
             StandardIdentifier => StandardChess(),
             AntiChessIdentifier => AntiChess(),
             CaptureTheKingIdentifier => CaptureTheKing(),
+            DuckChessIdentifier => DuckChess(),
             _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
         };
 

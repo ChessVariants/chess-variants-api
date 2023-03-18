@@ -29,7 +29,7 @@ public class RuleSet
         var moves = ApplyMoveRule(board, player);
         foreach (var move in moves)
         {
-            var fromTo = board.ParseMove(move.FromTo);
+            var fromTo = MoveWorker.ParseMove(move.FromTo);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
@@ -59,7 +59,11 @@ public class RuleSet
         var acceptedMoves = new List<Move>();
         foreach (var moveCoordinates in possibleMoves)
         {
-            Move move = new Move(moveCoordinates);
+            var (from, _) = MoveWorker.ParseMove(moveCoordinates);
+
+            var pieceIdentifier = board.Board.GetPieceIdentifier(from);
+
+            Move move = new Move(moveCoordinates, board.GetPieceClassifier(pieceIdentifier));
             BoardTransition transition = new BoardTransition(board, move);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
@@ -85,6 +89,6 @@ public class RuleSet
     /// <returns></returns>
     public bool ApplyWinRule(MoveWorker thisBoard)
     {
-        return _winRule.Evaluate(new BoardTransition(thisBoard, new Move("a1a1")));
+        return _winRule.Evaluate(new BoardTransition(thisBoard, new Move("a1a1", PieceClassifier.WHITE)));
     }
 }

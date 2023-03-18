@@ -31,11 +31,11 @@ public class AttackedTests : IDisposable {
         blackBishopOnE2 = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         blackBishopOnE2.Board.Insert(Constants.BlackBishopIdentifier, "e2");
 
-        boardBoard = new BoardTransition(board, new Move("a1a1"));
-        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1"));
-        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1"));
+        boardBoard = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
+        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1", PieceClassifier.WHITE));
+        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1", PieceClassifier.WHITE));
 
-        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, new Move("a1a1"));
+        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, new Move("a1a1", PieceClassifier.WHITE));
 
     }
 

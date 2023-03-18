@@ -157,6 +157,16 @@ public class Chessboard
         return chessboard;
     }
 
+    /// <returns> an instance of Chessboard with the duck chess set up. </returns>
+    public static Chessboard DuckChessboard()
+    {
+        var chessboard = StandardChessboard();
+        
+        chessboard.board[4, 4] = Constants.DuckIdentifier;
+
+        return chessboard;
+    }
+
     public Tuple<int, int>? ParseCoordinate(string coor)
     {
         try

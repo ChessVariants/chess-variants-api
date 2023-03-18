@@ -22,7 +22,7 @@ public class Utils
         var attackedPieces = board.GetAllCaptureMoves(attacker);
         foreach (var attackerMove in attackedPieces)
         {
-            var (_, to) = board.ParseMove(attackerMove);
+            var (_, to) = MoveWorker.ParseMove(attackerMove);
             if (piecePositions.Contains(to))
             {
                 return true;
@@ -42,7 +42,7 @@ public class Utils
         var attackedPieces = board.GetAllCaptureMoves(attacker);
         foreach (var attackerMove in attackedPieces)
         {
-            var (_, to) = board.ParseMove(attackerMove);
+            var (_, to) = MoveWorker.ParseMove(attackerMove);
             if (position.Equals(to))
             {
                 return true;

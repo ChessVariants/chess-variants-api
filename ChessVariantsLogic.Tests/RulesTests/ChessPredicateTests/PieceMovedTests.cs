@@ -6,37 +6,33 @@ using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
-public class HasMovedTests
+public class PieceMovedTests
 {
     MoveWorker board;
     BoardTransition boardTransition;
-    IPosition from;
-    IPosition to;
     string fromStr;
     string toStr;
 
-    public HasMovedTests()
+    public PieceMovedTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         fromStr = "e2";
         toStr = "e3";
-        from = new PositionAbsolute(fromStr);
-        to = new PositionAbsolute(toStr);
         Move move = new Move(fromStr + toStr, PieceClassifier.WHITE);
-
         boardTransition = new BoardTransition(board, move);
     }
 
     [Fact]
-    public void WhitePawnHasMovedNextStateE4_ShouldReturnTrue()
+    public void PawnMoved_ShouldReturnTrue()
     {
-        IPredicate pawnMovedNextState = new HasMoved(to, BoardState.NEXT);
-        Assert.True(pawnMovedNextState.Evaluate(boardTransition));
+        IPredicate pawnMoved = new PieceMoved(Constants.WhitePawnIdentifier);
+        Assert.True(pawnMoved.Evaluate(boardTransition));
     }
+
     [Fact]
-    public void WhitePawnHasMovedThisStateE2_ShouldReturnFalse()
+    public void QueenMoved_ShouldReturnFalse()
     {
-        IPredicate pawnMovedThisState = new HasMoved(from, BoardState.THIS);
-        Assert.False(pawnMovedThisState.Evaluate(boardTransition));
+        IPredicate queenMoved = new PieceMoved(Constants.WhiteQueenIdentifier);
+        Assert.False(queenMoved.Evaluate(boardTransition));
     }
 }

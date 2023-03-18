@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ChessVariantsLogic;
 
 /// <summary>
@@ -9,6 +11,7 @@ public class Piece
     private readonly MovementPattern movementPattern;
     private readonly MovementPattern capturePattern;
     private readonly bool royal;
+    private readonly bool canBeCaptured;
     private readonly PieceClassifier pieceClassifier;
     private bool hasMoved;
 
@@ -36,6 +39,11 @@ public class Piece
         get { return this.pieceIdentifier; }
     }
 
+    public bool CanBeCaptured
+    {
+        get { return this.canBeCaptured; }
+    }
+
     /// <summary>
     /// Constructor for a new Piece.
     /// </summary>
@@ -46,7 +54,7 @@ public class Piece
     /// <param name="hasMoved">set true if the piece has previously moved</param>
     /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
     /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier)
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier, bool canBeCaptured)
     {
         this.movementPattern = movementPattern;
         this.capturePattern = capturePattern;
@@ -55,13 +63,14 @@ public class Piece
         this.hasMoved = hasMoved;
         this.repeat = repeat;
         this.pieceIdentifier = pieceIdentifier;
+        this.canBeCaptured = canBeCaptured;
     }
 
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier)
-    : this(movementPattern, capturePattern, royal, pc, false, repeat, pieceIdentifier) {}
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured = true)
+    : this(movementPattern, capturePattern, royal, pc, false, repeat, pieceIdentifier, canBeCaptured) {}
     
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier)
-    : this(movementPattern, capturePattern, royal, pc, false, 0, pieceIdentifier) {}
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier, bool canBeCaptured = true)
+    : this(movementPattern, capturePattern, royal, pc, false, 0, pieceIdentifier, canBeCaptured) {}
 
 #endregion
 
@@ -104,13 +113,13 @@ public class Piece
     }
 
     /// <summary>
-    /// Checks that this and <paramref name="other"/> are of opposite colors.
+    /// Checks that this and <paramref name="other"/> are of opposite colors and that <paramref name="other"/> can be captured.
     /// </summary>
     /// <param name="other"> is the other piece</param>
     /// <returns> true if this is of opposite color than other, otherwise false.</returns>
     public bool CanTake(Piece other)
     {
-        return !this.pieceClassifier.Equals(other.pieceClassifier);
+        return !this.pieceClassifier.Equals(other.pieceClassifier) && other.CanBeCaptured;
     }
 
 #region Static methods
@@ -123,10 +132,10 @@ public class Piece
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
         var patterns = new List<IPattern> {
-            new RegularPattern(Constants.North, 1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.East,  1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.South, 1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.West,  1, Constants.MaxBoardHeigth)
+            new RegularPattern(Constants.North, 1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.East,  1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.South, 1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.West,  1, Constants.MaxBoardHeight)
         };
         var mp = new MovementPattern(patterns);
 
@@ -143,10 +152,10 @@ public class Piece
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
         var patterns = new List<IPattern> {
-            new RegularPattern(Constants.NorthEast,  1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.SouthEast,  1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.SouthWest,  1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.NorthWest,  1, Constants.MaxBoardHeigth)
+            new RegularPattern(Constants.NorthEast,  1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.SouthEast,  1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.SouthWest,  1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.NorthWest,  1, Constants.MaxBoardHeight)
         };
         var mp = new MovementPattern(patterns);
 
@@ -163,14 +172,14 @@ public class Piece
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
         var patterns = new List<IPattern> {
-            new RegularPattern(Constants.North,     1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.NorthEast, 1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.East,      1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.SouthEast, 1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.South,     1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.SouthWest, 1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.West,      1, Constants.MaxBoardHeigth),
-            new RegularPattern(Constants.NorthWest, 1, Constants.MaxBoardHeigth)
+            new RegularPattern(Constants.North,     1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.NorthEast, 1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.East,      1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.SouthEast, 1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.South,     1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.SouthWest, 1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.West,      1, Constants.MaxBoardHeight),
+            new RegularPattern(Constants.NorthWest, 1, Constants.MaxBoardHeight)
         };
         var mp = new MovementPattern(patterns);
 
@@ -262,6 +271,31 @@ public class Piece
     }
 
     /// <summary>
+    /// Creates a Piece object that behaves like a duck.
+    /// </summary>
+    /// <returns>an instance of Piece with the movement pattern of a duck.</returns>
+    public static Piece Duck()
+    {
+        var capturePatterns = new List<IPattern> {
+        };
+        var patterns = new List<IPattern> {
+        };
+
+        for (int i = -Constants.MaxBoardWidth; i < Constants.MaxBoardWidth; i++)
+        {
+            for (int j = -Constants.MaxBoardHeight; j < Constants.MaxBoardHeight; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                patterns.Add(new JumpPattern(i, j));
+            }
+        }
+
+        var mp = new MovementPattern(patterns);
+        var cp = new MovementPattern(capturePatterns);
+        return new Piece(mp, cp, false, PieceClassifier.SHARED, Constants.DuckIdentifier, false);
+    }
+
+    /// <summary>
     /// Instantiates a HashSet of all the standard pieces.
     /// </summary>
     /// <returns>A HashSet containing all the standard pieces.</returns>
@@ -277,7 +311,18 @@ public class Piece
             WhitePawn(), BlackPawn()
         };
     }
-    
-#endregion
+
+    /// <summary>
+    /// Instantiates a HashSet of all the standard pieces and the duck piece.
+    /// </summary>
+    /// <returns>A HashSet containing all the standard pieces and the duck piece.</returns>
+    public static HashSet<Piece> AllDuckChessPieces()
+    {
+        HashSet<Piece> pieces = AllStandardPieces();
+        pieces.Add(Duck());
+        return pieces;
+    }
+
+    #endregion
 
 }
