@@ -1,6 +1,4 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 // For manual testing
