@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ChessVariantsLogic;
 
 /// <summary>
@@ -316,15 +318,9 @@ public class Piece
     /// <returns>A HashSet containing all the standard pieces and the duck piece.</returns>
     public static HashSet<Piece> AllDuckChessPieces()
     {
-        return new HashSet<Piece>
-        {
-            Rook(PieceClassifier.WHITE), Rook(PieceClassifier.BLACK),
-            Knight(PieceClassifier.WHITE), Knight(PieceClassifier.BLACK),
-            Bishop(PieceClassifier.WHITE), Bishop(PieceClassifier.BLACK),
-            Queen(PieceClassifier.WHITE), Queen(PieceClassifier.BLACK),
-            King(PieceClassifier.WHITE), King(PieceClassifier.BLACK),
-            WhitePawn(), BlackPawn(), Duck()
-        };
+        HashSet<Piece> pieces = AllStandardPieces();
+        pieces.Add(Duck());
+        return pieces;
     }
 
     #endregion
