@@ -2,11 +2,14 @@
 using ChessVariantsAPI.DTOs;
 using DataAccess.MongoDB;
 using DataAccess.MongoDB.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 namespace ChessVariantsAPI.Controllers;
+
+/// <summary>
+/// This controller exposes endpoints for handling users, i.e creating a new user.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController : GenericController
@@ -24,7 +27,7 @@ public class UsersController : GenericController
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser(CreateUserDTO createUserDTO)
+    public async Task<ActionResult<CreatedUserDTO>> CreateUser(CreateUserDTO createUserDTO)
     {
         _logger.LogInformation("Creating user: {user}", createUserDTO);
         var passwordHasher = PasswordHasherFactory.SHA256();
@@ -49,6 +52,6 @@ public class UsersController : GenericController
         }
 
         createUserDTO.Password = "";
-        return CreatedAtAction("Get", new {id = user.Id}, createUserDTO);
+        return CreatedAtAction("Get", new CreatedUserDTO { Email = createUserDTO.Email, Username = createUserDTO.Email });
     }
 }

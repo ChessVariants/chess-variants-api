@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChessVariantsAPI.Controllers;
+
+/// <summary>
+/// This controller exposes endpoints for logging in, either via a previously created account or as a guest, which gives the caller a temporary JWT.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class LoginController : GenericController
@@ -17,16 +21,16 @@ public class LoginController : GenericController
     }
 
     [HttpGet]
-    public IActionResult LoginAsGuest()
+    public ActionResult<LoggedInUserDTO> LoginAsGuest()
     {
         var username = "Guest-" + Guid.NewGuid().ToString();
         var token = _jwtUtils.GenerateToken(username, email: null, expirationDays: 1);
         _logger.LogDebug("Created guest account: {guest}, token: {t}", username, token);
-        return Ok(new { username, JTWToken = token });
+        return Ok(new LoggedInUserDTO { Username = username, Email = "", Token = token });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginDTO loginDTO)
+    public async Task<ActionResult<LoggedInUserDTO>> Login(LoginDTO loginDTO)
     {
         _logger.LogInformation("Logging in user {user}", loginDTO.Email);
 
@@ -50,7 +54,7 @@ public class LoginController : GenericController
         }
 
         var token = _jwtUtils.GenerateToken(existingUser.Username, existingUser.Email);
-        return Ok(new { existingUser.Username, existingUser.Email, JTWToken = token });
+        return Ok(new LoggedInUserDTO { Username = existingUser.Username, Email = existingUser.Email, Token = token});
 
     }
 }

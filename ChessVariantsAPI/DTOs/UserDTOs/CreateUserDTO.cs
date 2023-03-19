@@ -13,3 +13,12 @@ public record CreateUserDTO
     [Required]
     public string Password { get; set; } = null!;
 }
+
+public record CreatedUserDTO
+{
+    [Required]
+    public string Username { get; set; } = null!;
+
+    [Required]
+    public string Email { get; set; } = null!;
+}
