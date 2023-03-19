@@ -2,6 +2,9 @@
 
 namespace ChessVariantsAPI.Authentication;
 
+/// <summary>
+/// This class has functionality for generating a random salt with 32 characters.
+/// </summary>
 public static class SaltGenerator
 {
     private readonly static int saltLength = 32;

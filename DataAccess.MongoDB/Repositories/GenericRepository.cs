@@ -3,6 +3,12 @@ using MongoDB.Driver;
 using System.Linq.Expressions;
 
 namespace DataAccess.MongoDB;
+
+/// <summary>
+/// This class has functionality useful for all repositories which are standard CRUD operations.
+/// The methods abstract operations on a <see cref="IMongoCollection{TDocument}"/>
+/// </summary>
+/// <typeparam name="T">Any implementation of <see cref="IModel"/></typeparam>
 public class GenericRepository<T> where T : IModel
 {
     readonly protected IMongoCollection<T> _collection;

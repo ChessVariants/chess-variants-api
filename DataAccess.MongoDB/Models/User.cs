@@ -2,6 +2,10 @@
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace DataAccess.MongoDB.Models;
+
+/// <summary>
+/// Model for a user document.
+/// </summary>
 public class User : IModel
 {
     [BsonId]

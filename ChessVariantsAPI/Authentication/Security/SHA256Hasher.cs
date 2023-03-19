@@ -3,6 +3,9 @@ using System.Text;
 
 namespace ChessVariantsAPI.Authentication;
 
+/// <summary>
+/// Functionality for hashing with the SHA256 algorithm.
+/// </summary>
 public class SHA256Hasher : PasswordHasher
 {
     public override string Algorithm()

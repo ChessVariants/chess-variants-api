@@ -1,5 +1,8 @@
 ﻿namespace ChessVariantsAPI.Authentication;
 
+/// <summary>
+/// Abstract definition of a password hasher.
+/// </summary>
 public abstract class PasswordHasher
 {
     public string GenerateSalt()

@@ -24,6 +24,12 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds authentication to the program and configures JWT both for http and SignalR.
+    /// </summary>
+    /// <param name="services">the services</param>
+    /// <param name="configuration">the configuration, which has to include the JWT secret</param>
+    /// <returns>services for method chaining</returns>
     public static IServiceCollection AddJWT(this IServiceCollection services, IConfiguration configuration)
     {
         var key = configuration["Authentication:JWTSecret"];

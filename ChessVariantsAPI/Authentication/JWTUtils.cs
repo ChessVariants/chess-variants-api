@@ -5,6 +5,9 @@ using System.Text;
 
 namespace ChessVariantsAPI.Authentication;
 
+/// <summary>
+/// Utility for generating a JSON web token.
+/// </summary>
 public class JWTUtils
 {
     private readonly string _secretKey;
