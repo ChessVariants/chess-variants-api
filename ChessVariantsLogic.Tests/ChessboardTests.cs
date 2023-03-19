@@ -113,7 +113,7 @@ public class ChessboardTests : IDisposable
     /// Tests that a piece can not be moved to a square occupied by a piece of the same color.
     /// </summary>
     [Fact]
-    public void CannotMovePieceToOccupiedSquare()
+    public void MovePieceToOccupiedSquare()
     {
         this.moveWorker.Move("h1h2");
         this.moveWorker.Move("b8d7");
@@ -126,7 +126,7 @@ public class ChessboardTests : IDisposable
     /// Tests that an unnoccupied square can not be moved.
     /// </summary>
     [Fact]
-    public void TestMoveUnnoccupiedSquare()
+    public void MoveUnnoccupiedSquare()
     {
         this.moveWorker.Move("e4e5");
         Assert.Equal(0, this.moveWorker.Movelog.Count);
@@ -136,7 +136,7 @@ public class ChessboardTests : IDisposable
     /// Test that a serier of moves can be processed correctly.
     /// </summary>
     [Fact]
-    public void TestSeriesOfMoves()
+    public void PerformSeriesOfMoves()
     {
         this.moveWorker.Move("a2a3");
         this.moveWorker.Move("a3a4");
@@ -234,7 +234,7 @@ public class ChessboardTests : IDisposable
     [InlineData(2, 9)]
     [InlineData(9, 9)]
     [InlineData(10, 7)]
-    public void TestFaultyIndicesByIndex(int row, int col)
+    public void FaultyIndicesByIndex_shouldReturnFalse(int row, int col)
     {
         Assert.False(this.moveWorker.Board.Insert(Constants.BlackBishopIdentifier, row, col));
     }
@@ -242,7 +242,7 @@ public class ChessboardTests : IDisposable
     [Theory]
     [InlineData("j13")]
     [InlineData("n3")]
-    public void TestFaultyIndicesByString(string square)
+    public void FaultyIndicesByString_shouldReturnFalse(string square)
     {
         this.moveWorker.Board = new Chessboard(12);
         Assert.False(this.moveWorker.Board.Insert(Constants.WhiteBishopIdentifier, square));
@@ -333,7 +333,7 @@ public class ChessboardTests : IDisposable
     /// Test that the correct amount of valid moves are found.
     /// </summary>
     [Fact]
-    public void TestThatGetAllValidMovesReturnsCorrectNumberOfMoves()
+    public void GetAllValidMovesReturnsCorrectNumberOfMoves()
     {
         var moves1 = this.moveWorker.GetAllValidMoves(Player.White);
         this.moveWorker.Move("e2e3");
@@ -352,7 +352,7 @@ public class ChessboardTests : IDisposable
     /// Test that the correct amount of valid capture moves are found. 
     /// </summary>
     [Fact]
-    public void TestThatGetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
+    public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
         var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
         this.moveWorker.Move("e2e3");
@@ -381,7 +381,7 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
-    public void MovesLikeRook_CapturesLikeBishop()
+    public void MovesLikeRook_capturesLikeBishop()
     {
         var patterns = new List<IPattern> {
             new RegularPattern(Constants.North, 1, 8),
@@ -414,7 +414,7 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
-    public void MoveLikeBishop_CaptureLikeKnight()
+    public void MoveLikeBishop_captureLikeKnight()
     {
         var patterns = new List<IPattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
@@ -451,7 +451,7 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
-    public void TestJumpCapturePattern()
+    public void JumpCapturePattern()
     {
         this.moveWorker.Board = new Chessboard(8);
 
