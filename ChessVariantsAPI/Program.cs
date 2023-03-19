@@ -2,6 +2,11 @@ using ChessVariantsAPI;
 using DataAccess.MongoDB;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+});
 
 // Add services to the container.
 
@@ -12,6 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddGameOrganzation();
 builder.Services.AddSingleton<DatabaseService>(new TestDatabaseService(builder.Configuration["MongoDatabase:ConnectionString"]));
+builder.Services.AddJWT(builder.Configuration);
 
 var app = builder.Build();
 
@@ -27,7 +33,8 @@ if (app.Environment.IsDevelopment())
             .AllowCredentials());
 }
 
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 

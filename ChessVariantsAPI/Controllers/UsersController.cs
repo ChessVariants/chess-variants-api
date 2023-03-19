@@ -1,32 +1,54 @@
-﻿using DataAccess.MongoDB;
+﻿using ChessVariantsAPI.Authentication;
+using ChessVariantsAPI.DTOs;
+using DataAccess.MongoDB;
 using DataAccess.MongoDB.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 namespace ChessVariantsAPI.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController : GenericController
 {
-
-    private readonly DatabaseService _db;
-
-    public UsersController(DatabaseService databaseService)
+    public UsersController(DatabaseService databaseService, ILogger<UsersController> logger) : base(databaseService, logger)
     {
-        _db = databaseService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> Get()
+    public async Task<ActionResult<IEnumerable<User>>> Get() // TODO: remove
     {
         var users = await _db.Users.GetAsync();
+        _logger.LogInformation("Get request found {amount} users", users.Count);
         return Ok(users);
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Post(User user)
+    public async Task<ActionResult<User>> CreateUser(CreateUserDTO createUserDTO)
     {
-        user = new User { Email = user.Email, FirstName = user.FirstName, LastName = user.LastName, UserName = user.UserName };
-        await _db.Users.CreateAsync(user);
-        return CreatedAtAction("Get", new {id = user.Id}, user);
+        _logger.LogInformation("Creating user: {user}", createUserDTO);
+        var passwordHasher = PasswordHasherFactory.SHA256();
+        var passwordSalt = passwordHasher.GenerateSalt();
+        var hashedPassword = passwordHasher.Hash(createUserDTO.Password, passwordSalt);
+
+        var user = new User { 
+            Username = createUserDTO.Username,
+            Email = createUserDTO.Email,
+            PasswordHash = hashedPassword,
+            PasswordSalt = passwordSalt
+        };
+
+        try
+        {
+            await _db.Users.CreateAsync(user);
+        }
+        catch (MongoException e)
+        {
+            _logger.LogError("Writing user {u} error: {e}", createUserDTO, e.Message);
+            return BadRequest("An Unexpected error occured");
+        }
+
+        createUserDTO.Password = "";
+        return CreatedAtAction("Get", new {id = user.Id}, createUserDTO);
     }
 }
