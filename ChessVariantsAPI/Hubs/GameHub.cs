@@ -1,6 +1,8 @@
 ﻿using ChessVariantsAPI.GameOrganization;
 using ChessVariantsLogic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -10,10 +12,13 @@ namespace ChessVariantsAPI.Hubs;
 public class GameHub : Hub
 {
     private readonly GameOrganizer _organizer;
+    readonly protected ILogger _logger;
 
-    public GameHub(GameOrganizer organizer)
+
+    public GameHub(GameOrganizer organizer, ILogger<GameHub> logger)
     {
         _organizer = organizer;
+        _logger = logger;
     }
 
     /// <summary>
@@ -21,17 +26,26 @@ public class GameHub : Hub
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
+    [Authorize]
     public async Task JoinGame(string gameId)
     {
         try
         {
-            Player createdPlayer = _organizer.JoinGame(gameId, Context.ConnectionId);
+            var user = GetUsername();
+            _logger.LogDebug("User <{user}> trying to join game with id <{gameid}>", user, gameId);
+            Player createdPlayer = _organizer.JoinGame(gameId, user);
             await Clients.Caller.SendAsync(Events.GameJoined, createdPlayer.AsString());
-            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-            await Clients.Groups(gameId).SendAsync(Events.PlayerJoinedGame, Context.ConnectionId);
+            await Groups.AddToGroupAsync(user, gameId);
+            await Clients.Groups(gameId).SendAsync(Events.PlayerJoinedGame, user);
+            _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
+        }
+        catch (AuthenticationError e)
+        {
+            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
+            _logger.LogInformation("When trying to join game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
     }
@@ -41,17 +55,25 @@ public class GameHub : Hub
     /// </summary>
     /// <param name="gameId">The id for the game to join</param>
     /// <param name="variantIdentifier">What variant to create</param>
-    /// <returns></returns>
+    /// <returns></returns
     public async Task CreateGame(string gameId, string variantIdentifier)
     {
         try
         {
-            Player createdPlayer = _organizer.CreateGame(gameId, Context.ConnectionId, variantIdentifier);
+            var user = GetUsername();
+            _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
+            Player createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
             await Clients.Caller.SendAsync(Events.GameCreated, createdPlayer.AsString());
-            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+            await Groups.AddToGroupAsync(user, gameId);
+            _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
+        }
+        catch (AuthenticationError e)
+        {
+            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
+            _logger.LogInformation("When trying to create game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
     }
@@ -65,20 +87,28 @@ public class GameHub : Hub
     {
         try
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+            var user = GetUsername();
+            _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
+            await Groups.RemoveFromGroupAsync(user, gameId);
             await Clients.Caller.SendAsync(Events.GameLeft);
-            bool playerLeft = _organizer.LeaveGame(gameId, Context.ConnectionId);
+            bool playerLeft = _organizer.LeaveGame(gameId, user);
             if (playerLeft)
             {
-                await Clients.Groups(gameId).SendAsync(Events.PlayerLeftGame, Context.ConnectionId);
+                await Clients.Groups(gameId).SendAsync(Events.PlayerLeftGame, Context.GetUsername());
             }
+        }
+        catch (AuthenticationError e)
+        {
+            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (GameEmptyException)
         {
             _organizer.DeleteGame(gameId);
+            _logger.LogDebug("Game with id <{gameid}> was deleted", gameId);
         }
         catch (OrganizerException e)
         {
+            _logger.LogInformation("When trying to leave game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e);
         }
         
@@ -93,10 +123,18 @@ public class GameHub : Hub
     {
         try
         {
-            _organizer.SwapColors(gameId, Context.ConnectionId);
+            var user = GetUsername();
+            _logger.LogDebug("User <{user}> trying to swap colors in id <{gameid}>", user, gameId);
+            _organizer.SwapColors(gameId, user);
+            _logger.LogDebug("Colors swapped in game <{gameid}>", gameId);
+        }
+        catch (AuthenticationError e)
+        {
+            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
+            _logger.LogInformation("When trying to swap colors in game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
     }
@@ -114,8 +152,14 @@ public class GameHub : Hub
         string? state = null;
         try
         {
-            result = _organizer.Move(move, gameId, Context.ConnectionId);
+            var user = GetUsername();
+            _logger.LogDebug("User <{user}> trying to make move <{move}> in game <{gameid}>", user, move, gameId);
+            result = _organizer.Move(move, gameId, user);
             state = _organizer.GetStateAsJson(gameId);
+        }
+        catch (AuthenticationError e)
+        {
+            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
@@ -125,18 +169,23 @@ public class GameHub : Hub
         switch (result)
         {
             case GameEvent.InvalidMove:
+                _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
                 await Clients.Caller.SendAsync(Events.InvalidMove);
                 return;
             case GameEvent.MoveSucceeded:
+                _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
                 await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
                 return;
             case GameEvent.WhiteWon:
+                _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
                 await Clients.Group(gameId).SendAsync(Events.WhiteWon);
                 return;
             case GameEvent.BlackWon:
+                _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
                 await Clients.Group(gameId).SendAsync(Events.BlackWon);
                 return;
             case GameEvent.Tie:
+                _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
                 await Clients.Group(gameId).SendAsync(Events.Tie);
                 return;
         }
@@ -151,13 +200,26 @@ public class GameHub : Hub
     {
         try
         {
+            _logger.LogDebug("Board state for game <{gameid}> was requested", gameId);
             var state = _organizer.GetStateAsJson(gameId);
             await Clients.Caller.SendAsync(Events.UpdatedGameState, state);
         }
         catch (OrganizerException e)
         {
+            _logger.LogInformation("When requesting board state for game <{gameid}> the following error occured: {e}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
+    }
+
+    private string GetUsername()
+    {
+        var username = Context.GetUsername();
+        if (username == null)
+        {
+            _logger.LogInformation("Unauthenticated request by connection: {connId}", Context.ConnectionId);
+            throw new AuthenticationError(Events.Errors.UnauthenticatedRequest);
+        }
+        return username;
     }
 
     private static class Events
@@ -176,6 +238,21 @@ public class GameHub : Hub
         public readonly static string WhiteWon = "whiteWon";
         public readonly static string BlackWon = "blackWon";
         public readonly static string Tie = "tie";
+
+        public static class Errors
+        {
+            public readonly static string UnauthenticatedRequest = "unauthenticatedRequest";
+        }
+    }
+
+    private class AuthenticationError : Exception
+    {
+        public string ErrorType { get; }
+        public AuthenticationError(string errorType)
+            : base($"Caller is not authenticated. Please sign in before making requests to the hub.")
+        {
+            ErrorType = errorType;
+        }
     }
 }
 
