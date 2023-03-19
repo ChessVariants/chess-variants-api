@@ -1,5 +1,6 @@
 ﻿using DataAccess.MongoDB.Models;
 using MongoDB.Driver;
+using System.Linq.Expressions;
 
 namespace DataAccess.MongoDB;
 public class GenericRepository<T> where T : IModel
@@ -34,5 +35,10 @@ public class GenericRepository<T> where T : IModel
     public async Task RemoveAsync(string id)
     {
         await _collection.DeleteOneAsync(x => x.Id == id);
+    }
+
+    public async Task<List<T>> FindAsync(Expression<Func<T, bool>> expression)
+    {
+        return await _collection.Find(expression).ToListAsync();
     }
 }

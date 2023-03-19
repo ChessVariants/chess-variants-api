@@ -8,4 +8,9 @@ public class UserRepository : GenericRepository<User>
 
     public UserRepository(IMongoDatabase database) : base(database.GetCollection<User>(CollectionName)) {}
 
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _collection.Find(x => x.Email == email).FirstOrDefaultAsync();
+    }
+
 }
