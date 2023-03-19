@@ -2,6 +2,7 @@
 using System.Text;
 using ChessVariantsAPI.Authentication;
 using ChessVariantsAPI.GameOrganization;
+using DataAccess.MongoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
@@ -32,9 +33,14 @@ public static class ServiceCollectionExtensions
     /// <returns>services for method chaining</returns>
     public static IServiceCollection AddJWT(this IServiceCollection services, IConfiguration configuration)
     {
-        var key = configuration["Authentication:JWTSecret"];
-        services.AddTransient(jwt => new JWTUtils(key));
-        var byteKey = Encoding.ASCII.GetBytes(key);
+        var configKey = "Authentication:JWTSecret";
+        var secretKey = configuration[configKey];
+        if (secretKey == null)
+        {
+            throw new ConfigurationValueNotFoundException($"No value found for the secretKey. Make sure that the user-secret for '{configKey}' is set.");
+        }
+        services.AddTransient(jwt => new JWTUtils(secretKey));
+        var secretByteKey = Encoding.ASCII.GetBytes(secretKey);
 
         services.AddAuthentication(options =>
         {
@@ -47,7 +53,7 @@ public static class ServiceCollectionExtensions
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(byteKey),
+                IssuerSigningKey = new SymmetricSecurityKey(secretByteKey),
                 ValidateIssuer = false,
                 ValidateAudience = false,
             };
@@ -74,5 +80,22 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddMongoDatabase(this IServiceCollection services, IConfiguration configuration)
+    {
+        var configKey = "MongoDatabase:ConnectionString";
+        var connectionString = configuration[configKey];
+        if (connectionString == null)
+        {
+            throw new ConfigurationValueNotFoundException($"No value found for the secretKey. Make sure that the user-secret for '{configKey}' is set.");
+        }
+        services.AddSingleton<DatabaseService>(new TestDatabaseService(connectionString));
+        return services;
+    }
+}
+
+public class ConfigurationValueNotFoundException : Exception
+{
+    public ConfigurationValueNotFoundException(string message) : base(message) { }
 }
 
