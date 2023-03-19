@@ -1,5 +1,6 @@
 namespace ChessVariantsLogic;
 using System;
+using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
@@ -20,9 +21,9 @@ public class MoveWorker
 
     private readonly Dictionary<string, Piece> stringToPiece;
 
-    private readonly List<string> movelog = new List<string>();
+    private readonly List<Move> movelog = new List<Move>();
 
-    public List<string> Movelog
+    public List<Move> Movelog
     {
         get { return movelog; }
     }
@@ -73,7 +74,6 @@ public class MoveWorker
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                 board.PieceHasMoved(coor.Item1,coor.Item2);
-                movelog.Add(move);
                 return GameEvent.MoveSucceeded;
             }
         }
@@ -83,11 +83,19 @@ public class MoveWorker
     }
 
     /// <summary>
+    /// Adds the given move to the internal movelog. 
+    /// </summary>
+    public void AddMove(Move move)
+    {
+        movelog.Add(move);
+    }
+
+    /// <summary>
     /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   
     /// </summary>
     /// <param name="move"> is a string representing two coordinates on the chessboard.</param>
     /// <returns> the two squares split into separate strings. </returns>
-    public Tuple<string, string>? ParseMove(string move)
+    public static Tuple<string, string>? ParseMove(string move)
     {
         string from = "", to = "";
         switch (move.Length)
@@ -169,6 +177,17 @@ public class MoveWorker
             }
         }
         return coorSetToStringSet(coorMoves);
+    }
+
+
+    /// <summary>
+    /// <returns>The classifier of the given pieceIdentifier</returns>
+    /// </summary>
+
+    public PieceClassifier GetPieceClassifier(string pieceIdentifier)
+    {
+        Piece p = stringToPiece[pieceIdentifier];
+        return p.PieceClassifier;
     }
 
     /// <inheritdoc/>
@@ -544,7 +563,8 @@ public class MoveWorker
     private bool pieceBelongsToPlayer(Piece piece, Player player)
     {
         return player.Equals(Player.White) && piece.PieceClassifier.Equals(PieceClassifier.WHITE)
-            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK);
+            || player.Equals(Player.Black) && piece.PieceClassifier.Equals(PieceClassifier.BLACK)
+            || piece.PieceClassifier.Equals(PieceClassifier.SHARED);
     }
     
     private bool insideBoard(int row, int col)
@@ -590,7 +610,7 @@ public class MoveWorker
     /// <summary>
     /// Returns the last move from the movelog
     /// </summary>
-    public string? getLastMove()
+    public Move? getLastMove()
     {
         if (Movelog.Count == 0)
             return null;

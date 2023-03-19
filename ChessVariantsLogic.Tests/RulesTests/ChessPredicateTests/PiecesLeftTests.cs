@@ -14,7 +14,7 @@ public class PiecesLeftTests : IDisposable {
     public PiecesLeftTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        boardTransition = new BoardTransition(board, new Move("a1a1"));
+        boardTransition = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
     }
 
     public void Dispose()

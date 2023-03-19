@@ -1,3 +1,4 @@
+using ChessVariantsLogic.Rules.Moves;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -354,10 +355,12 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
-        var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
-        this.moveWorker.Move("e2e3");
-        var moves2 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
+        Move move = new Move("e2e3", PieceClassifier.WHITE);
         
+        var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
+        move.Perform(this.moveWorker);
+        var moves2 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
+
         this.moveWorker.Board = new Chessboard(8);
 
         this.moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "e4");
