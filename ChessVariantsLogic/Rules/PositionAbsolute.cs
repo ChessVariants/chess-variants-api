@@ -23,6 +23,15 @@ public class PositionAbsolute : IPosition
     {
         return _position;
     }
+
+    /// <summary>
+    /// Calculates the position and returns it as a tuple coordinate.
+    /// </summary>
+    /// <param name="moveWorker">Since absolute position is already given, this is not needed.</param>
+    /// <param name="pivotPosition">Since absolute position is already given, this is not needed.</param>
+    /// 
+    /// <returns>The calculated position as a tuple.</returns>
+    /// 
     public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition)
     {
         return moveWorker.Board.ParseCoordinate(_position);

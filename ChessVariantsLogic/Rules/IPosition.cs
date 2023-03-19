@@ -19,7 +19,7 @@ public interface IPosition
     /// <param name="moveWorker">MoveWorker is needed to calculate the final position.</param>
     /// <param name="pivotPosition">The pivotPosition is needed when a relative position is to be calculated.</param>
     /// 
-    /// <returns>The calculated position as a string.</returns>
+    /// <returns>The calculated position as a tuple of ints.</returns>
     /// 
     public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition);
 }

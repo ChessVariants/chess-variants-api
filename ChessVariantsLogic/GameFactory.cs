@@ -23,6 +23,7 @@ public static class GameFactory
     public const string CaptureTheKingIdentifier = "captureTheKing";
     public const string AntiChessIdentifier = "antiChess";
     public const string DuckChessIdentifier = "duckChess";
+    public const string AtomicChessIdentifier = "atomicChess";
 
     public static Game StandardChess()
     {
@@ -160,6 +161,9 @@ public static class GameFactory
 
     }
 
+    // This is just for fun and to show that the event system is general.
+    // More info: https://en.wikipedia.org/wiki/Atomic_chess
+
     public static Game AtomicChess()
     {
         IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
@@ -259,6 +263,7 @@ public static class GameFactory
             AntiChessIdentifier => AntiChess(),
             CaptureTheKingIdentifier => CaptureTheKing(),
             DuckChessIdentifier => DuckChess(),
+            AtomicChessIdentifier => AtomicChess(),
             _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
         };
 

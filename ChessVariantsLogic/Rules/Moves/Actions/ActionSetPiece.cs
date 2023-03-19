@@ -1,6 +1,9 @@
 ﻿namespace ChessVariantsLogic.Rules.Moves.Actions;
 
-internal class ActionSetPiece : IAction
+/// <summary>
+/// When performed this action will place the internal _pieceIdentifier at the target position.
+/// </summary>
+public class ActionSetPiece : IAction
 {
     private readonly IPosition _at;
     private readonly string _pieceIdentifier;
@@ -13,7 +16,7 @@ internal class ActionSetPiece : IAction
 
 
     /// <summary>
-    /// Delete a piece on the board according to the internal _at position.
+    /// Inserts a piece with the internal _pieceIdentifier on the board according to the internal _at position.
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
     /// <param name="performingPiecePosition">This position is used to calculate the final position using the GetPosition method.</param>

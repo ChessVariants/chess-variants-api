@@ -31,10 +31,14 @@ public class PositionHasRank : IPredicate
         Tuple<int, int>? finalPosition = _position.GetPositionTuple(board, pivotPosition);
         if (finalPosition == null) return false;
 
-        return _rank == finalPosition.Item1;
+        return _rank == (board.Board.Rows - finalPosition.Item1);
     }   
 }
 
+
+/// <summary>
+/// An enum that determines whether predicates that evaluate positions should calculate their positions relative to the From or To variables of the supplied BoardTransition.
+/// </summary>
 public enum RelativeTo
 {
     FROM, TO

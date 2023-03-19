@@ -38,7 +38,7 @@ public class PositionRelative : IPosition
     /// <param name="moveWorker">The MoveWorker containing the board with the position to calculate.</param>
     /// <param name="pivotPosition">The final position will be calculated relative to the pivotPosition</param>
     /// 
-    /// <returns>The calculated position as a string.</returns>
+    /// <returns>The calculated position as a tuple.</returns>
     /// 
 
     public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition)

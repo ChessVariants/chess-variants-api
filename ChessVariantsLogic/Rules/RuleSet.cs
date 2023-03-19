@@ -89,6 +89,12 @@ public class RuleSet
         return acceptedMoves;
     }
 
+    /// <summary>
+    /// Loops through all events. If the event's internal predicate holds for the <paramref name="lastTransition"/>, run the event.
+    /// </summary>
+    /// <param name="lastTransition">The last board transition</param>
+    /// <param name="moveWorker">The MoveWorker to run the event on</param>
+    /// <returns>All moves accepted by the game's moveRule</returns>
     public void RunEvents(BoardTransition lastTransition, MoveWorker moveWorker)
     {
         foreach(var e in _events) 
