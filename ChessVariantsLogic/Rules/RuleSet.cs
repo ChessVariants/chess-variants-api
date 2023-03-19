@@ -15,12 +15,17 @@ public class RuleSet
     private readonly IPredicate _moveRule;
     private readonly IPredicate _winRule;
     private readonly ISet<MoveTemplate> _moveTemplates;
+    private readonly ISet<Event> _events;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates)
+    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates, ISet<Event> events)
     {
         _moveRule = moveRule;
         _winRule = winRule;
         _moveTemplates = moveTemplates;
+        _events = events;
+    }
+    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates) : this(moveRule, winRule, moveTemplates, new HashSet<Event>())
+    {
     }
 
     public Dictionary<string, List<string>> GetLegalMoveDict(Player player, MoveWorker board)
@@ -72,7 +77,9 @@ public class RuleSet
             {
                 acceptedMoves.Add(move);
             }
+
         }
+
 
         foreach (var moveTemplate in _moveTemplates)
         {
@@ -80,6 +87,19 @@ public class RuleSet
         }
 
         return acceptedMoves;
+    }
+
+    public void RunEvents(BoardTransition lastTransition, MoveWorker moveWorker)
+    {
+        foreach(var e in _events) 
+        {
+            if(e.ShouldRun(lastTransition))
+            {
+                e.Run(moveWorker);
+            }
+
+        }
+
     }
 
     /// <summary>

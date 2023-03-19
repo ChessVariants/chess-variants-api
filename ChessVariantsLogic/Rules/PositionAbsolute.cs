@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessVariantsLogic.Rules;
+﻿namespace ChessVariantsLogic.Rules;
 /// <summary>
 /// Represents an absolute position on the board.
 /// </summary>
@@ -28,5 +22,9 @@ public class PositionAbsolute : IPosition
     public string? GetPosition(MoveWorker moveWorker, string pivotPosition)
     {
         return _position;
+    }
+    public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition)
+    {
+        return moveWorker.Board.ParseCoordinate(_position);
     }
 }
