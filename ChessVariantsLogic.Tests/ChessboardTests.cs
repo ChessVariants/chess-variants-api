@@ -1,6 +1,7 @@
 using ChessVariantsLogic.Rules.Moves;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace ChessVariantsLogic.Tests;
@@ -374,13 +375,21 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MoveLogCorrectlySavesAllMoves()
     {
-        this.moveWorker.Move("h2h3");
-        this.moveWorker.Move("h3h4");
-        this.moveWorker.Move("h1h3");
-        this.moveWorker.Move("h3e3");
-        
-        var expected = new List<string> {"h2h3","h3h4","h1h3","h3e3"};
-        Assert.Equal(expected, this.moveWorker.Movelog);
+        var moves = new List<Move> {
+            new Move("h2h3", PieceClassifier.WHITE),
+            new Move("h3h4", PieceClassifier.WHITE),
+            new Move("h1h3", PieceClassifier.WHITE),
+            new Move("h3e3", PieceClassifier.WHITE),
+        };
+
+        foreach (var move in moves)
+        {
+            move.Perform(moveWorker);
+        }
+
+        var expected = new List<string> { "h2h3", "h3h4", "h1h3", "h3e3" };
+        var actual = moveWorker.Movelog.Select(move => move.FromTo).ToList();
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
