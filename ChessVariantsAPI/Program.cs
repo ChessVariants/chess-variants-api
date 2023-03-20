@@ -1,5 +1,4 @@
 using ChessVariantsAPI;
-using DataAccess.MongoDB;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.ConfigureLogging(logging =>
@@ -15,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
-builder.Services.AddGameOrganzation();
+builder.Services.AddOrganization();
 builder.Services.AddMongoDatabase(builder.Configuration);
 builder.Services.AddJWT(builder.Configuration);
 

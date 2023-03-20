@@ -2,6 +2,7 @@
 using System.Text;
 using ChessVariantsAPI.Authentication;
 using ChessVariantsAPI.GameOrganization;
+using ChessVariantsAPI.Hubs;
 using DataAccess.MongoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
@@ -15,13 +16,14 @@ namespace ChessVariantsAPI;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds a <see cref="GameOrganizer"/> as a singleton to the dependency injection system.
+    /// Adds a <see cref="GameOrganizer"/> and a <see cref="GroupOrganizer"/> as singletons to the dependency injection system.
     /// </summary>
     /// <param name="services">The service collection to add the singleton to.</param>
     /// <returns>The input <paramref name="services"/> in order to enable method chaining.</returns>
-    public static IServiceCollection AddGameOrganzation(this IServiceCollection services)
+    public static IServiceCollection AddOrganization(this IServiceCollection services)
     {
         services.AddSingleton<GameOrganizer>();
+        services.AddSingleton<GroupOrganizer>();
         return services;
     }
 

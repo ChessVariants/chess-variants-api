@@ -24,6 +24,8 @@ public class ActiveGame
         set => _variant = value;
     }
 
+    public ActiveGameState State { get; private set; }
+
     public string Admin { get; private set; }
 
     public ActiveGame(Game? game, string creatorPlayerIdentifier, string? variantType)
@@ -33,14 +35,24 @@ public class ActiveGame
         AddPlayer(creatorPlayerIdentifier);
         Admin = creatorPlayerIdentifier;
         _variant = variantType;
+        State = ActiveGameState.Game;
     }
 
-    public ActiveGame(string creatorPlayerIdentifier) : this(null, creatorPlayerIdentifier, null) { }
-
-    public void SetGame(Game game, string variantType)
+    public ActiveGame(string creatorPlayerIdentifier) : this(null, creatorPlayerIdentifier, null) 
     {
+        State = ActiveGameState.Lobby;
+    }
+
+    public bool SetGame(Game game, string playerIdentifier, string variantType)
+    {
+        if (playerIdentifier != Admin)
+        {
+            return false;
+        }
         _game = game;
         _variant = variantType;
+        State = ActiveGameState.Game;
+        return true;
     }
 
     /// <summary>
@@ -51,6 +63,10 @@ public class ActiveGame
     /// <returns>True if the player could be added, otherwise false</returns>
     public Player AddPlayer(string playerIdentifier)
     {
+        if (_playerDict.ContainsKey(playerIdentifier))
+        {
+            throw new OrganizerException("You cannot join this game as you are already in it.");
+        }
         var availableColors = GetAvailableColors();
         if (availableColors.Any())
         {
@@ -153,4 +169,10 @@ public class ActiveGame
         colors.RemoveWhere(player => _playerDict.ContainsValue(player));
         return colors;
     }
+}
+
+public enum ActiveGameState
+{
+    Lobby,
+    Game,
 }
