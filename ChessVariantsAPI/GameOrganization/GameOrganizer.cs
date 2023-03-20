@@ -35,7 +35,7 @@ public class GameOrganizer
             throw new OrganizerException("The game you're trying to create already exists");
         }
         activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
-        return (Player) activeGame.GetPlayer(playerIdentifier)!;
+        return activeGame.GetPlayer(playerIdentifier)!;
     }
 
     private ActiveGame CreateActiveGame(string gameId, string playerIdentifier, string variantIdentifier)
@@ -114,11 +114,7 @@ public class GameOrganizer
     {
         var activeGame = GetActiveGame(gameId);
         var player = activeGame.GetPlayer(playerIdentifier);
-        if (player == null)
-        {
-            throw new PlayerNotFoundException($"No player with identifier '{playerIdentifier}' found for game with gameId '{gameId}'");
-        }
-        return (Player) player;
+        return player;
     }
 
     /// <summary>

@@ -32,6 +32,14 @@ public class ActiveGameTests
     }
 
     [Fact]
+    public void GetPlayers_ShouldHave2Players()
+    {
+        activeGame.AddPlayer("newPlayerId");
+        var players = activeGame.GetPlayers();
+        Assert.Equal(2, players.Count);
+    }
+
+    [Fact]
     public void AddPlayer_ShouldThrowExceptionIfThirdPlayer()
     {
         activeGame.AddPlayer("playerTwo");

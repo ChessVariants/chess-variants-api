@@ -8,18 +8,39 @@ namespace ChessVariantsAPI.GameOrganization;
 /// </summary>
 public class ActiveGame
 {
-    private readonly Game _game;
-    private readonly Dictionary<string, Player?> _playerDict;
-    public string Variant { get; private set; }
+    private Game? _game;
+    private readonly Dictionary<string, Player> _playerDict;
+    private string? _variant;
+    public string Variant
+    {
+        get
+        {
+            if (_variant == null)
+            {
+                throw new GameNotFoundException("Unable to get game-variant. A game for this lobby has not been yet been set.");
+            }
+            return _variant;
+        }
+        set => _variant = value;
+    }
+
     public string Admin { get; private set; }
 
-    public ActiveGame(Game game, string creatorPlayerIdentifier, string variantType)
+    public ActiveGame(Game? game, string creatorPlayerIdentifier, string? variantType)
     {
         _game = game;
-        _playerDict = new Dictionary<string, Player?>();
+        _playerDict = new Dictionary<string, Player>();
         AddPlayer(creatorPlayerIdentifier);
         Admin = creatorPlayerIdentifier;
-        Variant = variantType;
+        _variant = variantType;
+    }
+
+    public ActiveGame(string creatorPlayerIdentifier) : this(null, creatorPlayerIdentifier, null) { }
+
+    public void SetGame(Game game, string variantType)
+    {
+        _game = game;
+        _variant = variantType;
     }
 
     /// <summary>
@@ -46,6 +67,10 @@ public class ActiveGame
     /// <returns>returns the game</returns>
     public Game GetGame()
     {
+        if (_game == null)
+        {
+            throw new GameNotFoundException("Unable to get game. A game for this lobby has not been yet been set.");
+        }
         return _game;
     }
 
@@ -55,9 +80,23 @@ public class ActiveGame
     /// </summary>
     /// <param name="playerIdentifier"></param>
     /// <returns>The player if found, otherwise null.</returns>
-    public Player? GetPlayer(string playerIdentifier)
+    public Player GetPlayer(string playerIdentifier)
     {
-        return _playerDict.GetValueOrDefault(playerIdentifier, null);
+        try
+        {
+            return _playerDict[playerIdentifier];
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new PlayerNotFoundException($"No player with identifier {playerIdentifier} found.");
+        }
+    }
+
+    public ICollection<Tuple<string, Player>> GetPlayers()
+    {
+        var pairs = _playerDict.ToList();
+        var players = pairs.Select(pair => Tuple.Create(pair.Key, pair.Value)).ToList();
+        return players;
     }
 
     /// <summary>
