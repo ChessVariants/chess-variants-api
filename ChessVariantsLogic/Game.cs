@@ -1,20 +1,22 @@
 namespace ChessVariantsLogic;
 
+using ChessVariantsLogic.Rules;
+using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Export;
-using Predicates;
+using System;
 
 public class Game {
 
-    private readonly IBoardState _boardState;
+    private readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    public Game(IBoardState boardState, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
-        _boardState = boardState;
+        _moveWorker = moveWorker;
         _playerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
@@ -36,33 +38,46 @@ public class Game {
     }
 
     /// <summary>
-    /// Checks whether the given <paramref name="move"/> is valid and if so does the move and return correct GameEvent.
+    /// Checks whether the given <paramref name="moveCoordinates"/> is valid and if so does the move and return correct GameEvent.
     /// </summary>
-    /// <param name="move">The move requested to be made</param>
+    /// <param name="moveCoordinates">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
-    private GameEvent MakeMoveImpl(string move)
-    {
-        ISet<string> validMoves;
-        if (_playerTurn == Player.White) 
-        {
-            validMoves = _whiteRules.ApplyMoveRule(_boardState, _playerTurn);
-        } else 
-        {
-            validMoves = _blackRules.ApplyMoveRule(_boardState, _playerTurn);
-        }
-        if (validMoves.Contains(move)) {
-        
-            GameEvent gameEvent = _boardState.Move(move);
+    private GameEvent MakeMoveImpl(string moveCoordinates) {
+        IEnumerable<Move> validMoves;
 
-            if(gameEvent == GameEvent.InvalidMove)
+        if (_playerTurn == Player.White) {
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
+        } else {
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
+        }
+        Move? move = GetMove(validMoves, moveCoordinates);
+        if (move == null) return GameEvent.InvalidMove;
+        if (validMoves.Contains(move)) {
+
+
+            BoardTransition transition = new BoardTransition(_moveWorker.CopyBoardState(), move);
+
+            GameEvent gameEvent = move.Perform(_moveWorker);
+
+            if (_playerTurn == Player.White)
+            {
+                _whiteRules.RunEvents(transition, _moveWorker);
+            }
+            else
+            {
+                _blackRules.RunEvents(transition, _moveWorker);
+            }
+
+            if (gameEvent == GameEvent.InvalidMove)
                 return gameEvent;
+
 
             /// TODO: Check for a tie
 
-            if(_whiteRules.ApplyWinRule(_boardState)) {
+            if(_whiteRules.ApplyWinRule(_moveWorker)) {
                 return GameEvent.WhiteWon;
             }
-            if (_blackRules.ApplyWinRule(_boardState))
+            if (_blackRules.ApplyWinRule(_moveWorker))
             {
                 return GameEvent.BlackWon;
             }
@@ -74,6 +89,18 @@ public class Game {
             return gameEvent;
         }
         return GameEvent.InvalidMove;
+    }
+
+    private Move? GetMove(IEnumerable<Move> validMoves, string moveCoords)
+    {
+        foreach(Move move in validMoves)
+        {
+            if(move.FromTo.Equals(moveCoords))
+            {
+                return move;
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -90,7 +117,7 @@ public class Game {
     public string ExportStateAsJson()
     {
         RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
-        return GameExporter.ExportGameStateAsJson(_boardState.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _boardState));
+        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
     }
 }
 

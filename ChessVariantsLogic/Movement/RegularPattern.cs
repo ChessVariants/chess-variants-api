@@ -5,11 +5,17 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class RegularPattern : IPattern
 {
-    private readonly Tuple<int, int, int, int> pattern;
+    private readonly int xDir;
+    private readonly int yDir;
+    private readonly int minLength;
+    private readonly int maxLength;
 
     public RegularPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.pattern = new Tuple<int,int,int,int>(xDir, yDir, minLength, maxLength);
+        this.xDir = xDir;
+        this.yDir = yDir;
+        this.minLength = minLength;
+        this.maxLength = maxLength;
     }
 
     public RegularPattern(Tuple<int,int> direction, int minLength, int maxLength) : this(direction.Item1, direction.Item2, minLength, maxLength) {}
@@ -17,16 +23,13 @@ public class RegularPattern : IPattern
 #region Interface overrides
 
     /// <inheritdoc /> 
-    public int GetXDir() { return pattern.Item1; }
-
-    ///<inheritdoc /> 
-    public int GetYDir() { return pattern.Item2; }
-    
-    ///<inheritdoc />
-    public int GetMinLength() { return pattern.Item3; }
-
-    ///<inheritdoc />
-    public int GetMaxLength() { return pattern.Item4; }
+    public int XDir {get {return this.xDir; } }
+    /// <inheritdoc /> 
+    public int YDir {get {return this.yDir; } }
+    /// <inheritdoc /> 
+    public int MinLength {get {return this.minLength; } }
+    /// <inheritdoc /> 
+    public int MaxLength {get {return this.maxLength; } }
 
 #endregion
 

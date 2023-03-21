@@ -10,6 +10,7 @@ public class Chessboard
     private readonly int rows;
     private readonly int cols;
     private readonly string[,] board;
+    private bool[,] hasMoved;
 
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
@@ -37,6 +38,14 @@ public class Chessboard
         get { return cols; }
     }
 
+    /// <summary>
+    /// A Matrix which returns for each square on the chessboard whether the piece located there has moved or not.
+    /// </summary>
+    public bool[,] HasMoved
+    {
+        get { return hasMoved;}
+    }
+
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
@@ -45,6 +54,7 @@ public class Chessboard
         this.coorToIndex = initCoorToIndex();
         this.indexToCoor = initIndexToCoor();
         this.board = initBoard();
+        this.hasMoved = initHasMoved();
     }
 
     public Chessboard CopyBoard()
@@ -127,14 +137,15 @@ public class Chessboard
         chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
         chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
         chessboard.board[0, 7] = Constants.BlackRookIdentifier;
-        
+
+
         chessboard.fillRank(1, Constants.BlackPawnIdentifier);
         chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(6, Constants.WhitePawnIdentifier);
-        
+
         chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
         chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
         chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;
@@ -143,6 +154,16 @@ public class Chessboard
         chessboard.board[7, 5] = Constants.WhiteBishopIdentifier;
         chessboard.board[7, 6] = Constants.WhiteKnightIdentifier;
         chessboard.board[7, 7] = Constants.WhiteRookIdentifier;
+
+        return chessboard;
+    }
+
+    /// <returns> an instance of Chessboard with the duck chess set up. </returns>
+    public static Chessboard DuckChessboard()
+    {
+        var chessboard = StandardChessboard();
+        
+        chessboard.board[4, 4] = Constants.DuckIdentifier;
 
         return chessboard;
     }
@@ -209,6 +230,25 @@ public class Chessboard
         {
             return false;
         }
+    }
+
+    public bool HasPieceMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            return this.HasMoved[row,col];
+        }
+        return false;
+    }
+
+    public bool PieceHasMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            hasMoved[row,col] = true;
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -305,6 +345,19 @@ public class Chessboard
             }
         }
         return board;
+    }
+
+    private bool[,] initHasMoved()
+    {
+        var hasMovedBoard = new bool[this.rows, this.cols];
+        for(int i = 0; i < hasMovedBoard.GetLength(0); i++)
+        {
+            for(int j = 0; j < hasMovedBoard.GetLength(1); j++)
+            {
+                hasMovedBoard[i,j] = false;
+            }
+        }
+        return hasMovedBoard;
     }
 
     private bool validIndex(int row, int col)
