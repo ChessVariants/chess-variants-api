@@ -137,14 +137,15 @@ public class Chessboard
         chessboard.board[0, 5] = Constants.BlackBishopIdentifier;
         chessboard.board[0, 6] = Constants.BlackKnightIdentifier;
         chessboard.board[0, 7] = Constants.BlackRookIdentifier;
-        
+
+
         chessboard.fillRank(1, Constants.BlackPawnIdentifier);
         chessboard.fillRank(2, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(3, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(4, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(5, Constants.UnoccupiedSquareIdentifier);
         chessboard.fillRank(6, Constants.WhitePawnIdentifier);
-        
+
         chessboard.board[7, 0] = Constants.WhiteRookIdentifier;
         chessboard.board[7, 1] = Constants.WhiteKnightIdentifier;
         chessboard.board[7, 2] = Constants.WhiteBishopIdentifier;

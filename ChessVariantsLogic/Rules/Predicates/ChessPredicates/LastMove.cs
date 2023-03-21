@@ -19,12 +19,15 @@ public class LastMove : IPredicate
     {
         Move? move = transition.ThisState.getLastMove();
         if (move == null) return false;
-        string lastMove = move.FromTo;
+        Tuple<string, string>? lastMove = MoveWorker.ParseMove(move.FromTo);
+        if(lastMove == null) return false;
         string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFrom);
         string? to   = _compareTo.GetPosition(transition.ThisState, transition.MoveFrom);
 
-        if (from == null || to == null) return false;
+        if (from == null) return to == lastMove.Item2;
+        if (to == null) return from == lastMove.Item1;
+
         string compareMove = from + to;
-        return compareMove == lastMove;
+        return compareMove == (lastMove.Item1 + lastMove.Item2);
     }
 }

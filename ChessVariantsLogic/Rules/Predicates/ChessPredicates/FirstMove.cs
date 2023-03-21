@@ -6,7 +6,6 @@ using ChessVariantsLogic.Rules.Moves;
 /// </summary>
 public class FirstMove : IPredicate
 {
-
     public bool Evaluate(BoardTransition transition)
     {
         return transition.ThisState.Movelog.Count == 0;
