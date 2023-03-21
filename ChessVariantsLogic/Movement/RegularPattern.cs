@@ -12,8 +12,10 @@ public class RegularPattern : IPattern
 
     public RegularPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.xDir = xDir;
-        this.yDir = yDir;
+        // Can not move more than one step at this time, perhaps experiment with greater values later.
+        // Could possibly allow for a piece to move only on every other row, i.e. like a dark-squared rook.
+        this.xDir = xDir != 0 ? xDir/Math.Abs(xDir) : 0;
+        this.yDir = yDir != 0 ? yDir/Math.Abs(yDir) : 0;
         this.minLength = minLength;
         this.maxLength = maxLength;
     }
