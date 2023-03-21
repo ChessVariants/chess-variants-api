@@ -222,8 +222,9 @@ public static class GameFactory
             for (int y = -1; y < 2; y++)
             {
                 IPosition position = new PositionRelative(y, x);
-                eventsWhite.Add(Event.ExplosionEvent(Player.White, position));
-                eventsBlack.Add(Event.ExplosionEvent(Player.Black, position));
+                bool shouldDestroyPawn = (x == 0 && y == 0);
+                eventsWhite.Add(Event.ExplosionEvent(Player.White, position, shouldDestroyPawn));
+                eventsBlack.Add(Event.ExplosionEvent(Player.Black, position, shouldDestroyPawn));
             }
         }
 

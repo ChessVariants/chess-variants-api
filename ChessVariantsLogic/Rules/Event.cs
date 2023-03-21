@@ -24,6 +24,7 @@ public class Event
     /// <summary>
     /// Evaluates if the internal predicate holds for the given BoardTransition.
     /// </summary>
+    /// <param name="lastTransition">The last transition that was made on the board.</param>
     /// <returns>True if the predicate holds, otherwise false.</returns>
     public bool ShouldRun(BoardTransition lastTransition)
     {
@@ -34,18 +35,19 @@ public class Event
     /// Runs the event on the given <paramref name="moveWorker"/>. This does not take into account whether the event actually should be run.
     /// </summary>
     /// <param name="moveWorker">The MoveWorker we want to run the event on.</param>
-    /// <returns>True if the predicate holds, otherwise false.</returns>
-
+    /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
     public GameEvent Run(MoveWorker moveWorker)
     {
-        Move lastMove = moveWorker.getLastMove();
+        Move? lastMove = moveWorker.getLastMove();
+        if (lastMove == null) return GameEvent.InvalidMove;
 
-        var (from, to) = MoveWorker.ParseMove(lastMove.FromTo);
+        Tuple<string, string>? fromTo = MoveWorker.ParseMove(lastMove.FromTo);
+        if(fromTo == null) return GameEvent.InvalidMove;
 
         // Here we utilize the Move class to avoid code repetition.
         // This is almost a bit of a hack though, so it might have to be changed in the future.
 
-        string move = _relativeTo == RelativeTo.FROM ? from + from : to + to;
+        string move = _relativeTo == RelativeTo.FROM ? fromTo.Item1 + fromTo.Item1 : fromTo.Item2 + fromTo.Item2;
 
         Move moveEvent = new Move(_actions, move, lastMove.PieceClassifier);
 
@@ -75,15 +77,20 @@ public class Event
     /// Constructs an event that removes a piece at the given <paramref name="position"/> when the given <paramref name="player"/> captures a piece.
     /// If <paramref name="position"/> is relative, it will be calculated relative to the captured piece's position.
     /// </summary>
-    public static Event ExplosionEvent(Player player, IPosition position)
+    public static Event ExplosionEvent(Player player, IPosition position, bool destroyPawn)
     {
-        string oppositePawnIdentifier = player == Player.White ? Constants.BlackPawnIdentifier : Constants.WhitePawnIdentifier;
         IPredicate pieceCaptured = player == Player.White ? new PieceCaptured("ANY_BLACK") : new PieceCaptured("ANY_WHITE");
-        IPredicate oppositePawnAt = new PieceAt(oppositePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
+
+        IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
+        IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
 
         ISet<IAction> actions = new HashSet<IAction> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier)};
 
-        return new Event(pieceCaptured & !oppositePawnAt, actions, RelativeTo.TO);
+        IPredicate predicate = pieceCaptured;
+        if(!destroyPawn)
+            predicate &= !(whitePawnAt | blackPawnAt);
+
+        return new Event(predicate, actions, RelativeTo.TO);
     }
 
 
