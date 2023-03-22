@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ChessVariantsLogic;
 
 /// <summary>
@@ -18,30 +16,15 @@ public class Piece
 
     private readonly int repeat;
 
-    public bool Royal
-    {
-        get { return this.royal; }
-    }
+    public bool Royal { get { return this.royal; } }
 
-    public PieceClassifier PieceClassifier
-    {
-        get { return this.pieceClassifier;}
-    }
+    public PieceClassifier PieceClassifier { get { return this.pieceClassifier;} }
 
-    public int Repeat
-    {
-        get { return this.repeat; }
-    }
+    public int Repeat { get { return this.repeat; } }
 
-    public string PieceIdentifier
-    {
-        get { return this.pieceIdentifier; }
-    }
+    public string PieceIdentifier { get { return this.pieceIdentifier; } }
 
-    public bool CanBeCaptured
-    {
-        get { return this.canBeCaptured; }
-    }
+    public bool CanBeCaptured { get { return this.canBeCaptured; } }
 
     /// <summary>
     /// Constructor for a new Piece.
@@ -50,7 +33,6 @@ public class Piece
     /// <param name="capturePattern">is the custom capture pattern of the type MovementPattern</param>
     /// <param name="royal">set true if the piece is royal</param>
     /// <param name="pc">is the player the piece belongs to</param>
-    /// <param name="hasMoved">set true if the piece has previously moved</param>
     /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
     /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured)
@@ -62,6 +44,7 @@ public class Piece
         this.pieceIdentifier = pieceIdentifier;
         this.canBeCaptured = canBeCaptured;
 
+        //This might not be optimal since it doesn't notify the user that the value is not what it was set to.
         if(repeat < 0)
             this.repeat = 0;
         else if (repeat > 3)
