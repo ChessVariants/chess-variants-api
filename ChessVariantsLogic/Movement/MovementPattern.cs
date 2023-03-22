@@ -6,6 +6,7 @@ namespace ChessVariantsLogic;
 public class MovementPattern
 {
     private readonly List<IPattern> movement;
+    public int Count { get { return this.movement.Count; } }
 
     /// <summary>
     /// Constructor creating a RegularMovementPattern instance. Elements in <paramref name="movement"/>"/>

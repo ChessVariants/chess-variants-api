@@ -5,7 +5,7 @@ public class PieceBuilder
     private MovementPattern movementPattern;
     private MovementPattern capturePattern;
     private bool royal;
-    private PieceClassifier pc;
+    private PieceClassifier? pc;
     private int repeat;
     private bool canBeCaptured;
 
@@ -16,6 +16,7 @@ public class PieceBuilder
         this.movementPattern = new MovementPattern();
         this.capturePattern = new MovementPattern();
         this.royal = false;
+        this.pc = null;
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
@@ -26,20 +27,27 @@ public class PieceBuilder
         this.movementPattern = new MovementPattern();
         this.capturePattern = new MovementPattern();
         this.royal = false;
+        this.pc = null;
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
     }
 
+    //TODO: Checks that no argument is null
+    //TODO: Dynamic solution to the string pieceIdentifier
     public Piece Build()
     {
-        //TODO: Checks that no argument is null
-        //TODO: Dynamic solution to the string pieceIdentifier
+        if(this.movementPattern.Count == 0)
+            throw new ArgumentException("Must have at least one movement pattern.");
+        if(this.pc == null)
+            throw new ArgumentException("Piece must belong to a player.");
+
+        var pieceClassifier = (PieceClassifier) this.pc;
 
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, pieceClassifier, this.repeat, "CA", this.canBeCaptured);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, "CA", this.canBeCaptured);
     }
 
     public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
