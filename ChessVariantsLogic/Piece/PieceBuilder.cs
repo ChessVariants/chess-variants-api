@@ -9,6 +9,8 @@ public class PieceBuilder
     private int repeat;
     private bool canBeCaptured;
 
+    private bool sameCaptureAsMovement;
+
     public PieceBuilder()
     {
         this.movementPattern = new MovementPattern();
@@ -16,6 +18,7 @@ public class PieceBuilder
         this.royal = false;
         this.repeat = 0;
         this.canBeCaptured = true;
+        this.sameCaptureAsMovement = true;
     }
 
     public void Reset()
@@ -25,6 +28,7 @@ public class PieceBuilder
         this.royal = false;
         this.repeat = 0;
         this.canBeCaptured = true;
+        this.sameCaptureAsMovement = true;
     }
 
     public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
@@ -53,11 +57,40 @@ public class PieceBuilder
         this.capturePattern.AddPattern(new JumpPattern(xOffset, yOffset));
     }
 
+    public void SetSameMovementAndCapturePattern(bool enable)
+    {
+        this.sameCaptureAsMovement = enable;
+    }
+
+    public void SetCanBeCaptured(bool enable)
+    {
+        this.canBeCaptured = enable;
+    }
+
+    public void BelongsToPlayer(PieceClassifier pieceClassifier)
+    {
+        this.pc = pieceClassifier;
+    }
+
+    public void RepeatMovement(int repeat)
+    {
+        this.repeat = repeat;
+    }
+
+    public void SetRoyal(bool enable)
+    {
+        this.royal = enable;
+    }
+
     public Piece Build()
     {
         //TODO: Checks that no argument is null
         //TODO: Dynamic solution to the string pieceIdentifier
-        return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+
+        if(sameCaptureAsMovement)
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+        else
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
     }
 
 
