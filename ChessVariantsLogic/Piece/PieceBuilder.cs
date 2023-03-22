@@ -31,6 +31,17 @@ public class PieceBuilder
         this.sameCaptureAsMovement = true;
     }
 
+    public Piece Build()
+    {
+        //TODO: Checks that no argument is null
+        //TODO: Dynamic solution to the string pieceIdentifier
+
+        if(sameCaptureAsMovement)
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+        else
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+    }
+
     public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
         this.movementPattern.AddPattern(new RegularPattern(direction, minLength, maxLength));
@@ -57,6 +68,16 @@ public class PieceBuilder
         this.capturePattern.AddPattern(new JumpPattern(xOffset, yOffset));
     }
 
+    public void RemoveCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
+    {
+        this.capturePattern.RemovePattern(new RegularPattern(direction, minLength, maxLength));
+    }
+    
+    public void RemoveCapturePattern(int xOffset, int yOffset)
+    {
+        this.capturePattern.RemovePattern(new JumpPattern(xOffset, yOffset));
+    }
+
     public void SetSameMovementAndCapturePattern(bool enable)
     {
         this.sameCaptureAsMovement = enable;
@@ -80,17 +101,6 @@ public class PieceBuilder
     public void SetRoyal(bool enable)
     {
         this.royal = enable;
-    }
-
-    public Piece Build()
-    {
-        //TODO: Checks that no argument is null
-        //TODO: Dynamic solution to the string pieceIdentifier
-
-        if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
-        else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
     }
 
 

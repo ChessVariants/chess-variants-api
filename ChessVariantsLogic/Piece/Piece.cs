@@ -61,9 +61,15 @@ public class Piece
         this.royal = royal;
         this.pieceClassifier = pc;
         this.hasMoved = hasMoved;
-        this.repeat = repeat;
         this.pieceIdentifier = pieceIdentifier;
         this.canBeCaptured = canBeCaptured;
+
+        if(repeat < 0)
+            this.repeat = 0;
+        else if (repeat > 3)
+            this.repeat = 3;
+        else
+            this.repeat = repeat;
     }
 
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured = true)
