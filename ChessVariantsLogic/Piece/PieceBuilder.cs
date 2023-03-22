@@ -37,9 +37,9 @@ public class PieceBuilder
         //TODO: Dynamic solution to the string pieceIdentifier
 
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, this.repeat, "CA", this.canBeCaptured);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, false, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, this.repeat, "CA", this.canBeCaptured);
     }
 
     public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)

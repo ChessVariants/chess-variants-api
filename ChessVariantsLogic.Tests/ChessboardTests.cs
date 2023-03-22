@@ -318,7 +318,7 @@ public class ChessboardTests : IDisposable
             new RegularPattern(Constants.West,  1, 8),
         };
         var mp = new MovementPattern(patterns);
-        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation);
+        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation, true);
         var piece2 = Piece.BlackPawn();
 
         this.moveWorker.InsertOnBoard(piece1, "h4");

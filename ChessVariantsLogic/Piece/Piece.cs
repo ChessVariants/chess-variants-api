@@ -13,7 +13,6 @@ public class Piece
     private readonly bool royal;
     private readonly bool canBeCaptured;
     private readonly PieceClassifier pieceClassifier;
-    private bool hasMoved;
 
     private string pieceIdentifier;
 
@@ -54,13 +53,12 @@ public class Piece
     /// <param name="hasMoved">set true if the piece has previously moved</param>
     /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
     /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, bool hasMoved, int repeat, string pieceIdentifier, bool canBeCaptured)
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured)
     {
         this.movementPattern = movementPattern;
         this.capturePattern = capturePattern;
         this.royal = royal;
         this.pieceClassifier = pc;
-        this.hasMoved = hasMoved;
         this.pieceIdentifier = pieceIdentifier;
         this.canBeCaptured = canBeCaptured;
 
@@ -72,11 +70,8 @@ public class Piece
             this.repeat = repeat;
     }
 
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured = true)
-    : this(movementPattern, capturePattern, royal, pc, false, repeat, pieceIdentifier, canBeCaptured) {}
-    
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier, bool canBeCaptured = true)
-    : this(movementPattern, capturePattern, royal, pc, false, 0, pieceIdentifier, canBeCaptured) {}
+    : this(movementPattern, capturePattern, royal, pc, 0, pieceIdentifier, canBeCaptured) {}
 
 #endregion
 
