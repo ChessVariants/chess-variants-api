@@ -17,6 +17,11 @@ public class MovementPattern
         this.movement = movement;
     }
 
+    public MovementPattern()
+    {
+        this.movement = new List<IPattern>();
+    }
+
     /// <summary>
     /// Gets all IPatterns in this MovementPattern as an IEnumberable.
     /// </summary>
@@ -46,6 +51,12 @@ public class MovementPattern
     public bool RemovePattern(IPattern pattern)
     {
         return this.movement.Remove(pattern);
+    }
+
+    public void RemoveLast()
+    {
+        if(this.movement.Count > 0)
+            this.movement.RemoveAt(this.movement.Count - 1);
     }
 
     /// <summary>

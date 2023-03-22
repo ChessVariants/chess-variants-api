@@ -1,9 +1,11 @@
+using System;
+
 namespace ChessVariantsLogic;
 
 /// <summary>
 /// An interface for different types of movement patterns.
 /// </summary>
-public interface IPattern
+public interface IPattern : IEquatable<IPattern>
 {
 
     /// <summary>

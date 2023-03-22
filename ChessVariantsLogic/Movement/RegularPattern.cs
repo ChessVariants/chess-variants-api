@@ -33,6 +33,47 @@ public class RegularPattern : IPattern
     /// <inheritdoc /> 
     public int MaxLength {get {return this.maxLength; } }
 
+    /// <summary>
+    /// Returns a bool indicating wheter this and <paramref name="other"/> are equal.
+    /// </summary>
+    /// <param name="other"> is the other IPattern to be compared to this.</param>
+    /// <returns>true if this is equals to <paramref name="other"/>, otherwise false.</returns>
+    public bool Equals(IPattern? other)
+    {
+        if (other == null) return false;
+        return this.XDir.Equals(other.XDir)
+            && this.YDir.Equals(other.YDir)
+            && this.minLength.Equals(other.MinLength)
+            && this.maxLength.Equals(other.MaxLength);
+    }
+
+#endregion
+
+#region Object overrides
+    /// <summary>
+    /// Returns a bool indicating wheter this and <paramref name="other"/> are equal.
+    /// </summary>
+    /// <param name="other"> is the other object to be compared to this.</param>
+    /// <returns>true if this is equal to <paramref name="other"/>, otherwise false.</returns>
+    public override bool Equals(Object? other)
+    {
+        if (other == null)
+            return false;
+        var objAsPattern = other as RegularPattern;
+        if(objAsPattern == null)
+            return false;
+        return this.Equals(objAsPattern);
+    }
+
+    /// <summary>
+    /// Returns the hash code for the current RegularPattern object.
+    /// </summary>
+    /// <returns>An int representing the hash code of the object.</returns>
+    public override int GetHashCode()
+    {
+        return Tuple.Create(this.xDir, this.yDir, this.minLength, this.maxLength).GetHashCode();
+    }
+
 #endregion
 
 }
