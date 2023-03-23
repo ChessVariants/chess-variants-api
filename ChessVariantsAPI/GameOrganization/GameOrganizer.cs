@@ -156,11 +156,11 @@ public class GameOrganizer
 
     #region GameControl
 
-    public GameEvent Move(string move, string gameId, string playerIdentifier)
+    public ISet<GameEvent> Move(string move, string gameId, string playerIdentifier)
     {
         var game = GetGame(gameId);
         var player = GetPlayer(gameId, playerIdentifier);
-        GameEvent result = game.MakeMove(move, player);
+        ISet<GameEvent> result = game.MakeMove(move, player);
         return result;
     }
 

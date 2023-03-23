@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace ChessVariantsLogic.Rules.Moves.Actions;
 /// </summary>
 public class ActionDeletePiece : ActionSetPiece
 {
-    public ActionDeletePiece(IPosition at) : base(at, Constants.UnoccupiedSquareIdentifier)
+    public ActionDeletePiece(IPosition at, RelativeTo relativeTo = RelativeTo.FROM) : base(at, Constants.UnoccupiedSquareIdentifier, relativeTo)
     {
     }
 

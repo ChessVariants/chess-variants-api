@@ -4,6 +4,7 @@ using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Export;
 using System;
+using System.Collections.Generic;
 
 public class Game {
 
@@ -14,6 +15,8 @@ public class Game {
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
+    private IDictionary<string, Move> validMoves;
+
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
         _moveWorker = moveWorker;
@@ -21,20 +24,94 @@ public class Game {
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
         _blackRules = blackRules;
+        validMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
     }
 
     /// <summary>
     /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move.
     /// </summary>
-    /// <param name="move">The move requested to be made</param>
+    /// <param name="moveCoordinates">The move requested to be made</param>
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
-    public GameEvent MakeMove(string move, Player? playerRequestingMove)
+    public ISet<GameEvent> MakeMove(string moveCoordinates, Player? playerRequestingMove)
     {
-        if (playerRequestingMove != _playerTurn)
+        validMoves.TryGetValue(moveCoordinates, out Move? move);
+
+        if (move == null || playerRequestingMove != _playerTurn)
         {
-            return GameEvent.InvalidMove;
+            return new HashSet<GameEvent>() { GameEvent.InvalidMove };
         }
-        return MakeMoveImpl(move);
+        return MakeMoveImplementation(move);
+    }
+
+
+    private ISet<GameEvent> MakeMoveImplementation(Move move)
+    {
+        Player currentPlayer = _playerTurn;
+        Player opponent = _playerTurn == Player.White ? Player.Black : Player.White;
+
+        RuleSet currentPlayerRuleSet = GetRuleSetForPlayer(currentPlayer);
+        RuleSet opponentRuleSet = GetRuleSetForPlayer(opponent);
+
+        BoardTransition boardTransition = new BoardTransition(_moveWorker, move);
+
+        ISet<GameEvent> events = move.Perform(_moveWorker);
+
+        ISet<GameEvent> gameEventsFromEvents = currentPlayerRuleSet.RunEvents(boardTransition, _moveWorker, true);
+
+        events.UnionWith(gameEventsFromEvents);
+
+        validMoves = opponentRuleSet.GetLegalMoves(_moveWorker, opponent);
+
+        bool movesLeft = validMoves.Count() > 0;
+
+        if (!movesLeft)
+        {
+            ISet<GameEvent> gameEventsFromEventsNoMoves = opponentRuleSet.RunEvents(boardTransition, _moveWorker, movesLeft);
+            events.UnionWith(gameEventsFromEventsNoMoves);
+        }
+
+        Player lastPlayer = _playerTurn;
+        DecrementPlayerMoves();
+
+        bool stillSamePlayer = _playerTurn == lastPlayer;
+        if (stillSamePlayer)
+        {
+            validMoves = currentPlayerRuleSet.GetLegalMoves(_moveWorker, _playerTurn);
+        }
+
+        return events;
+    }
+
+    public Dictionary<string, List<string>> GetLegalMoveDict()
+    {
+        var moveDict = new Dictionary<string, List<string>>();
+        var moves = validMoves;
+        foreach (var move in moves)
+        {
+            var fromTo = MoveWorker.ParseMove(move.Key);
+            if (fromTo == null)
+            {
+                throw new InvalidOperationException($"Could not parse move {move}");
+            }
+
+            var moveList = moveDict.GetValueOrDefault(fromTo.Item1, new List<string>());
+            if (moveList.Count == 0)
+            {
+                moveDict[fromTo.Item1] = moveList;
+            }
+            moveList.Add(fromTo.Item2);
+
+        }
+        return moveDict;
+    }
+    private RuleSet GetRuleSetForPlayer(Player player)
+    {
+        if (player == Player.White)
+            return _whiteRules;
+        else if (player == Player.Black)
+            return _blackRules;
+        else
+            throw new ArgumentException("Player can't be None when getting ruleset :" + player);
     }
 
     /// <summary>
@@ -42,14 +119,18 @@ public class Game {
     /// </summary>
     /// <param name="moveCoordinates">The move requested to be made</param>
     /// <returns>GameEvent of what happened in the game</returns>
+    
+    /*
     private GameEvent MakeMoveImpl(string moveCoordinates) {
         IEnumerable<Move> validMoves;
 
         if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, _playerTurn);
+            validMoves = _whiteRules.GetLegalMoves(_moveWorker, _playerTurn);
         } else {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker, _playerTurn);
+            validMoves = _blackRules.GetLegalMoves(_moveWorker, _playerTurn);
         }
+
+
         Move? move = GetMove(validMoves, moveCoordinates);
         if (move == null) return GameEvent.InvalidMove;
         if (validMoves.Contains(move)) {
@@ -74,13 +155,6 @@ public class Game {
 
             /// TODO: Check for a tie
 
-            if(_whiteRules.ApplyWinRule(_moveWorker)) {
-                return GameEvent.WhiteWon;
-            }
-            if (_blackRules.ApplyWinRule(_moveWorker))
-            {
-                return GameEvent.BlackWon;
-            }
 
             if (false)
                 return GameEvent.Tie;
@@ -90,7 +164,7 @@ public class Game {
         }
         return GameEvent.InvalidMove;
     }
-
+    */
     private Move? GetMove(IEnumerable<Move> validMoves, string moveCoords)
     {
         foreach(Move move in validMoves)
@@ -116,8 +190,7 @@ public class Game {
 
     public string ExportStateAsJson()
     {
-        RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
-        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
+        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, GetLegalMoveDict());
     }
 }
 

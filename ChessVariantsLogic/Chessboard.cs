@@ -65,6 +65,7 @@ public class Chessboard
             for (int j = 0; j < cols; j++)
             {
                 boardCopy.Insert(board[i, j], i, j);
+                boardCopy.hasMoved[i, j] = hasMoved[i, j];
             }
         }
         return boardCopy;

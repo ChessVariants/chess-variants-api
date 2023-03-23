@@ -21,11 +21,11 @@ public class MoveWorker
 
     private readonly Dictionary<string, Piece> stringToPiece;
 
-    private readonly List<Move> movelog = new List<Move>();
+    private readonly List<Move> _moveLog;
 
     public List<Move> Movelog
     {
-        get { return movelog; }
+        get { return _moveLog; }
     }
     
     /// <summary>
@@ -33,14 +33,19 @@ public class MoveWorker
     /// </summary>
     /// <param name="chessboard">is the board that this worker should be assigned.</param>
     /// <param name="pieces">is the set of pieces that are used in the played variant.</param>
-    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces)
+    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces, List<Move> moveLog)
     {
         this.board = chessboard;
         this.pieces = pieces;
         stringToPiece = initStringToPiece();
+        _moveLog = moveLog;
+    }
+    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces) : this(chessboard, pieces, new List<Move>())
+    {
     }
 
     public MoveWorker(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
+
 
     #endregion
 
@@ -87,7 +92,7 @@ public class MoveWorker
     /// </summary>
     public void AddMove(Move move)
     {
-        movelog.Add(move);
+        _moveLog.Add(move);
     }
 
     /// <summary>
@@ -604,7 +609,9 @@ public class MoveWorker
     {
         Chessboard newBoard = board.CopyBoard();
         HashSet<Piece> newPieces = new HashSet<Piece>(pieces);
-        return new MoveWorker(newBoard, newPieces);
+        List<Move> moveLog = new List<Move>(_moveLog);
+        
+        return new MoveWorker(newBoard, newPieces, moveLog);
     }
 
     /// <summary>

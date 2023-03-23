@@ -12,15 +12,15 @@ using System;
 /// </summary>
 public class MoveTemplate
 {
-    private readonly IEnumerable<IAction> _actions;
+    private readonly IEnumerable<Actions.Action> _actions;
     private readonly IPredicate _predicate;
     private readonly string _pieceIdentifier;
     private readonly IPosition _to;
 
-    public IEnumerable<IAction> Actions => _actions;
+    public IEnumerable<Actions.Action> Actions => _actions;
     public string PieceIdentifier => _pieceIdentifier;
 
-    public MoveTemplate(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
+    public MoveTemplate(IEnumerable<Actions.Action> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
     {
         _actions = actions;
         _predicate = predicate;
@@ -37,11 +37,11 @@ public class MoveTemplate
     /// 
     /// <returns>A list of special moves that can be performed on the given board state.</returns>
     /// 
-    public IEnumerable<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
+    public ISet<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
     {
         List<string> positions = (List<string>) Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
         PieceClassifier pieceClassifier = thisBoard.GetPieceClassifier(_pieceIdentifier);
-        HashSet<Move> moves = new HashSet<Move>();
+        ISet<Move> moves = new HashSet<Move>();
 
         foreach(string from in positions)
         {
@@ -115,7 +115,7 @@ public class MoveTemplate
         IPosition rookFromPos = new PositionAbsolute(rookFromFile + rank);
         IPosition rookToPos = new PositionAbsolute(rookToFile + rank);
 
-        IEnumerable<IAction> castleActions = new List<IAction>
+        IEnumerable<Actions.Action> castleActions = new List<Actions.Action>
         {
             new ActionMovePiece(kingFromPos, kingToPos),
             new ActionMovePiece(rookFromPos, rookToPos)
@@ -138,7 +138,7 @@ public class MoveTemplate
         IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS);
         IPredicate targetSquareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition2, BoardState.THIS);
 
-        IEnumerable<IAction> actions = new List<IAction>
+        IEnumerable<Actions.Action> actions = new List<Actions.Action>
         {
             new ActionMovePiece(forwardPosition2)
         };
@@ -163,7 +163,7 @@ public class MoveTemplate
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
         IPredicate pawnJustDidDoubleMove = new LastMove(enemyPawnPositionFrom, enemyPawnPosition);
 
-        IEnumerable<IAction> actions = new List<IAction>
+        IEnumerable<Actions.Action> actions = new List<Actions.Action>
         {
             new ActionMovePiece(finalPosition),
             new ActionDeletePiece(enemyPawnPosition)

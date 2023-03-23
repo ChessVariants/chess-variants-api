@@ -13,28 +13,25 @@ using static ChessVariantsLogic.Game;
 public class RuleSet
 {
     private readonly IPredicate _moveRule;
-    private readonly IPredicate _winRule;
     private readonly ISet<MoveTemplate> _moveTemplates;
     private readonly ISet<Event> _events;
+    private readonly ISet<Event> _eventsNoMovesLeft;
 
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates, ISet<Event> events)
+    public RuleSet(IPredicate moveRule, ISet<MoveTemplate> moveTemplates, ISet<Event> events, ISet<Event> eventsNoMovesLeft)
     {
         _moveRule = moveRule;
-        _winRule = winRule;
         _moveTemplates = moveTemplates;
         _events = events;
-    }
-    public RuleSet(IPredicate moveRule, IPredicate winRule, ISet<MoveTemplate> moveTemplates) : this(moveRule, winRule, moveTemplates, new HashSet<Event>())
-    {
+        _eventsNoMovesLeft = eventsNoMovesLeft;
     }
 
     public Dictionary<string, List<string>> GetLegalMoveDict(Player player, MoveWorker board)
     {
         var moveDict = new Dictionary<string, List<string>>();
-        var moves = ApplyMoveRule(board, player);
+        var moves = GetLegalMoves(board, player);
         foreach (var move in moves)
         {
-            var fromTo = MoveWorker.ParseMove(move.FromTo);
+            var fromTo = MoveWorker.ParseMove(move.Key);
             if (fromTo == null)
             {
                 throw new InvalidOperationException($"Could not parse move {move}");
@@ -58,10 +55,10 @@ public class RuleSet
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public IEnumerable<Move> ApplyMoveRule(MoveWorker board, Player sideToPlay)
+    public IDictionary<string, Move> GetLegalMoves(MoveWorker board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
-        var acceptedMoves = new List<Move>();
+        var acceptedMoves = new Dictionary<string, Move>();
         foreach (var moveCoordinates in possibleMoves)
         {
             var (from, _) = MoveWorker.ParseMove(moveCoordinates);
@@ -75,15 +72,18 @@ public class RuleSet
 
             if (ruleSatisfied)
             {
-                acceptedMoves.Add(move);
+                acceptedMoves.Add(move.FromTo, move);
             }
 
         }
 
-
         foreach (var moveTemplate in _moveTemplates)
         {
-            acceptedMoves.AddRange(moveTemplate.GetValidMoves(board, _moveRule));
+            ISet<Move> specialMoves = moveTemplate.GetValidMoves(board, _moveRule);
+            foreach(Move move in specialMoves)
+            {
+                acceptedMoves.Add(move.FromTo, move);
+            }
         }
 
         return acceptedMoves;
@@ -95,26 +95,25 @@ public class RuleSet
     /// <param name="lastTransition">The last board transition</param>
     /// <param name="moveWorker">The MoveWorker to run the event on</param>
     /// <returns>All moves accepted by the game's moveRule</returns>
-    public void RunEvents(BoardTransition lastTransition, MoveWorker moveWorker)
+    public ISet<GameEvent> RunEvents(BoardTransition lastTransition, MoveWorker moveWorker, bool movesLeft)
     {
-        foreach(var e in _events) 
+        ISet<GameEvent> gameEvents = new HashSet<GameEvent>();
+        ISet<Event> events = movesLeft ? _events : _eventsNoMovesLeft;
+        foreach (var e in events)
         {
-            if(e.ShouldRun(lastTransition))
+            if (e.ShouldRun(lastTransition))
             {
-                e.Run(moveWorker);
+                gameEvents.UnionWith(e.Run(moveWorker, lastTransition));
             }
-
         }
+        if (gameEvents.Contains(GameEvent.InvalidMove))
+            throw new Exception("Events should not be able to perform invalid moves!");
 
+        gameEvents.IntersectWith(new HashSet<GameEvent>() { GameEvent.Tie, GameEvent.WhiteWon, GameEvent.BlackWon });
+        if (gameEvents.Count() > 1)
+            throw new Exception("Running events return multiple win/tie events. Events: " + gameEvents);
+
+        return gameEvents;
     }
 
-    /// <summary>
-    /// WIP
-    /// </summary>
-    /// <param name="thisBoard"></param>
-    /// <returns></returns>
-    public bool ApplyWinRule(MoveWorker thisBoard)
-    {
-        return _winRule.Evaluate(new BoardTransition(thisBoard, new Move("a1a1", PieceClassifier.WHITE)));
-    }
 }

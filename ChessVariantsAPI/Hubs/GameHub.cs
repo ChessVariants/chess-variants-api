@@ -110,7 +110,7 @@ public class GameHub : Hub
     public async Task MovePiece(string move, string gameId)
     {
         // if move is valid, compute new board
-        GameEvent? result = null;
+        ISet<GameEvent>? result = null;
         string? state = null;
         try
         {
@@ -122,23 +122,27 @@ public class GameHub : Hub
             await Clients.Caller.SendAsync(Events.Error, e.Message);
         }
 
-        switch (result)
+        if(result.Contains(GameEvent.InvalidMove))
         {
-            case GameEvent.InvalidMove:
-                await Clients.Caller.SendAsync(Events.InvalidMove);
-                return;
-            case GameEvent.MoveSucceeded:
-                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
-                return;
-            case GameEvent.WhiteWon:
-                await Clients.Group(gameId).SendAsync(Events.WhiteWon);
-                return;
-            case GameEvent.BlackWon:
-                await Clients.Group(gameId).SendAsync(Events.BlackWon);
-                return;
-            case GameEvent.Tie:
-                await Clients.Group(gameId).SendAsync(Events.Tie);
-                return;
+            await Clients.Caller.SendAsync(Events.InvalidMove);
+            return;
+        }
+        if(result.Contains(GameEvent.MoveSucceeded))
+        {
+            await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
+        }
+
+        if (result.Contains(GameEvent.WhiteWon))
+        {
+            await Clients.Group(gameId).SendAsync(Events.WhiteWon);
+        }
+        else if(result.Contains(GameEvent.BlackWon))
+        {
+            await Clients.Group(gameId).SendAsync(Events.BlackWon);
+        }
+        else if(result.Contains(GameEvent.Tie))
+        {
+            await Clients.Group(gameId).SendAsync(Events.Tie);
         }
     }
 

@@ -11,14 +11,12 @@ namespace ChessVariantsLogic.Rules;
 public class Event
 {
     private readonly IPredicate _predicate;
-    private readonly ISet<IAction> _actions;
-    private readonly RelativeTo _relativeTo;
+    private readonly ISet<Moves.Actions.Action> _actions;
 
-    public Event(IPredicate predicate, ISet<IAction> actions, RelativeTo relativeTo)
+    public Event(IPredicate predicate, ISet<Moves.Actions.Action> actions)
     {
         _predicate = predicate;
         _actions = actions;
-        _relativeTo = relativeTo;
     }
 
     /// <summary>
@@ -28,7 +26,13 @@ public class Event
     /// <returns>True if the predicate holds, otherwise false.</returns>
     public bool ShouldRun(BoardTransition lastTransition)
     {
-        return _predicate.Evaluate(lastTransition);
+        string fromTo = lastTransition.Move.FromTo;
+        
+        Move moveEvent = new Move(_actions, fromTo, lastTransition.Move.PieceClassifier);
+        
+        BoardTransition newTransition = new BoardTransition(lastTransition.NextState, moveEvent);
+
+        return _predicate.Evaluate(lastTransition) && newTransition.IsValid();
     }
 
     /// <summary>
@@ -36,20 +40,14 @@ public class Event
     /// </summary>
     /// <param name="moveWorker">The MoveWorker we want to run the event on.</param>
     /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
-    public GameEvent Run(MoveWorker moveWorker)
+    public ISet<GameEvent> Run(MoveWorker moveWorker, BoardTransition lastTransition)
     {
-        Move? lastMove = moveWorker.getLastMove();
-        if (lastMove == null) return GameEvent.InvalidMove;
-
-        Tuple<string, string>? fromTo = MoveWorker.ParseMove(lastMove.FromTo);
-        if(fromTo == null) return GameEvent.InvalidMove;
+        string fromTo = lastTransition.Move.FromTo;
 
         // Here we utilize the Move class to avoid code repetition.
         // This is almost a bit of a hack though, so it might have to be changed in the future.
 
-        string move = _relativeTo == RelativeTo.FROM ? fromTo.Item1 + fromTo.Item1 : fromTo.Item2 + fromTo.Item2;
-
-        Move moveEvent = new Move(_actions, move, lastMove.PieceClassifier);
+        Move moveEvent = new Move(_actions, fromTo, lastTransition.Move.PieceClassifier);
 
         return moveEvent.Perform(moveWorker);
     }
@@ -67,9 +65,9 @@ public class Event
         IPredicate pawnMoved = new PieceMoved(pawnIdentifier);
         IPredicate pawnAtRank = new PositionHasRank(new PositionRelative(0, 0), rank, RelativeTo.TO);
 
-        ISet<IAction> actions = new HashSet<IAction> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier) };
+        ISet<Moves.Actions.Action> actions = new HashSet<Moves.Actions.Action> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier, RelativeTo.TO) };
 
-        return new Event(pawnMoved & pawnAtRank, actions, RelativeTo.TO);
+        return new Event(pawnMoved & pawnAtRank, actions);
     }
 
 
@@ -84,14 +82,22 @@ public class Event
         IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
         IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
 
-        ISet<IAction> actions = new HashSet<IAction> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier)};
+        ISet<Moves.Actions.Action> actions = new HashSet<Moves.Actions.Action> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier, RelativeTo.TO) };
 
         IPredicate predicate = pieceCaptured;
         if(!destroyPawn)
             predicate &= !(whitePawnAt | blackPawnAt);
 
-        return new Event(predicate, actions, RelativeTo.TO);
+        return new Event(predicate, actions);
     }
 
+    public static Event WinEvent(Player player, IPredicate winPredicate)
+    {
+        return new Event(winPredicate, new HashSet<Moves.Actions.Action>() { new ActionWin(player) });
+    }
+    public static Event TieEvent(IPredicate tiePredicate)
+    {
+        return new Event(tiePredicate, new HashSet<Moves.Actions.Action>() { new ActionTie() });
+    }
 
 }

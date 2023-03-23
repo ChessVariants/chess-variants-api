@@ -8,7 +8,7 @@ namespace ChessVariantsLogic.Rules.Moves;
 /// </summary>
 public class Move
 {
-    private readonly IEnumerable<IAction> _actions;
+    private readonly IEnumerable<Actions.Action> _actions;
     private readonly string _fromTo;
 
     public string FromTo => _fromTo;
@@ -19,7 +19,7 @@ public class Move
     /// </summary>
     /// <param name="actions">The list of actions that the move performs.</param>
     /// <param name="fromTo">A pair of coordinates, the position of the performing piece and where it ends up.</param>
-    public Move(IEnumerable<IAction> actions, string fromTo, PieceClassifier pieceClassifier)
+    public Move(IEnumerable<Actions.Action> actions, string fromTo, PieceClassifier pieceClassifier)
     {
         _actions = actions;
         _fromTo = fromTo;
@@ -32,7 +32,7 @@ public class Move
     /// <param name="fromTo">A pair of coordinates, the position of the piece to be moved and where it ends up.</param>
     public Move(string fromTo, PieceClassifier pieceClassifier)
     {
-        _actions = new List<IAction>() { new ActionMovePiece(fromTo) };
+        _actions = new List<Actions.Action>() { new ActionMovePiece(fromTo) };
         _fromTo = fromTo;
         PieceClassifier = pieceClassifier;
     }
@@ -45,20 +45,21 @@ public class Move
     /// 
     /// <returns>A GameEvent that determines whether the move succeeded or was invalid.</returns>
     /// 
-    public GameEvent Perform(MoveWorker moveWorker)
+    public ISet<GameEvent> Perform(MoveWorker moveWorker)
     {
+        ISet<GameEvent> events = new HashSet<GameEvent>();
         var fromTo = MoveWorker.ParseMove(_fromTo);
         if (fromTo == null) throw new ArgumentException("Move needs to contain proper fromTo coordinate, supplied fromTo coordinate: " + _fromTo);
-        
+        var (from, to) = fromTo;
+
         foreach (var action in _actions)
         {
-            GameEvent gameEvent = action.Perform(moveWorker, fromTo.Item1);
-            if(gameEvent == GameEvent.InvalidMove)
-                return GameEvent.InvalidMove;
+            GameEvent gameEvent = action.Perform(moveWorker, from, to);
+            events.Add(gameEvent);
         }
 
         moveWorker.AddMove(this);
-        return GameEvent.MoveSucceeded;
+        return events;
     }
 
 }

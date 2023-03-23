@@ -1,13 +1,15 @@
-﻿namespace ChessVariantsLogic.Rules.Moves.Actions;
+﻿using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+
+namespace ChessVariantsLogic.Rules.Moves.Actions;
 /// <summary>
 /// When performed this action will forcefully move a piece on the board according to the given positions.
 /// </summary>
-public class ActionMovePiece : IAction
+public class ActionMovePiece : Action
 {
     private readonly IPosition _from;
     private readonly IPosition _to;
 
-    public ActionMovePiece(IPosition from, IPosition to)
+    public ActionMovePiece(IPosition from, IPosition to, RelativeTo relativeTo = RelativeTo.FROM) : base(relativeTo)
     {
         _from = from;
         _to = to;
@@ -15,15 +17,17 @@ public class ActionMovePiece : IAction
 
     //If from position is not specified, the piece performing the action will be moved.
 
-    public ActionMovePiece(IPosition to)
+    public ActionMovePiece(IPosition to) : base(RelativeTo.FROM)
     {
         _from = new PositionRelative(Tuple.Create(0, 0));
         _to = to;
     }
 
-    public ActionMovePiece(string fromTo)
+    public ActionMovePiece(string fromTo) : base()
     {
-        var (from, to) = MoveWorker.ParseMove(fromTo);
+        Tuple<string, string>? fromToTuple = MoveWorker.ParseMove(fromTo);
+        if (fromToTuple == null) throw new ArgumentException("fromTo is not a proper string: " + fromTo);
+        var (from, to) = fromToTuple;
         _from = new PositionAbsolute(from);
         _to = new PositionAbsolute(to);
     }
@@ -33,15 +37,15 @@ public class ActionMovePiece : IAction
     /// If Positions are defined as relative, it will be calculated relative to the piece performing the action.
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="performingPiecePosition">This variable is used to calculate the from and to positions if they are relative.</param>
+    /// <param name="pivotPosition">This variable is used to calculate the from and to positions if they are relative.</param>
     /// 
     /// <returns>A GameEvent that represents whether or not the action was successfully performed.</returns>
     /// 
-    public GameEvent Perform(MoveWorker moveWorker, string performingPiecePosition)
+    protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
     {
-        string? from = _from.GetPosition(moveWorker, performingPiecePosition);
+        string? from = _from.GetPosition(moveWorker, pivotPosition);
         if (from == null) return GameEvent.InvalidMove;
-        string? to = _to.GetPosition(moveWorker, performingPiecePosition);
+        string? to = _to.GetPosition(moveWorker, pivotPosition);
         if (to == null) return GameEvent.InvalidMove;
         string move = from + to;
         return moveWorker.Move(move, true);
