@@ -3,6 +3,9 @@ namespace ChessVariantsLogic.Tests;
 using System;
 using Xunit;
 
+/// <summary>
+/// This class contains unit tests for the class PieceBuilder.
+/// </summary>
 public class PieceBuilderTest : IDisposable
 {
 
@@ -33,7 +36,7 @@ public class PieceBuilderTest : IDisposable
         builder.AddMovementPattern(Constants.West,  1, Constants.MaxBoardHeight);
         
         builder.SetSameMovementAndCapturePattern(true);
-        builder.BelongsToPlayer(PieceClassifier.WHITE);
+        builder.BelongsToPlayer("white");
 
         Piece customRook = builder.Build();
 
@@ -50,7 +53,7 @@ public class PieceBuilderTest : IDisposable
     public void PieceBuilderThrowsExceptionWhenMovementPatternIsMissing()
     {
         var builder = new PieceBuilder();
-        builder.BelongsToPlayer(PieceClassifier.WHITE);
+        builder.BelongsToPlayer("white");
 
         Assert.Throws<ArgumentException>(() => builder.Build());
     }

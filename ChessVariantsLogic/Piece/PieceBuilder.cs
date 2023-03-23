@@ -1,5 +1,8 @@
 namespace ChessVariantsLogic;
 
+/// <summary>
+/// A builder for the class Piece that facilitates the process of creating new and intricate pieces.
+/// </summary>
 public class PieceBuilder
 {
     private MovementPattern movementPattern;
@@ -22,6 +25,9 @@ public class PieceBuilder
         this.sameCaptureAsMovement = true;
     }
 
+    /// <summary>
+    /// Resets the state of the builder to its original state.
+    /// </summary>
     public void Reset()
     {
         this.movementPattern = new MovementPattern();
@@ -33,10 +39,14 @@ public class PieceBuilder
         this.sameCaptureAsMovement = true;
     }
 
-    //TODO: Checks that no argument is null
-    //TODO: Dynamic solution to the string pieceIdentifier
+    /// <summary>
+    /// Builds a Piece from the current state.
+    /// </summary>
+    /// <returns>A object of type <paramref name="Piece"/> if all fields are instantiated correctly, otherwise throws an <paramref name="ArgumentException"/>.</returns>
     public Piece Build()
     {
+        //TODO: Checks that no argument is null
+        //TODO: Dynamic solution to the string pieceIdentifier
         if(this.movementPattern.Count == 0)
             throw new ArgumentException("Must have at least one movement pattern.");
         if(this.pc == null)
@@ -54,66 +64,185 @@ public class PieceBuilder
             return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
     }
 
-    public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
+#region Add and Remove patterns
+
+    /// <summary>
+    /// Adds a regular pattern to the allowed movement patterns. 
+    /// </summary>
+    /// <param name="xDir">is the direction on the x-axis.</param>
+    /// <param name="yDir">is the direction on the y-axis.</param>
+    /// <param name="minLength">is the minimum length to be moved in this direction.</param>
+    /// <param name="maxLength">is the maximum length to be moved in this direction.</param>
+    public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.movementPattern.AddPattern(new RegularPattern(direction, minLength, maxLength));
+        this.movementPattern.AddPattern(new RegularPattern(xDir, yDir, minLength, maxLength));
     }
 
-    public void AddMovementPattern(int xOffset, int yOffset)
+    /// <summary>
+    /// Adds a regular pattern to the allowed movement patterns. 
+    /// </summary>
+    /// <param name="direction">is the direction of the pattern.</param>
+    /// <param name="minLength">is the minimum length to be moved in this direction.</param>
+    /// <param name="maxLength">is the maximum length to be moved in this direction.</param>
+    public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
+    {
+        AddMovementPattern(direction.Item1, direction.Item2, minLength, maxLength);
+    }
+
+    /// <summary>
+    /// Adds a fixed jumping pattern to the allowed patterns.
+    /// </summary>
+    /// <param name="xOffset">is the offset on the x-axis.</param>
+    /// <param name="yOffset">is the offset on the y-axis.</param>
+    public void AddJumpMovementPattern(int xOffset, int yOffset)
     {
         this.movementPattern.AddPattern(new JumpPattern(xOffset, yOffset));
     }
 
-    public void RemoveMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
+    /// <summary>
+    /// Removes a regular pattern from the allowed patterns.
+    /// </summary>
+    /// <param name="xDir">is the direction of the pattern on the x-axis.</param>
+    /// <param name="yDir">is the direction of the pattern on the y-axis.</param>
+    /// <param name="minLength">is the minimum length of the pattern.</param>
+    /// <param name="maxLength">is the maximum length of the pattern.</param>
+    public void RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        var pattern = new RegularPattern(direction, minLength, maxLength);
+        var pattern = new RegularPattern(xDir, yDir, minLength, maxLength);
         this.movementPattern.RemovePattern(pattern);
     }
 
-    public void AddCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
+    /// <summary>
+    /// Removes a regular pattern from the allowed patterns.
+    /// </summary>
+    /// <param name="direction">is the direction of the pattern.</param>
+    /// <param name="minLength">is the minimum length of the pattern.</param>
+    /// <param name="maxLength">is the maximum length of the pattern.</param>
+    public void RemoveMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
-        this.capturePattern.AddPattern(new RegularPattern(direction, minLength, maxLength));
+        RemoveCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
     }
 
-    public void AddCapturePattern(int xOffset, int yOffset)
+    /// <summary>
+    /// Removes a fixed jumping pattern from the allowed patterns.
+    /// </summary>
+    /// <param name="xOffset">is the offset on the x-axis of the pattern.</param>
+    /// <param name="yOffset">is the offset on the y-axis of the pattern.</param>
+    public void RemoveJumpMovementPattern(int xOffset, int yOffset)
+    {
+        var pattern = new JumpPattern(xOffset, yOffset);
+        this.movementPattern.RemovePattern(pattern);
+    }
+
+    /// <summary>
+    /// Adds a regular pattern to the allowed capture patterns. 
+    /// </summary>
+    /// <param name="xDir">is the direction on the x-axis.</param>
+    /// <param name="yDir">is the direction on the y-axis.</param>
+    /// <param name="minLength">is the minimum length to be moved in this direction.</param>
+    /// <param name="maxLength">is the maximum length to be moved in this direction.</param>
+    public void AddCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    {
+        this.movementPattern.AddPattern(new RegularPattern(xDir, yDir, minLength, maxLength));
+    }
+
+    /// <summary>
+    /// Adds a regular pattern to the allowed capture patterns. 
+    /// </summary>
+    /// <param name="direction">is the direction of the pattern.</param>
+    /// <param name="minLength">is the minimum length to be moved in this direction.</param>
+    /// <param name="maxLength">is the maximum length to be moved in this direction.</param>
+    public void AddCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
+    {
+        AddCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
+    }
+
+    /// <summary>
+    /// Adds a fixed jumping pattern to the allowed capture patterns.
+    /// </summary>
+    /// <param name="xOffset">is the offset on the x-axis.</param>
+    /// <param name="yOffset">is the offset on the y-axis.</param>
+    public void AddJumpCapturePattern(int xOffset, int yOffset)
     {
         this.capturePattern.AddPattern(new JumpPattern(xOffset, yOffset));
     }
 
+    /// <summary>
+    /// Removes a regular pattern from the allowed capture patterns.
+    /// </summary>
+    /// <param name="xDir">is the direction of the pattern on the x-axis.</param>
+    /// <param name="yDir">is the direction of the pattern on the y-axis.</param>
+    /// <param name="minLength">is the minimum length of the pattern.</param>
+    /// <param name="maxLength">is the maximum length of the pattern.</param>
+    public void RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    {
+        this.capturePattern.RemovePattern(new RegularPattern(xDir, yDir, minLength, maxLength));
+    }
+
+    /// <summary>
+    /// Removes a regular pattern from the allowed capture patterns.
+    /// </summary>
+    /// <param name="direction">is the direction of the pattern.</param>
+    /// <param name="minLength">is the minimum length of the pattern.</param>
+    /// <param name="maxLength">is the maximum length of the pattern.</param>
     public void RemoveCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
-        this.capturePattern.RemovePattern(new RegularPattern(direction, minLength, maxLength));
+        RemoveCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
     }
     
-    public void RemoveCapturePattern(int xOffset, int yOffset)
+    /// <summary>
+    /// Removes a fixed jumping pattern from the allowed capture patterns.
+    /// </summary>
+    /// <param name="xOffset">is the offset on the x-axis of the pattern.</param>
+    /// <param name="yOffset">is the offset on the y-axis of the pattern.</param>
+    public void RemoveJumpCapturePattern(int xOffset, int yOffset)
     {
         this.capturePattern.RemovePattern(new JumpPattern(xOffset, yOffset));
     }
 
-    public void SetSameMovementAndCapturePattern(bool enable)
-    {
-        this.sameCaptureAsMovement = enable;
-    }
+#endregion
 
-    public void SetCanBeCaptured(bool enable)
-    {
-        this.canBeCaptured = enable;
-    }
+    /// <summary>
+    /// Set true if the Piece should have the same capture and movement patterns, false to have separate patterns. Is true from the preset.
+    /// </summary>
+    /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
+    public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
 
-    public void BelongsToPlayer(PieceClassifier pieceClassifier)
-    {
+    /// <summary>
+    /// Set true if the piece can be captured, false if it can not. Is true from the preset.
+    /// </summary>
+    /// <param name="enable">true to allow piece to be captured, otherwise false.</param>
+    public void SetCanBeCaptured(bool enable) { this.canBeCaptured = enable; }
+
+    /// <summary>
+    /// Select who the piece belongs to. <paramref name="player"/> can be either "white", "black" or "shared".
+    /// Otherwise an <paramref name="ArgumentException"/> is thrown.
+    /// </summary>
+    /// <param name="player">is the player that the piece belongs to.</param>
+    public void BelongsToPlayer(String player) //Chose to not have PieceClassifier as parameter to hide PieceClassifier from client using this builder.
+    { 
+        PieceClassifier pieceClassifier;
+        switch (player)
+        {
+            case "white"  : pieceClassifier = PieceClassifier.WHITE; break;
+            case "black"  : pieceClassifier = PieceClassifier.BLACK; break;
+            case "shared" : pieceClassifier = PieceClassifier.SHARED; break;
+            default : throw new ArgumentException("Unknown argument of player.");
+        }
         this.pc = pieceClassifier;
     }
 
-    public void RepeatMovement(int repeat)
-    {
-        this.repeat = repeat;
-    }
+    /// <summary>
+    /// Set how many times the movement pattern can be repeated. Argument must be between 0 and 3.
+    /// </summary>
+    /// <param name="repeat">is the amount of times the movement pattern should be repeated.</param>
+    public void RepeatMovement(int repeat) { this.repeat = repeat; }
 
-    public void SetRoyal(bool enable)
-    {
-        this.royal = enable;
-    }
+    /// <summary>
+    /// Set true if the piece should be royal.
+    /// </summary>
+    /// <param name="enable">true if the piece is royal, otherwise false.</param>
+    public void SetRoyal(bool enable) { this.royal = enable; }
 
 
 }
