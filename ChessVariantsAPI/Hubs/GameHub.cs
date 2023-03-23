@@ -93,11 +93,15 @@ public class GameHub : Hub
             var user = GetUsername();
             if (_organizer.GetGameState(gameId) == ActiveGameState.Lobby)
             {
+                _logger.LogInformation("<{u}> tried to start game <{g}> without setting a variant", user, gameId);
                 await Clients.Caller.SendAsync(Events.GameVariantNotSet, $"No variant is set for game {gameId}. Please choose a variant before starting the game.");
             }
             else
             {
-                await Clients.Caller.SendAsync(Events.GameStarted);
+                _logger.LogInformation("Started game {g}", gameId);
+                await Clients.Groups(gameId).SendAsync(Events.GameStarted);
+                var state = _organizer.GetStateAsJson(gameId);
+                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
             }
         }
         catch (AuthenticationError e)
