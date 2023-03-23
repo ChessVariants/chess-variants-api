@@ -14,6 +14,9 @@ public class PieceBuilder
 
     private bool sameCaptureAsMovement;
 
+    private static string whiteCustomPieceIdentifier = "CA";
+    private static string blackCustomPieceIdentifier = "ca";
+
     public PieceBuilder()
     {
         this.movementPattern = new MovementPattern();
@@ -26,7 +29,7 @@ public class PieceBuilder
     }
 
     /// <summary>
-    /// Resets the state of the builder to its original state.
+    /// Resets the current state of the builder to its original state.
     /// </summary>
     public void Reset()
     {
@@ -56,12 +59,49 @@ public class PieceBuilder
 
         string pi = Constants.SharedPieceIdentifier;
         if(!this.pc.Equals(PieceClassifier.SHARED))
-            pi = this.pc == PieceClassifier.WHITE ? "CA" : "ca"; 
+            pi = this.pc == PieceClassifier.WHITE ? whiteCustomPieceIdentifier : blackCustomPieceIdentifier; 
 
         if(sameCaptureAsMovement)
             return new Piece(this.movementPattern, this.movementPattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
         else
             return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
+    }
+
+    /// <summary>
+    /// Genereates all valid moves from the current state of the builder.
+    /// </summary>
+    /// <param name="square">is the square where the piece should be inserted on.</param>
+    /// <returns>A HashSet of all the curerntly valid moves from the square <paramref name="square"/>.</returns>
+    public HashSet<string> GetAllCurrentlyValidMovesFromSquare(string square)
+    {
+        //The idea behind this method is to be able to continuously draw the currently legal moves in the editor when creating a new piece.
+        //Create helper class to remove dependency on MoveWorker and to avoid creating new objects each time this method is called?
+
+        var moveWorker = new MoveWorker(new Chessboard(8));
+        var dummyPiece = new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        if(moveWorker.InsertOnBoard(dummyPiece, square))
+            return moveWorker.GetAllValidMoves(Player.White);
+        throw new ArgumentException("Invalid square for an 8x8 chessboard.");
+    }
+
+    /// <summary>
+    /// Genereates all valid capture moves from the current state of the builder.
+    /// </summary>
+    /// <param name="square">is the square where the piece should be inserted on.</param>
+    /// <returns>A HashSet of all the curerntly valid capture moves from the square <paramref name="square"/>.</returns>
+    public HashSet<string> GetAllCurrentlyValidCaptureMovesFromSquare(string square)
+    {
+        //The idea behind this method is to be able to continuously draw the currently legal moves in the editor when creating a new piece.
+        //Create helper class to remove dependency on MoveWorker and to avoid creating new objects each time this method is called?
+        
+        if(sameCaptureAsMovement)
+            return GetAllCurrentlyValidMovesFromSquare(square);
+            
+        var moveWorker = new MoveWorker(new Chessboard(8));
+        var dummyPiece = new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        if(moveWorker.InsertOnBoard(dummyPiece, square))
+            return moveWorker.GetAllValidMoves(Player.White);
+        throw new ArgumentException("Invalid square for an 8x8 chessboard.");
     }
 
 #region Add and Remove patterns

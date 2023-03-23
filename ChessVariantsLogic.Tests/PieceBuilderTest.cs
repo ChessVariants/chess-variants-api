@@ -28,8 +28,6 @@ public class PieceBuilderTest : IDisposable
     [Fact]
     public void PieceBuilderCanBuildRook()
     {
-        this.builder.Reset();
-
         this.builder.AddMovementPattern(Constants.North, 1, Constants.MaxBoardHeight);
         this.builder.AddMovementPattern(Constants.East,  1, Constants.MaxBoardHeight);
         this.builder.AddMovementPattern(Constants.South, 1, Constants.MaxBoardHeight);
@@ -87,7 +85,7 @@ public class PieceBuilderTest : IDisposable
 
         this.moveWorker.InsertOnBoard(piece, "e4");
         this.moveWorker.InsertOnBoard(Piece.WhitePawn(), "h6");
-        
+
         this.moveWorker.Move("e4e8");
         this.moveWorker.Move("e8f8");
         this.moveWorker.Move("f8g7");
@@ -98,4 +96,20 @@ public class PieceBuilderTest : IDisposable
         Assert.Equal("ca", this.moveWorker.Board.GetPieceIdentifier("h6"));
         
     }
+
+    [Fact]
+    public void CurrentlyValidMovesWorksCorrectly()
+    {
+        this.builder.AddMovementPattern(Constants.North, 1, Constants.MaxBoardHeight);
+        this.builder.AddMovementPattern(Constants.East,  1, Constants.MaxBoardHeight);
+        this.builder.AddMovementPattern(Constants.South, 1, Constants.MaxBoardHeight);
+        this.builder.AddMovementPattern(Constants.West,  1, Constants.MaxBoardHeight);
+        this.builder.AddJumpMovementPattern(1, -2);
+        this.builder.AddJumpMovementPattern(2, -1);
+        
+        var moves = this.builder.GetAllCurrentlyValidMovesFromSquare("e4");
+        
+        Assert.Equal(16, moves.Count);
+    }
+
 }
