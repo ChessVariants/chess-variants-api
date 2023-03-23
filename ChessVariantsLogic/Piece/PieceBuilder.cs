@@ -44,10 +44,14 @@ public class PieceBuilder
 
         var pieceClassifier = (PieceClassifier) this.pc;
 
+        string pi = Constants.SharedPieceIdentifier;
+        if(!this.pc.Equals(PieceClassifier.SHARED))
+            pi = this.pc == PieceClassifier.WHITE ? "CA" : "ca"; 
+
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, pieceClassifier, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, "CA", this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
     }
 
     public void AddMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
