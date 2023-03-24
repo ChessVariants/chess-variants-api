@@ -14,7 +14,7 @@ public class PieceBuilder
 
     private bool sameCaptureAsMovement;
 
-    private static string whiteCustomPieceIdentifier = "CA";
+    private static string whiteCustomPieceIdentifier = "CA"; // Reset these values when a game is initialized to keep each identifier unique.
     private static string blackCustomPieceIdentifier = "ca";
 
     public PieceBuilder()
