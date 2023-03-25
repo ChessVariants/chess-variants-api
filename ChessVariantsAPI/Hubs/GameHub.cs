@@ -28,36 +28,34 @@ public class GameHub : Hub
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
     [Authorize]
-    public async Task JoinGame(string gameId)
+    public async Task<bool> JoinGame(string gameId)
     {
         try
         {
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to join game with id <{gameid}>", user, gameId);
-            var joinCallerEvent = _organizer.GetGameState(gameId) == ActiveGameState.Game ? Events.GameJoined : Events.LobbyJoined;
-            var joinGroupEvent = _organizer.GetGameState(gameId) == ActiveGameState.Game ? Events.PlayerJoinedGame : Events.PlayerJoinedLobby;
+
+            Player player;
             if (_groupOrganizer.InGroup(user, gameId))
             {
                 await AddToGroup(user, gameId);
-                var player = _organizer.GetPlayer(gameId, user);
-                await Clients.Groups(gameId).SendAsync(joinGroupEvent, player.AsString());
-                await Clients.Caller.SendAsync(joinCallerEvent, player.AsString());
-                return;
+                player = _organizer.GetPlayer(gameId, user);
             }
-
-            var createdPlayer = _organizer.JoinGame(gameId, user);
-            await Clients.Caller.SendAsync(joinCallerEvent, createdPlayer.AsString());
-            await Clients.Groups(gameId).SendAsync(joinGroupEvent, createdPlayer.AsString());
-            await AddToGroup(user, gameId);
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
+            else
+            {
+                await AddToGroup(user, gameId);
+                player = _organizer.JoinGame(gameId, user);
+            }
+            await Clients.Caller.SendGameJoined(player.AsString(), user);
+            await Clients.Groups(gameId).SendPlayerJoinedGame(player.AsString(), user);
+            _logger.LogDebug("User <{user}> joined game <{gameid}>", user, gameId);
+            return true;
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to join game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
+            return false;
         }
     }
 
@@ -70,19 +68,15 @@ public class GameHub : Hub
             var result = _organizer.SetGame(gameId, variantIdentifier);
             if (result == false)
             {
-                await Clients.Caller.SendAsync(Events.Error, $"Could not set game variant to {variantIdentifier}");
+                await Clients.Caller.SendGenericError($"Could not set game variant to {variantIdentifier}");
             }
-            await Clients.Groups(gameId).SendAsync(Events.GameVariantSet, variantIdentifier);
+            await Clients.Groups(gameId).SendGameVariantSet(variantIdentifier);
             _logger.LogDebug("User <{user}> set game variant to {variant} for game <{gameid}> result: {bool}", user, variantIdentifier, gameId, result);
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to create game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
         }
     }
 
@@ -91,27 +85,22 @@ public class GameHub : Hub
         try
         {
             var user = GetUsername();
-            if (_organizer.GetGameState(gameId) == ActiveGameState.Lobby)
+            var success = _organizer.StartGame(gameId, user);
+
+            if (!success)
             {
-                _logger.LogInformation("<{u}> tried to start game <{g}> without setting a variant", user, gameId);
-                await Clients.Caller.SendAsync(Events.GameVariantNotSet, $"No variant is set for game {gameId}. Please choose a variant before starting the game.");
+                _logger.LogInformation("Tried to start game {g} but could not", gameId);
+                return;
             }
-            else
-            {
-                _logger.LogInformation("Started game {g}", gameId);
-                await Clients.Groups(gameId).SendAsync(Events.GameStarted);
-                var state = _organizer.GetStateAsJson(gameId);
-                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
-            }
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
+            await Clients.Groups(gameId).SendGameStarted(_organizer.GetColorsObject(gameId));
+            var state = _organizer.GetStateAsJson(gameId);
+            await Clients.Groups(gameId).SendUpdatedGameState(state);
+            _logger.LogInformation("Started game {g}", gameId);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to start game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
         }
     }
 
@@ -129,41 +118,36 @@ public class GameHub : Hub
             _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
             Player createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
             await AddToGroup(user, gameId);
-            await Clients.Caller.SendAsync(Events.GameCreated, createdPlayer.AsString());
-            _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
+            await Clients.Caller.SendGameCreated(createdPlayer.AsString(), user);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to create game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
         }
     }
 
-    public async Task CreateLobby(string gameId)
-    {
-        try
-        {
-            var user = GetUsername();
-            _logger.LogDebug("User <{user}> trying to create lobby with id <{gameid}>", user, gameId);
-            var createdPlayer = _organizer.CreateLobby(gameId, user);
-            await Clients.Caller.SendAsync(Events.LobbyCreated, createdPlayer.AsString());
-            await AddToGroup(user, gameId);
-            _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
-        }
-        catch (OrganizerException e)
-        {
-            _logger.LogInformation("When trying to create lobby with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
-        }
-    }
+    //public async Task CreateLobby(string gameId)
+    //{
+    //    try
+    //    {
+    //        var user = GetUsername();
+    //        _logger.LogDebug("User <{user}> trying to create lobby with id <{gameid}>", user, gameId);
+    //        var createdPlayer = _organizer.CreateLobby(gameId, user);
+    //        await Clients.Caller.SendAsync(Events.LobbyCreated, createdPlayer.AsString());
+    //        await AddToGroup(user, gameId);
+    //        _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
+    //    }
+    //    catch (AuthenticationError e)
+    //    {
+    //        await Clients.Caller.SendAsync(e.ErrorType, e.Message);
+    //    }
+    //    catch (OrganizerException e)
+    //    {
+    //        _logger.LogInformation("When trying to create lobby with id <{gameid}> the following error occured: {error}", gameId, e.Message);
+    //        await Clients.Caller.SendAsync(Events.Error, e.Message);
+    //    }
+    //}
 
     /// <summary>
     /// Removes the caller from a group corresponding to the supplied <paramref name="gameId"/>. Deletes the game if its empty.
@@ -177,16 +161,12 @@ public class GameHub : Hub
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
             await RemoveFromGroup(user, gameId);
-            await Clients.Caller.SendAsync(Events.GameLeft);
+            await Clients.Caller.SendGameLeft();
             bool playerLeft = _organizer.LeaveGame(gameId, user);
             if (playerLeft)
             {
-                await Clients.Groups(gameId).SendAsync(Events.PlayerLeftGame, Context.GetUsername());
+                await Clients.Groups(gameId).SendPlayerLeftGame(user);
             }
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (GameEmptyException)
         {
@@ -196,7 +176,7 @@ public class GameHub : Hub
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to leave game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e);
+            await Clients.Caller.SendGenericError(e.Message);
         }
         
     }
@@ -213,17 +193,29 @@ public class GameHub : Hub
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to swap colors in id <{gameid}>", user, gameId);
             _organizer.SwapColors(gameId, user);
-            await Clients.Group(gameId).SendAsync(Events.ColorsSwapped);
+            await Clients.Group(gameId).SendColors(_organizer.GetColorsObject(gameId));
             _logger.LogDebug("Colors swapped in game <{gameid}>", gameId);
-        }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to swap colors in game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendAsync(Events.Error, e.Message);
+        }
+    }
+
+    public PlayerColors? RequestColors(string gameId)
+    {
+        try
+        {
+            var user = GetUsername();
+            var colors = _organizer.GetColorsObject(gameId);
+            _logger.LogDebug("User <{user}> requested colors in game <{gameid}>", user, gameId);
+            return colors;
+        }
+        catch (OrganizerException e)
+        {
+            _logger.LogInformation("When requesting colors in game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
+            return null;
         }
     }
 
@@ -245,37 +237,32 @@ public class GameHub : Hub
             result = _organizer.Move(move, gameId, user);
             state = _organizer.GetStateAsJson(gameId);
         }
-        catch (AuthenticationError e)
-        {
-            await Clients.Caller.SendAsync(e.ErrorType, e.Message);
-        }
         catch (OrganizerException e)
         {
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
         }
 
         switch (result)
         {
             case GameEvent.InvalidMove:
                 _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
-                await Clients.Caller.SendAsync(Events.InvalidMove);
+                await Clients.Caller.SendInvalidMove();
                 return;
             case GameEvent.MoveSucceeded:
                 _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
-                await Clients.Groups(gameId).SendAsync(Events.UpdatedGameState, state);
-                await Clients.Caller.SendAsync(Events.UpdatedGameState, state);
+                await Clients.Groups(gameId).SendUpdatedGameState(state!);
                 return;
             case GameEvent.WhiteWon:
                 _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
-                await Clients.Group(gameId).SendAsync(Events.WhiteWon);
+                await Clients.Group(gameId).SendWhiteWon();
                 return;
             case GameEvent.BlackWon:
                 _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
-                await Clients.Group(gameId).SendAsync(Events.BlackWon);
+                await Clients.Group(gameId).SendBlackWon();
                 return;
             case GameEvent.Tie:
                 _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
-                await Clients.Group(gameId).SendAsync(Events.Tie);
+                await Clients.Group(gameId).SendTie();
                 return;
         }
     }
@@ -291,12 +278,12 @@ public class GameHub : Hub
         {
             _logger.LogDebug("Board state for game <{gameid}> was requested", gameId);
             var state = _organizer.GetStateAsJson(gameId);
-            await Clients.Caller.SendAsync(Events.UpdatedGameState, state);
+            await Clients.Caller.SendUpdatedGameState(state);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When requesting board state for game <{gameid}> the following error occured: {e}", gameId, e.Message);
-            await Clients.Caller.SendAsync(Events.Error, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
         }
     }
 
@@ -325,39 +312,6 @@ public class GameHub : Hub
         _logger.LogDebug("User <{user}> left game <{gameid}> successfully", playerIdentifier, gameId);
     }
 
-
-    private static class Events
-    {
-        public readonly static string GameNotFound = "gameNotFound";
-        public readonly static string PieceMoved = "pieceMoved";
-        public readonly static string UpdatedGameState = "updatedGameState";
-        public readonly static string PlayerLeftGame = "playerLeftGame";
-        public readonly static string PlayerJoinedGame = "playerJoinedGame";
-        public readonly static string GameCreated = "gameCreated";
-        public readonly static string GameJoined = "gameJoined";
-        public readonly static string GameLeft = "gameLeft";
-        public readonly static string PlayerNotFound = "playerNotFound";
-        public readonly static string InvalidMove = "invalidMove";
-        public readonly static string Error = "error";
-        public readonly static string WhiteWon = "whiteWon";
-        public readonly static string BlackWon = "blackWon";
-        public readonly static string Tie = "tie";
-        public readonly static string ColorsSwapped = "colorsSwapped";
-
-        // Lobby events
-        public readonly static string PlayerJoinedLobby = "playerJoinedLobby";
-        public readonly static string PlayerLeftLobby = "playerLeftLobby";
-        public readonly static string LobbyCreated = "lobbyCreated";
-        public readonly static string LobbyJoined = "lobbyJoined";
-        public readonly static string GameVariantSet = "gameVariantSet";
-        public readonly static string GameVariantNotSet = "gameVariantNotSet";
-        public readonly static string GameStarted = "gameStarted";
-
-        public static class Errors
-        {
-            public readonly static string UnauthenticatedRequest = "unauthenticatedRequest";
-        }
-    }
 
     private class AuthenticationError : Exception
     {

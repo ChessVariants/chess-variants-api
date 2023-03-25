@@ -1,4 +1,5 @@
 ﻿using ChessVariantsLogic;
+using Newtonsoft.Json;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -35,12 +36,22 @@ public class ActiveGame
         AddPlayer(creatorPlayerIdentifier);
         Admin = creatorPlayerIdentifier;
         _variant = variantType;
-        State = ActiveGameState.Game;
+        State = ActiveGameState.Lobby;
     }
 
     public ActiveGame(string creatorPlayerIdentifier) : this(null, creatorPlayerIdentifier, null) 
     {
         State = ActiveGameState.Lobby;
+    }
+
+    public bool StartGame(string playerIdentifier)
+    {
+        if (playerIdentifier == Admin)
+        {
+            State = ActiveGameState.Game;
+            return true;
+        }
+        return false;
     }
 
     public bool SetGame(Game game, string playerIdentifier, string variantType)
@@ -150,6 +161,23 @@ public class ActiveGame
         }
     }
 
+    public string GetColorsJson()
+    {
+        return GetColorsObject().AsJson();
+    }
+
+    public PlayerColors GetColorsObject()
+    {
+        string? white = null;
+        string? black = null;
+        foreach (var key in _playerDict.Keys)
+        {
+            if (_playerDict[key] == Player.White) white = key;
+            else if (_playerDict[key] == Player.Black) black = key;
+        }
+        return new PlayerColors { White = white, Black = black };
+    }
+
     private void AssignNewAdmin()
     {
         string? newAdminIdentifier = _playerDict.Keys.FirstOrDefault();
@@ -175,4 +203,19 @@ public enum ActiveGameState
 {
     Lobby,
     Game,
+}
+
+
+public record PlayerColors
+{
+    [JsonProperty("white")]
+    public string? White { get; set; }
+
+    [JsonProperty("black")]
+    public string? Black { get; set; }
+
+    public string AsJson()
+    {
+        return JsonConvert.SerializeObject(this, Formatting.Indented);
+    }
 }

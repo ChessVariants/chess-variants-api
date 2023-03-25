@@ -57,6 +57,11 @@ public class GameOrganizer
         return activeGame.SetGame(gameVariant, playerIdentifier, variantIdentifier);
     }
 
+    public bool StartGame(string gameId, string playerIdentifier)
+    {
+        return GetActiveGame(gameId).StartGame(playerIdentifier);
+    }
+
     public Player CreateLobby(string gameId, string playerIdentifier)
     {
         AssertGameDoesNotExist(gameId);
@@ -190,8 +195,19 @@ public class GameOrganizer
     {
         var game = GetGame(gameId);
         return game.ExportStateAsJson();
-    } 
+    }
 
+    public string GetColorsAsJson(string gameId)
+    {
+        var activeGame = GetActiveGame(gameId);
+        return activeGame.GetColorsJson();
+    }
+
+    public PlayerColors GetColorsObject(string gameId)
+    {
+        var activeGame = GetActiveGame(gameId);
+        return activeGame.GetColorsObject();
+    }
     #endregion
 
     #region GameControl
