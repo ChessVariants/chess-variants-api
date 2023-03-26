@@ -113,10 +113,10 @@ public record GameState
 /// </summary>
 public record BoardSize
 {
-    [JsonProperty("row")]
+    [JsonProperty("rows")]
     public int Rows { get; set; }
 
-    [JsonProperty("col")]
+    [JsonProperty("cols")]
     public int Cols { get; set; }
 }
 

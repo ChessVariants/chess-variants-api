@@ -1,8 +1,14 @@
 ﻿using ChessVariantsAPI.GameOrganization;
+using ChessVariantsLogic.Export;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChessVariantsAPI.Hubs;
 
+/// <summary>
+/// This class contains extensions for <see cref="IClientProxy"/> in order to simplify syntax in
+/// <see cref="GameHub"/> and also enforce that events of the same type always return the same
+/// type of data. i.e an UpdatedGameState event should always include the new state.
+/// </summary>
 public static class IClientProxyExtensions
 {
     public static async Task SendGameJoined(this IClientProxy clients, string playerColor, string username)
@@ -35,12 +41,12 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.GameVariantNotSet, message);
     }
 
-    public static async Task SendGameStarted(this IClientProxy clients, PlayerColors colors)
+    public static async Task SendGameStarted(this IClientProxy clients, ColorsDTO colors)
     {
         await clients.SendAsync(Events.GameStarted, colors);
     }
 
-    public static async Task SendUpdatedGameState(this IClientProxy clients, string state)
+    public static async Task SendUpdatedGameState(this IClientProxy clients, GameState state)
     {
         await clients.SendAsync(Events.UpdatedGameState, state);
     }
@@ -55,7 +61,7 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.PlayerLeftGame, username);
     }
 
-    public static async Task SendColors(this IClientProxy clients, PlayerColors colors)
+    public static async Task SendColors(this IClientProxy clients, ColorsDTO colors)
     {
         await clients.SendAsync(Events.Colors, colors);
     }

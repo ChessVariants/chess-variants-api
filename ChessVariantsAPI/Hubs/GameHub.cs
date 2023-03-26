@@ -1,5 +1,6 @@
 ﻿using ChessVariantsAPI.GameOrganization;
 using ChessVariantsLogic;
+using ChessVariantsLogic.Export;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -8,6 +9,7 @@ namespace ChessVariantsAPI.Hubs;
 /// <summary>
 /// A SignalR hub for handling real-time chess game communication between client and server.
 /// </summary>
+[Authorize]
 public class GameHub : Hub
 {
     private readonly GameOrganizer _organizer;
@@ -35,6 +37,11 @@ public class GameHub : Hub
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to join game with id <{gameid}>", user, gameId);
 
+            if (!_organizer.PlayerAbleToJoin(gameId, user))
+            {
+                return false;
+            }
+
             Player player;
             if (_groupOrganizer.InGroup(user, gameId))
             {
@@ -46,6 +53,7 @@ public class GameHub : Hub
                 await AddToGroup(user, gameId);
                 player = _organizer.JoinGame(gameId, user);
             }
+
             await Clients.Caller.SendGameJoined(player.AsString(), user);
             await Clients.Groups(gameId).SendPlayerJoinedGame(player.AsString(), user);
             _logger.LogDebug("User <{user}> joined game <{gameid}>", user, gameId);
@@ -93,7 +101,7 @@ public class GameHub : Hub
                 return;
             }
             await Clients.Groups(gameId).SendGameStarted(_organizer.GetColorsObject(gameId));
-            var state = _organizer.GetStateAsJson(gameId);
+            var state = _organizer.GetState(gameId);
             await Clients.Groups(gameId).SendUpdatedGameState(state);
             _logger.LogInformation("Started game {g}", gameId);
         }
@@ -126,28 +134,6 @@ public class GameHub : Hub
             await Clients.Caller.SendGenericError(e.Message);
         }
     }
-
-    //public async Task CreateLobby(string gameId)
-    //{
-    //    try
-    //    {
-    //        var user = GetUsername();
-    //        _logger.LogDebug("User <{user}> trying to create lobby with id <{gameid}>", user, gameId);
-    //        var createdPlayer = _organizer.CreateLobby(gameId, user);
-    //        await Clients.Caller.SendAsync(Events.LobbyCreated, createdPlayer.AsString());
-    //        await AddToGroup(user, gameId);
-    //        _logger.LogDebug("User <{user}> joined game <{gameid}> successfully", user, gameId);
-    //    }
-    //    catch (AuthenticationError e)
-    //    {
-    //        await Clients.Caller.SendAsync(e.ErrorType, e.Message);
-    //    }
-    //    catch (OrganizerException e)
-    //    {
-    //        _logger.LogInformation("When trying to create lobby with id <{gameid}> the following error occured: {error}", gameId, e.Message);
-    //        await Clients.Caller.SendAsync(Events.Error, e.Message);
-    //    }
-    //}
 
     /// <summary>
     /// Removes the caller from a group corresponding to the supplied <paramref name="gameId"/>. Deletes the game if its empty.
@@ -203,7 +189,7 @@ public class GameHub : Hub
         }
     }
 
-    public PlayerColors? RequestColors(string gameId)
+    public ColorsDTO? RequestColors(string gameId)
     {
         try
         {
@@ -229,13 +215,13 @@ public class GameHub : Hub
     {
         // if move is valid, compute new board
         GameEvent? result = null;
-        string? state = null;
+        GameState? state = null;
         try
         {
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to make move <{move}> in game <{gameid}>", user, move, gameId);
             result = _organizer.Move(move, gameId, user);
-            state = _organizer.GetStateAsJson(gameId);
+            state = _organizer.GetState(gameId);
         }
         catch (OrganizerException e)
         {
@@ -272,18 +258,19 @@ public class GameHub : Hub
     /// </summary>
     /// <param name="gameId">The game to request state for</param>
     /// <returns></returns>
-    public async Task RequestState(string gameId)
+    public GameState? RequestState(string gameId)
     {
         try
         {
-            _logger.LogDebug("Board state for game <{gameid}> was requested", gameId);
-            var state = _organizer.GetStateAsJson(gameId);
-            await Clients.Caller.SendUpdatedGameState(state);
+            var user = GetUsername();
+            _logger.LogDebug("Board state for game <{gameid}> was requested by {u}", gameId, user);
+            if (!_organizer.PlayerInGame(gameId, user)) return null;
+            return _organizer.GetState(gameId);
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When requesting board state for game <{gameid}> the following error occured: {e}", gameId, e.Message);
-            await Clients.Caller.SendGenericError(e.Message);
+            return null;
         }
     }
 

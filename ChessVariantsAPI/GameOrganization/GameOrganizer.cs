@@ -1,4 +1,6 @@
-﻿using ChessVariantsLogic;
+﻿using ChessVariantsAPI.Hubs;
+using ChessVariantsLogic;
+using ChessVariantsLogic.Export;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -28,6 +30,19 @@ public class GameOrganizer
                 if (pair.Item1 == playerIdentifier) gameIds.Add(pair.Item1);
             }
         }
+    }
+
+    public bool PlayerAbleToJoin(string gameId, string playerIdentifier)
+    {
+        var players = GetActiveGame(gameId).GetPlayers();
+        return (PlayerInGame(gameId, playerIdentifier) || 2 - players.Count > 0);
+    }
+
+    public bool PlayerInGame(string gameId, string playerIdentifier)
+    {
+        var players = GetActiveGame(gameId).GetPlayers();
+        var bools = players.Select(pair => pair.Item1 == playerIdentifier);
+        return bools.Any(x => x == true);
     }
 
     #region Administration
@@ -197,13 +212,19 @@ public class GameOrganizer
         return game.ExportStateAsJson();
     }
 
+    public GameState GetState(string gameId)
+    {
+        var game = GetGame(gameId);
+        return game.ExportState();
+    }
+
     public string GetColorsAsJson(string gameId)
     {
         var activeGame = GetActiveGame(gameId);
         return activeGame.GetColorsJson();
     }
 
-    public PlayerColors GetColorsObject(string gameId)
+    public ColorsDTO GetColorsObject(string gameId)
     {
         var activeGame = GetActiveGame(gameId);
         return activeGame.GetColorsObject();

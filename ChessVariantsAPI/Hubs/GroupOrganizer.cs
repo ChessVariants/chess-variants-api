@@ -1,5 +1,11 @@
 ﻿namespace ChessVariantsAPI.Hubs;
 
+/// <summary>
+/// This class is responsible for keeping track of what players are in what games.
+/// The purpose of this is different from that of <see cref="GameOrganizer"/>
+/// as this class is needed to map what connections should be allowed to be
+/// added to what Hub-group.
+/// </summary>
 public class GroupOrganizer
 {
     private readonly Dictionary<string, List<string>> _groups;
