@@ -54,7 +54,7 @@ public class PieceBuilderTest : IDisposable
         Assert.Throws<ArgumentException>(() => this.builder.Build());
     }
 
-    [Fact]
+    [Fact(Skip="PieceClassifier is no longer nullable")]
     public void PieceBuilderThrowsExceptionWhenPieceClassifierIsMissing()
     {
         this.builder.AddMovementPattern(Constants.North, 1, Constants.MaxBoardHeight);

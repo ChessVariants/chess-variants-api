@@ -8,7 +8,7 @@ public class PieceBuilder
     private MovementPattern movementPattern;
     private MovementPattern capturePattern;
     private bool royal;
-    private PieceClassifier? pc;
+    private PieceClassifier pc;
     private int repeat;
     private bool canBeCaptured;
 
@@ -22,7 +22,7 @@ public class PieceBuilder
         this.movementPattern = new MovementPattern();
         this.capturePattern = new MovementPattern();
         this.royal = false;
-        this.pc = null;
+        this.pc = PieceClassifier.WHITE;
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
@@ -36,7 +36,7 @@ public class PieceBuilder
         this.movementPattern = new MovementPattern();
         this.capturePattern = new MovementPattern();
         this.royal = false;
-        this.pc = null;
+        this.pc = PieceClassifier.WHITE;
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
@@ -48,23 +48,17 @@ public class PieceBuilder
     /// <returns>A object of type <paramref name="Piece"/> if all fields are instantiated correctly, otherwise throws an <paramref name="ArgumentException"/>.</returns>
     public Piece Build()
     {
-        //TODO: Checks that no argument is null
-        //TODO: Dynamic solution to the string pieceIdentifier
         if(this.movementPattern.Count == 0)
             throw new ArgumentException("Must have at least one movement pattern.");
-        if(this.pc == null)
-            throw new ArgumentException("Piece must belong to a player.");
 
-        var pieceClassifier = (PieceClassifier) this.pc;
-
-        string pi = Constants.SharedPieceIdentifier;
+        string pieceString = Constants.SharedPieceIdentifier;
         if(!this.pc.Equals(PieceClassifier.SHARED))
-            pi = this.pc == PieceClassifier.WHITE ? whiteCustomPieceIdentifier : blackCustomPieceIdentifier; 
+            pieceString = this.pc == PieceClassifier.WHITE ? whiteCustomPieceIdentifier : blackCustomPieceIdentifier; 
 
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, pieceClassifier, this.repeat, pi, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
     }
 
     /// <summary>
