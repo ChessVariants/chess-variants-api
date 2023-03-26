@@ -90,41 +90,30 @@ public class Game {
         return null;
     }
 
-    public void perft(int depth)
+    public void perft(int depth, Player turn)
     {
         if(depth == 0)
         {
-            nodes ++;
+            nodes++;
             return;
         }
 
 
-        IEnumerable<Move> validMoves;
-        
-        /*if(depth == 1)
-        {
-            Move moveOne = new Move("e2e4", PieceClassifier.WHITE);
-            Move moveTwo = new Move("b8a6", PieceClassifier.BLACK);
-            Move moveThree = new Move("e4e5", PieceClassifier.WHITE);
-            Move moveFour = new Move("d7d5", PieceClassifier.BLACK);
-            moveOne.Perform(_moveWorker);
-            moveTwo.Perform(_moveWorker);
-            moveThree.Perform(_moveWorker);
-            moveFour.Perform(_moveWorker);
-            
-        }*/
+        IEnumerable<Move> validMoves;        
         
         
+       
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker, turn);
+            if(turn == Player.White)
+            {
+                validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
+                turn = Player.Black;
+            } else
+            {
+                validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
+                turn = Player.White;
+            }
         
-        if (depth == 5 || depth == 3 || depth == 1){
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
-            _playerTurn = Player.White;
-            
-        } 
-        else {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
-            _playerTurn = Player.Black;
-        }
         
         
 
@@ -133,7 +122,7 @@ public class Game {
         foreach(var move in validMoves)
         {
             move.Perform(_moveWorker);
-            perft(depth - 1);
+            perft(depth - 1, turn);
             _moveWorker.undoMove();
         }
         return;
