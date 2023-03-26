@@ -57,6 +57,16 @@ public class Chessboard
         this.hasMoved = initHasMoved();
     }
 
+    public bool PieceHasNotMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            hasMoved[row,col] = false;
+            return true;
+        }
+        return false;
+    }
+
     public Chessboard CopyBoard()
     {
         var boardCopy = new Chessboard(rows, cols);
