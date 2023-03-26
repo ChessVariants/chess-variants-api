@@ -541,6 +541,14 @@ public class MoveWorker
         }
         return capturemoves;
     }
+    public void undoMove()
+    {
+        if(stateLog.Count() != 0)
+        {
+            board = stateLog.Pop();
+        }
+        movelog.Pop();
+    }
 
 #endregion
 
