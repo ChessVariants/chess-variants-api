@@ -58,7 +58,16 @@ public class Game {
         
             GameEvent gameEvent = move.Perform(_moveWorker);
 
-            if(gameEvent == GameEvent.InvalidMove)
+            if (_playerTurn == Player.White)
+            {
+                _whiteRules.RunEvents(transition, _moveWorker);
+            }
+            else
+            {
+                _blackRules.RunEvents(transition, _moveWorker);
+            }
+
+            if (gameEvent == GameEvent.InvalidMove)
                 return gameEvent;
 
             /// TODO: Check for a tie
