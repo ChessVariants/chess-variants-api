@@ -27,6 +27,8 @@ public class MoveWorker
     {
         get { return movelog; }
     }
+
+    public Stack<Chessboard> stateLog = new Stack<Chessboard>(); 
     
     /// <summary>
     /// Constructor that takes a Chessboard and a HashSet of Piece
