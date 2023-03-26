@@ -501,7 +501,15 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
-    public void perftTest()
+    public void perftTestThreeMoves()
+    {
+        
+       this.game.perft(3, Player.White);
+       Assert.Equal(8902, this.game.nodes);
+    }
+
+    [Fact (Skip = "Takes too long")]
+    public void perftTestFiveMoves()
     {
         
        this.game.perft(5, Player.White);

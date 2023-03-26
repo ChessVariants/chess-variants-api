@@ -92,34 +92,25 @@ public class Game {
 
     public void perft(int depth, Player turn)
     {
-        if(depth == 0)
+        if (depth == 0)
         {
             nodes++;
             return;
         }
+        IEnumerable<Move> validMoves;
+        validMoves = _blackRules.ApplyMoveRule(_moveWorker, turn);
+        if (turn == Player.White)
+        {
+            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
+            turn = Player.Black;
+        }
+        else
+        {
+            validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
+            turn = Player.White;
+        }
 
-
-        IEnumerable<Move> validMoves;        
-        
-        
-       
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker, turn);
-            if(turn == Player.White)
-            {
-                validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
-                turn = Player.Black;
-            } else
-            {
-                validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
-                turn = Player.White;
-            }
-        
-        
-        
-
-        
-
-        foreach(var move in validMoves)
+        foreach (var move in validMoves)
         {
             move.Perform(_moveWorker);
             perft(depth - 1, turn);
