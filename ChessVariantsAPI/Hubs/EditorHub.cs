@@ -15,6 +15,9 @@ public class EditorHub : Hub
 
     public async Task AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
+        Console.WriteLine("In AddMovementPattern");
+        await Clients.Caller.SendAsync(Events.Success, "Test");
+/*
         EditorEvent? result = null;
         string? state = null;
         try
@@ -36,6 +39,7 @@ public class EditorHub : Hub
                 await Clients.Caller.SendAsync(Events.InvalidMovementPattern, "Invalid movement pattern");
                 return;
         }
+        */
     }
 
     private static class Events

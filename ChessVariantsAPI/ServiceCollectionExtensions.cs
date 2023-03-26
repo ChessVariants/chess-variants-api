@@ -18,5 +18,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<GameOrganizer>();
         return services;
     }
+    public static IServiceCollection AddEditorOrganization(this IServiceCollection services)
+    {
+        services.AddSingleton<EditorOrganizer>();
+        return services;
+    }
+
 }
 
