@@ -18,7 +18,7 @@ public class ChessboardTests : IDisposable
     public ChessboardTests()
     {
         this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        this.game = new GameFactory(Chessboard.StandardChessboard());
+        this.game = GameFactory.StandardChess();
     }
 
     public void Dispose()
