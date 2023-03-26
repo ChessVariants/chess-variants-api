@@ -73,6 +73,8 @@ public class MoveWorker
 
             if (moves.Contains(coor) || force)
             {
+                var boardTmp = board.CopyBoard();
+                stateLog.Push(boardTmp);
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                 board.PieceHasMoved(coor.Item1,coor.Item2);
@@ -549,7 +551,7 @@ public class MoveWorker
         {
             board = stateLog.Pop();
         }
-        movelog.Pop();
+        movelog.RemoveAt(movelog.Count()-1);
     }
 
 #endregion
