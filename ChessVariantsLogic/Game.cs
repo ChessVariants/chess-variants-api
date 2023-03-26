@@ -101,11 +101,17 @@ public class Game {
 
         IEnumerable<Move> validMoves;
         
-        /*if(depth == 3)
+        /*if(depth == 1)
         {
-            Move moveOne = new Move("a2a4", PieceClassifier.WHITE);
+            Move moveOne = new Move("e2e4", PieceClassifier.WHITE);
+            Move moveTwo = new Move("b8a6", PieceClassifier.BLACK);
+            Move moveThree = new Move("e4e5", PieceClassifier.WHITE);
+            Move moveFour = new Move("d7d5", PieceClassifier.BLACK);
             moveOne.Perform(_moveWorker);
-            depth--;
+            moveTwo.Perform(_moveWorker);
+            moveThree.Perform(_moveWorker);
+            moveFour.Perform(_moveWorker);
+            
         }*/
         
         

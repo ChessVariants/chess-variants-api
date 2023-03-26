@@ -504,7 +504,7 @@ public class ChessboardTests : IDisposable
     public void perftTest()
     {
         
-       this.game.perft(3);
-       Assert.Equal(8902, this.game.nodes);
+       this.game.perft(5);
+       Assert.Equal(4865609, this.game.nodes);
     }
 }
