@@ -53,6 +53,8 @@ public class Game {
         Move? move = GetMove(validMoves, moveCoordinates);
         if (move == null) return GameEvent.InvalidMove;
         if (validMoves.Contains(move)) {
+
+            BoardTransition transition = new BoardTransition(_moveWorker.CopyBoardState(), move);
         
             GameEvent gameEvent = move.Perform(_moveWorker);
 
