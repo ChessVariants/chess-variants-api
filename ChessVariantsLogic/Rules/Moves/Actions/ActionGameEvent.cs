@@ -1,5 +1,5 @@
 ﻿namespace ChessVariantsLogic.Rules.Moves.Actions;
-public class ActionGameEvent : Action
+public abstract class ActionGameEvent : Action
 {
     private readonly GameEvent _eventType;
 

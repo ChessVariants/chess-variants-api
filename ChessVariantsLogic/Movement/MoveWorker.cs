@@ -1,5 +1,4 @@
 namespace ChessVariantsLogic;
-using System;
 using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
@@ -93,6 +92,12 @@ public class MoveWorker
     public void AddMove(Move move)
     {
         _moveLog.Add(move);
+    }
+    public void AddActionToLastMove(Action action)
+    {
+        var lastMove = GetLastMove();
+        if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
+        lastMove.AddAction(action);
     }
 
     /// <summary>
@@ -617,7 +622,7 @@ public class MoveWorker
     /// <summary>
     /// Returns the last move from the movelog
     /// </summary>
-    public Move? getLastMove()
+    public Move? GetLastMove()
     {
         if (Movelog.Count == 0)
             return null;

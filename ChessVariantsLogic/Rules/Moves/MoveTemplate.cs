@@ -37,27 +37,49 @@ public class MoveTemplate
     /// 
     /// <returns>A list of special moves that can be performed on the given board state.</returns>
     /// 
-    public ISet<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
+    public ISet<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule, ISet<Event> events)
     {
-        List<string> positions = (List<string>) Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
+        List<string> positions = (List<string>)Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
         PieceClassifier pieceClassifier = thisBoard.GetPieceClassifier(_pieceIdentifier);
         ISet<Move> moves = new HashSet<Move>();
 
-        foreach(string from in positions)
+        foreach (string from in positions)
         {
             string? to = _to.GetPosition(thisBoard, from);
             if (to == null) continue;
 
             Move move = new Move(_actions, from + to, pieceClassifier);
-            
-            BoardTransition transition = new BoardTransition(thisBoard, move);
-            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
+
+            BoardTransition transition = new BoardTransition(thisBoard, move, events);
+            if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
             {
                 moves.Add(move);
             }
         }
 
         return moves;
+    }
+
+    public bool HasValidMoves(MoveWorker thisBoard, IPredicate moveRule, ISet<Event> events)
+    {
+        List<string> positions = (List<string>)Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
+        PieceClassifier pieceClassifier = thisBoard.GetPieceClassifier(_pieceIdentifier);
+
+        foreach (string from in positions)
+        {
+            string? to = _to.GetPosition(thisBoard, from);
+            if (to == null) continue;
+
+            Move move = new Move(_actions, from + to, pieceClassifier);
+
+            BoardTransition transition = new BoardTransition(thisBoard, move, events);
+            if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static MoveTemplate CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)

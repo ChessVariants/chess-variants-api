@@ -166,32 +166,14 @@ public static class GameFactory
 
     public static Game AtomicChess()
     {
-        IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
         IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
-        IPredicate whiteKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
 
-        IPredicate blackKingCheckedThisAndNextTurn = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
-        IPredicate whiteKingCheckedThisAndNextTurn = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
+        IPredicate noWhiteKingLeft = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
+        IPredicate noBlackKingLeft = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
 
-
-        IPredicate checkMateWhite = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
-        IPredicate checkMateBlack = new ForEvery(whiteKingCheckedThisAndNextTurn, Player.White);
-
-        IPredicate noBlackKingLeft = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
-        IPredicate noWhiteKingLeft = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
-
-        IPredicate whiteCaptured = new PieceCaptured("ANY_WHITE");
-        IPredicate blackCaptured = new PieceCaptured("ANY_BLACK");
-
-        IPredicate whiteKingMoved = new PieceMoved(Constants.WhiteKingIdentifier);
-        IPredicate blackKingMoved = new PieceMoved(Constants.BlackKingIdentifier);
-
-        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn) & !(blackCaptured & whiteKingMoved);
-        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn) & !(whiteCaptured & blackKingMoved);
-
-        IPredicate whiteWinRule = checkMateWhite | noBlackKingLeft;
-        IPredicate blackWinRule = checkMateBlack | noWhiteKingLeft;
+        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn) & !noWhiteKingLeft;
+        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn) & !noBlackKingLeft;
 
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
@@ -244,8 +226,13 @@ public static class GameFactory
         IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_WHITE"), IMPLIES, new PieceCaptured("ANY_WHITE"));
         IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.THIS);
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, new HashSet<MoveTemplate>(), new HashSet<Event>(), new HashSet<Event>());
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, new HashSet<MoveTemplate>(), new HashSet<Event>(), new HashSet<Event>());
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.WinEvent(Player.White, whiteWinRule) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.WinEvent(Player.Black, blackWinRule) };
+
+        ISet<Event> eventsNoMoves = new HashSet<Event> { Event.TieEvent(new Const(true)) };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, new HashSet<MoveTemplate>(), eventsWhite, eventsNoMoves);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, new HashSet<MoveTemplate>(), eventsBlack, eventsNoMoves);
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }

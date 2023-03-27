@@ -1,4 +1,6 @@
+global using Action = ChessVariantsLogic.Rules.Moves.Actions.Action;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+
 
 namespace ChessVariantsLogic.Rules.Moves.Actions;
 
@@ -31,6 +33,7 @@ public abstract class Action
     public GameEvent Perform(MoveWorker moveWorker, string from, string to)
     {
         string pivotPosition = GetPivotPosition(from, to);
+        moveWorker.AddActionToLastMove(this);
         return Perform(moveWorker, pivotPosition);
     }
 

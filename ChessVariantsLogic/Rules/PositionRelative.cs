@@ -26,7 +26,7 @@ public class PositionRelative : IPosition
     /// 
     public string? GetPosition(MoveWorker moveWorker, string pivotPosition)
     {
-        Tuple<int, int> finalPosition = GetPositionTuple(moveWorker, pivotPosition);
+        Tuple<int, int>? finalPosition = GetPositionTuple(moveWorker, pivotPosition);
         if (finalPosition == null) return null;
         moveWorker.Board.IndexToCoor.TryGetValue(finalPosition, out string? finalPositionString);
         return finalPositionString;

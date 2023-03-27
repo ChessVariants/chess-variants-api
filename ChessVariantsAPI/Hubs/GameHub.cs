@@ -110,8 +110,8 @@ public class GameHub : Hub
     public async Task MovePiece(string move, string gameId)
     {
         // if move is valid, compute new board
-        ISet<GameEvent>? result = null;
-        string? state = null;
+        ISet<GameEvent>? result;
+        string? state;
         try
         {
             result = _organizer.Move(move, gameId, Context.ConnectionId);
@@ -120,6 +120,7 @@ public class GameHub : Hub
         catch (OrganizerException e)
         {
             await Clients.Caller.SendAsync(Events.Error, e.Message);
+            return;
         }
 
         if(result.Contains(GameEvent.InvalidMove))

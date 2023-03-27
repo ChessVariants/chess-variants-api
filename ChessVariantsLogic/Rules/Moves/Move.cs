@@ -8,10 +8,11 @@ namespace ChessVariantsLogic.Rules.Moves;
 /// </summary>
 public class Move
 {
-    private readonly IEnumerable<Actions.Action> _actions;
-    private readonly string _fromTo;
+    private readonly ISet<Action> _actions;
+    public readonly string From;
+    public readonly string To;
 
-    public string FromTo => _fromTo;
+    public string FromTo => From + To;
     public readonly PieceClassifier PieceClassifier;
 
     /// <summary>
@@ -19,10 +20,13 @@ public class Move
     /// </summary>
     /// <param name="actions">The list of actions that the move performs.</param>
     /// <param name="fromTo">A pair of coordinates, the position of the performing piece and where it ends up.</param>
-    public Move(IEnumerable<Actions.Action> actions, string fromTo, PieceClassifier pieceClassifier)
+    public Move(ISet<Action> actions, string fromTo, PieceClassifier pieceClassifier)
     {
         _actions = actions;
-        _fromTo = fromTo;
+        var fromToTuple = MoveWorker.ParseMove(fromTo);
+        if (fromToTuple == null) throw new ArgumentException("Move needs to contain proper fromTo coordinate, supplied fromTo coordinate: " + fromTo);
+        (From, To) = fromToTuple;
+
         PieceClassifier = pieceClassifier;
     }
 
@@ -30,11 +34,8 @@ public class Move
     /// Constructs a standard move.
     /// </summary>
     /// <param name="fromTo">A pair of coordinates, the position of the piece to be moved and where it ends up.</param>
-    public Move(string fromTo, PieceClassifier pieceClassifier)
+    public Move(string fromTo, PieceClassifier pieceClassifier) : this(new HashSet<Action>() { new ActionMovePiece(fromTo) }, fromTo, pieceClassifier)
     {
-        _actions = new List<Actions.Action>() { new ActionMovePiece(fromTo) };
-        _fromTo = fromTo;
-        PieceClassifier = pieceClassifier;
     }
 
     /// <summary>
@@ -48,18 +49,21 @@ public class Move
     public ISet<GameEvent> Perform(MoveWorker moveWorker)
     {
         ISet<GameEvent> events = new HashSet<GameEvent>();
-        var fromTo = MoveWorker.ParseMove(_fromTo);
-        if (fromTo == null) throw new ArgumentException("Move needs to contain proper fromTo coordinate, supplied fromTo coordinate: " + _fromTo);
-        var (from, to) = fromTo;
+
+        moveWorker.AddMove(new Move(new HashSet<Action>(), FromTo, PieceClassifier));
 
         foreach (var action in _actions)
         {
-            GameEvent gameEvent = action.Perform(moveWorker, from, to);
+            GameEvent gameEvent = action.Perform(moveWorker, From, To);
             events.Add(gameEvent);
         }
 
-        moveWorker.AddMove(this);
         return events;
+    }
+
+    public void AddAction(Action action)
+    {
+        _actions.Add(action);
     }
 
 }

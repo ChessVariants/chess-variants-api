@@ -15,7 +15,7 @@ public class Game {
     private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
 
-    private IDictionary<string, Move> validMoves;
+    private IDictionary<string, Move> _legalMoves;
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
@@ -24,7 +24,7 @@ public class Game {
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
         _blackRules = blackRules;
-        validMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
+        _legalMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public class Game {
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
     public ISet<GameEvent> MakeMove(string moveCoordinates, Player? playerRequestingMove)
     {
-        validMoves.TryGetValue(moveCoordinates, out Move? move);
+        _legalMoves.TryGetValue(moveCoordinates, out Move? move);
 
         if (move == null || playerRequestingMove != _playerTurn)
         {
@@ -44,40 +44,37 @@ public class Game {
     }
 
 
+    /// <summary>
+    /// Performs the given <paramref name="move"/> on the internal move worker. Then runs all events that should be run and subsequently updates _legalMoves dictionary. Returns a set of GameEvents.
+    /// </summary>
+    /// <param name="move">The move requested to be made</param>
+    /// <returns>GameEvent of what happened in the game</returns>
     private ISet<GameEvent> MakeMoveImplementation(Move move)
     {
-        Player currentPlayer = _playerTurn;
-        Player opponent = _playerTurn == Player.White ? Player.Black : Player.White;
-
-        RuleSet currentPlayerRuleSet = GetRuleSetForPlayer(currentPlayer);
-        RuleSet opponentRuleSet = GetRuleSetForPlayer(opponent);
+        var currentPlayer = _playerTurn;
+        var opponent = _playerTurn == Player.White ? Player.Black : Player.White;
 
         BoardTransition boardTransition = new BoardTransition(_moveWorker, move);
 
-        ISet<GameEvent> events = move.Perform(_moveWorker);
+        // Perform move and add GameEvents to event set
 
-        ISet<GameEvent> gameEventsFromEvents = currentPlayerRuleSet.RunEvents(boardTransition, _moveWorker, true);
+        var events = move.Perform(_moveWorker);
 
-        events.UnionWith(gameEventsFromEvents);
+        // Run events and add GameEvents to event set
 
-        validMoves = opponentRuleSet.GetLegalMoves(_moveWorker, opponent);
+        events.UnionWith(RunEventsForPlayer(currentPlayer, boardTransition));
 
-        bool movesLeft = validMoves.Count() > 0;
+        // Run stalemate events
 
-        if (!movesLeft)
-        {
-            ISet<GameEvent> gameEventsFromEventsNoMoves = opponentRuleSet.RunEvents(boardTransition, _moveWorker, movesLeft);
-            events.UnionWith(gameEventsFromEventsNoMoves);
-        }
+        events.UnionWith(RunStalemateEventsForPlayer(opponent, boardTransition));
 
-        Player lastPlayer = _playerTurn;
+        // Calculate new player
+
         DecrementPlayerMoves();
 
-        bool stillSamePlayer = _playerTurn == lastPlayer;
-        if (stillSamePlayer)
-        {
-            validMoves = currentPlayerRuleSet.GetLegalMoves(_moveWorker, _playerTurn);
-        }
+        // Update legal moves to new player's legal moves
+
+        UpdateLegalMovesForPlayer(_playerTurn);
 
         return events;
     }
@@ -85,8 +82,7 @@ public class Game {
     public Dictionary<string, List<string>> GetLegalMoveDict()
     {
         var moveDict = new Dictionary<string, List<string>>();
-        var moves = validMoves;
-        foreach (var move in moves)
+        foreach (var move in _legalMoves)
         {
             var fromTo = MoveWorker.ParseMove(move.Key);
             if (fromTo == null)
@@ -104,6 +100,25 @@ public class Game {
         }
         return moveDict;
     }
+
+    private ISet<GameEvent> RunEventsForPlayer(Player player, BoardTransition lastTransition)
+    {
+        return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, false);
+    }
+
+    private ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
+    {
+        if (GetRuleSetForPlayer(player).HasLegalMoves(_moveWorker, player))
+            return new HashSet<GameEvent>() { };
+
+        return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, true);
+    }
+
+    private void UpdateLegalMovesForPlayer(Player player)
+    {
+        _legalMoves = GetRuleSetForPlayer(player).GetLegalMoves(_moveWorker, player);
+    }
+
     private RuleSet GetRuleSetForPlayer(Player player)
     {
         if (player == Player.White)
@@ -112,69 +127,6 @@ public class Game {
             return _blackRules;
         else
             throw new ArgumentException("Player can't be None when getting ruleset :" + player);
-    }
-
-    /// <summary>
-    /// Checks whether the given <paramref name="moveCoordinates"/> is valid and if so does the move and return correct GameEvent.
-    /// </summary>
-    /// <param name="moveCoordinates">The move requested to be made</param>
-    /// <returns>GameEvent of what happened in the game</returns>
-    
-    /*
-    private GameEvent MakeMoveImpl(string moveCoordinates) {
-        IEnumerable<Move> validMoves;
-
-        if (_playerTurn == Player.White) {
-            validMoves = _whiteRules.GetLegalMoves(_moveWorker, _playerTurn);
-        } else {
-            validMoves = _blackRules.GetLegalMoves(_moveWorker, _playerTurn);
-        }
-
-
-        Move? move = GetMove(validMoves, moveCoordinates);
-        if (move == null) return GameEvent.InvalidMove;
-        if (validMoves.Contains(move)) {
-
-
-            BoardTransition transition = new BoardTransition(_moveWorker.CopyBoardState(), move);
-
-            GameEvent gameEvent = move.Perform(_moveWorker);
-
-            if (_playerTurn == Player.White)
-            {
-                _whiteRules.RunEvents(transition, _moveWorker);
-            }
-            else
-            {
-                _blackRules.RunEvents(transition, _moveWorker);
-            }
-
-            if (gameEvent == GameEvent.InvalidMove)
-                return gameEvent;
-
-
-            /// TODO: Check for a tie
-
-
-            if (false)
-                return GameEvent.Tie;
-
-            DecrementPlayerMoves();
-            return gameEvent;
-        }
-        return GameEvent.InvalidMove;
-    }
-    */
-    private Move? GetMove(IEnumerable<Move> validMoves, string moveCoords)
-    {
-        foreach(Move move in validMoves)
-        {
-            if(move.FromTo.Equals(moveCoords))
-            {
-                return move;
-            }
-        }
-        return null;
     }
 
     /// <summary>
