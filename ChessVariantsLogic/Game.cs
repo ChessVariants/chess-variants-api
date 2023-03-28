@@ -14,35 +14,6 @@ public class Game {
     private readonly int _movesPerTurn;
     private readonly RuleSet _blackRules;
     private readonly RuleSet _whiteRules;
-  
-
-    public MoveWorker _MoverWorker{
-        get { return this._moveWorker; }
-    }
-    
-    public Player _PlayerTurn
-    {
-        get { return this._PlayerTurn; }
-    }
-
-    public int _PlayerMovesRemaining
-    {
-        get { return this._playerMovesRemaining; }
-    }
-
-    public int _MovesPerTurn
-    {
-        get { return this._movesPerTurn; }
-    }
-    
-    public RuleSet _WhiteRules
-    {
-        get { return this._whiteRules; }
-    }
-    public RuleSet _BlackRules
-    {
-        get { return this._blackRules; }
-    }
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {

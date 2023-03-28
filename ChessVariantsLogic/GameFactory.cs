@@ -74,6 +74,55 @@ public static class GameFactory
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
+    public static Perft StandardChessPerft()
+    {
+        IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
+        IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
+        IPredicate whiteKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
+        IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
+
+        IPredicate blackKingCheckedThisAndNextTurn = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
+        IPredicate whiteKingCheckedThisAndNextTurn = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
+
+        IPredicate whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
+        IPredicate blackWinRule = new ForEvery(whiteKingCheckedThisAndNextTurn, Player.White);
+
+        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn);
+        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn);
+
+
+
+        ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.White, true, false),
+            MoveTemplate.CastleMove(Player.White, false, false),
+            MoveTemplate.PawnDoubleMove(Player.White),
+            MoveTemplate.EnPassantMove(Player.White, true),
+            MoveTemplate.EnPassantMove(Player.White, false),
+        };
+
+
+        ISet<MoveTemplate> movesBlack = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.Black, true, false),
+            MoveTemplate.CastleMove(Player.Black, false, false),
+            MoveTemplate.PawnDoubleMove(Player.Black),
+            MoveTemplate.EnPassantMove(Player.Black, true),
+            MoveTemplate.EnPassantMove(Player.Black, false),
+        };
+
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
+
+
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite, eventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack, eventsBlack);
+
+
+        return new Perft(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+    }
+
 
     public static Game CaptureTheKing()
     {

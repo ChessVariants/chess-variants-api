@@ -15,16 +15,14 @@ public class ChessboardTests : IDisposable
     private Game game;
     private const string customPieceNotation = "CA";
 
-    private Perft perft = new Perft();
+    private Perft perft;
     
 
     public ChessboardTests()
     {
         this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         this.game = GameFactory.StandardChess();
-        
-        
-        
+        this.perft = GameFactory.StandardChessPerft();
     }
 
     public void Dispose()
@@ -509,16 +507,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void perftTestThreeMoves()
     {
-        
-       perft.perftTest (this.game,3, Player.White);
+       this.perft.perftTest (3, Player.White);
        Assert.Equal(8902, perft.Nodes);
     }
 
     [Fact (Skip = "Takes too long")]
     public void perftTestFiveMoves()
     {
-        
-       perft.perftTest(this.game, 5, Player.White);
+       this.perft.perftTest( 5, Player.White);
        Assert.Equal(4865609, perft.Nodes);
     }
 }
