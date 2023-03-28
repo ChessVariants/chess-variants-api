@@ -29,6 +29,11 @@ public class MoveWorker
     }
 
     private Stack<Chessboard> stateLog = new Stack<Chessboard>(); 
+
+    public Stack<Chessboard> StateLog
+    {
+        get {return stateLog;}
+    }
     
     /// <summary>
     /// Constructor that takes a Chessboard and a HashSet of Piece
@@ -73,8 +78,7 @@ public class MoveWorker
 
             if (moves.Contains(coor) || force)
             {
-                var boardTmp = board.CopyBoard();
-                stateLog.Push(boardTmp);
+                
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                 board.PieceHasMoved(coor.Item1,coor.Item2);

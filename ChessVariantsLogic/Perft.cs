@@ -38,6 +38,8 @@ public class Perft
 
         foreach (var move in validMoves)
         {
+            var boardTmp = game._MoverWorker.Board.CopyBoard();
+            game._MoverWorker.StateLog.Push(boardTmp);
             move.Perform(game._MoverWorker);
             perftTest(game,depth - 1, turn);
             game._MoverWorker.undoMove();
