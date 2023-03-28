@@ -3,6 +3,7 @@ namespace ChessVariantsLogic;
 using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Export;
+
 using System;
 
 public class Game {
@@ -11,9 +12,37 @@ public class Game {
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
-    private readonly RuleSet _whiteRules;
     private readonly RuleSet _blackRules;
-    public int nodes;
+    private readonly RuleSet _whiteRules;
+  
+
+    public MoveWorker _MoverWorker{
+        get { return this._moveWorker; }
+    }
+    
+    public Player _PlayerTurn
+    {
+        get { return this._PlayerTurn; }
+    }
+
+    public int _PlayerMovesRemaining
+    {
+        get { return this._playerMovesRemaining; }
+    }
+
+    public int _MovesPerTurn
+    {
+        get { return this._movesPerTurn; }
+    }
+    
+    public RuleSet _WhiteRules
+    {
+        get { return this._whiteRules; }
+    }
+    public RuleSet _BlackRules
+    {
+        get { return this._blackRules; }
+    }
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
@@ -23,6 +52,8 @@ public class Game {
         _whiteRules = whiteRules;
         _blackRules = blackRules;
     }
+    
+    
 
     /// <summary>
     /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move.
@@ -101,34 +132,7 @@ public class Game {
         return null;
     }
 
-    public void perft(int depth, Player turn)
-    {
-        if (depth == 0)
-        {
-            nodes++;
-            return;
-        }
-        IEnumerable<Move> validMoves;
-        validMoves = _blackRules.ApplyMoveRule(_moveWorker, turn);
-        if (turn == Player.White)
-        {
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
-            turn = Player.Black;
-        }
-        else
-        {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
-            turn = Player.White;
-        }
-
-        foreach (var move in validMoves)
-        {
-            move.Perform(_moveWorker);
-            perft(depth - 1, turn);
-            _moveWorker.undoMove();
-        }
-        return;
-    }
+  
 
     /// <summary>
     /// Decrements the number of moves remaining for the current player. If the player has no moves left, switches the player turn and resets the number of moves remaining.
@@ -178,4 +182,7 @@ public static class PlayerExtensions
         };
     }
 }
+
+
+
 
