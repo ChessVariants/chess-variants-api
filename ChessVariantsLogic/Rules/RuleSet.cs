@@ -56,7 +56,7 @@ public class RuleSet
         foreach (var moveTemplate in _moveTemplates)
         {
             ISet<Move> specialMoves = moveTemplate.GetValidMoves(board, _moveRule, _events);
-            foreach(Move move in specialMoves)
+            foreach (Move move in specialMoves)
             {
                 acceptedMoves.Add(move.FromTo, move);
             }
@@ -85,7 +85,7 @@ public class RuleSet
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
 
-            if (ruleSatisfied)
+            if (ruleSatisfied && transition.IsValid())
             {
                 return true;
             }
@@ -117,11 +117,11 @@ public class RuleSet
         {
             if (e.ShouldRun(lastTransition))
             {
-                gameEvents.UnionWith(e.Run(moveWorker, lastTransition.Move));
+                gameEvents.UnionWith(e.Run(moveWorker));
             }
         }
-        if (gameEvents.Contains(GameEvent.InvalidMove))
-            throw new Exception("Events should not be able to perform invalid moves!");
+        //        if (gameEvents.Contains(GameEvent.InvalidMove))
+        //            throw new Exception("Events should not be able to perform invalid moves!");
 
         gameEvents.IntersectWith(new HashSet<GameEvent>() { GameEvent.Tie, GameEvent.WhiteWon, GameEvent.BlackWon });
         if (gameEvents.Count > 1)

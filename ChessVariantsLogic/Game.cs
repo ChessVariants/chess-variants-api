@@ -58,15 +58,16 @@ public class Game {
 
         // Perform move and add GameEvents to event set
 
-        var events = move.Perform(_moveWorker);
+        var events = _moveWorker.PerformMove(move);
 
-        // Run events and add GameEvents to event set
+        // Run events for current player and add GameEvents to event set
 
         events.UnionWith(RunEventsForPlayer(currentPlayer, boardTransition));
 
-        // Run stalemate events
+        // If opponent has no legal moves, run opponent's stalemate events
 
-        events.UnionWith(RunStalemateEventsForPlayer(opponent, boardTransition));
+        if (!HasLegalMoves(opponent))
+            events.UnionWith(RunStalemateEventsForPlayer(opponent, boardTransition));
 
         // Calculate new player
 
@@ -78,7 +79,6 @@ public class Game {
 
         return events;
     }
-
     public Dictionary<string, List<string>> GetLegalMoveDict()
     {
         var moveDict = new Dictionary<string, List<string>>();
@@ -108,15 +108,17 @@ public class Game {
 
     private ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
     {
-        if (GetRuleSetForPlayer(player).HasLegalMoves(_moveWorker, player))
-            return new HashSet<GameEvent>() { };
-
         return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, true);
     }
 
     private void UpdateLegalMovesForPlayer(Player player)
     {
         _legalMoves = GetRuleSetForPlayer(player).GetLegalMoves(_moveWorker, player);
+    }
+
+    private bool HasLegalMoves(Player player)
+    {
+        return GetRuleSetForPlayer(player).HasLegalMoves(_moveWorker, player);
     }
 
     private RuleSet GetRuleSetForPlayer(Player player)

@@ -26,13 +26,7 @@ public class Event
     /// <returns>True if the predicate holds, otherwise false.</returns>
     public bool ShouldRun(BoardTransition lastTransition)
     {
-        string fromTo = lastTransition.Move.FromTo;
-        
-        Move moveEvent = new Move(_actions, fromTo, lastTransition.Move.PieceClassifier);
-        
-        BoardTransition newTransition = new BoardTransition(lastTransition.NextState, moveEvent);
-
-        return _predicate.Evaluate(lastTransition) && newTransition.IsValid();
+        return _predicate.Evaluate(lastTransition);
     }
 
     /// <summary>
@@ -42,16 +36,9 @@ public class Event
     /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
     public ISet<GameEvent> Run(MoveWorker moveWorker)
     {
-        var events = new HashSet<GameEvent>();
-        var lastMove = moveWorker.GetLastMove();
-        if (lastMove == null) throw new NullReferenceException("Can't run event if movelog is empty");
-
-        foreach (var action in _actions)
-        {
-            var gameEvent = action.Perform(moveWorker, lastMove.From, lastMove.To);
-            events.Add(gameEvent);
-        }
-        return events;
+        ISet<GameEvent> results = moveWorker.PerformActions(_actions);
+        results.Remove(GameEvent.InvalidMove);
+        return results;
     }
 
     

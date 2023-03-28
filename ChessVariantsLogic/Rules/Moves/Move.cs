@@ -20,6 +20,7 @@ public class Move
     /// </summary>
     /// <param name="actions">The list of actions that the move performs.</param>
     /// <param name="fromTo">A pair of coordinates, the position of the performing piece and where it ends up.</param>
+    /// <param name="pieceClassifier">The PieceClassifier of the piece performing the move.</param>
     public Move(ISet<Action> actions, string fromTo, PieceClassifier pieceClassifier)
     {
         _actions = actions;
@@ -38,27 +39,10 @@ public class Move
     {
     }
 
-    /// <summary>
-    /// Performs all actions in the internal list _actions on the given moveWorker.
-    /// If any single action fails, the whole move fails.
-    /// </summary>
-    /// <param name="moveWorker">The board state to perform the actions on.</param>
-    /// 
-    /// <returns>A GameEvent that determines whether the move succeeded or was invalid.</returns>
-    /// 
-    public ISet<GameEvent> Perform(MoveWorker moveWorker)
+
+    public ISet<Action> GetActions()
     {
-        ISet<GameEvent> events = new HashSet<GameEvent>();
-
-        moveWorker.AddMove(new Move(new HashSet<Action>(), FromTo, PieceClassifier));
-
-        foreach (var action in _actions)
-        {
-            GameEvent gameEvent = action.Perform(moveWorker, From, To);
-            events.Add(gameEvent);
-        }
-
-        return events;
+        return _actions;
     }
 
     public void AddAction(Action action)

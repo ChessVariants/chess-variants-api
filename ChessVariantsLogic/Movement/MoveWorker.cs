@@ -73,7 +73,7 @@ public class MoveWorker
             var coor = board.ParseCoordinate(to);
             if (coor == null) return GameEvent.InvalidMove;
 
-            if (moves.Contains(coor) || force)
+            if (force || moves.Contains(coor))
             {
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
@@ -89,15 +89,9 @@ public class MoveWorker
     /// <summary>
     /// Adds the given move to the internal movelog. 
     /// </summary>
-    public void AddMove(Move move)
+    private void AddMove(Move move)
     {
         _moveLog.Add(move);
-    }
-    public void AddActionToLastMove(Action action)
-    {
-        var lastMove = GetLastMove();
-        if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
-        lastMove.AddAction(action);
     }
 
     /// <summary>
@@ -129,6 +123,34 @@ public class MoveWorker
             default: return null;
         }
         return new Tuple<string, string>(from, to);
+    }
+
+    public ISet<GameEvent> PerformMove(Move move)
+    {
+        AddMove(new Move(new HashSet<Action>(), move.FromTo, move.PieceClassifier));
+        return PerformActions(move.GetActions());
+    }
+
+    public ISet<GameEvent> PerformActions(ISet<Action> actions)
+    {
+        var events = new HashSet<GameEvent>();
+
+        foreach (var action in actions)
+        {
+            events.Add(PerformAction(action));
+        }
+        return events;
+    }
+
+    public GameEvent PerformAction(Action action)
+    {
+        var lastMove = GetLastMove();
+        if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
+        var result = action.Perform(this, lastMove.From, lastMove.To);
+        if (result == GameEvent.InvalidMove)
+            Console.WriteLine("Could not perform invalid action " + GetType().Name + " for piece " + board.GetPieceIdentifier(lastMove.From) + " from " + lastMove.From + " to " + lastMove.To);
+        lastMove.AddAction(action);
+        return result;
     }
 
     /// <summary>

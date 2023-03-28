@@ -169,11 +169,11 @@ public static class GameFactory
         IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
         IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
 
-        IPredicate noWhiteKingLeft = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
-        IPredicate noBlackKingLeft = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
+        IPredicate whiteKingLeft = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.GREATER_THAN, 0, BoardState.NEXT);
+        IPredicate blackKingLeft = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.GREATER_THAN, 0, BoardState.NEXT);
 
-        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn) & !noWhiteKingLeft;
-        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn) & !noBlackKingLeft;
+        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn) & whiteKingLeft;
+        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn) & blackKingLeft;
 
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
