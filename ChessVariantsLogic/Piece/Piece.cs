@@ -8,25 +8,18 @@ namespace ChessVariantsLogic;
 public class Piece
 {
 #region Fields, properties and constructors
-    private readonly MovementPattern movementPattern;
-    private readonly MovementPattern capturePattern;
-    private readonly bool royal;
-    private readonly bool canBeCaptured;
-    private readonly PieceClassifier pieceClassifier;
 
-    private string pieceIdentifier;
+    private MovementPattern movementPattern { get; }
+    private MovementPattern capturePattern { get; }
+    public bool Royal { get; }
 
-    private readonly int repeat;
+    public PieceClassifier PieceClassifier { get; }
 
-    public bool Royal { get { return this.royal; } }
+    public int Repeat { get; }
 
-    public PieceClassifier PieceClassifier { get { return this.pieceClassifier;} }
+    public string PieceIdentifier { get; }
 
-    public int Repeat { get { return this.repeat; } }
-
-    public string PieceIdentifier { get { return this.pieceIdentifier; } }
-
-    public bool CanBeCaptured { get { return this.canBeCaptured; } }
+    public bool CanBeCaptured { get; }
 
     /// <summary>
     /// Constructor for a new Piece.
@@ -41,18 +34,18 @@ public class Piece
     {
         this.movementPattern = movementPattern;
         this.capturePattern = capturePattern;
-        this.royal = royal;
-        this.pieceClassifier = pc;
-        this.pieceIdentifier = pieceIdentifier;
-        this.canBeCaptured = canBeCaptured;
+        this.Royal = royal;
+        this.PieceClassifier = pc;
+        this.PieceIdentifier = pieceIdentifier;
+        this.CanBeCaptured = canBeCaptured;
 
         //This might not be optimal since it doesn't notify the user that the value is not what it was set to.
         if(repeat < 0)
-            this.repeat = 0;
-        else if (repeat > 3)
-            this.repeat = 3;
+            this.Repeat = 0;
+        else if (Repeat > 3)
+            this.Repeat = 3;
         else
-            this.repeat = repeat;
+            this.Repeat = repeat;
     }
 
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier, bool canBeCaptured = true)
@@ -115,7 +108,7 @@ public class Piece
     /// <returns> true if this is of opposite color than other, otherwise false.</returns>
     public bool CanTake(Piece other)
     {
-        return !this.pieceClassifier.Equals(other.pieceClassifier) && other.CanBeCaptured;
+        return !this.PieceClassifier.Equals(other.PieceClassifier) && other.CanBeCaptured;
     }
 
 #region Static methods
@@ -132,7 +125,7 @@ public class Piece
 
         return new Piece(movement, captures, state.Royal, state.PieceClassifier, state.Repeat, state.PieceIdentifier, state.CanBeCaptured);
     }
-    
+
     private static List<IPattern> fetchPatterns(List<Pattern> patterns)
     {
         var movementPatterns = new List<IPattern>();
