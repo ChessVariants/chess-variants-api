@@ -173,7 +173,7 @@ public class PieceBuilder
     /// <param name="maxLength">is the maximum length of the pattern.</param>
     public void RemoveMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
-        RemoveCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
+        RemoveMovementPattern(direction.Item1, direction.Item2, minLength, maxLength);
     }
 
     /// <summary>
