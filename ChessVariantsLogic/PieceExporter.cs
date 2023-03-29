@@ -2,13 +2,26 @@ using Newtonsoft.Json;
 
 namespace ChessVariantsLogic.Export;
 
+/// <summary>
+/// This class exports an object of type <see cref="Piece"/> to a string of Json-format.
+/// </summary>
 public static class PieceExporter
 {
+    /// <summary>
+    /// Exports <paramref name="piece"/> of type <see cref="Piece"/> to a string of Json-format.
+    /// </summary>
+    /// <param name="piece"> is the piece that should be exported.</param>
+    /// <returns>A string in Json-format of <paramref name="piece"/>.</returns>
     public static string ExportPieceStateAsJson(Piece piece)
     {
         return ExportPieceState(piece).AsJson();
     }
 
+    /// <summary>
+    /// Exports <paramref name="piece"/> into a <see cref="PieceState"/> object.
+    /// </summary>
+    /// <param name="piece">is the piece that should be exported.</param>
+    /// <returns>A <see cref="PieceState"/> of the <paramref name="piece"/>.</returns>
     public static PieceState ExportPieceState(Piece piece)
     {
         var pieceState = new PieceState
@@ -42,6 +55,10 @@ public static class PieceExporter
 
 }
 
+/// <summary>
+/// Represents an exportation of the state of a piece and
+/// can be exported to a JSON formatted string for communication between entities.
+/// </summary>
 public record PieceState
 {
     [JsonProperty("movements")]
@@ -72,6 +89,9 @@ public record PieceState
     }
 }
 
+/// <summary>
+/// Represents a Json-object of an <see cref="IPattern"/>.
+/// </summary>
 public record Pattern
 {
     [JsonProperty("x_dir")]

@@ -31,6 +31,12 @@ public class PieceBuilder
         this.sameCaptureAsMovement = true;
     }
 
+    /// <summary>
+    /// Parses <paramref name="json"/> into an object of type Piece.
+    /// </summary>
+    /// <param name="json">is the string that should be parsed.</param>
+    /// <returns>If <paramref name="json"/> is valid json format a Piece is returned, otherwise a JsonException is surfaced. </returns>
+    /// <exception cref="JsonException">description</exception>
     public static Piece ParseJson(string json) //Should this be in PieceExporter?
     {
         var pieceState = JsonConvert.DeserializeObject<PieceState>(json,
