@@ -1,3 +1,6 @@
+using ChessVariantsLogic.Export;
+using Newtonsoft.Json;
+
 namespace ChessVariantsLogic;
 
 /// <summary>
@@ -26,6 +29,16 @@ public class PieceBuilder
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
+    }
+
+    public static Piece ParseJson(string json) //Should this be in PieceExporter?
+    {
+        var pieceState = JsonConvert.DeserializeObject<PieceState>(json,
+            new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+
+        if(pieceState == null)
+            throw new JsonException();
+        return Piece.ParseState(pieceState);
     }
 
     /// <summary>

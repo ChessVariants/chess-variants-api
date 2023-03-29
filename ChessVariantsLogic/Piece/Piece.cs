@@ -1,3 +1,5 @@
+using ChessVariantsLogic.Export;
+
 namespace ChessVariantsLogic;
 
 /// <summary>
@@ -55,8 +57,36 @@ public class Piece
 
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, bool royal, PieceClassifier pc, string pieceIdentifier, bool canBeCaptured = true)
     : this(movementPattern, capturePattern, royal, pc, 0, pieceIdentifier, canBeCaptured) {}
+    
+    public static Piece ParseState(PieceState state)
+    {
+        var movement = new MovementPattern(fetchPatterns(state.Movement));
+        var captures = new MovementPattern(fetchPatterns(state.Captures));
+
+        return new Piece(movement, captures, state.Royal, state.PieceClassifier, state.Repeat, state.PieceIdentifier, state.CanBeCaptured);
+    }
+
+    private static List<IPattern> fetchPatterns(List<Pattern> patterns)
+    {
+        var movementPatterns = new List<IPattern>();
+        foreach(var p in patterns)
+        {
+            IPattern pattern;
+            if(p.MinLength <= 0)
+                pattern = new JumpPattern(p.XDir, p.YDir);
+            else
+                pattern = new RegularPattern(p.XDir, p.YDir, p.MinLength, p.MaxLength);
+            movementPatterns.Add(pattern);
+        }
+        return movementPatterns;
+    }
 
 #endregion
+
+    public string ExportAsJson()
+    {
+        return PieceExporter.ExportPieceStateAsJson(this);
+    }
 
     /// <summary>
     /// Gets a specific movement pattern by index.
