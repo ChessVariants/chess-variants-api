@@ -8,7 +8,7 @@ namespace ChessVariantsLogic.Rules.Moves;
 /// </summary>
 public class Move
 {
-    private readonly ISet<Action> _actions;
+    private readonly List<Action> _actions;
     public readonly string From;
     public readonly string To;
 
@@ -16,12 +16,12 @@ public class Move
     public readonly PieceClassifier PieceClassifier;
 
     /// <summary>
-    /// Constructor that takes a list of actions and a string fromTo.
+    /// Constructor that takes a list of actions, a string fromTo and a PieceClassifier.
     /// </summary>
     /// <param name="actions">The list of actions that the move performs.</param>
     /// <param name="fromTo">A pair of coordinates, the position of the performing piece and where it ends up.</param>
     /// <param name="pieceClassifier">The PieceClassifier of the piece performing the move.</param>
-    public Move(ISet<Action> actions, string fromTo, PieceClassifier pieceClassifier)
+    public Move(List<Action> actions, string fromTo, PieceClassifier pieceClassifier)
     {
         _actions = actions;
         var fromToTuple = MoveWorker.ParseMove(fromTo);
@@ -35,12 +35,13 @@ public class Move
     /// Constructs a standard move.
     /// </summary>
     /// <param name="fromTo">A pair of coordinates, the position of the piece to be moved and where it ends up.</param>
-    public Move(string fromTo, PieceClassifier pieceClassifier) : this(new HashSet<Action>() { new ActionMovePiece(fromTo) }, fromTo, pieceClassifier)
+    /// <param name="pieceClassifier">The classifier of the piece performing the move.</param>
+    public Move(string fromTo, PieceClassifier pieceClassifier) : this(new List<Action>() { new ActionMovePiece(fromTo) }, fromTo, pieceClassifier)
     {
     }
 
 
-    public ISet<Action> GetActions()
+    public List<Action> GetActions()
     {
         return _actions;
     }

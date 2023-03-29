@@ -23,7 +23,7 @@ public class ActionMovePiece : Action
         _to = to;
     }
 
-    public ActionMovePiece(string fromTo) : base()
+    public ActionMovePiece(string fromTo) : base(RelativeTo.FROM)
     {
         Tuple<string, string>? fromToTuple = MoveWorker.ParseMove(fromTo);
         if (fromToTuple == null) throw new ArgumentException("fromTo is not a proper string: " + fromTo);
@@ -34,12 +34,12 @@ public class ActionMovePiece : Action
 
     /// <summary>
     /// Forcefully move a piece on the board according to the given positions.
-    /// If Positions are defined as relative, it will be calculated relative to the piece performing the action.
+    /// If Positions are defined as relative, it will be performed relative to the given <paramref name="pivotPosition"/>
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
     /// <param name="pivotPosition">This variable is used to calculate the from and to positions if they are relative.</param>
     /// 
-    /// <returns>A GameEvent that represents whether or not the action was successfully performed.</returns>
+    /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
     protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
     {

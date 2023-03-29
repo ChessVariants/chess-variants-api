@@ -12,24 +12,21 @@ public abstract class Action
 {
     private readonly RelativeTo _relativeTo;
 
-    public Action(RelativeTo relativeTo)
+    protected Action(RelativeTo relativeTo)
     {
         _relativeTo = relativeTo;
-    }
-
-    public Action()
-    {
-        _relativeTo = RelativeTo.FROM;
     }
 
 
     /// <summary>
     /// Performs an action on the given moveWorker according to implementation.
+    /// This method should only be called from the MoveWorker class
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="performingPiecePosition">The position of the piece that performed the action. Relative positions are calculated relative to this position.</param>
+    /// <param name="from">The position of the piece that performed the action before the action was performed.</param>
+    /// <param name="to">The position of the piece that performed the action after the action was performed.</param>
     /// 
-    /// <returns>A GameEvent that represents whether or not the action was successfully performed.</returns>
+    /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
     public GameEvent Perform(MoveWorker moveWorker, string from, string to)
     {

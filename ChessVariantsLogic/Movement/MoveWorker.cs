@@ -1,4 +1,6 @@
 namespace ChessVariantsLogic;
+
+using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
@@ -87,7 +89,7 @@ public class MoveWorker
     }
 
     /// <summary>
-    /// Adds the given move to the internal movelog. 
+    /// Adds the given move to the internal movelog. Should not be called outside of this class.
     /// </summary>
     private void AddMove(Move move)
     {
@@ -124,14 +126,22 @@ public class MoveWorker
         }
         return new Tuple<string, string>(from, to);
     }
-
+    /// <summary>
+    /// Performs a move and adds it to the move log, this is a replacement for the old Move.Perform() method.
+    /// </summary>
+    /// <param name="move">The move to be performed.</param>
+    /// <returns>A set of GameEvents that occured when the move was performed.</returns>
     public ISet<GameEvent> PerformMove(Move move)
     {
-        AddMove(new Move(new HashSet<Action>(), move.FromTo, move.PieceClassifier));
+        AddMove(new Move(new List<Action>(), move.FromTo, move.PieceClassifier));
         return PerformActions(move.GetActions());
     }
-
-    public ISet<GameEvent> PerformActions(ISet<Action> actions)
+    /// <summary>
+    /// Performs a list of actions on this MoveWorker and adds the actions to the last move that was performed.
+    /// </summary>
+    /// <param name="actions">The set of actions to be performed and added.</param>
+    /// <returns>A set of GameEvents that occured when the actions were performed.</returns>
+    public ISet<GameEvent> PerformActions(List<Action> actions)
     {
         var events = new HashSet<GameEvent>();
 
@@ -142,15 +152,31 @@ public class MoveWorker
         return events;
     }
 
+    /// <summary>
+    /// Performs an action on this MoveWorker and adds the action to the last move that was performed.
+    /// </summary>
+    /// <param name="action">The action to be performed and added.</param>
+    /// <returns>A GameEvent that occured when the action was performed.</returns>
     public GameEvent PerformAction(Action action)
     {
         var lastMove = GetLastMove();
         if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
         var result = action.Perform(this, lastMove.From, lastMove.To);
-        if (result == GameEvent.InvalidMove)
-            Console.WriteLine("Could not perform invalid action " + GetType().Name + " for piece " + board.GetPieceIdentifier(lastMove.From) + " from " + lastMove.From + " to " + lastMove.To);
         lastMove.AddAction(action);
         return result;
+    }
+
+    /// <summary>
+    /// Runs the event on the given <paramref name="moveWorker"/>. This does not take into account whether the event actually should be run.
+    /// </summary>
+    /// <param name="moveWorker">The MoveWorker we want to run the event on.</param>
+    /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
+    public ISet<GameEvent> RunEvent(Event e)
+    {
+        var results = PerformActions(e.Actions);
+        // Invalid events should just be ignored and not even be reported to the frontend.
+        results.Remove(GameEvent.InvalidMove);
+        return results;
     }
 
     /// <summary>

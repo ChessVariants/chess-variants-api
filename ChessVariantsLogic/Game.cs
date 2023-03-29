@@ -28,7 +28,8 @@ public class Game {
     }
 
     /// <summary>
-    /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move.
+    /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move and if the move requested to be made is a legal move.
+    /// Then it calls the MakeMoveImplementation method which actually performs the move
     /// </summary>
     /// <param name="moveCoordinates">The move requested to be made</param>
     /// <param name="playerRequestingMove">The player requesting to make a move</param>

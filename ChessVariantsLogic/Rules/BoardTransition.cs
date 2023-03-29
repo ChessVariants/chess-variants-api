@@ -21,17 +21,13 @@ public class BoardTransition
         NextState = thisState.CopyBoardState();
         Move = move;
         Results = NextState.PerformMove(Move);
-        Tuple<string, string>? fromTo = MoveWorker.ParseMove(move.FromTo);
-        if (fromTo == null) throw new ArgumentException("The given move parameter does not contain a proper move string. Supplied move string: " + move.FromTo);
-
-        MoveFrom = fromTo.Item1;
-        MoveTo = fromTo.Item2;
-
+        MoveFrom = move.From;
+        MoveTo = move.To;
     }
 
     public BoardTransition(MoveWorker thisState, Move move, ISet<Event> events) : this(thisState, move)
     {
-        foreach (Event e in events)
+        foreach (var e in events)
         {
             if(e.ShouldRun(this))
             {

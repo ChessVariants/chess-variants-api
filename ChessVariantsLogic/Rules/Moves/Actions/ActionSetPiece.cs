@@ -19,10 +19,10 @@ public class ActionSetPiece : Action
     /// <summary>
     /// Inserts a piece with the internal _pieceIdentifier on the board according to the internal _at position.
     /// </summary>
-    /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="pivotPosition">This position is used to calculate the final position using the GetPosition method.</param>
+    /// <param name="moveWorker">MoveWorker the action should be performed on.</param>
+    /// <param name="pivotPosition">This variable is used to calculate the final position if it's relative.</param>
     /// 
-    /// <returns>A GameEvent that represents whether or not the action was successfully performed.</returns>
+    /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
     protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
     {

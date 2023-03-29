@@ -30,7 +30,7 @@ public class RuleSet
     /// </summary>
     /// <param name="board">The current board state</param>
     /// <param name="sideToPlay">Which side is to make a move</param>
-    /// <returns>All moves accepted by the game's moveRule</returns>
+    /// <returns>A dictionary that maps for each move accepted, it's coordinates ("e2e4") to itself. It will only accept moves that the internal moveRule evaluates to true and which do not result in an InvalidMove GameEvent.</returns>
     public IDictionary<string, Move> GetLegalMoves(MoveWorker board, Player sideToPlay)
     {
         var possibleMoves = board.GetAllValidMoves(sideToPlay);
@@ -46,7 +46,7 @@ public class RuleSet
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
 
-            if (ruleSatisfied)
+            if (ruleSatisfied && transition.IsValid())
             {
                 acceptedMoves.Add(move.FromTo, move);
             }
@@ -117,11 +117,9 @@ public class RuleSet
         {
             if (e.ShouldRun(lastTransition))
             {
-                gameEvents.UnionWith(e.Run(moveWorker));
+                gameEvents.UnionWith(moveWorker.RunEvent(e));
             }
         }
-        //        if (gameEvents.Contains(GameEvent.InvalidMove))
-        //            throw new Exception("Events should not be able to perform invalid moves!");
 
         gameEvents.IntersectWith(new HashSet<GameEvent>() { GameEvent.Tie, GameEvent.WhiteWon, GameEvent.BlackWon });
         if (gameEvents.Count > 1)

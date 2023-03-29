@@ -1,5 +1,4 @@
 ﻿
-using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Rules.Moves.Actions;
 using ChessVariantsLogic.Rules.Predicates;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
@@ -11,12 +10,12 @@ namespace ChessVariantsLogic.Rules;
 public class Event
 {
     private readonly IPredicate _predicate;
-    private readonly ISet<Action> _actions;
+    public readonly List<Action> Actions;
 
-    public Event(IPredicate predicate, ISet<Action> actions)
+    public Event(IPredicate predicate, List<Action> actions)
     {
         _predicate = predicate;
-        _actions = actions;
+        Actions = actions;
     }
 
     /// <summary>
@@ -30,19 +29,6 @@ public class Event
     }
 
     /// <summary>
-    /// Runs the event on the given <paramref name="moveWorker"/>. This does not take into account whether the event actually should be run.
-    /// </summary>
-    /// <param name="moveWorker">The MoveWorker we want to run the event on.</param>
-    /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
-    public ISet<GameEvent> Run(MoveWorker moveWorker)
-    {
-        ISet<GameEvent> results = moveWorker.PerformActions(_actions);
-        results.Remove(GameEvent.InvalidMove);
-        return results;
-    }
-
-    
-    /// <summary>
     /// Constructs a promotion event for all pawns of the given player
     /// </summary>
     public static Event PromotionEvent(Player player, int boardHeight)
@@ -54,7 +40,7 @@ public class Event
         IPredicate pawnMoved = new PieceMoved(pawnIdentifier);
         IPredicate pawnAtRank = new PositionHasRank(new PositionRelative(0, 0), rank, RelativeTo.TO);
 
-        ISet<Action> actions = new HashSet<Action> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier, RelativeTo.TO) };
+        List<Action> actions = new List<Action> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier, RelativeTo.TO) };
 
         return new Event(pawnMoved & pawnAtRank, actions);
     }
@@ -71,9 +57,9 @@ public class Event
         IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
         IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
 
-        ISet<Action> actions = new HashSet<Action> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier, RelativeTo.TO) };
+        List<Action> actions = new List<Action> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier, RelativeTo.TO) };
 
-        IPredicate predicate = pieceCaptured;
+        var predicate = pieceCaptured;
         if(!destroyPawn)
             predicate &= !(whitePawnAt | blackPawnAt);
 
@@ -82,10 +68,10 @@ public class Event
 
     public static Event WinEvent(Player player, IPredicate winPredicate)
     {
-        return new Event(winPredicate, new HashSet<Action>() { new ActionWin(player) });
+        return new Event(winPredicate, new List<Action>() { new ActionWin(player) });
     }
     public static Event TieEvent(IPredicate tiePredicate)
     {
-        return new Event(tiePredicate, new HashSet<Action>() { new ActionTie() });
+        return new Event(tiePredicate, new List<Action>() { new ActionTie() });
     }
 }
