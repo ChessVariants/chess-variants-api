@@ -159,10 +159,10 @@ public class PieceBuilder
     /// <param name="yDir">is the direction of the pattern on the y-axis.</param>
     /// <param name="minLength">is the minimum length of the pattern.</param>
     /// <param name="maxLength">is the maximum length of the pattern.</param>
-    public void RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
+    public bool RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         var pattern = new RegularPattern(xDir, yDir, minLength, maxLength);
-        this.movementPattern.RemovePattern(pattern);
+        return this.movementPattern.RemovePattern(pattern);
     }
 
     /// <summary>
@@ -171,9 +171,9 @@ public class PieceBuilder
     /// <param name="direction">is the direction of the pattern.</param>
     /// <param name="minLength">is the minimum length of the pattern.</param>
     /// <param name="maxLength">is the maximum length of the pattern.</param>
-    public void RemoveMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
+    public bool RemoveMovementPattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
-        RemoveMovementPattern(direction.Item1, direction.Item2, minLength, maxLength);
+        return RemoveMovementPattern(direction.Item1, direction.Item2, minLength, maxLength);
     }
 
     /// <summary>
@@ -181,10 +181,10 @@ public class PieceBuilder
     /// </summary>
     /// <param name="xOffset">is the offset on the x-axis of the pattern.</param>
     /// <param name="yOffset">is the offset on the y-axis of the pattern.</param>
-    public void RemoveJumpMovementPattern(int xOffset, int yOffset)
+    public bool RemoveJumpMovementPattern(int xOffset, int yOffset)
     {
         var pattern = new JumpPattern(xOffset, yOffset);
-        this.movementPattern.RemovePattern(pattern);
+        return this.movementPattern.RemovePattern(pattern);
     }
 
     /// <summary>
@@ -227,9 +227,9 @@ public class PieceBuilder
     /// <param name="yDir">is the direction of the pattern on the y-axis.</param>
     /// <param name="minLength">is the minimum length of the pattern.</param>
     /// <param name="maxLength">is the maximum length of the pattern.</param>
-    public void RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    public bool RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.capturePattern.RemovePattern(new RegularPattern(xDir, yDir, minLength, maxLength));
+        return this.capturePattern.RemovePattern(new RegularPattern(xDir, yDir, minLength, maxLength));
     }
 
     /// <summary>
@@ -238,9 +238,9 @@ public class PieceBuilder
     /// <param name="direction">is the direction of the pattern.</param>
     /// <param name="minLength">is the minimum length of the pattern.</param>
     /// <param name="maxLength">is the maximum length of the pattern.</param>
-    public void RemoveCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
+    public bool RemoveCapturePattern(Tuple<int,int> direction, int minLength, int maxLength)
     {
-        RemoveCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
+        return RemoveCapturePattern(direction.Item1, direction.Item2, minLength, maxLength);
     }
     
     /// <summary>
@@ -248,9 +248,9 @@ public class PieceBuilder
     /// </summary>
     /// <param name="xOffset">is the offset on the x-axis of the pattern.</param>
     /// <param name="yOffset">is the offset on the y-axis of the pattern.</param>
-    public void RemoveJumpCapturePattern(int xOffset, int yOffset)
+    public bool RemoveJumpCapturePattern(int xOffset, int yOffset)
     {
-        this.capturePattern.RemovePattern(new JumpPattern(xOffset, yOffset));
+        return this.capturePattern.RemovePattern(new JumpPattern(xOffset, yOffset));
     }
 
 #endregion

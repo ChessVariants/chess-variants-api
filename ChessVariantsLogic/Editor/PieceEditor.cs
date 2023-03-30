@@ -75,12 +75,19 @@ public class PieceEditor
     /// <param name="yDir">is the direction on the y-axis.</param>
     /// <param name="minLength">is the minimum length.</param>
     /// <param name="maxLength">is the maximum length.</param>
-    public void RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
+    public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         if(minLength < 0)
-            _builder.RemoveJumpMovementPattern(xDir, yDir);
+        {
+            if(_builder.RemoveJumpMovementPattern(xDir, yDir))
+                return EditorEvent.Success;
+        }
         else
-            _builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
+        {
+            if(_builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength))
+                return EditorEvent.Success;
+        }
+        return EditorEvent.NoPatternRemoved;
     }
 
     /// <summary>
@@ -90,12 +97,19 @@ public class PieceEditor
     /// <param name="yDir">is the direction on the y-axis.</param>
     /// <param name="minLength">is the minimum length.</param>
     /// <param name="maxLength">is the maximum length.</param>
-    public void RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
         if(minLength < 0)
-            _builder.RemoveJumpCapturePattern(xDir, yDir);
+        {
+            if(_builder.RemoveJumpCapturePattern(xDir, yDir))
+                return EditorEvent.Success;
+        }
         else
-            _builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
+        {
+            if(_builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength))
+                return EditorEvent.Success;
+        }
+        return EditorEvent.NoPatternRemoved;
     }
 
     /// <summary>
@@ -161,7 +175,7 @@ public class PieceEditor
     /// Returns the piece as a string of Json-format.
     /// </summary>
     /// <returns>If the piece is successfully built it returns astring on Json-format, otherwise ArgumentNullException is surfaced.</returns>
-    public string ExportPieceAsJson()
+    public string ExportStateAsJson()
     {
         if(_piece != null)
             return _piece.ExportAsJson();
@@ -184,7 +198,7 @@ public class PieceEditor
 public enum EditorEvent
 {
     Success,
-    InvalidMovementPattern,
     BuildFailed,
     UnknownPlayer,
+    NoPatternRemoved,
 }

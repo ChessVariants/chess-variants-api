@@ -28,17 +28,17 @@ public class EditorOrganizer
         this._pieceEditor.AddCapturePattern(xDir, yDir, minLength, maxLength);
     }
 
-    public void RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
+    public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
+        return this._pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
-    public void RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
+        return this._pieceEditor.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
     }
 
-    public void BelongsToPlayer(string player) { _pieceEditor.BelongsToPlayer(player); }
+    public EditorEvent BelongsToPlayer(string player) { return _pieceEditor.BelongsToPlayer(player); }
 
     public void SameMovementAndCapture(bool enable) { _pieceEditor.SetSameMovementAndCapturePattern(enable); }
 
@@ -48,11 +48,11 @@ public class EditorOrganizer
 
     public void SetRoyal(bool enable) { _pieceEditor.SetRoyal(enable); }
 
-    public void Build() { _pieceEditor.BuildPiece(); }
+    public EditorEvent Build() { return _pieceEditor.BuildPiece(); }
 
     public void Reset() { _pieceEditor.ResetPiece(); }
 
-    public string GetStateAsJson() { return this._pieceEditor.ExportPieceAsJson(); }
+    public string GetStateAsJson() { return this._pieceEditor.ExportStateAsJson(); }
 
 
 }
