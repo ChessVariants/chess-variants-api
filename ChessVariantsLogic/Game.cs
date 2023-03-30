@@ -46,10 +46,10 @@ public class Game {
 
 
     /// <summary>
-    /// Performs the given <paramref name="move"/> on the internal move worker. Then runs all events that should be run and subsequently updates _legalMoves dictionary. Returns a set of GameEvents.
+    /// Performs the given <paramref name="move"/> on the internal move worker. Then runs all events that should be run and subsequently updates _legalMoves dictionary to next player's legal moves. Returns a set of GameEvents that indicate what happened during the move and events.
     /// </summary>
     /// <param name="move">The move requested to be made</param>
-    /// <returns>GameEvent of what happened in the game</returns>
+    /// <returns>A set of GameEvents of what happened in the game</returns>
     private ISet<GameEvent> MakeMoveImplementation(Move move)
     {
         var currentPlayer = _playerTurn;

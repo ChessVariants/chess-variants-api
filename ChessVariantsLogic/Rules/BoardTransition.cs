@@ -31,7 +31,7 @@ public class BoardTransition
         {
             if(e.ShouldRun(this))
             {
-                e.Run(NextState);
+                NextState.RunEvent(e);
             }
         }
     }
