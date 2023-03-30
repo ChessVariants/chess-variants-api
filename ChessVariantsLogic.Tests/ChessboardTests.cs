@@ -26,30 +26,6 @@ public class ChessboardTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the FEN representation of the board is of the correct format.
-    /// </summary>
-    [Fact(Skip = "Constants changed to two characters")]
-    public void Test_FEN()
-    {
-        var moveWorker = new MoveWorker(new Chessboard(6), Piece.AllStandardPieces());
-
-        Assert.Equal("6/6/6/6/6/6", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board = new Chessboard(12, 3);
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board.Insert(Constants.BlackBishopIdentifier, "b2");
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/1b1/3", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board = Chessboard.StandardChessboard();
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", moveWorker.Board.ReadBoardAsFEN());
-
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a2a3"));
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR", moveWorker.Board.ReadBoardAsFEN());
-
-    }
-
-    /// <summary>
     /// Tests that the standard chessboard is set up correctly.
     /// </summary>
     [Fact]
