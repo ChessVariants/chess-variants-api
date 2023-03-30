@@ -196,7 +196,7 @@ public class PieceBuilder
     /// <param name="maxLength">is the maximum length to be moved in this direction.</param>
     public void AddCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.movementPattern.AddPattern(new RegularPattern(xDir, yDir, minLength, maxLength));
+        this.capturePattern.AddPattern(new RegularPattern(xDir, yDir, minLength, maxLength));
     }
 
     /// <summary>

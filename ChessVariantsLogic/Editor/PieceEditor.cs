@@ -1,3 +1,5 @@
+using ChessVariantsLogic.Export;
+
 namespace ChessVariantsLogic.Editor;
 
 public class PieceEditor
@@ -9,6 +11,18 @@ public class PieceEditor
     public PieceEditor()
     {
         this._builder = new PieceBuilder();
+    }
+
+    public string GetAllCurrentlyValidMovesFromSquareAsJson(string square)
+    {
+        var moves = _builder.GetAllCurrentlyValidMovesFromSquare(square);
+        return PieceExporter.ExportLegalMovesAsJson(moves);
+    }
+
+    public string GetAllCurrentlyValidCapturesFromSquareAsJson(string square)
+    {
+        var moves = _builder.GetAllCurrentlyValidCaptureMovesFromSquare(square);
+        return PieceExporter.ExportLegalMovesAsJson(moves);
     }
 
     public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
@@ -79,17 +93,16 @@ public class PieceEditor
         return EditorEvent.Success;
     }
 
+    public string ExportPieceAsJson()
+    {
+        if(_piece != null)
+            return _piece.ExportAsJson();
+        throw new ArgumentNullException("Piece has not been built successfully.");
+    }
+
     public void ResetPiece()
     {
         _builder.Reset();
-    }
-
-    public string ExportStateAsJson()
-    {
-        return "Hey, it works!";
-        
-        //RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
-        //return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
     }
 
 }

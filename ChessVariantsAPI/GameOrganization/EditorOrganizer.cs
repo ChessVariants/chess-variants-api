@@ -18,7 +18,7 @@ public class EditorOrganizer
 
     public string GetStateAsJson()
     {
-        return this._pieceEditor.ExportStateAsJson();
+        return this._pieceEditor.ExportPieceAsJson();
     }
 
 
