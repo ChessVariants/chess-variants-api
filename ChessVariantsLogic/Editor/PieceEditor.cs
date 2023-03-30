@@ -56,6 +56,16 @@ public class PieceEditor
         return EditorEvent.Success;
     }
 
+    public void SetSameMovementAndCapturePattern(bool enable)
+    { 
+        _builder.SetSameMovementAndCapturePattern(enable);
+    }
+    public void SetCanBeCaptured(bool enable) { _builder.SetCanBeCaptured(enable); }
+
+    public void RepeatMovement(int repeat) { _builder.RepeatMovement(repeat); }
+
+    public void SetRoyal(bool enable) { _builder.SetRoyal(enable); }
+
     public EditorEvent BuildPiece()
     {
         try 
