@@ -30,7 +30,7 @@ public static class PieceExporter
             Captures = exportPattern(piece.GetAllCapturePatterns()),
             Royal = piece.Royal,
             CanBeCaptured = piece.CanBeCaptured,
-            PieceClassifier = piece.PieceClassifier,
+            PieceClassifier = piece.PieceClassifier.ToString(),
             PieceIdentifier = piece.PieceIdentifier,
             Repeat = piece.Repeat,
         };
@@ -81,7 +81,7 @@ public static class PieceExporter
 /// </summary>
 public record PieceState
 {
-    [JsonProperty("movements")]
+    [JsonProperty("movement")]
     public List<Pattern> Movement { get; set; } = null!;
 
     [JsonProperty("captures")]
@@ -90,16 +90,16 @@ public record PieceState
     [JsonProperty("royal")]
     public bool Royal { get; set; }
 
-    [JsonProperty("belongs_to")]
-    public PieceClassifier PieceClassifier { get; set; }
+    [JsonProperty("pieceClassifier")]
+    public string PieceClassifier { get; set; } = null!;
 
     [JsonProperty("repeat")]
     public int Repeat { get; set; }
 
-    [JsonProperty("identifier")]
+    [JsonProperty("pieceIdentifier")]
     public string PieceIdentifier { get; set; } = null!;
 
-    [JsonProperty("capturable")]
+    [JsonProperty("canBeCaptured")]
     public bool CanBeCaptured { get; set; }
 
     public string AsJson()
@@ -114,16 +114,16 @@ public record PieceState
 /// </summary>
 public record Pattern
 {
-    [JsonProperty("x_dir")]
+    [JsonProperty("xDir")]
     public int XDir { get; set; }
 
-    [JsonProperty("y_dir")]
+    [JsonProperty("yDir")]
     public int YDir { get; set; }
 
-    [JsonProperty("min_length")]
+    [JsonProperty("minLength")]
     public int MinLength { get; set; }
 
-    [JsonProperty("max_length")]
+    [JsonProperty("maxLength")]
     public int MaxLength { get; set; }
     
 }

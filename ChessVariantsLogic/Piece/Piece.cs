@@ -123,7 +123,11 @@ public class Piece
         var movement = new MovementPattern(fetchPatterns(state.Movement));
         var captures = new MovementPattern(fetchPatterns(state.Captures));
 
-        return new Piece(movement, captures, state.Royal, state.PieceClassifier, state.Repeat, state.PieceIdentifier, state.CanBeCaptured);
+        PieceClassifier pc;
+        if(Enum.TryParse(state.PieceClassifier, out pc))
+            return new Piece(movement, captures, state.Royal, pc, state.Repeat, state.PieceIdentifier, state.CanBeCaptured);
+
+        throw new ArgumentException("PieceClassifier could not be parsed correctly.");
     }
 
     private static List<IPattern> fetchPatterns(List<Pattern> patterns)
