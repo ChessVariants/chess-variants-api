@@ -1,11 +1,15 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// This predicate determines if a piece is attacked or not, either in the current board state or the next.
 /// </summary>
 public class Attacked : IPredicate
 {
+    [JsonProperty]
     private readonly BoardState _boardState;
+    [JsonProperty]
     private readonly string _pieceIdentifier;
 
     public Attacked(BoardState boardState, string pieceIdentifier)

@@ -1,21 +1,19 @@
 ﻿
+using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
+
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square has a certain rank.
 /// The target position can be calculated relatively or absolutely.
 /// </summary>
-public class PositionHasRank : IPredicate
+public class PositionHasRank : SquarePredicate
 {
-    private readonly IPosition _position;
     private readonly int _rank;
-    private readonly RelativeTo _relativeTo;
 
 
-    public PositionHasRank(IPosition position, int rank, RelativeTo relativeTo = RelativeTo.FROM)
+    public PositionHasRank(IPosition position, int rank, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
     {
-        _position = position;
         _rank = rank;
-        _relativeTo = relativeTo;
     }
     /// <summary>
     /// Evaluates to true/false if a square has a certain rank.
@@ -23,12 +21,12 @@ public class PositionHasRank : IPredicate
     /// <inheritdoc/>
     /// <returns>true/false if a square has a certain rank.</returns>
 
-    public bool Evaluate(BoardTransition boardTransition)
+    public override bool Evaluate(BoardTransition boardTransition)
     {
-        var pivotPosition = _relativeTo == RelativeTo.FROM ? boardTransition.MoveFrom : boardTransition.MoveTo;
+        var pivotPosition = GetRelativeTo(boardTransition);
         var board = boardTransition.ThisState;
 
-        Tuple<int, int>? finalPosition = _position.GetPositionTuple(board, pivotPosition);
+        Tuple<int, int>? finalPosition = _square.GetPositionTuple(board, pivotPosition);
         if (finalPosition == null) return false;
 
         return _rank == (board.Board.Rows - finalPosition.Item1);

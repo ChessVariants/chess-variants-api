@@ -31,11 +31,11 @@ public class AttackedTests : IDisposable {
         blackBishopOnE2 = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         blackBishopOnE2.Board.Insert(Constants.BlackBishopIdentifier, "e2");
 
-        boardBoard = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
-        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1", PieceClassifier.WHITE));
-        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1", PieceClassifier.WHITE));
+        boardBoard = new BoardTransition(board, new Move("a1a1", Piece.WhitePawn()));
+        whiteKingAttackedTransition = new BoardTransition(whiteKingAttackedBoard, new Move("a1a1", Piece.WhitePawn()));
+        blackBishopOnE2Transition = new BoardTransition(blackBishopOnE2, new Move("a1a1", Piece.WhitePawn()));
 
-        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, new Move("a1a1", PieceClassifier.WHITE));
+        blackToWhiteKingAttackedTransition = new BoardTransition(blackKingAttackedBoard, new Move("a1a1", Piece.WhitePawn()));
 
     }
 
@@ -62,40 +62,40 @@ public class AttackedTests : IDisposable {
     [Fact]
     public void WhiteRoyalIsAttacked_ShouldReturnTrue()
     {
-        IPredicate whiteKingAttacked = new Attacked(BoardState.THIS, "ROYAL_WHITE");
+        IPredicate whiteKingAttacked = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         Assert.True(whiteKingAttacked.Evaluate(whiteKingAttackedTransition));
     }
     [Fact]
     public void WhiteRoyalIsAttacked_ShouldReturnFalse()
     {
-        IPredicate whiteRoyalAttacked = new Attacked(BoardState.THIS, "ROYAL_WHITE");
+        IPredicate whiteRoyalAttacked = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         Assert.False(whiteRoyalAttacked.Evaluate(boardBoard));
     }
 
     [Fact]
     public void BlackRoyalIsAttacked_ShouldReturnTrue()
     {
-        IPredicate blackKingAttacked = new Attacked(BoardState.THIS, "ROYAL_BLACK");
+        IPredicate blackKingAttacked = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
         Assert.True(blackKingAttacked.Evaluate(blackToWhiteKingAttackedTransition));
     }
     [Fact]
     public void BlackRoyalIsAttacked_ShouldReturnFalse()
     {
-        IPredicate whiteRoyalAttacked = new Attacked(BoardState.THIS, "ROYAL_BLACK");
+        IPredicate whiteRoyalAttacked = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
         Assert.False(whiteRoyalAttacked.Evaluate(boardBoard));
     }
 
     [Fact]
     public void AnyWhitePieceAttacked_ShouldReturnTrue()
     {
-        IPredicate anyWhiteAttacked = new Attacked(BoardState.THIS, "ANY_WHITE");
+        IPredicate anyWhiteAttacked = new Attacked(BoardState.THIS, "WHITE");
         Assert.True(anyWhiteAttacked.Evaluate(blackBishopOnE2Transition));
     }
 
     [Fact]
     public void AnyWhitePieceAttacked_ShouldReturnFalse()
     {
-        IPredicate anyWhiteAttacked = new Attacked(BoardState.THIS, "ANY_WHITE");
+        IPredicate anyWhiteAttacked = new Attacked(BoardState.THIS, "WHITE");
         Assert.False(anyWhiteAttacked.Evaluate(boardBoard));
     }
 
@@ -116,13 +116,13 @@ public class AttackedTests : IDisposable {
     [Fact]
     public void AnyBlackPieceAttacked_ShouldReturnTrue()
     {
-        IPredicate anyBlackAttacked = new Attacked(BoardState.THIS, "ANY_BLACK");
+        IPredicate anyBlackAttacked = new Attacked(BoardState.THIS, "BLACK");
         Assert.True(anyBlackAttacked.Evaluate(blackBishopOnE2Transition));
     }
     [Fact]
     public void AnyBlackPieceAttacked_ShouldReturnFalse()
     {
-        IPredicate anyBlackAttacked = new Attacked(BoardState.THIS, "ANY_BLACK");
+        IPredicate anyBlackAttacked = new Attacked(BoardState.THIS, "BLACK");
         Assert.False(anyBlackAttacked.Evaluate(boardBoard));
     }
 }

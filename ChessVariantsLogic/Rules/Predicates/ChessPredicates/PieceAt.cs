@@ -1,21 +1,17 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
+
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate evaluates if a given board coordinate contains a piece that has the type of the internal _pieceIdentifier.
 /// </summary>
-public class PieceAt : IPredicate
+public class PieceAt : SquarePredicate
 {
     private readonly string _pieceIdentifier;
-    private readonly IPosition _position;
-    private readonly BoardState _boardState;
-    private readonly RelativeTo _relativeTo;
 
 
-    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState, RelativeTo relativeTo = RelativeTo.FROM)
+    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState, RelativeTo relativeTo = RelativeTo.FROM) : base(boardState, relativeTo, position)
     {
         _pieceIdentifier = pieceIdentifier;
-        _position = position;
-        _boardState = boardState;
-        _relativeTo = relativeTo;
     }
 
     /// <summary>
@@ -24,13 +20,11 @@ public class PieceAt : IPredicate
     /// <inheritdoc/>
     /// <returns>true/false if the identifier of the piece at the internal _position is equal to the internal _pieceIdentifier.</returns>
 
-    public bool Evaluate(BoardTransition transition)
+    public override bool Evaluate(BoardTransition transition)
     {
-        bool isThisBoardState = _boardState == BoardState.THIS;
-        var board = isThisBoardState ? transition.ThisState : transition.NextState;
-        string relativePosition = _relativeTo == RelativeTo.FROM ? transition.MoveFrom : transition.MoveTo;
+        MoveWorker board = GetBoardState(transition);
+        string? finalPosition = GetFinalPosition(transition);
 
-        string? finalPosition = _position.GetPosition(board, relativePosition);
         if (finalPosition == null) return false;
 
         string? pieceAt = board.Board.GetPieceIdentifier(finalPosition);

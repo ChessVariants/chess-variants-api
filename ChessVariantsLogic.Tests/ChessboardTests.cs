@@ -356,7 +356,7 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
-        Move move = new Move("e2e3", PieceClassifier.WHITE);
+        Move move = new Move("e2e3", Piece.WhitePawn());
         
         var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
         moveWorker.PerformMove(move);
@@ -376,10 +376,10 @@ public class ChessboardTests : IDisposable
     public void MoveLogCorrectlySavesAllMoves()
     {
         var moves = new List<Move> {
-            new Move("h2h3", PieceClassifier.WHITE),
-            new Move("h3h4", PieceClassifier.WHITE),
-            new Move("h1h3", PieceClassifier.WHITE),
-            new Move("h3e3", PieceClassifier.WHITE),
+            new Move("h2h3", Piece.WhitePawn()),
+            new Move("h3h4", Piece.WhitePawn()),
+            new Move("h1h3", Piece.WhitePawn()),
+            new Move("h3e3", Piece.WhitePawn()  ),
         };
 
         foreach (var move in moves)

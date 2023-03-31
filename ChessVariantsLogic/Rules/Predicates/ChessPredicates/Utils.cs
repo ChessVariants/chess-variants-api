@@ -58,11 +58,11 @@ public class Utils
     /// <returns>The <see cref="Player"/> who owns the piece</returns>
     public static Player GetPlayer(string pieceIdentifier)
     {
-        if (pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "ANY_BLACK" && pieceIdentifier != "ROYAL_BLACK" || pieceIdentifier == "ANY_WHITE")
+        if (pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "BLACK" && pieceIdentifier != "ROYAL_BLACK" || pieceIdentifier == "WHITE")
         {
             return Player.White;
         }
-        else if (pieceIdentifier.Any(char.IsLower) || pieceIdentifier == "ANY_BLACK" || pieceIdentifier == "ROYAL_BLACK")
+        else if (pieceIdentifier.Any(char.IsLower) || pieceIdentifier == "BLACK" || pieceIdentifier == "ROYAL_BLACK")
         {
             return Player.Black;
         }
@@ -102,22 +102,18 @@ public class Utils
         {
             case "ANY":
                 return piece != Constants.UnoccupiedSquareIdentifier;
-            case "ANY_BLACK":
+            case "BLACK":
                 if (piece != null)
                 {
                     return GetPlayer(piece) == Player.Black;
                 }
                 return false;
-            case "ANY_WHITE":
+            case "WHITE":
                 if (piece != null)
                 {
                     return GetPlayer(piece) == Player.White;
                 }
                 return false;
-            case "ROYAL_BLACK":
-                return piece == Constants.BlackKingIdentifier;
-            case "ROYAL_WHITE":
-                return piece == Constants.WhiteKingIdentifier;
             default:
                 return piece == pieceIdentifier;
         }

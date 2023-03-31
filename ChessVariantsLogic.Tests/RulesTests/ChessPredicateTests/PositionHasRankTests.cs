@@ -14,7 +14,7 @@ public class PositionHasRankTests {
     public PositionHasRankTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        Move move = new Move("e2e3", PieceClassifier.WHITE);
+        Move move = new Move("e2e3", Piece.WhitePawn());
         transition = new BoardTransition(board, move);
     }
 

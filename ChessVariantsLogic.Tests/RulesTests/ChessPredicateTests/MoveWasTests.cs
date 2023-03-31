@@ -7,7 +7,7 @@ using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
-public class LastMoveTests
+public class MoveWasTests
 {
     MoveWorker board;
     BoardTransition boardTransition0;
@@ -18,7 +18,7 @@ public class LastMoveTests
     string toStr0;
     string toStr1;
 
-    public LastMoveTests()
+    public MoveWasTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         fromStr = "e2";
@@ -26,8 +26,8 @@ public class LastMoveTests
         toStr1 = "e4";
         from = new PositionAbsolute(fromStr);
         to = new PositionAbsolute(toStr0);
-        Move move0 = new Move(fromStr + toStr0, PieceClassifier.WHITE);
-        Move move1 = new Move(toStr0 + toStr1, PieceClassifier.WHITE);
+        Move move0 = new Move(fromStr + toStr0, Piece.WhitePawn());
+        Move move1 = new Move(toStr0 + toStr1, Piece.WhitePawn());
 
         boardTransition0 = new BoardTransition(board, move0);
         boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);
@@ -36,13 +36,13 @@ public class LastMoveTests
     [Fact]
     public void LastMoveWasE2E3_ShouldReturnTrue()
     {
-        IPredicate lastMoveWasE2E3 = new LastMove(from, to);
+        IPredicate lastMoveWasE2E3 = new MoveWas(from, to, MoveState.LAST);
         Assert.True(lastMoveWasE2E3.Evaluate(boardTransition1));
     }
     [Fact]
     public void LastMoveWasE2E3_ShouldReturnFalse()
     {
-        IPredicate lastMoveWasE2E3 = new LastMove(from, to);
+        IPredicate lastMoveWasE2E3 = new MoveWas(from, to, MoveState.LAST);
         Assert.False(lastMoveWasE2E3.Evaluate(boardTransition0));
     }
 }

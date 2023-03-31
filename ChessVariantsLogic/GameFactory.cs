@@ -117,11 +117,11 @@ public static class GameFactory
     public static Game DuckChess()
     {
 
-        IPredicate lastMoveWasDuck = new LastMoveClassifier(PieceClassifier.SHARED);
-        IPredicate lastMoveWasBlack = new LastMoveClassifier(PieceClassifier.BLACK);
-        IPredicate lastMoveWasWhite = new LastMoveClassifier(PieceClassifier.WHITE);
+        IPredicate lastMoveWasDuck = new PieceMoved(Constants.DuckIdentifier, MoveState.LAST);
+        IPredicate lastMoveWasBlack = new PieceMoved("BLACK", MoveState.LAST);
+        IPredicate lastMoveWasWhite = new PieceMoved("WHITE", MoveState.LAST);
 
-        IPredicate thisMoveWasDuckMove = new PieceMoved(Constants.DuckIdentifier);
+        IPredicate thisMoveWasDuckMove = new PieceMoved(Constants.DuckIdentifier, MoveState.THIS);
 
         IPredicate firstMove = new FirstMove();
 
@@ -225,11 +225,11 @@ public static class GameFactory
     }
     public static Game AntiChess()
     {
-        IPredicate whiteMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_BLACK"), IMPLIES, new PieceCaptured("ANY_BLACK"));
-        IPredicate whiteWinRule = new PiecesLeft("ANY_WHITE", Comparator.EQUALS, 0, BoardState.NEXT);
+        IPredicate whiteMoveRule = new Operator(new Attacked(BoardState.THIS, "BLACK"), IMPLIES, new PieceCaptured("BLACK"));
+        IPredicate whiteWinRule = new PiecesLeft("WHITE", Comparator.EQUALS, 0, BoardState.NEXT);
         
-        IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_WHITE"), IMPLIES, new PieceCaptured("ANY_WHITE"));
-        IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.NEXT);
+        IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "WHITE"), IMPLIES, new PieceCaptured("WHITE"));
+        IPredicate blackWinRule = new PiecesLeft("BLACK", Comparator.EQUALS, 0, BoardState.NEXT);
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
         {

@@ -52,7 +52,7 @@ public class Event
     /// </summary>
     public static Event ExplosionEvent(Player player, IPosition position, bool destroyPawn)
     {
-        IPredicate pieceCaptured = player == Player.White ? new PieceCaptured("ANY_BLACK") : new PieceCaptured("ANY_WHITE");
+        IPredicate pieceCaptured = player == Player.White ? new PieceCaptured("BLACK") : new PieceCaptured("WHITE");
 
         IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
         IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);

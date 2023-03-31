@@ -22,8 +22,8 @@ public class FirstMoveTests
         fromStr = "e2";
         toStr0 = "e3";
         toStr1 = "e4";
-        Move move0 = new Move(fromStr + toStr0, PieceClassifier.WHITE);
-        Move move1 = new Move(toStr0 + toStr1, PieceClassifier.WHITE);
+        Move move0 = new Move(fromStr + toStr0, Piece.WhitePawn());
+        Move move1 = new Move(toStr0 + toStr1, Piece.WhitePawn());
 
         boardTransition0 = new BoardTransition(board, move0);
         boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);

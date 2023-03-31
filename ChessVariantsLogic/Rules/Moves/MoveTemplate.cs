@@ -47,7 +47,7 @@ public class MoveTemplate
             string? to = _to.GetPosition(moveWorker, from);
             if (to == null) continue;
 
-            Move move = new Move(_actions, from + to, pieceClassifier);
+            Move move = new Move(_actions, from + to, moveWorker.GetPieceFromIdentifier(moveWorker.Board.GetPieceIdentifier(from)));
 
             BoardTransition transition = new BoardTransition(moveWorker, move, events);
             if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
@@ -75,7 +75,7 @@ public class MoveTemplate
             string? to = _to.GetPosition(moveWorker, from);
             if (to == null) continue;
 
-            Move move = new Move(_actions, from + to, pieceClassifier);
+            Move move = new Move(_actions, from + to, moveWorker.GetPieceFromIdentifier(moveWorker.Board.GetPieceIdentifier(from)));
 
             BoardTransition transition = new BoardTransition(moveWorker, move, events);
             if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
@@ -188,7 +188,7 @@ public class MoveTemplate
 
         IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPosition, BoardState.THIS);
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
-        IPredicate pawnJustDidDoubleMove = new LastMove(enemyPawnPositionFrom, enemyPawnPosition);
+        IPredicate pawnJustDidDoubleMove = new MoveWas(enemyPawnPositionFrom, enemyPawnPosition, MoveState.LAST);
 
         List<Action> actions = new List<Action>
         {

@@ -4,21 +4,28 @@ using ChessVariantsLogic.Rules.Moves;
 /// <summary>
 /// This predicate evaluates if the last move is equal to the compare values.
 /// </summary>
-public class LastMove : IPredicate
+public class MoveWas : IPredicate
 {
     private readonly IPosition _compareFrom;
     private readonly IPosition _compareTo;
+    private readonly MoveState _moveState;
 
-    public LastMove(IPosition compareFrom, IPosition compareTo)
+    public MoveWas(IPosition compareFrom, IPosition compareTo, MoveState moveState)
     {
         _compareFrom = compareFrom;
         _compareTo = compareTo;
+        _moveState = moveState;
     }
 
     public bool Evaluate(BoardTransition transition)
     {
-        Move? move = transition.ThisState.GetLastMove();
+        Move? move = null;
+        if (_moveState == MoveState.THIS)
+            move = transition.Move;
+        else if(_moveState == MoveState.LAST)
+            move = transition.ThisState.GetLastMove();
         if (move == null) return false;
+
         Tuple<string, string>? lastMove = MoveWorker.ParseMove(move.FromTo);
         if(lastMove == null) return false;
         string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFrom);
