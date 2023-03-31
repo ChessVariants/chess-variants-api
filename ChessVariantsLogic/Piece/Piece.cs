@@ -124,7 +124,8 @@ public class Piece
         var captures = new MovementPattern(fetchPatterns(state.Captures));
 
         PieceClassifier pc;
-        if(Enum.TryParse(state.PieceClassifier, out pc))
+        var capitalizedPieceClassifier = state.PieceClassifier.ToUpper();
+        if(Enum.TryParse(capitalizedPieceClassifier, out pc))
             return new Piece(movement, captures, state.Royal, pc, state.Repeat, state.PieceIdentifier, state.CanBeCaptured);
 
         throw new ArgumentException("PieceClassifier could not be parsed correctly.");

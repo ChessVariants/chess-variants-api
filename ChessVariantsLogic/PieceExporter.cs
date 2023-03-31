@@ -30,7 +30,7 @@ public static class PieceExporter
             Captures = exportPattern(piece.GetAllCapturePatterns()),
             Royal = piece.Royal,
             CanBeCaptured = piece.CanBeCaptured,
-            PieceClassifier = piece.PieceClassifier.ToString(),
+            PieceClassifier = piece.PieceClassifier.AsString(),
             PieceIdentifier = piece.PieceIdentifier,
             Repeat = piece.Repeat,
         };
