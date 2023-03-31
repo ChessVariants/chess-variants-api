@@ -5,7 +5,7 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class MovementPattern
 {
-    private readonly List<IPattern> movement;
+    private readonly List<Pattern> movement;
     public int Count { get { return this.movement.Count; } }
 
     /// <summary>
@@ -13,21 +13,21 @@ public class MovementPattern
     /// that corresponds to each other should have the same index.
     /// </summary>
     /// <param name="movement">is a list of all allowed movements.</param>
-    public MovementPattern(List<IPattern> movement)
+    public MovementPattern(List<Pattern> movement)
     {
         this.movement = movement;
     }
 
     public MovementPattern()
     {
-        this.movement = new List<IPattern>();
+        this.movement = new List<Pattern>();
     }
 
     /// <summary>
     /// Gets all IPatterns in this MovementPattern as an IEnumberable.
     /// </summary>
     /// <returns> all IPatterns individually.</returns>
-    public IEnumerable<IPattern> GetAllPatterns()
+    public IEnumerable<Pattern> GetAllPatterns()
     {
         foreach (var pattern in movement)
         {
@@ -39,7 +39,7 @@ public class MovementPattern
     /// Adds an IPattern to this movement IPattern.
     /// </summary>
     /// <param name="pattern"> is the IPattern that is added.</param>
-    public void AddPattern(IPattern pattern)
+    public void AddPattern(Pattern pattern)
     {
         this.movement.Add(pattern);
     }
@@ -49,7 +49,7 @@ public class MovementPattern
     /// </summary>
     /// <param name="pattern"> is the IPattern that should be removed.</param>
     /// <returns>true if the IPattern was contained in this MovementPattern, otherwise false.</returns>
-    public bool RemovePattern(IPattern pattern)
+    public bool RemovePattern(Pattern pattern)
     {
         return this.movement.Remove(pattern);
     }
@@ -65,7 +65,7 @@ public class MovementPattern
     /// </summary>
     /// <param name="index"> is the index where the pattern is fetched from.</param>
     /// <returns>the IPattern at index <paramref name="index"/> if the index is valid, otherwise null.</returns>
-    public IPattern? GetPattern(int index)
+    public Pattern? GetPattern(int index)
     {
         if(index >= 0 && index < this.movement.Count)
             return this.movement[index];

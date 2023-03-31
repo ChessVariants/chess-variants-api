@@ -57,12 +57,12 @@ public static class PieceExporter
         return GameExporter.ExportMovesAsJson(moveDict);
     }
 
-    private static List<Pattern> exportPattern(IEnumerable<IPattern> movement)
+    private static List<PatternRecord> exportPattern(IEnumerable<Pattern> movement)
     {
-        var patterns = new List<Pattern>();
+        var patterns = new List<PatternRecord>();
         foreach (var p in movement)
         {
-            patterns.Add(new Pattern
+            patterns.Add(new PatternRecord
             {
                 XDir = p.XDir,
                 YDir = p.YDir,
@@ -82,10 +82,10 @@ public static class PieceExporter
 public record PieceState
 {
     [JsonProperty("movement")]
-    public List<Pattern> Movement { get; set; } = null!;
+    public List<PatternRecord> Movement { get; set; } = null!;
 
     [JsonProperty("captures")]
-    public List<Pattern> Captures { get; set; } = null!;
+    public List<PatternRecord> Captures { get; set; } = null!;
 
     [JsonProperty("royal")]
     public bool Royal { get; set; }
@@ -110,9 +110,9 @@ public record PieceState
 }
 
 /// <summary>
-/// Represents a Json-object of an <see cref="IPattern"/>.
+/// Represents a Json-object of an <see cref="Pattern"/>.
 /// </summary>
-public record Pattern
+public record PatternRecord
 {
     [JsonProperty("xDir")]
     public int XDir { get; set; }

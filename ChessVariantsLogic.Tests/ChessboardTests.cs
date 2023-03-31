@@ -251,7 +251,7 @@ public class ChessboardTests : IDisposable
     {
         moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North,     1, 3),
             new RegularPattern(Constants.NorthEast, 1, 1),
             new RegularPattern(Constants.SouthEast, 2, 2),
@@ -289,7 +289,7 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
@@ -371,14 +371,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MovesLikeRook_capturesLikeBishop()
     {
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.East,  1, 8),
             new RegularPattern(Constants.South, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
 
-        var capturePatterns = new List<IPattern> {
+        var capturePatterns = new List<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
@@ -404,14 +404,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MoveLikeBishop_captureLikeKnight()
     {
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
             new RegularPattern(Constants.NorthWest, 1, 8),
         };
 
-        var capturePattern = new List<IPattern> {
+        var capturePattern = new List<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -443,7 +443,7 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -454,7 +454,7 @@ public class ChessboardTests : IDisposable
             new JumpPattern(-2,-1),
         };
         
-        var capturePatterns = new List<IPattern> {
+        var capturePatterns = new List<Pattern> {
             new JumpPattern( 3, 1),
             new JumpPattern( 1, 3),
             new JumpPattern(-1, 3),
