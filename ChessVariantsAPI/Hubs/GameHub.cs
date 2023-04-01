@@ -1,4 +1,5 @@
 ﻿using ChessVariantsAPI.GameOrganization;
+using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic;
 using ChessVariantsLogic.Export;
 using Microsoft.AspNetCore.Authorization;
@@ -30,7 +31,7 @@ public class GameHub : Hub
     /// <param name="gameId">The id for the game to join</param>
     /// <returns></returns>
     [Authorize]
-    public async Task<bool> JoinGame(string gameId)
+    public async Task<JoinResultDTO> JoinGame(string gameId)
     {
         try
         {
@@ -39,7 +40,7 @@ public class GameHub : Hub
 
             if (!_organizer.PlayerAbleToJoin(gameId, user))
             {
-                return false;
+                return new JoinResultDTO { Color = null, Success = false, FailReason = "The game you tried to join is already full" };
             }
 
             Player player;
@@ -52,18 +53,18 @@ public class GameHub : Hub
             {
                 await AddToGroup(user, gameId);
                 player = _organizer.JoinGame(gameId, user);
+                await Clients.Caller.SendGameJoined(player.AsString(), user);
+                await Clients.Groups(gameId).SendPlayerJoinedGame(player.AsString(), user);
             }
 
-            await Clients.Caller.SendGameJoined(player.AsString(), user);
-            await Clients.Groups(gameId).SendPlayerJoinedGame(player.AsString(), user);
             _logger.LogDebug("User <{user}> joined game <{gameid}>", user, gameId);
-            return true;
+            return new JoinResultDTO { Color = player.AsString(), Success = true };
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to join game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendGenericError(e.Message);
-            return false;
+            return new JoinResultDTO { Success = false, FailReason = e.Message };
         }
     }
 
