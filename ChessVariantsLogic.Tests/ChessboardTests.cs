@@ -365,7 +365,7 @@ public class ChessboardTests : IDisposable
         Move move = new Move("e2e3", PieceClassifier.WHITE);
         
         var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
-        move.Perform(this.moveWorker);
+        moveWorker.PerformMove(move);
         var moves2 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
 
         this.moveWorker.Board = new Chessboard(8);
@@ -390,7 +390,7 @@ public class ChessboardTests : IDisposable
 
         foreach (var move in moves)
         {
-            move.Perform(moveWorker);
+            moveWorker.PerformMove(move);
         }
 
         var expected = new List<string> { "h2h3", "h3h4", "h1h3", "h3e3" };

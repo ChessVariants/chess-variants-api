@@ -1,4 +1,5 @@
-﻿using ChessVariantsLogic;
+﻿using ChessVariantsAPI.Hubs;
+using ChessVariantsLogic;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -8,18 +9,61 @@ namespace ChessVariantsAPI.GameOrganization;
 /// </summary>
 public class ActiveGame
 {
-    private readonly Game _game;
-    private readonly Dictionary<string, Player?> _playerDict;
-    public string Variant { get; private set; }
+    private Game? _game;
+    private readonly Dictionary<string, Player> _playerDict;
+    private string? _variant;
+    public string Variant
+    {
+        get
+        {
+            if (_variant == null)
+            {
+                throw new GameNotFoundException("Unable to get game-variant. A game for this lobby has not been yet been set.");
+            }
+            return _variant;
+        }
+        set => _variant = value;
+    }
+
+    public ActiveGameState State { get; private set; }
+
     public string Admin { get; private set; }
 
-    public ActiveGame(Game game, string creatorPlayerIdentifier, string variantType)
+    public ActiveGame(Game? game, string creatorPlayerIdentifier, string? variantType)
     {
         _game = game;
-        _playerDict = new Dictionary<string, Player?>();
+        _playerDict = new Dictionary<string, Player>();
         AddPlayer(creatorPlayerIdentifier);
         Admin = creatorPlayerIdentifier;
-        Variant = variantType;
+        _variant = variantType;
+        State = ActiveGameState.Lobby;
+    }
+
+    public ActiveGame(string creatorPlayerIdentifier) : this(null, creatorPlayerIdentifier, null) 
+    {
+        State = ActiveGameState.Lobby;
+    }
+
+    public bool StartGame(string playerIdentifier)
+    {
+        if (playerIdentifier == Admin)
+        {
+            State = ActiveGameState.Game;
+            return true;
+        }
+        return false;
+    }
+
+    public bool SetGame(Game game, string playerIdentifier, string variantType)
+    {
+        if (playerIdentifier != Admin)
+        {
+            return false;
+        }
+        _game = game;
+        _variant = variantType;
+        State = ActiveGameState.Game;
+        return true;
     }
 
     /// <summary>
@@ -30,6 +74,10 @@ public class ActiveGame
     /// <returns>True if the player could be added, otherwise false</returns>
     public Player AddPlayer(string playerIdentifier)
     {
+        if (_playerDict.ContainsKey(playerIdentifier))
+        {
+            throw new OrganizerException("You cannot join this game as you are already in it.");
+        }
         var availableColors = GetAvailableColors();
         if (availableColors.Any())
         {
@@ -46,6 +94,10 @@ public class ActiveGame
     /// <returns>returns the game</returns>
     public Game GetGame()
     {
+        if (_game == null)
+        {
+            throw new GameNotFoundException("Unable to get game. A game for this lobby has not been yet been set.");
+        }
         return _game;
     }
 
@@ -55,9 +107,23 @@ public class ActiveGame
     /// </summary>
     /// <param name="playerIdentifier"></param>
     /// <returns>The player if found, otherwise null.</returns>
-    public Player? GetPlayer(string playerIdentifier)
+    public Player GetPlayer(string playerIdentifier)
     {
-        return _playerDict.GetValueOrDefault(playerIdentifier, null);
+        try
+        {
+            return _playerDict[playerIdentifier];
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new PlayerNotFoundException($"No player with identifier {playerIdentifier} found.");
+        }
+    }
+
+    public ICollection<Tuple<string, Player>> GetPlayers()
+    {
+        var pairs = _playerDict.ToList();
+        var players = pairs.Select(pair => Tuple.Create(pair.Key, pair.Value)).ToList();
+        return players;
     }
 
     /// <summary>
@@ -95,6 +161,23 @@ public class ActiveGame
         }
     }
 
+    public string GetColorsJson()
+    {
+        return GetColorsObject().AsJson();
+    }
+
+    public ColorsDTO GetColorsObject()
+    {
+        string? white = null;
+        string? black = null;
+        foreach (var key in _playerDict.Keys)
+        {
+            if (_playerDict[key] == Player.White) white = key;
+            else if (_playerDict[key] == Player.Black) black = key;
+        }
+        return new ColorsDTO { White = white, Black = black };
+    }
+
     private void AssignNewAdmin()
     {
         string? newAdminIdentifier = _playerDict.Keys.FirstOrDefault();
@@ -114,4 +197,10 @@ public class ActiveGame
         colors.RemoveWhere(player => _playerDict.ContainsValue(player));
         return colors;
     }
+}
+
+public enum ActiveGameState
+{
+    Lobby,
+    Game,
 }

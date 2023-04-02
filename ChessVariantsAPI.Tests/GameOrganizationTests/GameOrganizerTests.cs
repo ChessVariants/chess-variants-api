@@ -1,25 +1,37 @@
 using ChessVariantsAPI.GameOrganization;
 using ChessVariantsLogic;
+using Microsoft.Extensions.Logging;
 using System;
 using Xunit;
 
 namespace ChessVariantsAPI.Tests;
 
-public class GameOrganizerTests : IDisposable
+public class GameOrganizerTests
 {
+    private class MockLogger : ILogger<GameOrganizer>
+    {
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            return;
+        }
+    }
+
     private GameOrganizer gameOrganizer;
 
     public GameOrganizerTests()
     {
-        gameOrganizer = new GameOrganizer();
+        gameOrganizer = new GameOrganizer(new MockLogger());
         gameOrganizer.CreateGame("0", "id");
-    }
-
-    public void Dispose()
-    {
-        gameOrganizer = new GameOrganizer();
-        gameOrganizer.CreateGame("0", "id");
-        GC.SuppressFinalize(this);
     }
 
     [Fact]

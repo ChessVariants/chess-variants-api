@@ -1,5 +1,6 @@
 namespace ChessVariantsLogic;
-using System;
+
+using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
 
 /// <summary>
@@ -21,11 +22,11 @@ public class MoveWorker
 
     private readonly Dictionary<string, Piece> stringToPiece;
 
-    private readonly List<Move> movelog = new List<Move>();
+    private readonly List<Move> _moveLog;
 
     public List<Move> Movelog
     {
-        get { return movelog; }
+        get { return _moveLog; }
     }
 
     private Stack<Chessboard> stateLog = new Stack<Chessboard>(); 
@@ -40,14 +41,19 @@ public class MoveWorker
     /// </summary>
     /// <param name="chessboard">is the board that this worker should be assigned.</param>
     /// <param name="pieces">is the set of pieces that are used in the played variant.</param>
-    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces)
+    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces, List<Move> moveLog)
     {
         this.board = chessboard;
         this.pieces = pieces;
         stringToPiece = initStringToPiece();
+        _moveLog = moveLog;
+    }
+    public MoveWorker(Chessboard chessboard, HashSet<Piece> pieces) : this(chessboard, pieces, new List<Move>())
+    {
     }
 
     public MoveWorker(Chessboard chessboard) : this(chessboard, new HashSet<Piece>()) {}
+
 
     #endregion
 
@@ -76,7 +82,7 @@ public class MoveWorker
             var coor = board.ParseCoordinate(to);
             if (coor == null) return GameEvent.InvalidMove;
 
-            if (moves.Contains(coor) || force)
+            if (force || moves.Contains(coor))
             {
                 
                 board.Insert(strPiece, to);
@@ -91,11 +97,11 @@ public class MoveWorker
     }
 
     /// <summary>
-    /// Adds the given move to the internal movelog. 
+    /// Adds the given move to the internal movelog. Should not be called outside of this class.
     /// </summary>
-    public void AddMove(Move move)
+    private void AddMove(Move move)
     {
-        movelog.Add(move);
+        _moveLog.Add(move);
     }
 
     /// <summary>
@@ -127,6 +133,58 @@ public class MoveWorker
             default: return null;
         }
         return new Tuple<string, string>(from, to);
+    }
+    /// <summary>
+    /// Performs a move and adds it to the move log, this is a replacement for the old Move.Perform() method.
+    /// </summary>
+    /// <param name="move">The move to be performed.</param>
+    /// <returns>A set of GameEvents that occured when the move was performed.</returns>
+    public ISet<GameEvent> PerformMove(Move move)
+    {
+        AddMove(new Move(new List<Action>(), move.FromTo, move.PieceClassifier));
+        return PerformActions(move.GetActions());
+    }
+    /// <summary>
+    /// Performs a list of actions on this MoveWorker and adds the actions to the last move that was performed.
+    /// </summary>
+    /// <param name="actions">The set of actions to be performed and added.</param>
+    /// <returns>A set of GameEvents that occured when the actions were performed.</returns>
+    public ISet<GameEvent> PerformActions(List<Action> actions)
+    {
+        var events = new HashSet<GameEvent>();
+
+        foreach (var action in actions)
+        {
+            events.Add(PerformAction(action));
+        }
+        return events;
+    }
+
+    /// <summary>
+    /// Performs an action on this MoveWorker and adds the action to the last move that was performed.
+    /// </summary>
+    /// <param name="action">The action to be performed and added.</param>
+    /// <returns>A GameEvent that occured when the action was performed.</returns>
+    public GameEvent PerformAction(Action action)
+    {
+        var lastMove = GetLastMove();
+        if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
+        var result = action.Perform(this, lastMove.From, lastMove.To);
+        lastMove.AddAction(action);
+        return result;
+    }
+
+    /// <summary>
+    /// Runs the event on the given <paramref name="moveWorker"/>. This does not take into account whether the event actually should be run.
+    /// </summary>
+    /// <param name="moveWorker">The MoveWorker we want to run the event on.</param>
+    /// <returns>A GameEvent that represents whether or not the event was successfully run./returns>
+    public ISet<GameEvent> RunEvent(Event e)
+    {
+        var results = PerformActions(e.Actions);
+        // Invalid events should just be ignored and not even be reported to the frontend.
+        results.Remove(GameEvent.InvalidMove);
+        return results;
     }
 
     /// <summary>
@@ -620,13 +678,15 @@ public class MoveWorker
     {
         Chessboard newBoard = board.CopyBoard();
         HashSet<Piece> newPieces = new HashSet<Piece>(pieces);
-        return new MoveWorker(newBoard, newPieces);
+        List<Move> moveLog = new List<Move>(_moveLog);
+        
+        return new MoveWorker(newBoard, newPieces, moveLog);
     }
 
     /// <summary>
     /// Returns the last move from the movelog
     /// </summary>
-    public Move? getLastMove()
+    public Move? GetLastMove()
     {
         if (Movelog.Count == 0)
             return null;

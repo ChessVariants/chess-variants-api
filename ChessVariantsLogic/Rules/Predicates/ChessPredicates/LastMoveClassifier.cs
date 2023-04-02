@@ -15,7 +15,7 @@ public class LastMoveClassifier : IPredicate
 
     public bool Evaluate(BoardTransition transition)
     {
-        Move? move = transition.ThisState.getLastMove();
+        Move? move = transition.ThisState.GetLastMove();
         if (move == null) return false;
         PieceClassifier lastMovePlayer = move.PieceClassifier;
         return _pieceClassifier == lastMovePlayer;
