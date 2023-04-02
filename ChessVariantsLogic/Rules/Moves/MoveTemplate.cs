@@ -4,7 +4,6 @@ namespace ChessVariantsLogic.Rules.Moves;
 
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using Predicates;
-using System;
 
 /// <summary>
 /// A MoveTemplate object represents a special move that can be performed by all pieces with the given _pieceIdentifier.
@@ -12,15 +11,15 @@ using System;
 /// </summary>
 public class MoveTemplate
 {
-    private readonly IEnumerable<IAction> _actions;
+    private readonly List<Action> _actions;
     private readonly IPredicate _predicate;
     private readonly string _pieceIdentifier;
     private readonly IPosition _to;
-
-    public IEnumerable<IAction> Actions => _actions;
+    
+    public List<Action> Actions => _actions;
     public string PieceIdentifier => _pieceIdentifier;
 
-    public MoveTemplate(IEnumerable<IAction> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
+    public MoveTemplate(List<Action> actions, IPredicate predicate, string pieceIdentifier, IPosition to)
     {
         _actions = actions;
         _predicate = predicate;
@@ -32,32 +31,60 @@ public class MoveTemplate
     /// Constructs a Move for each piece with the given _pieceIdentifier.
     /// The Move is constructed from the internal _actions, _to and that piece's position.
     /// </summary>
-    /// <param name="thisBoard">The current board state used to construct the Move list from</param>
-    /// <param name="moveRule">The moveRule of the RuleSet retrieving the valid moves</param>
-    /// 
+    /// <param name="moveWorker">The current board state used to construct the Move list from.</param>
+    /// <param name="moveRule">The moveRule of the RuleSet retrieving the valid moves.</param>
+    /// <param name="events">The events of the RuleSet retrieving the valid moves.</param>
     /// <returns>A list of special moves that can be performed on the given board state.</returns>
     /// 
-    public IEnumerable<Move> GetValidMoves(MoveWorker thisBoard, IPredicate moveRule)
+    public ISet<Move> GetValidMoves(MoveWorker moveWorker, IPredicate moveRule, ISet<Event> events)
     {
-        List<string> positions = (List<string>) Utils.FindPiecesOfType(thisBoard, _pieceIdentifier);
-        PieceClassifier pieceClassifier = thisBoard.GetPieceClassifier(_pieceIdentifier);
-        HashSet<Move> moves = new HashSet<Move>();
+        List<string> positions = (List<string>)Utils.FindPiecesOfType(moveWorker, _pieceIdentifier);
+        PieceClassifier pieceClassifier = moveWorker.GetPieceClassifier(_pieceIdentifier);
+        ISet<Move> moves = new HashSet<Move>();
 
-        foreach(string from in positions)
+        foreach (string from in positions)
         {
-            string? to = _to.GetPosition(thisBoard, from);
+            string? to = _to.GetPosition(moveWorker, from);
             if (to == null) continue;
 
             Move move = new Move(_actions, from + to, pieceClassifier);
-            
-            BoardTransition transition = new BoardTransition(thisBoard, move);
-            if(_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
+
+            BoardTransition transition = new BoardTransition(moveWorker, move, events);
+            if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
             {
                 moves.Add(move);
             }
         }
 
         return moves;
+    }
+    /// <summary>
+    /// Returns true if there is at least on move that can be performed with this template.
+    /// </summary>
+    /// <param name="moveWorker">The MoveWorker to check if there are valid moves on.</param>
+    /// <param name="moveRule">The moveRule of the RuleSet checking if there are valid moves.</param>
+    /// <param name="events">The events of the RuleSet checking if there are valid moves.</param>
+    /// <returns></returns>
+    public bool HasValidMoves(MoveWorker moveWorker, IPredicate moveRule, ISet<Event> events)
+    {
+        List<string> positions = (List<string>)Utils.FindPiecesOfType(moveWorker, _pieceIdentifier);
+        PieceClassifier pieceClassifier = moveWorker.GetPieceClassifier(_pieceIdentifier);
+
+        foreach (string from in positions)
+        {
+            string? to = _to.GetPosition(moveWorker, from);
+            if (to == null) continue;
+
+            Move move = new Move(_actions, from + to, pieceClassifier);
+
+            BoardTransition transition = new BoardTransition(moveWorker, move, events);
+            if (_predicate.Evaluate(transition) && moveRule.Evaluate(transition) && transition.IsValid())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static MoveTemplate CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)
@@ -115,7 +142,7 @@ public class MoveTemplate
         IPosition rookFromPos = new PositionAbsolute(rookFromFile + rank);
         IPosition rookToPos = new PositionAbsolute(rookToFile + rank);
 
-        IEnumerable<IAction> castleActions = new List<IAction>
+        List<Action> castleActions = new List<Action>
         {
             new ActionMovePiece(kingFromPos, kingToPos),
             new ActionMovePiece(rookFromPos, rookToPos)
@@ -138,7 +165,7 @@ public class MoveTemplate
         IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS);
         IPredicate targetSquareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition2, BoardState.THIS);
 
-        IEnumerable<IAction> actions = new List<IAction>
+        List<Action> actions = new List<Action>
         {
             new ActionMovePiece(forwardPosition2)
         };
@@ -163,7 +190,7 @@ public class MoveTemplate
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);
         IPredicate pawnJustDidDoubleMove = new LastMove(enemyPawnPositionFrom, enemyPawnPosition);
 
-        IEnumerable<IAction> actions = new List<IAction>
+        List<Action> actions = new List<Action>
         {
             new ActionMovePiece(finalPosition),
             new ActionDeletePiece(enemyPawnPosition)

@@ -215,8 +215,8 @@ public class GameHub : Hub
     public async Task MovePiece(string move, string gameId)
     {
         // if move is valid, compute new board
-        GameEvent? result = null;
-        GameState? state = null;
+        ISet<GameEvent>? result;
+        GameState? state;
         try
         {
             var user = GetUsername();
@@ -227,30 +227,34 @@ public class GameHub : Hub
         catch (OrganizerException e)
         {
             await Clients.Caller.SendGenericError(e.Message);
+            return;
         }
 
-        switch (result)
+        if (result.Contains(GameEvent.InvalidMove))
         {
-            case GameEvent.InvalidMove:
-                _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
-                await Clients.Caller.SendInvalidMove();
-                return;
-            case GameEvent.MoveSucceeded:
-                _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
-                await Clients.Groups(gameId).SendUpdatedGameState(state!);
-                return;
-            case GameEvent.WhiteWon:
-                _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
-                await Clients.Group(gameId).SendWhiteWon();
-                return;
-            case GameEvent.BlackWon:
-                _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
-                await Clients.Group(gameId).SendBlackWon();
-                return;
-            case GameEvent.Tie:
-                _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
-                await Clients.Group(gameId).SendTie();
-                return;
+            _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
+            await Clients.Caller.SendInvalidMove();
+            return;
+        }
+        if (result.Contains(GameEvent.MoveSucceeded))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
+            await Clients.Groups(gameId).SendUpdatedGameState(state!);
+        }
+        if (result.Contains(GameEvent.WhiteWon))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
+            await Clients.Group(gameId).SendWhiteWon();
+        }
+        else if (result.Contains(GameEvent.BlackWon))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
+            await Clients.Group(gameId).SendBlackWon();
+        }
+        else if (result.Contains(GameEvent.Tie))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
+            await Clients.Group(gameId).SendTie();
         }
     }
 
