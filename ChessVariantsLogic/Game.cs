@@ -8,12 +8,12 @@ using System;
 
 public class Game {
 
-    private readonly MoveWorker _moveWorker;
+    readonly protected MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
-    private readonly RuleSet _blackRules;
-    private readonly RuleSet _whiteRules;
+    readonly protected RuleSet _blackRules;
+    readonly protected RuleSet _whiteRules;
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
