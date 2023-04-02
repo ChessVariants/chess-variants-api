@@ -119,6 +119,12 @@ public class Game {
         RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
         return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
     }
+
+    public GameState ExportState()
+    {
+        RuleSet rules = _playerTurn == Player.White ? _whiteRules : _blackRules;
+        return GameExporter.ExportGameState(_moveWorker.Board, _playerTurn, rules.GetLegalMoveDict(_playerTurn, _moveWorker));
+    }
 }
 
 

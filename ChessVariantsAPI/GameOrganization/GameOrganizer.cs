@@ -1,4 +1,6 @@
-﻿using ChessVariantsLogic;
+﻿using ChessVariantsAPI.Hubs;
+using ChessVariantsLogic;
+using ChessVariantsLogic.Export;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -8,10 +10,39 @@ namespace ChessVariantsAPI.GameOrganization;
 public class GameOrganizer
 {
     private readonly Dictionary<string, ActiveGame?> _activeGames;
+    private readonly ILogger _logger;
 
-    public GameOrganizer()
+    public GameOrganizer(ILogger<GameOrganizer> logger)
     {
         _activeGames = new Dictionary<string, ActiveGame?>();
+        _logger = logger;
+    }
+
+    public void GetGameIdsForPlayer(string playerIdentifier)
+    {
+        var gameIds = new List<string>();
+        foreach (var game in _activeGames.Values)
+        {
+            var idPlayerPairs = game?.GetPlayers();
+            if (idPlayerPairs == null) continue;
+            foreach (var pair in idPlayerPairs)
+            {
+                if (pair.Item1 == playerIdentifier) gameIds.Add(pair.Item1);
+            }
+        }
+    }
+
+    public bool PlayerAbleToJoin(string gameId, string playerIdentifier)
+    {
+        var players = GetActiveGame(gameId).GetPlayers();
+        return (PlayerInGame(gameId, playerIdentifier) || 2 - players.Count > 0);
+    }
+
+    public bool PlayerInGame(string gameId, string playerIdentifier)
+    {
+        var players = GetActiveGame(gameId).GetPlayers();
+        var bools = players.Select(pair => pair.Item1 == playerIdentifier);
+        return bools.Any(x => x == true);
     }
 
     #region Administration
@@ -29,30 +60,58 @@ public class GameOrganizer
 
     public Player CreateGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
     {
+        AssertGameDoesNotExist(gameId);
+        var activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
+        return activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    public bool SetGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
+    {
+        var activeGame = GetActiveGame(gameId);
+        var gameVariant = CreateGameInstance(variantIdentifier);
+        return activeGame.SetGame(gameVariant, playerIdentifier, variantIdentifier);
+    }
+
+    public bool StartGame(string gameId, string playerIdentifier)
+    {
+        return GetActiveGame(gameId).StartGame(playerIdentifier);
+    }
+
+    public Player CreateLobby(string gameId, string playerIdentifier)
+    {
+        AssertGameDoesNotExist(gameId);
+        var activeGame = new ActiveGame(playerIdentifier);
+        _activeGames.Add(gameId, activeGame);
+        return activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    private void AssertGameDoesNotExist(string gameId)
+    {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
         if (activeGame != null)
         {
-            throw new OrganizerException("The game you're trying to create already exists");
+            throw new OrganizerException($"The game (id: {gameId}) you're trying to create already exists");
         }
-        activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
-        return (Player) activeGame.GetPlayer(playerIdentifier)!;
     }
 
     private ActiveGame CreateActiveGame(string gameId, string playerIdentifier, string variantIdentifier)
     {
-        Game? gameVariant;
+        var gameVariant = CreateGameInstance(variantIdentifier);
+        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
+        _activeGames.Add(gameId, activeGame);
+        return activeGame;
+    }
+
+    private static Game CreateGameInstance(string variantIdentifier)
+    {
         try
         {
-            gameVariant = GameFactory.FromIdentifier(variantIdentifier);
+            return GameFactory.FromIdentifier(variantIdentifier);
         }
         catch (ArgumentException e)
         {
             throw new OrganizerException(e.Message);
         }
-        
-        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
-        _activeGames.Add(gameId, activeGame);
-        return activeGame;
     }
 
     /// <summary>
@@ -93,6 +152,11 @@ public class GameOrganizer
         return activeGame.GetGame();
     }
 
+    public ActiveGameState GetGameState(string gameId)
+    {
+        return GetActiveGame(gameId).State;
+    }
+
     private ActiveGame GetActiveGame(string gameId)
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
@@ -114,11 +178,7 @@ public class GameOrganizer
     {
         var activeGame = GetActiveGame(gameId);
         var player = activeGame.GetPlayer(playerIdentifier);
-        if (player == null)
-        {
-            throw new PlayerNotFoundException($"No player with identifier '{playerIdentifier}' found for game with gameId '{gameId}'");
-        }
-        return (Player) player;
+        return player;
     }
 
     /// <summary>
@@ -150,8 +210,25 @@ public class GameOrganizer
     {
         var game = GetGame(gameId);
         return game.ExportStateAsJson();
-    } 
+    }
 
+    public GameState GetState(string gameId)
+    {
+        var game = GetGame(gameId);
+        return game.ExportState();
+    }
+
+    public string GetColorsAsJson(string gameId)
+    {
+        var activeGame = GetActiveGame(gameId);
+        return activeGame.GetColorsJson();
+    }
+
+    public ColorsDTO GetColorsObject(string gameId)
+    {
+        var activeGame = GetActiveGame(gameId);
+        return activeGame.GetColorsObject();
+    }
     #endregion
 
     #region GameControl
