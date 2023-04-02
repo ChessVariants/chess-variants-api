@@ -7,13 +7,15 @@ public class PieceAt : IPredicate
     private readonly string _pieceIdentifier;
     private readonly IPosition _position;
     private readonly BoardState _boardState;
+    private readonly RelativeTo _relativeTo;
 
 
-    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState)
+    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState, RelativeTo relativeTo = RelativeTo.FROM)
     {
         _pieceIdentifier = pieceIdentifier;
         _position = position;
         _boardState = boardState;
+        _relativeTo = relativeTo;
     }
 
     /// <summary>
@@ -26,7 +28,7 @@ public class PieceAt : IPredicate
     {
         bool isThisBoardState = _boardState == BoardState.THIS;
         var board = isThisBoardState ? transition.ThisState : transition.NextState;
-        var relativePosition = transition.MoveFrom;
+        string relativePosition = _relativeTo == RelativeTo.FROM ? transition.MoveFrom : transition.MoveTo;
 
         string? finalPosition = _position.GetPosition(board, relativePosition);
         if (finalPosition == null) return false;

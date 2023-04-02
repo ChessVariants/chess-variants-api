@@ -1,7 +1,12 @@
 ﻿using MongoDB.Driver;
 
 namespace DataAccess.MongoDB;
-public class DatabaseService
+
+/// <summary>
+/// Abstraction of a connection to a MongoDB database. Only implementations of this class should be used
+/// to perform operations on the database.
+/// </summary>
+public abstract class DatabaseService
 {
     private readonly IMongoClient _client;
     private readonly IMongoDatabase _database;

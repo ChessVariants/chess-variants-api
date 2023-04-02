@@ -9,13 +9,15 @@ public class SquareAttacked : IPredicate
     private readonly IPosition _position;
     private readonly BoardState _boardState;
     private readonly Player _attacker;
+    private readonly RelativeTo _relativeTo;
 
 
-    public SquareAttacked(IPosition position, BoardState boardState, Player attacker)
+    public SquareAttacked(IPosition position, BoardState boardState, Player attacker, RelativeTo relativeTo = RelativeTo.FROM)
     {
         _position = position;
         _boardState = boardState;
         _attacker = attacker;
+        _relativeTo = relativeTo;
     }
     /// <summary>
     /// Evaluates to true/false if a square is attacked or not in either the current board state or the next, depending on what was specified at object-creation.
@@ -27,9 +29,9 @@ public class SquareAttacked : IPredicate
     {
         bool isThisBoardState = _boardState == BoardState.THIS;
         var board = isThisBoardState ? boardTransition.ThisState : boardTransition.NextState;
-        var pivotPosition = boardTransition.MoveFrom;
+        string relativePosition = _relativeTo == RelativeTo.FROM ? boardTransition.MoveFrom : boardTransition.MoveTo;
 
-        string? finalPosition = _position.GetPosition(board, pivotPosition);
+        string? finalPosition = _position.GetPosition(board, relativePosition);
         if (finalPosition == null) return false;
 
         return Utils.SquareAttacked(board, finalPosition, _attacker);
