@@ -147,6 +147,11 @@ public class Game {
     {
         return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, GetLegalMoveDict());
     }
+
+    public GameState ExportState()
+    {
+        return GameExporter.ExportGameState(_moveWorker.Board, _playerTurn, GetLegalMoveDict());
+    }
 }
 
 
