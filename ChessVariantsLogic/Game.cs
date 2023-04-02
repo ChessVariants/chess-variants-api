@@ -3,17 +3,18 @@ namespace ChessVariantsLogic;
 using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
 using ChessVariantsLogic.Export;
+
 using System;
 using System.Collections.Generic;
 
 public class Game {
 
-    private readonly MoveWorker _moveWorker;
+    readonly protected MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
-    private readonly RuleSet _whiteRules;
-    private readonly RuleSet _blackRules;
+    protected readonly RuleSet _whiteRules;
+    protected readonly RuleSet _blackRules;
 
     private IDictionary<string, Move> _legalMoves;
 
@@ -26,6 +27,8 @@ public class Game {
         _blackRules = blackRules;
         _legalMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
     }
+    
+    
 
     /// <summary>
     /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move and if the move requested to be made is a legal move.
@@ -132,6 +135,8 @@ public class Game {
             throw new ArgumentException("Player can't be None when getting ruleset :" + player);
     }
 
+  
+
     /// <summary>
     /// Decrements the number of moves remaining for the current player. If the player has no moves left, switches the player turn and resets the number of moves remaining.
     /// </summary>
@@ -182,3 +187,7 @@ public static class PlayerExtensions
         };
     }
 }
+
+
+
+
