@@ -28,12 +28,12 @@ public class Perft : Game
         
         if (turn == Player.White)
         {
-            validMoves = _whiteRules.ApplyMoveRule(_moveWorker, Player.White);
+            validMoves = _whiteRules.GetLegalMoves(_moveWorker, Player.White).Values;
             turn = Player.Black;
         }
         else
         {
-            validMoves = _blackRules.ApplyMoveRule(_moveWorker, Player.Black);
+            validMoves = _blackRules.GetLegalMoves(_moveWorker, Player.Black).Values;
             turn = Player.White;
         }
 
@@ -41,7 +41,7 @@ public class Perft : Game
         {
             var boardTmp = _moveWorker.Board.CopyBoard();
             _moveWorker.StateLog.Push(boardTmp);
-            move.Perform(_moveWorker);
+            _moveWorker.PerformMove(move);
             PerftTest(depth - 1, turn);
             _moveWorker.undoMove();
         }

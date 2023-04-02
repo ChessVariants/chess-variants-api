@@ -613,7 +613,7 @@ public class MoveWorker
         {
             board = stateLog.Pop();
         }
-        movelog.RemoveAt(movelog.Count()-1);
+        _moveLog.RemoveAt(_moveLog.Count()-1);
     }
 
 #endregion
