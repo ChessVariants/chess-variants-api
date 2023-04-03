@@ -257,7 +257,7 @@ public static class GameFactory
         {
             for (int y = -1; y < 2; y++)
             {
-                IPosition position = new PositionRelative(y, x);
+                IPosition position = new PositionRelative(y, x, RelativeTo.TO);
                 bool shouldDestroyPawn = (x == 0 && y == 0);
                 eventsWhite.Add(Event.ExplosionEvent(Player.White, position, shouldDestroyPawn));
                 eventsBlack.Add(Event.ExplosionEvent(Player.Black, position, shouldDestroyPawn));

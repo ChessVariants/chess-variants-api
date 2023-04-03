@@ -9,12 +9,12 @@ public abstract class ActionGameEvent : Action
 {
     private readonly GameEvent _eventType;
 
-    protected ActionGameEvent(GameEvent eventType) : base(RelativeTo.FROM)
+    protected ActionGameEvent(GameEvent eventType)
     {
         _eventType = eventType;
     }
 
-    protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
+    public override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
     {
         return _eventType;
     }

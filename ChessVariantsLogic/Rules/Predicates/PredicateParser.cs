@@ -261,18 +261,18 @@ public class PredicateParser
             case "attacked_by":
                 {
                     var player = ParsePlayer(info);
-                    return new SquareAttacked(iPosition, boardState, player, relativeTo);
+                    return new SquareAttacked(iPosition, boardState, player);
                 }
             case "has_moved":
-                return new HasMoved(iPosition, boardState, relativeTo);
+                return new HasMoved(iPosition, boardState);
             case "has_piece":
-               return new PieceAt(info, iPosition, boardState, relativeTo);
+               return new PieceAt(info, iPosition, boardState);
             case "has_rank":
-               return new SquareHasRank(iPosition, int.Parse(info), relativeTo);
+               return new SquareHasRank(iPosition, int.Parse(info));
             case "has_file":
-                return new SquareHasFile(iPosition, int.Parse(info), relativeTo);
+                return new SquareHasFile(iPosition, int.Parse(info));
             case "is":
-                return new SquareIs(iPosition, ParsePosition(info), relativeTo);
+                return new SquareIs(iPosition, ParsePosition(info));
             default:
                 throw new ArgumentException("Invalid type argument of square_pred function: " + type);
         };
@@ -331,7 +331,7 @@ public class PredicateParser
             case "absolute":
                 return new PositionAbsolute(args[0]);
             case "relative":
-                return new PositionRelative(int.Parse(args[1]), int.Parse(args[2]));
+                return new PositionRelative(int.Parse(args[1]), int.Parse(args[2]), ParseRelativeTo(args[3]));
             default:
                 throw new ArgumentException("Invalid position: " + position);
         }

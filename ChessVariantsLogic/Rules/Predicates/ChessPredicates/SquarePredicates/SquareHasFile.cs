@@ -9,7 +9,7 @@ public class SquareHasFile : SquarePredicate
     private readonly int _file;
 
 
-    public SquareHasFile(IPosition position, int file, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
+    public SquareHasFile(IPosition position, int file) : base(BoardState.THIS, position)
     {
         _file = file;
     }
@@ -21,10 +21,9 @@ public class SquareHasFile : SquarePredicate
 
     public override bool Evaluate(BoardTransition boardTransition)
     {
-        var pivotPosition = GetRelativeTo(boardTransition);
         var board = boardTransition.ThisState;
 
-        Tuple<int, int>? finalPosition = _square.GetPositionTuple(board, pivotPosition);
+        Tuple<int, int>? finalPosition = _square.GetPositionTuple(board, boardTransition.MoveFromTo);
         if (finalPosition == null) return false;
 
         return _file == (board.Board.Cols - finalPosition.Item2);

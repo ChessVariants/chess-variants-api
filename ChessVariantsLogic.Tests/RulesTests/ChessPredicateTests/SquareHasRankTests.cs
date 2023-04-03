@@ -21,14 +21,14 @@ public class SquareHasRankTests {
     [Fact]
     public void PawnHasRankThree_ShouldReturnTrue()
     {
-        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0), 3, RelativeTo.TO);
+        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0, RelativeTo.TO), 3);
         Assert.True(pawnHasRankThree.Evaluate(transition));
     }
 
     [Fact]
     public void PawnHasRankThree_ShouldReturnFalse()
     {
-        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0), 3, RelativeTo.FROM);
+        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0, RelativeTo.FROM), 3);
         Assert.False(pawnHasRankThree.Evaluate(transition));
     }
 

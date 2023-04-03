@@ -44,7 +44,7 @@ public class MoveTemplate
 
         foreach (string from in positions)
         {
-            string? to = _to.GetPosition(moveWorker, from);
+            string? to = _to.GetPosition(moveWorker, from + from);
             if (to == null) continue;
 
             Move move = new Move(_actions, from + to, moveWorker.GetPieceFromIdentifier(moveWorker.Board.GetPieceIdentifier(from)));
@@ -72,7 +72,7 @@ public class MoveTemplate
 
         foreach (string from in positions)
         {
-            string? to = _to.GetPosition(moveWorker, from);
+            string? to = _to.GetPosition(moveWorker, from + from);
             if (to == null) continue;
 
             Move move = new Move(_actions, from + to, moveWorker.GetPieceFromIdentifier(moveWorker.Board.GetPieceIdentifier(from)));
@@ -104,9 +104,9 @@ public class MoveTemplate
 
         int relativeRookX = kingSide ? 3 : -4;
 
-        IPosition kingPosition = new PositionRelative(row: 0, col: 0);
-        IPosition squareBetween = new PositionRelative(row: 0, col: kingSideMultiplier);
-        IPosition rookPosition = new PositionRelative(row: 0, col: relativeRookX);
+        IPosition kingPosition = new PositionRelative(row: 0, col: 0, RelativeTo.FROM);
+        IPosition squareBetween = new PositionRelative(row: 0, col: kingSideMultiplier, RelativeTo.FROM);
+        IPosition rookPosition = new PositionRelative(row: 0, col: relativeRookX, RelativeTo.FROM);
 
         IPredicate kingCheckedThisState = new Attacked(BoardState.THIS, KingIdentifier);
         IPredicate kingCheckedNextState = new Attacked(BoardState.NEXT, KingIdentifier);
@@ -116,9 +116,9 @@ public class MoveTemplate
 
         IPredicate kingMovesThroughCheck = kingCheckedThisState | squareBetweenAttacked | kingCheckedNextState;
 
-        IPredicate squareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 1 * kingSideMultiplier), BoardState.THIS);
-        IPredicate squareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 2 * kingSideMultiplier), BoardState.THIS);
-        IPredicate squareEmpty3 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 3 * kingSideMultiplier), BoardState.THIS);
+        IPredicate squareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 1 * kingSideMultiplier, RelativeTo.FROM), BoardState.THIS);
+        IPredicate squareEmpty2 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 2 * kingSideMultiplier, RelativeTo.FROM), BoardState.THIS);
+        IPredicate squareEmpty3 = new PieceAt(Constants.UnoccupiedSquareIdentifier, new PositionRelative(row: 0, col: 3 * kingSideMultiplier, RelativeTo.FROM), BoardState.THIS);
 
         IPredicate kingHasMoved = new HasMoved(kingPosition);
         IPredicate rookHasMoved = new HasMoved(rookPosition);
@@ -157,9 +157,9 @@ public class MoveTemplate
     {
         int playerMultiplier = player == Player.White ? -1 : 1;
         string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
-        IPosition thisPawnPosition = new PositionRelative(row: 0, col: 0);
-        IPosition forwardPosition1 = new PositionRelative(row: 1 * playerMultiplier, col: 0);
-        IPosition forwardPosition2 = new PositionRelative(row: 2 * playerMultiplier, col: 0);
+        IPosition thisPawnPosition = new PositionRelative(row: 0, col: 0, RelativeTo.FROM);
+        IPosition forwardPosition1 = new PositionRelative(row: 1 * playerMultiplier, col: 0, RelativeTo.FROM);
+        IPosition forwardPosition2 = new PositionRelative(row: 2 * playerMultiplier, col: 0, RelativeTo.FROM);
 
         IPredicate hasMoved = new HasMoved(thisPawnPosition);
         IPredicate targetSquareEmpty1 = new PieceAt(Constants.UnoccupiedSquareIdentifier, forwardPosition1, BoardState.THIS);
@@ -169,7 +169,7 @@ public class MoveTemplate
         {
             new ActionMovePiece(forwardPosition2)
         };
-        //Times moved not yet implemented but we need to check that pawn hasn't moved before
+
         return new MoveTemplate(actions, !hasMoved & targetSquareEmpty1 & targetSquareEmpty2, PawnIdentifier, forwardPosition2);
     }
 
@@ -182,9 +182,9 @@ public class MoveTemplate
         string PawnIdentifier = player == Player.White ? Constants.WhitePawnIdentifier : Constants.BlackPawnIdentifier;
         string OpponentPawnIdentifier = player == Player.White ? Constants.BlackPawnIdentifier : Constants.WhitePawnIdentifier;
 
-        IPosition finalPosition = new PositionRelative(row: playerMultiplier, col: sideMultiplier);
-        IPosition enemyPawnPosition = new PositionRelative(row: 0, col: sideMultiplier);
-        IPosition enemyPawnPositionFrom = new PositionRelative(row: 2 * playerMultiplier, col: sideMultiplier);
+        IPosition finalPosition = new PositionRelative(row: playerMultiplier, col: sideMultiplier, RelativeTo.FROM);
+        IPosition enemyPawnPosition = new PositionRelative(row: 0, col: sideMultiplier, RelativeTo.FROM);
+        IPosition enemyPawnPositionFrom = new PositionRelative(row: 2 * playerMultiplier, col: sideMultiplier, RelativeTo.FROM);
 
         IPredicate enemyPawnNextTo = new PieceAt(OpponentPawnIdentifier, enemyPawnPosition, BoardState.THIS);
         IPredicate targetSquareEmpty = new PieceAt(Constants.UnoccupiedSquareIdentifier, finalPosition, BoardState.THIS);

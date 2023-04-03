@@ -19,7 +19,7 @@ public class PositionAbsolute : IPosition
     /// 
     /// <returns>The calculated position as a string.</returns>
     /// 
-    public string? GetPosition(MoveWorker moveWorker, string pivotPosition)
+    public string? GetPosition(MoveWorker moveWorker, string moveCoordinates)
     {
         return _position;
     }
@@ -32,7 +32,7 @@ public class PositionAbsolute : IPosition
     /// 
     /// <returns>The calculated position as a tuple.</returns>
     /// 
-    public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition)
+    public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string moveCoordinates)
     {
         return moveWorker.Board.ParseCoordinate(_position);
     }

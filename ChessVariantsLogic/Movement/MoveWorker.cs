@@ -177,7 +177,7 @@ public class MoveWorker
     {
         var lastMove = GetLastMove();
         if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
-        var result = action.Perform(this, lastMove.From, lastMove.To);
+        var result = action.Perform(this, lastMove.FromTo);
         lastMove.AddAction(action);
         return result;
     }

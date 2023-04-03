@@ -12,6 +12,7 @@ public class BoardTransition
     public readonly ISet<GameEvent> Results;
     public readonly string MoveFrom;
     public readonly string MoveTo;
+    public string MoveFromTo => MoveFrom + MoveTo;
 
 
     public BoardTransition(MoveWorker thisState, Move move)

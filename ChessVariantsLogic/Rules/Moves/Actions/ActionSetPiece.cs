@@ -10,7 +10,7 @@ public class ActionSetPiece : Action
     private readonly IPosition _at;
     private readonly string _pieceIdentifier;
 
-    public ActionSetPiece(IPosition at, string pieceIdentifier, RelativeTo relativeTo) : base(relativeTo)
+    public ActionSetPiece(IPosition at, string pieceIdentifier)
     {
         _at = at;
         _pieceIdentifier = pieceIdentifier;
@@ -24,9 +24,9 @@ public class ActionSetPiece : Action
     /// 
     /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
-    protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
+    public override GameEvent Perform(MoveWorker moveWorker, string moveCoordinates)
     {
-        string? finalPosition = _at.GetPosition(moveWorker, pivotPosition);
+        string? finalPosition = _at.GetPosition(moveWorker, moveCoordinates);
         if (finalPosition == null) return GameEvent.InvalidMove;
 
         string? pieceIdentifier = moveWorker.Board.GetPieceIdentifier(finalPosition);

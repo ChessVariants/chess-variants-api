@@ -7,7 +7,7 @@ public class PieceAt : SquarePredicate
     private readonly string _pieceIdentifier;
 
 
-    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState, RelativeTo relativeTo = RelativeTo.FROM) : base(boardState, relativeTo, position)
+    public PieceAt(string pieceIdentifier, IPosition position, BoardState boardState) : base(boardState, position)
     {
         _pieceIdentifier = pieceIdentifier;
     }

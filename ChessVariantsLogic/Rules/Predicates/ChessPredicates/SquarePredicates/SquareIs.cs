@@ -8,7 +8,7 @@ public class SquareIs : SquarePredicate
     private readonly IPosition _isPosition;
 
 
-    public SquareIs(IPosition position, IPosition isPosition, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
+    public SquareIs(IPosition position, IPosition isPosition) : base(BoardState.THIS, position)
     {
         _isPosition = isPosition;
     }
@@ -20,9 +20,8 @@ public class SquareIs : SquarePredicate
 
     public override bool Evaluate(BoardTransition boardTransition)
     {
-        var pivotPosition = GetRelativeTo(boardTransition);
         var board = GetBoardState(boardTransition);
 
-        return _isPosition.GetPosition(board, pivotPosition) == GetFinalPosition(boardTransition);
+        return _isPosition.GetPosition(board, boardTransition.MoveFromTo) == GetFinalPosition(boardTransition);
     }   
 }

@@ -9,7 +9,7 @@ public class SquareAttacked : SquarePredicate
     private readonly Player _attacker;
 
 
-    public SquareAttacked(IPosition position, BoardState boardState, Player attacker, RelativeTo relativeTo = RelativeTo.FROM) : base(boardState, relativeTo, position)
+    public SquareAttacked(IPosition position, BoardState boardState, Player attacker) : base(boardState, position)
     {
         _attacker = attacker;
     }

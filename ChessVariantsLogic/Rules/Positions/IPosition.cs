@@ -12,7 +12,7 @@ public interface IPosition
     /// 
     /// <returns>The calculated position as a string.</returns>
     /// 
-    public string? GetPosition(MoveWorker moveWorker, string pivotPosition);
+    public string? GetPosition(MoveWorker moveWorker, string moveCoordinates);
     /// <summary>
     /// Calculates the position and returns it as a tuple coordinate.
     /// </summary>

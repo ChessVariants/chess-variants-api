@@ -9,7 +9,7 @@ public class SquareHasRank : SquarePredicate
     private readonly int _rank;
 
 
-    public SquareHasRank(IPosition position, int rank, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
+    public SquareHasRank(IPosition position, int rank) : base(BoardState.THIS, position)
     {
         _rank = rank;
     }
@@ -21,21 +21,12 @@ public class SquareHasRank : SquarePredicate
 
     public override bool Evaluate(BoardTransition boardTransition)
     {
-        var pivotPosition = GetRelativeTo(boardTransition);
         var board = boardTransition.ThisState;
 
-        Tuple<int, int>? finalPosition = _square.GetPositionTuple(board, pivotPosition);
+        Tuple<int, int>? finalPosition = _square.GetPositionTuple(board, boardTransition.MoveFromTo);
         if (finalPosition == null) return false;
 
         return _rank == (board.Board.Rows - finalPosition.Item1);
     }   
 }
 
-
-/// <summary>
-/// An enum that determines whether predicates that evaluate positions should calculate their positions relative to the From or To variables of the supplied BoardTransition.
-/// </summary>
-public enum RelativeTo
-{
-    FROM, TO
-}

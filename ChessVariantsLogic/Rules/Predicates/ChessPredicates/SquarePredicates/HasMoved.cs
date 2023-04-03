@@ -5,7 +5,7 @@
 public class HasMoved : SquarePredicate
 {
     
-    public HasMoved(IPosition position, BoardState boardState = BoardState.THIS, RelativeTo relativeTo = RelativeTo.FROM) : base(boardState, relativeTo, position)
+    public HasMoved(IPosition position, BoardState boardState = BoardState.THIS) : base(boardState, position)
     {
     }
 
