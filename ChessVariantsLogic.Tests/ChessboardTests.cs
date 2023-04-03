@@ -32,30 +32,6 @@ public class ChessboardTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the FEN representation of the board is of the correct format.
-    /// </summary>
-    [Fact(Skip = "Constants changed to two characters")]
-    public void Test_FEN()
-    {
-        var moveWorker = new MoveWorker(new Chessboard(6), Piece.AllStandardPieces());
-
-        Assert.Equal("6/6/6/6/6/6", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board = new Chessboard(12, 3);
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/3/3", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board.Insert(Constants.BlackBishopIdentifier, "b2");
-        Assert.Equal("3/3/3/3/3/3/3/3/3/3/1b1/3", moveWorker.Board.ReadBoardAsFEN());
-
-        moveWorker.Board = Chessboard.StandardChessboard();
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", moveWorker.Board.ReadBoardAsFEN());
-
-        Assert.Equal(GameEvent.MoveSucceeded, moveWorker.Move("a2a3"));
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR", moveWorker.Board.ReadBoardAsFEN());
-
-    }
-
-    /// <summary>
     /// Tests that the standard chessboard is set up correctly.
     /// </summary>
     [Fact]
@@ -281,7 +257,7 @@ public class ChessboardTests : IDisposable
     {
         moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North,     1, 3),
             new RegularPattern(Constants.NorthEast, 1, 1),
             new RegularPattern(Constants.SouthEast, 2, 2),
@@ -319,12 +295,12 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
         var mp = new MovementPattern(patterns);
-        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation);
+        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation, true);
         var piece2 = Piece.BlackPawn();
 
         this.moveWorker.InsertOnBoard(piece1, "h4");
@@ -401,14 +377,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MovesLikeRook_capturesLikeBishop()
     {
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.East,  1, 8),
             new RegularPattern(Constants.South, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
 
-        var capturePatterns = new List<IPattern> {
+        var capturePatterns = new List<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
@@ -434,14 +410,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MoveLikeBishop_captureLikeKnight()
     {
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
             new RegularPattern(Constants.NorthWest, 1, 8),
         };
 
-        var capturePattern = new List<IPattern> {
+        var capturePattern = new List<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -473,7 +449,7 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<IPattern> {
+        var patterns = new List<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -484,7 +460,7 @@ public class ChessboardTests : IDisposable
             new JumpPattern(-2,-1),
         };
         
-        var capturePatterns = new List<IPattern> {
+        var capturePatterns = new List<Pattern> {
             new JumpPattern( 3, 1),
             new JumpPattern( 1, 3),
             new JumpPattern(-1, 3),
