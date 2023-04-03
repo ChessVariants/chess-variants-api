@@ -102,6 +102,9 @@ public class PredicateParser
     private static readonly string[] moveStates = new string[] { thisMove, lastMove };
     #endregion
 
+
+    string[][] syntax = new string[][] { predicateTypes, operatorTypes, constValues, countPredicateTypes, comparators, movePredicateTypes, piecePredicateTypes, squarePredicateTypes, relativeTo, squareTypes, pieceClassifiers, boardstates, moveStates };
+
     public IPredicate ParseCode(string code)
     {
         code = RemoveSpacesAndNewLines(code + '\n');
@@ -132,6 +135,13 @@ public class PredicateParser
                 value.Append(c);
             }
         }
+
+        List<string> variablesWithSyntaxNames = GetVariablesWithSyntaxNames();
+        if(variablesWithSyntaxNames.Count > 0)
+        {
+            throw new Exception("The following variable(s) have name(s) that interfere with syntax: " + string.Join(",", variablesWithSyntaxNames));
+        }
+
         variables.TryGetValue("return", out string? predicate);
         
         if (predicate == null)
@@ -141,6 +151,22 @@ public class PredicateParser
 
         return ParsePredicate(finalPredicate);
 
+    }
+
+    private List<string> GetVariablesWithSyntaxNames()
+    {
+        var flat = syntax.SelectMany(a => a).ToArray();
+
+        List<string> variablesWithSyntaxNames = new List<string>();
+
+        foreach(var word in flat)
+        {
+            if(variables.Keys.Contains(word))
+            {
+                variablesWithSyntaxNames.Add(word);
+            }
+        }
+        return variablesWithSyntaxNames;
     }
 
     private string ReplaceWord(string input, string wordToFind, string replace)

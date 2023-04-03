@@ -122,4 +122,10 @@ public class PredicateParserTests
             "\r\n" +
             "return = move_rule\n")));
     }
+    [Fact]
+    public void SyntaxNames_ShouldThrowException()
+    {
+        Assert.Throws<Exception>(() => pp.ParseCode("this_move = move_pred(this_move, piece_moved, DU)\n" +
+            "return = this_move\n"));
+    }
 }
