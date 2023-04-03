@@ -73,6 +73,54 @@ public static class GameFactory
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
+    public static Perft StandardChessPerft()
+    {
+        IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
+        IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
+
+        IPredicate whiteMoveRule = !whiteKingCheckedNextTurn;
+        IPredicate blackMoveRule = !blackKingCheckedNextTurn;
+
+
+
+        ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.White, true, false),
+            MoveTemplate.CastleMove(Player.White, false, false),
+            MoveTemplate.PawnDoubleMove(Player.White),
+            MoveTemplate.EnPassantMove(Player.White, true),
+            MoveTemplate.EnPassantMove(Player.White, false),
+        };
+
+
+        ISet<MoveTemplate> movesBlack = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.Black, true, false),
+            MoveTemplate.CastleMove(Player.Black, false, false),
+            MoveTemplate.PawnDoubleMove(Player.Black),
+            MoveTemplate.EnPassantMove(Player.Black, true),
+            MoveTemplate.EnPassantMove(Player.Black, false),
+        };
+
+        Event whiteWin = Event.WinEvent(Player.White, blackKingCheckedNextTurn);
+        Event blackWin = Event.WinEvent(Player.Black, whiteKingCheckedNextTurn);
+
+        Event whiteTie = Event.TieEvent(!blackKingCheckedNextTurn);
+        Event blackTie = Event.TieEvent(!whiteKingCheckedNextTurn);
+
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
+
+        ISet<Event> noMovesLeftEventsWhite = new HashSet<Event> { blackWin, blackTie };
+        ISet<Event> noMovesLeftEventsBlack = new HashSet<Event> { whiteWin, whiteTie };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, noMovesLeftEventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, noMovesLeftEventsBlack);
+
+
+        return new Perft(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+    }
+
 
     public static Game CaptureTheKing()
     {

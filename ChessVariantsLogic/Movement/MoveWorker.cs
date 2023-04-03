@@ -28,6 +28,13 @@ public class MoveWorker
     {
         get { return _moveLog; }
     }
+
+    private Stack<Chessboard> stateLog = new Stack<Chessboard>(); 
+
+    public Stack<Chessboard> StateLog
+    {
+        get {return stateLog;}
+    }
     
     /// <summary>
     /// Constructor that takes a Chessboard and a HashSet of Piece
@@ -77,6 +84,7 @@ public class MoveWorker
 
             if (force || moves.Contains(coor))
             {
+                
                 board.Insert(strPiece, to);
                 board.Insert(Constants.UnoccupiedSquareIdentifier, from);
                 board.PieceHasMoved(coor.Item1,coor.Item2);
@@ -606,6 +614,14 @@ public class MoveWorker
             repeat--;
         }
         return capturemoves;
+    }
+    public void undoMove()
+    {
+        if(stateLog.Count() != 0)
+        {
+            board = stateLog.Pop();
+        }
+        _moveLog.RemoveAt(_moveLog.Count()-1);
     }
 
 #endregion

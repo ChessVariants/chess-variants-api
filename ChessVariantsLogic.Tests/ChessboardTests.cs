@@ -12,11 +12,17 @@ namespace ChessVariantsLogic.Tests;
 public class ChessboardTests : IDisposable
 {
     private MoveWorker moveWorker;
+    private Game game;
     private const string customPieceNotation = "CA";
+
+    private Perft perft;
+    
 
     public ChessboardTests()
     {
         this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        this.game = GameFactory.StandardChess();
+        this.perft = GameFactory.StandardChessPerft();
     }
 
     public void Dispose()
@@ -496,5 +502,19 @@ public class ChessboardTests : IDisposable
         this.moveWorker.Move("d4e7");
 
         Assert.Equal(customPieceNotation, this.moveWorker.Board.GetPieceIdentifier("e7"));
+    }
+
+    [Fact]
+    public void perftTestThreeMoves()
+    {
+       this.perft.PerftTest (3, Player.White);
+       Assert.Equal(8902, perft.Nodes);
+    }
+
+    [Fact (Skip = "Takes too long")]
+    public void perftTestFiveMoves()
+    {
+       this.perft.PerftTest( 5, Player.White);
+       Assert.Equal(4865609, perft.Nodes);
     }
 }
