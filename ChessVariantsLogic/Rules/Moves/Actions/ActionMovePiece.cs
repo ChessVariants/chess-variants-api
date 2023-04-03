@@ -48,6 +48,11 @@ public class ActionMovePiece : Action
         string? to = _to.GetPosition(moveWorker, pivotPosition);
         if (to == null) return GameEvent.InvalidMove;
         string move = from + to;
+        string? pieceIdentifier = moveWorker.Board.GetPieceIdentifier(to);
+        if(pieceIdentifier != null && !pieceIdentifier.Equals(Constants.UnoccupiedSquareIdentifier))
+            _capturedPiece = moveWorker.GetPieceFromIdentifier(pieceIdentifier);
+
+        
         return moveWorker.Move(move, true);
     }
 }

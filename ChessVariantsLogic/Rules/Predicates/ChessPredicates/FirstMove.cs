@@ -4,10 +4,17 @@ using ChessVariantsLogic.Rules.Moves;
 /// <summary>
 /// This predicate evaluates if this is the first move i.e the movelog is empy.
 /// </summary>
-public class FirstMove : IPredicate
+public class FirstMove : MovePredicate
 {
-    public bool Evaluate(BoardTransition transition)
+    public FirstMove(MoveState moveState = MoveState.THIS) :base(moveState)
     {
-        return transition.ThisState.Movelog.Count == 0;
+
+    }
+
+    public override bool Evaluate(BoardTransition transition)
+    {
+        int moves = _moveState == MoveState.THIS ? 1 : 2;
+
+        return transition.NextState.Movelog.Count == moves;
     }
 }

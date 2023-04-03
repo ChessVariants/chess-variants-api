@@ -10,10 +10,10 @@ namespace ChessVariantsLogic.Tests;
 public class MoveWasTests
 {
     MoveWorker board;
-    BoardTransition boardTransition0;
-    BoardTransition boardTransition1;
-    IPosition from;
-    IPosition to;
+    BoardTransition e2e3BoardTransition;
+    BoardTransition e3e4BoardTransition;
+    IPosition e2;
+    IPosition e3;
     string fromStr;
     string toStr0;
     string toStr1;
@@ -24,25 +24,37 @@ public class MoveWasTests
         fromStr = "e2";
         toStr0 = "e3";
         toStr1 = "e4";
-        from = new PositionAbsolute(fromStr);
-        to = new PositionAbsolute(toStr0);
-        Move move0 = new Move(fromStr + toStr0, Piece.WhitePawn());
-        Move move1 = new Move(toStr0 + toStr1, Piece.WhitePawn());
+        e2 = new PositionAbsolute(fromStr);
+        e3 = new PositionAbsolute(toStr0);
+        Move e2e3Move = new Move(fromStr + toStr0, Piece.WhitePawn());
+        Move e3e4Move = new Move(toStr0 + toStr1, Piece.WhitePawn());
 
-        boardTransition0 = new BoardTransition(board, move0);
-        boardTransition1 = new BoardTransition(boardTransition0.NextState, move1);
+        e2e3BoardTransition = new BoardTransition(board, e2e3Move);
+        e3e4BoardTransition = new BoardTransition(e2e3BoardTransition.NextState, e3e4Move);
     }
 
     [Fact]
     public void LastMoveWasE2E3_ShouldReturnTrue()
     {
-        IPredicate lastMoveWasE2E3 = new MoveWas(from, to, MoveState.LAST);
-        Assert.True(lastMoveWasE2E3.Evaluate(boardTransition1));
+        IPredicate lastMoveWasE2E3 = new MoveWas(e2, e3, MoveState.LAST);
+        Assert.False(lastMoveWasE2E3.Evaluate(e2e3BoardTransition));
     }
     [Fact]
     public void LastMoveWasE2E3_ShouldReturnFalse()
     {
-        IPredicate lastMoveWasE2E3 = new MoveWas(from, to, MoveState.LAST);
-        Assert.False(lastMoveWasE2E3.Evaluate(boardTransition0));
+        IPredicate lastMoveWasE2E3 = new MoveWas(e2, e3, MoveState.LAST);
+        Assert.True(lastMoveWasE2E3.Evaluate(e3e4BoardTransition));
+    }
+    [Fact]
+    public void ThisMoveWasE2E3_ShouldReturnTrue()
+    {
+        IPredicate thisMoveWasE2E3 = new MoveWas(e2, e3, MoveState.THIS);
+        Assert.True(thisMoveWasE2E3.Evaluate(e2e3BoardTransition));
+    }
+    [Fact]
+    public void ThisMoveWasE2E3_ShouldReturnFalse()
+    {
+        IPredicate thisMoveWasE2E3 = new MoveWas(e2, e3, MoveState.THIS);
+        Assert.False(thisMoveWasE2E3.Evaluate(e3e4BoardTransition));
     }
 }

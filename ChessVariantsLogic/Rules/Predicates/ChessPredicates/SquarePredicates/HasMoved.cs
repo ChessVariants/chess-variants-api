@@ -1,6 +1,4 @@
-﻿using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
-
-namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate evaluates if a piece at a given location has moved.
 /// </summary>

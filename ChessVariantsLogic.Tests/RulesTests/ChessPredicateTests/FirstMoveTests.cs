@@ -41,4 +41,16 @@ public class FirstMoveTests
         IPredicate firstMove = new FirstMove();
         Assert.False(firstMove.Evaluate(boardTransition1));
     }
+    [Fact]
+    public void LastMoveWasFirstMove_ShouldReturnTrue()
+    {
+        IPredicate firstMove = new FirstMove(MoveState.LAST);
+        Assert.True(firstMove.Evaluate(boardTransition1));
+    }
+    [Fact]
+    public void LastMoveWasFirstMove_ShouldReturnFalse()
+    {
+        IPredicate firstMove = new FirstMove(MoveState.LAST);
+        Assert.False(firstMove.Evaluate(boardTransition0));
+    }
 }

@@ -38,7 +38,7 @@ public class Event
         int rank = player == Player.White ? (boardHeight) : 1;
 
         IPredicate pawnMoved = new PieceMoved(pawnIdentifier);
-        IPredicate pawnAtRank = new PositionHasRank(new PositionRelative(0, 0), rank, RelativeTo.TO);
+        IPredicate pawnAtRank = new SquareHasRank(new PositionRelative(0, 0), rank, RelativeTo.TO);
 
         List<Action> actions = new List<Action> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier, RelativeTo.TO) };
 

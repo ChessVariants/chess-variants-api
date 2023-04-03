@@ -12,6 +12,13 @@ public abstract class Action
 {
     private readonly RelativeTo _relativeTo;
 
+    protected Piece? _capturedPiece = null;
+
+    public bool DidCapturePiece(string pieceIdentifier)
+    {
+        return Utils.IsOfType(_capturedPiece, pieceIdentifier);
+    }
+
     protected Action(RelativeTo relativeTo)
     {
         _relativeTo = relativeTo;

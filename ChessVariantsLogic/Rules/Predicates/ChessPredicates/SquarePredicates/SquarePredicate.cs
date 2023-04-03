@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 public abstract class SquarePredicate : IPredicate
 {
     [JsonProperty]
@@ -41,8 +36,4 @@ public abstract class SquarePredicate : IPredicate
         return _square.GetPosition(board, relativePosition);
     }
 
-}
-public enum SquarePredType
-{
-    ATTACKED, HAS_MOVED, IS, PIECE_AT, HAS_RANK, HAS_FILE
 }

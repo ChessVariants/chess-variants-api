@@ -55,6 +55,8 @@ public class PredicateParser
         return Regex.Replace(input, wordToFind, replace);
     }
 
+
+
     private string GetFinalPredicate(string predicate)
     {
         while (ContainsAnyVariable(predicate))
@@ -135,10 +137,10 @@ public class PredicateParser
     {
         return word switch
         {
-            "movenpred" => true,
-            "squarenpred" => true,
-            "piecenpred" => true,
-            "countnpred" => true,
+            "move_pred" => true,
+            "square_pred" => true,
+            "piece_pred" => true,
+            "count_pred" => true,
             _ => false,
         };
     }
@@ -166,30 +168,113 @@ public class PredicateParser
     }
 
 
+    private Comparator ParseComparator(string comparator)
+    {
+        return comparator switch
+        {
+            "GREATER_THAN" => Comparator.GREATER_THAN,
+            "LESS_THAN" => Comparator.LESS_THAN,
+            "GREATER_THAN_OR_EQUALS" => Comparator.GREATER_THAN_OR_EQUALS,
+            "LESS_THAN_OR_EQUALS" => Comparator.LESS_THAN_OR_EQUALS,
+            "EQUALS" => Comparator.EQUALS,
+            "NOT_EQUALS" => Comparator.NOT_EQUALS,
+            _ => throw new ArgumentException("Invalid comparator: " + comparator),
+        };
+    }
+
     private IPredicate ParseChessPredicate(Tuple<string, List<string>> predicate)
     {
         (var predType, var args) = predicate;
 
         return predType switch
         {
-            "movenpred" => ParseMovePred(args),
-            "piecenpred" => ParsePiecePred(args),
-            "squarenpred" => ParseSquarePred(args),
+            "move_pred" => ParseMovePred(args),
+            "piece_pred" => ParsePiecePred(args),
+            "square_pred" => ParseSquarePred(args),
+            "count_pred" => ParseCountPred(args),
             _ => throw new ArgumentException("u done messed up"),
         };
     }
-
-    private IPredicate ParseMovePred(List<string> args)
+    private CountPredicate ParseCountPred(List<string> args)
     {
-        string type = args[0];
-        string info = args[1];
-        string state = args[2];
+        string state = args[0];
+        string type = args[1];
+        string arg = args[2];
+        string comparator = args[3];
+        string compare_val = args[4];
+        BoardState boardState = ParseBoardState(state);
+        Comparator comparatorEnum = ParseComparator(comparator);
+
+        return type switch
+        {
+            "pieces_left" => new PiecesLeft(arg, comparatorEnum, int.Parse(compare_val), boardState),
+            _ => throw new ArgumentException("Invalid type argument of count_pred function: " + type),
+        };
+    }
+
+    private MovePredicate ParseMovePred(List<string> args)
+    {
+        string state = args[0];
+        string type = args[1];
+        string arg1 = args[2];
+        string arg2 = "";
+        if (type == "was")
+            arg2 = args[3];
         MoveState moveState = ParseMoveState(state);
         return type switch
         {
-            "captured" => new PieceCaptured(info),
-            "name" => new PieceMoved(info, moveState),
+            "captured" => new PieceCaptured(arg1, moveState),
+            "name" => new PieceMoved(arg1, moveState),
+            "was" => new MoveWas(ParsePosition(arg1), ParsePosition(arg2), moveState),
+            "first_move" => new FirstMove(moveState),
             _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
+        };
+    }
+
+    private PiecePredicate ParsePiecePred(List<string> args)
+    {
+        string type = args[0];
+        string piece = args[1];
+        string state = args[2];
+        BoardState boardState = ParseBoardState(state);
+        return type switch
+        {
+            "attacked" => new Attacked(boardState, piece),
+            _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
+        };
+    }
+
+    private SquarePredicate ParseSquarePred(List<string> args)
+    {
+        string state = args[0];
+        string relative_to = args[1];
+        string position = args[2];
+        string type = args[3];
+        string info = "";
+        if (!type.Equals("has_moved"))
+            info = args[4];
+        var boardState = ParseBoardState(state);
+        var relativeTo = ParseRelativeTo(relative_to);
+        var iPosition = ParsePosition(position);
+        switch (type)
+        {
+            case "attacked_by":
+                {
+                    var player = ParsePlayer(info);
+                    return new SquareAttacked(iPosition, boardState, player, relativeTo);
+                }
+            case "has_moved":
+                return new HasMoved(iPosition, boardState, relativeTo);
+            case "has_piece":
+               return new PieceAt(info, iPosition, boardState, relativeTo);
+            case "has_rank":
+               return new SquareHasRank(iPosition, int.Parse(info), relativeTo);
+            case "has_file":
+                return new SquareHasFile(iPosition, int.Parse(info), relativeTo);
+            case "is":
+                return new SquareIs(iPosition, ParsePosition(info), relativeTo);
+            default:
+                throw new ArgumentException("Invalid type argument of square_pred function: " + type);
         };
     }
 
@@ -203,58 +288,6 @@ public class PredicateParser
             throw new ArgumentException("Invalid move_state variable: " + state);
     }
 
-    private IPredicate ParsePiecePred(List<string> args)
-    {
-        string type = args[0];
-        string piece = args[1];
-        string state = args[2];
-        BoardState boardState = state == "this" ? BoardState.THIS : (state == "next" ? BoardState.NEXT : throw new ArgumentException("Invalid state argument of piece_pred function: " + state));
-        return type switch
-        {
-            "attacked" => new Attacked(boardState, piece),
-            _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
-        };
-    }
-
-    private IPredicate ParseSquarePred(List<string> args)
-    {
-        string state = args[0];
-        string relative_to = args[1];
-        string position = args[2];
-        string type = args[3];
-        string info = "";
-        if (!type.Equals("hasnmoved"))
-            info = args[4];
-        var boardState = ParseBoardState(state);
-        var relativeTo = ParseRelativeTo(relative_to);
-        var iPosition = ParsePosition(position);
-        switch (type)
-        {
-            case "attackednby":
-                {
-                    var player = ParsePlayer(info);
-                    return new SquareAttacked(iPosition, boardState, player, relativeTo);
-                }
-            case "hasnmoved":
-                {
-                    return new HasMoved(iPosition, boardState, relativeTo);
-                }
-            case "hasnpiece":
-                {
-                    return new PieceAt(info, iPosition, boardState, relativeTo);
-                }
-            case "hasnrank":
-                {
-                    return new PositionHasRank(iPosition, int.Parse(info), relativeTo);
-                }
-            case "hasnfile":
-                throw new NotImplementedException();
-            case "is":
-                throw new NotImplementedException();
-            default:
-                throw new ArgumentException("Invalid type argument of square_pred function: " + type);
-        };
-    }
 
     private static RelativeTo ParseRelativeTo(string relative_to)
     {
@@ -263,17 +296,17 @@ public class PredicateParser
         else if (relative_to == "to")
             return RelativeTo.TO;
         else
-            throw new ArgumentException("Invalid relative_to argument of piece_pred function: " + relative_to);
+            throw new ArgumentException("Invalid relative_to argument: " + relative_to);
     }
 
     private Player ParsePlayer(string info)
     {
 
-        if (info == "black")
+        if (info == "BLACK")
             return Player.Black;
-        else if (info == "white")
+        else if (info == "WHITE")
             return Player.White;
-        else if(info == "shared") 
+        else if(info == "SHARED") 
             return Player.None;
         else
             throw new ArgumentException("Invalid player variable: " + info);
@@ -369,8 +402,6 @@ public class PredicateParser
         {
             if (c.Equals(' '))
                 continue;
-            if(c.Equals('_'))
-                stringBuilder.Append('n');
             else
                 stringBuilder.Append(c);
         }

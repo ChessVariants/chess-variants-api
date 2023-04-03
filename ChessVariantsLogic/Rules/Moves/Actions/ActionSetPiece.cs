@@ -28,6 +28,11 @@ public class ActionSetPiece : Action
     {
         string? finalPosition = _at.GetPosition(moveWorker, pivotPosition);
         if (finalPosition == null) return GameEvent.InvalidMove;
+
+        string? pieceIdentifier = moveWorker.Board.GetPieceIdentifier(finalPosition);
+        if (pieceIdentifier != null && !pieceIdentifier.Equals(Constants.UnoccupiedSquareIdentifier))
+            _capturedPiece = moveWorker.GetPieceFromIdentifier(pieceIdentifier);
+
         bool performedSucessfully = moveWorker.Board.Insert(_pieceIdentifier, finalPosition);
         if (performedSucessfully)
             return GameEvent.MoveSucceeded;

@@ -6,12 +6,12 @@ using ChessVariantsLogic.Rules.Moves;
 
 namespace ChessVariantsLogic.Tests;
 
-public class PositionHasRankTests {
+public class SquareHasRankTests {
     private readonly MoveWorker board;
     
     private readonly BoardTransition transition;
 
-    public PositionHasRankTests()
+    public SquareHasRankTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         Move move = new Move("e2e3", Piece.WhitePawn());
@@ -21,14 +21,14 @@ public class PositionHasRankTests {
     [Fact]
     public void PawnHasRankThree_ShouldReturnTrue()
     {
-        IPredicate pawnHasRankThree = new PositionHasRank(new PositionRelative(0, 0), 3, RelativeTo.TO);
+        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0), 3, RelativeTo.TO);
         Assert.True(pawnHasRankThree.Evaluate(transition));
     }
 
     [Fact]
     public void PawnHasRankThree_ShouldReturnFalse()
     {
-        IPredicate pawnHasRankThree = new PositionHasRank(new PositionRelative(0, 0), 3, RelativeTo.FROM);
+        IPredicate pawnHasRankThree = new SquareHasRank(new PositionRelative(0, 0), 3, RelativeTo.FROM);
         Assert.False(pawnHasRankThree.Evaluate(transition));
     }
 

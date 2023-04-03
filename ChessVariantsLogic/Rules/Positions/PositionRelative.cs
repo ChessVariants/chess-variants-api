@@ -1,4 +1,6 @@
 ﻿
+using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+
 namespace ChessVariantsLogic.Rules;
 /// <summary>
 /// Represents a relative position on the board that can be calculated at runtime.
@@ -6,6 +8,7 @@ namespace ChessVariantsLogic.Rules;
 public class PositionRelative : IPosition
 {
     private readonly Tuple<int, int> _relativePosition;
+    private readonly RelativeTo _relativeTo;
 
     public PositionRelative(int row, int col)
     {
@@ -30,6 +33,15 @@ public class PositionRelative : IPosition
         if (finalPosition == null) return null;
         moveWorker.Board.IndexToCoor.TryGetValue(finalPosition, out string? finalPositionString);
         return finalPositionString;
+    }
+
+    private string? ChoosePosition(string moveCoordinates)
+    {
+        Tuple<string, string>? moveCoordinatesTuple = MoveWorker.ParseMove(moveCoordinates);
+        if (moveCoordinatesTuple == null)
+            return null;
+        var (from, to) = moveCoordinatesTuple;
+        return _relativeTo == RelativeTo.FROM ? from : to;
     }
 
     /// <summary>

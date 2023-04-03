@@ -49,5 +49,13 @@ public class PieceCapturedTests {
         IPredicate pawnCaptured = new PieceCaptured(Constants.BlackPawnIdentifier);
         Assert.False(pawnCaptured.Evaluate(pieceWasNotCapturedTransition));
     }
+    [Fact]
+    public void PieceCaptured_ShouldReturnFalse()
+    {
+        IPredicate queenCaptured = new PieceCaptured(Constants.BlackQueenIdentifier);
+        IPredicate pieceCaptured = new PieceCaptured("WHITE");
+        Assert.False(queenCaptured.Evaluate(pieceWasCapturedTransition));
+        Assert.False(pieceCaptured.Evaluate(pieceWasCapturedTransition));
+    }
 
 }

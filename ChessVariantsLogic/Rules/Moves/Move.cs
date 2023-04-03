@@ -17,6 +17,18 @@ public class Move
     public string PieceIdentifier => Piece.PieceIdentifier;
     public readonly Piece Piece;
 
+    public bool CapturedPiece(string pieceIdentifier)
+    {
+        foreach (Action a in _actions)
+        {
+            if (a.DidCapturePiece(pieceIdentifier))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Constructor that takes a list of actions, a string fromTo and a PieceClassifier.
     /// </summary>

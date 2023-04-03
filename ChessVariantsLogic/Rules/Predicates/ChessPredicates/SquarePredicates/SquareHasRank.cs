@@ -1,17 +1,15 @@
 ﻿
-using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
-
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square has a certain rank.
 /// The target position can be calculated relatively or absolutely.
 /// </summary>
-public class PositionHasRank : SquarePredicate
+public class SquareHasRank : SquarePredicate
 {
     private readonly int _rank;
 
 
-    public PositionHasRank(IPosition position, int rank, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
+    public SquareHasRank(IPosition position, int rank, RelativeTo relativeTo = RelativeTo.FROM) : base(BoardState.THIS, relativeTo, position)
     {
         _rank = rank;
     }

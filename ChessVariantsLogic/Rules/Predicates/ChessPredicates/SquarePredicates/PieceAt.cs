@@ -1,6 +1,4 @@
-﻿using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
-
-namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate evaluates if a given board coordinate contains a piece that has the type of the internal _pieceIdentifier.
 /// </summary>

@@ -64,7 +64,7 @@ public class PredicateParserTests
     {
         IPredicate pawnMoved = new PieceMoved("PA");
 
-        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_pred(name, PA, this)")));
+        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_pred(this, name, PA)")));
     }
     [Fact]
     public void StandardChessMoveRule_shouldBeEqual()

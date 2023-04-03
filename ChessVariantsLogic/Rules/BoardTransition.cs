@@ -9,7 +9,6 @@ public class BoardTransition
 {
     public readonly MoveWorker ThisState;
     public readonly MoveWorker NextState;
-    public readonly Move Move;
     public readonly ISet<GameEvent> Results;
     public readonly string MoveFrom;
     public readonly string MoveTo;
@@ -19,8 +18,7 @@ public class BoardTransition
     {
         ThisState = thisState.CopyBoardState();
         NextState = thisState.CopyBoardState();
-        Move = move;
-        Results = NextState.PerformMove(Move);
+        Results = NextState.PerformMove(move);
         MoveFrom = move.From;
         MoveTo = move.To;
     }

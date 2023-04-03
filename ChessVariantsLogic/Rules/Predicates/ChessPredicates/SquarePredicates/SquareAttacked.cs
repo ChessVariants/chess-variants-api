@@ -1,6 +1,4 @@
 ﻿
-using ChessVariantsLogic.Rules.Predicates.ChessPredicates.NewPredicates;
-
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square is attacked or not by the given player, either in the current board state or the next.
