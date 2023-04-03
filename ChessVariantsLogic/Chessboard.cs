@@ -57,6 +57,16 @@ public class Chessboard
         this.hasMoved = initHasMoved();
     }
 
+    public bool PieceHasNotMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            hasMoved[row,col] = false;
+            return true;
+        }
+        return false;
+    }
+
     public Chessboard CopyBoard()
     {
         var boardCopy = new Chessboard(rows, cols);
@@ -65,6 +75,7 @@ public class Chessboard
             for (int j = 0; j < cols; j++)
             {
                 boardCopy.Insert(board[i, j], i, j);
+                boardCopy.hasMoved[i, j] = hasMoved[i, j];
             }
         }
         return boardCopy;
@@ -86,42 +97,6 @@ public class Chessboard
                 yield return (i,j);
             }
         }
-    }
-
-    /// <summary>
-    /// Produces FEN representation of the chessboard
-    /// </summary>
-    /// <returns> a string representing the chessboard in FEN </returns>
-    public string ReadBoardAsFEN()
-    {
-        string fen = "";
-        int unoccupiedCounter = 0;
-
-        for(int i = 0; i < this.rows; i++)
-        {
-            for(int j = 0; j < this.cols; j++)
-            {
-                if(board[i,j].Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    unoccupiedCounter++;
-                    continue;
-                }
-                if (unoccupiedCounter != 0)
-                {
-                    fen += unoccupiedCounter.ToString();
-                    unoccupiedCounter = 0;
-                }
-                fen += board[i,j];
-            }
-            if(unoccupiedCounter != 0)
-            {
-                fen += unoccupiedCounter.ToString();
-                unoccupiedCounter = 0;
-            }
-            fen += "/";
-        }
-
-        return fen.Remove(fen.Length - 1, 1);
     }
 
     /// <returns> an instance of Chessboard with the standard set up. </returns>

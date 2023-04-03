@@ -15,6 +15,7 @@ public static class WebApplicationExtensions
     public static WebApplication MapHubs(this WebApplication app)
     {
         app.MapHub<GameHub>("/game");
+        app.MapHub<EditorHub>("/editor");
         return app;
     }
 }

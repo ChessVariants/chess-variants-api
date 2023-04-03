@@ -17,7 +17,7 @@ public class LastMove : IPredicate
 
     public bool Evaluate(BoardTransition transition)
     {
-        Move? move = transition.ThisState.getLastMove();
+        Move? move = transition.ThisState.GetLastMove();
         if (move == null) return false;
         Tuple<string, string>? lastMove = MoveWorker.ParseMove(move.FromTo);
         if(lastMove == null) return false;

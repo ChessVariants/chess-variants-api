@@ -27,19 +27,11 @@ public static class GameFactory
 
     public static Game StandardChess()
     {
-        IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
         IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
-        IPredicate whiteKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
 
-        IPredicate blackKingCheckedThisAndNextTurn = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
-        IPredicate whiteKingCheckedThisAndNextTurn = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
-
-        IPredicate whiteWinRule = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
-        IPredicate blackWinRule = new ForEvery(whiteKingCheckedThisAndNextTurn, Player.White);
-
-        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn);
-        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn);
+        IPredicate whiteMoveRule = !whiteKingCheckedNextTurn;
+        IPredicate blackMoveRule = !blackKingCheckedNextTurn;
 
 
 
@@ -62,27 +54,82 @@ public static class GameFactory
             MoveTemplate.EnPassantMove(Player.Black, false),
         };
 
+        Event whiteWin = Event.WinEvent(Player.White, blackKingCheckedNextTurn);
+        Event blackWin = Event.WinEvent(Player.Black, whiteKingCheckedNextTurn);
+
+        Event whiteTie = Event.TieEvent(!blackKingCheckedNextTurn);
+        Event blackTie = Event.TieEvent(!whiteKingCheckedNextTurn);
+
         ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
         ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
 
+        ISet<Event> noMovesLeftEventsWhite = new HashSet<Event> { blackWin, blackTie };
+        ISet<Event> noMovesLeftEventsBlack = new HashSet<Event> { whiteWin, whiteTie };
 
-
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite, eventsWhite);
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack, eventsBlack);
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, noMovesLeftEventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, noMovesLeftEventsBlack);
 
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
+    }
+
+    public static Perft StandardChessPerft()
+    {
+        IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
+        IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
+
+        IPredicate whiteMoveRule = !whiteKingCheckedNextTurn;
+        IPredicate blackMoveRule = !blackKingCheckedNextTurn;
+
+
+
+        ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.White, true, false),
+            MoveTemplate.CastleMove(Player.White, false, false),
+            MoveTemplate.PawnDoubleMove(Player.White),
+            MoveTemplate.EnPassantMove(Player.White, true),
+            MoveTemplate.EnPassantMove(Player.White, false),
+        };
+
+
+        ISet<MoveTemplate> movesBlack = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.CastleMove(Player.Black, true, false),
+            MoveTemplate.CastleMove(Player.Black, false, false),
+            MoveTemplate.PawnDoubleMove(Player.Black),
+            MoveTemplate.EnPassantMove(Player.Black, true),
+            MoveTemplate.EnPassantMove(Player.Black, false),
+        };
+
+        Event whiteWin = Event.WinEvent(Player.White, blackKingCheckedNextTurn);
+        Event blackWin = Event.WinEvent(Player.Black, whiteKingCheckedNextTurn);
+
+        Event whiteTie = Event.TieEvent(!blackKingCheckedNextTurn);
+        Event blackTie = Event.TieEvent(!whiteKingCheckedNextTurn);
+
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
+
+        ISet<Event> noMovesLeftEventsWhite = new HashSet<Event> { blackWin, blackTie };
+        ISet<Event> noMovesLeftEventsBlack = new HashSet<Event> { whiteWin, whiteTie };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, noMovesLeftEventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, noMovesLeftEventsBlack);
+
+
+        return new Perft(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
 
     public static Game CaptureTheKing()
     {
         IPredicate whiteMoveRule = new Const(true);
-        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
 
         
         IPredicate blackMoveRule = new Const(true);
-        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
         {
@@ -103,12 +150,12 @@ public static class GameFactory
             MoveTemplate.EnPassantMove(Player.Black, false),
         };
 
-        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
-        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8), Event.WinEvent(Player.White, whiteWinRule) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8), Event.WinEvent(Player.Black, blackWinRule) };
 
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite, eventsWhite);
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack, eventsBlack);
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, new HashSet<Event>() { Event.TieEvent(new Const(true)) });
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, new HashSet<Event>() { Event.TieEvent(new Const(true)) });
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
 
@@ -150,12 +197,11 @@ public static class GameFactory
             MoveTemplate.EnPassantMove(Player.Black, false),
         };
 
-        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
-        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8), Event.WinEvent(Player.White, whiteWinRule) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8), Event.WinEvent(Player.Black, blackWinRule) };
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite, eventsWhite);
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack, eventsBlack);
-
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, new HashSet<Event>() { Event.TieEvent(new Const(true)) });
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, new HashSet<Event>() { Event.TieEvent(new Const(true)) });
 
         return new Game(new MoveWorker(Chessboard.DuckChessboard(), Piece.AllDuckChessPieces()), Player.White, 2, rulesWhite, rulesBlack);
 
@@ -166,32 +212,14 @@ public static class GameFactory
 
     public static Game AtomicChess()
     {
-        IPredicate blackKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.BlackKingIdentifier);
         IPredicate blackKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.BlackKingIdentifier);
-        IPredicate whiteKingCheckedThisTurn = new Attacked(BoardState.THIS, Constants.WhiteKingIdentifier);
         IPredicate whiteKingCheckedNextTurn = new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier);
 
-        IPredicate blackKingCheckedThisAndNextTurn = new Operator(blackKingCheckedThisTurn, AND, blackKingCheckedNextTurn);
-        IPredicate whiteKingCheckedThisAndNextTurn = new Operator(whiteKingCheckedThisTurn, AND, whiteKingCheckedNextTurn);
+        IPredicate whiteKingLeftNextTurn = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.GREATER_THAN, 0, BoardState.NEXT);
+        IPredicate blackKingLeftNextTurn = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.GREATER_THAN, 0, BoardState.NEXT);
 
-
-        IPredicate checkMateWhite = new ForEvery(blackKingCheckedThisAndNextTurn, Player.Black);
-        IPredicate checkMateBlack = new ForEvery(whiteKingCheckedThisAndNextTurn, Player.White);
-
-        IPredicate noBlackKingLeft = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
-        IPredicate noWhiteKingLeft = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
-
-        IPredicate whiteCaptured = new PieceCaptured("ANY_WHITE");
-        IPredicate blackCaptured = new PieceCaptured("ANY_BLACK");
-
-        IPredicate whiteKingMoved = new PieceMoved(Constants.WhiteKingIdentifier);
-        IPredicate blackKingMoved = new PieceMoved(Constants.BlackKingIdentifier);
-
-        IPredicate whiteMoveRule = new Operator(NOT, whiteKingCheckedNextTurn) & !(blackCaptured & whiteKingMoved);
-        IPredicate blackMoveRule = new Operator(NOT, blackKingCheckedNextTurn) & !(whiteCaptured & blackKingMoved);
-
-        IPredicate whiteWinRule = checkMateWhite | noBlackKingLeft;
-        IPredicate blackWinRule = checkMateBlack | noWhiteKingLeft;
+        IPredicate whiteMoveRule = !whiteKingCheckedNextTurn & whiteKingLeftNextTurn;
+        IPredicate blackMoveRule = !blackKingCheckedNextTurn & blackKingLeftNextTurn;
 
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
@@ -213,9 +241,17 @@ public static class GameFactory
             MoveTemplate.EnPassantMove(Player.Black, false),
         };
 
+        Event whiteWin = Event.WinEvent(Player.White, blackKingCheckedNextTurn);
+        Event blackWin = Event.WinEvent(Player.Black, whiteKingCheckedNextTurn);
+
+        Event whiteTie = Event.TieEvent(!blackKingCheckedNextTurn);
+        Event blackTie = Event.TieEvent(!whiteKingCheckedNextTurn);
+
         ISet<Event> eventsWhite = new HashSet<Event> { Event.PromotionEvent(Player.White, 8) };
         ISet<Event> eventsBlack = new HashSet<Event> { Event.PromotionEvent(Player.Black, 8) };
 
+        ISet<Event> stalemateEventsWhite = new HashSet<Event> { blackWin, blackTie };
+        ISet<Event> stalemateEventsBlack = new HashSet<Event> { whiteWin, whiteTie };
 
         for (int x = -1; x < 2; x++)
         {
@@ -229,23 +265,43 @@ public static class GameFactory
         }
 
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, movesWhite, eventsWhite);
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, movesBlack, eventsBlack);
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, stalemateEventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, stalemateEventsBlack);
 
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
     public static Game AntiChess()
     {
-        
         IPredicate whiteMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_BLACK"), IMPLIES, new PieceCaptured("ANY_BLACK"));
-        IPredicate whiteWinRule = new PiecesLeft("ANY_WHITE", Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate whiteWinRule = new PiecesLeft("ANY_WHITE", Comparator.EQUALS, 0, BoardState.NEXT);
         
         IPredicate blackMoveRule = new Operator(new Attacked(BoardState.THIS, "ANY_WHITE"), IMPLIES, new PieceCaptured("ANY_WHITE"));
-        IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate blackWinRule = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 0, BoardState.NEXT);
 
-        RuleSet rulesWhite = new RuleSet(whiteMoveRule, whiteWinRule, new HashSet<MoveTemplate>());
-        RuleSet rulesBlack = new RuleSet(blackMoveRule, blackWinRule, new HashSet<MoveTemplate>());
+        ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.PawnDoubleMove(Player.White),
+            MoveTemplate.EnPassantMove(Player.White, true),
+            MoveTemplate.EnPassantMove(Player.White, false),
+        };
+
+
+        ISet<MoveTemplate> movesBlack = new HashSet<MoveTemplate>
+        {
+            MoveTemplate.PawnDoubleMove(Player.Black),
+            MoveTemplate.EnPassantMove(Player.Black, true),
+            MoveTemplate.EnPassantMove(Player.Black, false),
+        };
+
+        ISet<Event> eventsWhite = new HashSet<Event> { Event.WinEvent(Player.White, whiteWinRule) };
+        ISet<Event> eventsBlack = new HashSet<Event> { Event.WinEvent(Player.Black, blackWinRule) };
+
+        ISet<Event> stalemateEventsWhite = new HashSet<Event> { Event.WinEvent(Player.White, new Const(true)) };
+        ISet<Event> stalemateEventsBlack = new HashSet<Event> { Event.WinEvent(Player.Black, new Const(true)) };
+
+        RuleSet rulesWhite = new RuleSet(whiteMoveRule, movesWhite, eventsWhite, stalemateEventsWhite);
+        RuleSet rulesBlack = new RuleSet(blackMoveRule, movesBlack, eventsBlack, stalemateEventsBlack);
 
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }

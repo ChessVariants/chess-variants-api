@@ -10,27 +10,35 @@ public class BoardTransition
     public readonly MoveWorker ThisState;
     public readonly MoveWorker NextState;
     public readonly Move Move;
-    public readonly GameEvent Result;
+    public readonly ISet<GameEvent> Results;
     public readonly string MoveFrom;
     public readonly string MoveTo;
 
+
     public BoardTransition(MoveWorker thisState, Move move)
     {
-        ThisState = thisState;
+        ThisState = thisState.CopyBoardState();
         NextState = thisState.CopyBoardState();
         Move = move;
-        Result = Move.Perform(NextState);
-
-        Tuple<string, string>? fromTo = MoveWorker.ParseMove(move.FromTo);
-        if (fromTo == null) throw new ArgumentException("The given move parameter does not contain a proper move string. Supplied move string: " + move.FromTo);
-
-        MoveFrom = fromTo.Item1;
-        MoveTo = fromTo.Item2;
+        Results = NextState.PerformMove(Move);
+        MoveFrom = move.From;
+        MoveTo = move.To;
     }
-    
+
+    public BoardTransition(MoveWorker thisState, Move move, ISet<Event> events) : this(thisState, move)
+    {
+        foreach (var e in events)
+        {
+            if(e.ShouldRun(this))
+            {
+                NextState.RunEvent(e);
+            }
+        }
+    }
+
     public bool IsValid()
     {
-        return Result != GameEvent.InvalidMove;
+        return !Results.Contains(GameEvent.InvalidMove);
     }
 
 }

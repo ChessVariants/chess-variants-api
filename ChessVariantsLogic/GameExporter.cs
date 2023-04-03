@@ -9,6 +9,13 @@ public static class GameExporter
         return gameState.AsJson();
     }
 
+    public static string ExportMovesAsJson(Dictionary<string, List<string>> moveDict)
+    {
+        var moves = ExportMoves(moveDict);
+        return JsonConvert.SerializeObject(moves, Formatting.Indented);
+    }
+
+
     /// <summary>
     /// Gives a <see cref="GameState"/> object representing the current state of the game
     /// </summary>
@@ -113,10 +120,10 @@ public record GameState
 /// </summary>
 public record BoardSize
 {
-    [JsonProperty("row")]
+    [JsonProperty("rows")]
     public int Rows { get; set; }
 
-    [JsonProperty("col")]
+    [JsonProperty("cols")]
     public int Cols { get; set; }
 }
 
