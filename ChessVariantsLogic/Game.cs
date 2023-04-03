@@ -9,12 +9,25 @@ using System.Collections.Generic;
 
 public class Game {
 
-    readonly protected MoveWorker _moveWorker;
+    protected readonly MoveWorker _moveWorker;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     protected readonly RuleSet _whiteRules;
     protected readonly RuleSet _blackRules;
+
+    public MoveWorker MoveWorker
+    {
+        get { return _moveWorker; }
+    }
+    public RuleSet WhiteRules
+    {
+        get { return _whiteRules; }
+    }
+    public RuleSet BlackRules
+    {
+        get { return _blackRules; }
+    }
 
     private IDictionary<string, Move> _legalMoves;
 

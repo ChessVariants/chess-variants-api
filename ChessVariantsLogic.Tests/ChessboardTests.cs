@@ -16,6 +16,7 @@ public class ChessboardTests : IDisposable
     private const string customPieceNotation = "CA";
 
     private Perft perft;
+   
     
 
     public ChessboardTests()
@@ -493,4 +494,6 @@ public class ChessboardTests : IDisposable
        this.perft.PerftTest( 5, Player.White);
        Assert.Equal(4865609, perft.Nodes);
     }
+
+    
 }
