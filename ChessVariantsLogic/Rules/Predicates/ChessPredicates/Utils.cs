@@ -18,6 +18,7 @@ public class Utils
     {
         var player = GetPieceClassifier(board, pieceIdentifier);
         var attacker = player == PieceClassifier.WHITE ? Player.Black : Player.White;
+        // CHANGE THIS
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         var attackedPieces = board.GetAllCapturePatternMoves(attacker);
         foreach (var attackerMove in attackedPieces)

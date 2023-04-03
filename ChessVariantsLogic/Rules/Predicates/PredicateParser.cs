@@ -8,6 +8,100 @@ public class PredicateParser
 
     private IDictionary<string, string> variables = new Dictionary<string, string>();
 
+
+    #region Predicates
+    private const string countPredicate = "count_pred";
+    private const string movePredicate = "move_pred";
+    private const string piecePredicate = "piece_pred";
+    private const string squarePredicate = "square_pred";
+    private static readonly string[] predicateTypes = new string[] { countPredicate, movePredicate, piecePredicate, squarePredicate };
+    #endregion
+
+    #region Operators
+    private const string AND = "AND";
+    private const string OR = "OR";
+    private const string IMPLIES = "IMPLIES";
+    private const string XOR = "XOR";
+    private const string EQUALS_OPERATOR = "EQUALS";
+    private const string NOT = "NOT";
+    private static readonly string[] operatorTypes = new string[] { AND, OR, IMPLIES, XOR, EQUALS_OPERATOR, NOT };
+    #endregion
+
+    #region ConstValues
+    private const string TRUE = "true";
+    private const string FALSE = "false";
+    private static readonly string[] constValues = new string[] { TRUE, FALSE };
+    #endregion
+
+    #region CountPredicateTypes
+    private const string piecesLeft = "pieces_left";
+    private static readonly string[] countPredicateTypes = new string[] { piecesLeft };
+    #endregion
+
+    #region Comparators
+    private const string GREATER_THAN = "GREATER_THAN";
+    private const string LESS_THAN = "LESS_THAN";
+    private const string GREATER_THAN_OR_EQUALS = "GREATER_THAN_OR_EQUALS";
+    private const string LESS_THAN_OR_EQUALS = "LESS_THAN_OR_EQUALS";
+    private const string EQUALS_COMPARATOR = "EQUALS";
+    private const string NOT_EQUALS = "NOT_EQUALS";
+    private static readonly string[] comparators = new string[] { GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS_COMPARATOR, NOT_EQUALS };
+    #endregion
+
+    #region MovePredicateTypes
+    private const string captured = "captured";
+    private const string pieceMoved = "piece_moved";
+    private const string was = "was";
+    private const string firstMove = "first_move";
+    private static readonly string[] movePredicateTypes = new string[] { captured, pieceMoved, was, firstMove };
+    #endregion
+
+    #region PiecePredicateTypes
+    private const string attacked = "attacked";
+    private static readonly string[] piecePredicateTypes = new string[] { attacked };
+    #endregion
+
+    #region SquarePredicateTypes
+    private const string attackedBy = "attacked_by";
+    private const string hasMoved = "has_moved";
+    private const string _is = "is";
+    private const string hasPiece = "has_piece";
+    private const string hasRank = "has_rank";
+    private const string hasFile = "has_file";
+    private static readonly string[] squarePredicateTypes = new string[] { attackedBy, hasMoved, _is, hasPiece, hasRank, hasFile };
+    #endregion
+
+    #region RelativeToRegion
+    private const string from = "from";
+    private const string to = "to";
+    private static readonly string[] relativeTo = new string[] { from, to };
+    #endregion
+
+    #region SquareTypes
+    private const string absolute = "absolute";
+    private const string relative = "relative";
+    private static readonly string[] squareTypes = new string[] { absolute, relative };
+    #endregion
+
+    #region PieceClassifiers
+    private const string white = "WHITE";
+    private const string black = "BLACK";
+    private const string shared = "SHARED";
+    private static readonly string[] pieceClassifiers = new string[] { white, black, shared };
+    #endregion
+
+    #region BoardStates
+    private const string thisState = "this_state";
+    private const string nextState = "next_state";
+    private static readonly string[] boardstates = new string[] { thisState, nextState };
+    #endregion
+
+    #region MoveStates
+    private const string thisMove = "this_move";
+    private const string lastMove = "last_move";
+    private static readonly string[] moveStates = new string[] { thisMove, lastMove };
+    #endregion
+
     public IPredicate ParseCode(string code)
     {
         code = RemoveSpacesAndNewLines(code + '\n');
@@ -100,22 +194,19 @@ public class PredicateParser
         throw new ArgumentException("Unknown identifier: " + pred);
     }
 
-    private bool IsConstant(string pred)
+    private bool IsConstant(string pred) => pred switch
     {
-        return pred switch
-        {
-            "true" => true,
-            "false" => true,
-            _ => false,
-        };
-    }
+        TRUE => true,
+        FALSE => true,
+        _ => false,
+    };
 
     private IPredicate ParseConst(string pred)
     {
         return pred switch
         {
-            "true" => new Const(true),
-            "false" => new Const(false),
+            TRUE => new Const(true),
+            FALSE => new Const(false),
             _ => throw new ArgumentException("invalid argument"),
         };
     }
@@ -124,12 +215,12 @@ public class PredicateParser
     {
         return word switch
         {
-            "OR" => true,
-            "AND" => true,
-            "IMPLIES" => true,
-            "XOR" => true,
-            "EQUALS" => true,
-            "NOT" => true,
+            OR => true,
+            AND => true,
+            IMPLIES => true,
+            XOR => true,
+            EQUALS_OPERATOR => true,
+            NOT => true,
             _ => false,
         };
     }
@@ -137,10 +228,10 @@ public class PredicateParser
     {
         return word switch
         {
-            "move_pred" => true,
-            "square_pred" => true,
-            "piece_pred" => true,
-            "count_pred" => true,
+            movePredicate => true,
+            squarePredicate => true,
+            piecePredicate => true,
+            countPredicate => true,
             _ => false,
         };
     }
@@ -158,11 +249,11 @@ public class PredicateParser
 
         return operatorType switch
         {
-            "OR" => (arg1 | arg2),
-            "AND" => (arg1 & arg2),
-            "IMPLIES" => (arg1 - arg2),
-            "XOR" => (arg1 ^ arg2),
-            "EQUALS" => new Operator(arg1, OperatorType.EQUALS, arg2),
+            OR => (arg1 | arg2),
+            AND => (arg1 & arg2),
+            IMPLIES => (arg1 - arg2),
+            XOR => (arg1 ^ arg2),
+            EQUALS_OPERATOR => new Operator(arg1, OperatorType.EQUALS, arg2),
             _ => throw new ArgumentException("Invalid operator: " + operatorType),
         };
     }
@@ -172,12 +263,12 @@ public class PredicateParser
     {
         return comparator switch
         {
-            "GREATER_THAN" => Comparator.GREATER_THAN,
-            "LESS_THAN" => Comparator.LESS_THAN,
-            "GREATER_THAN_OR_EQUALS" => Comparator.GREATER_THAN_OR_EQUALS,
-            "LESS_THAN_OR_EQUALS" => Comparator.LESS_THAN_OR_EQUALS,
-            "EQUALS" => Comparator.EQUALS,
-            "NOT_EQUALS" => Comparator.NOT_EQUALS,
+            GREATER_THAN => Comparator.GREATER_THAN,
+            LESS_THAN => Comparator.LESS_THAN,
+            GREATER_THAN_OR_EQUALS => Comparator.GREATER_THAN_OR_EQUALS,
+            LESS_THAN_OR_EQUALS => Comparator.LESS_THAN_OR_EQUALS,
+            EQUALS_COMPARATOR => Comparator.EQUALS,
+            NOT_EQUALS => Comparator.NOT_EQUALS,
             _ => throw new ArgumentException("Invalid comparator: " + comparator),
         };
     }
@@ -188,10 +279,10 @@ public class PredicateParser
 
         return predType switch
         {
-            "move_pred" => ParseMovePred(args),
-            "piece_pred" => ParsePiecePred(args),
-            "square_pred" => ParseSquarePred(args),
-            "count_pred" => ParseCountPred(args),
+            movePredicate => ParseMovePred(args),
+            piecePredicate => ParsePiecePred(args),
+            squarePredicate => ParseSquarePred(args),
+            countPredicate => ParseCountPred(args),
             _ => throw new ArgumentException("u done messed up"),
         };
     }
@@ -207,7 +298,7 @@ public class PredicateParser
 
         return type switch
         {
-            "pieces_left" => new PiecesLeft(arg, comparatorEnum, int.Parse(compare_val), boardState),
+            piecesLeft => new PiecesLeft(arg, comparatorEnum, int.Parse(compare_val), boardState),
             _ => throw new ArgumentException("Invalid type argument of count_pred function: " + type),
         };
     }
@@ -216,30 +307,32 @@ public class PredicateParser
     {
         string state = args[0];
         string type = args[1];
-        string arg1 = args[2];
+        string arg1 = "";
+        if(type != firstMove)
+            arg1 = args[2];
         string arg2 = "";
-        if (type == "was")
+        if (type == was)
             arg2 = args[3];
         MoveState moveState = ParseMoveState(state);
         return type switch
         {
-            "captured" => new PieceCaptured(arg1, moveState),
-            "name" => new PieceMoved(arg1, moveState),
-            "was" => new MoveWas(ParsePosition(arg1), ParsePosition(arg2), moveState),
-            "first_move" => new FirstMove(moveState),
+            captured => new PieceCaptured(arg1, moveState),
+            pieceMoved => new PieceMoved(arg1, moveState),
+            was => new MoveWas(ParsePosition(arg1), ParsePosition(arg2), moveState),
+            firstMove => new FirstMove(moveState),
             _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
         };
     }
 
     private PiecePredicate ParsePiecePred(List<string> args)
     {
-        string type = args[0];
-        string piece = args[1];
-        string state = args[2];
+        string state = args[0];
+        string type = args[1];
+        string piece = args[2];
         BoardState boardState = ParseBoardState(state);
         return type switch
         {
-            "attacked" => new Attacked(boardState, piece),
+            attacked => new Attacked(boardState, piece),
             _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
         };
     }
@@ -247,31 +340,29 @@ public class PredicateParser
     private SquarePredicate ParseSquarePred(List<string> args)
     {
         string state = args[0];
-        string relative_to = args[1];
-        string position = args[2];
-        string type = args[3];
+        string position = args[1];
+        string type = args[2];
         string info = "";
         if (!type.Equals("has_moved"))
-            info = args[4];
+            info = args[3];
         var boardState = ParseBoardState(state);
-        var relativeTo = ParseRelativeTo(relative_to);
         var iPosition = ParsePosition(position);
         switch (type)
         {
-            case "attacked_by":
+            case attackedBy:
                 {
                     var player = ParsePlayer(info);
                     return new SquareAttacked(iPosition, boardState, player);
                 }
-            case "has_moved":
+            case hasMoved:
                 return new HasMoved(iPosition, boardState);
-            case "has_piece":
+            case hasPiece:
                return new PieceAt(info, iPosition, boardState);
-            case "has_rank":
+            case hasRank:
                return new SquareHasRank(iPosition, int.Parse(info));
-            case "has_file":
+            case hasFile:
                 return new SquareHasFile(iPosition, int.Parse(info));
-            case "is":
+            case _is:
                 return new SquareIs(iPosition, ParsePosition(info));
             default:
                 throw new ArgumentException("Invalid type argument of square_pred function: " + type);
@@ -280,9 +371,9 @@ public class PredicateParser
 
     private MoveState ParseMoveState(string state)
     {
-        if (state == "this")
+        if (state == thisMove)
             return MoveState.THIS;
-        else if (state == "last")
+        else if (state == lastMove)
             return MoveState.LAST;
         else
             throw new ArgumentException("Invalid move_state variable: " + state);
@@ -291,9 +382,9 @@ public class PredicateParser
 
     private static RelativeTo ParseRelativeTo(string relative_to)
     {
-        if (relative_to == "from")
+        if (relative_to == from)
             return RelativeTo.FROM;
-        else if (relative_to == "to")
+        else if (relative_to == to)
             return RelativeTo.TO;
         else
             throw new ArgumentException("Invalid relative_to argument: " + relative_to);
@@ -302,11 +393,11 @@ public class PredicateParser
     private Player ParsePlayer(string info)
     {
 
-        if (info == "BLACK")
+        if (info == black)
             return Player.Black;
-        else if (info == "WHITE")
+        else if (info == white)
             return Player.White;
-        else if(info == "SHARED") 
+        else if(info == shared) 
             return Player.None;
         else
             throw new ArgumentException("Invalid player variable: " + info);
@@ -314,9 +405,9 @@ public class PredicateParser
 
     private static BoardState ParseBoardState(string state)
     {
-        if (state == "this")
+        if (state == thisState)
             return BoardState.THIS;
-        else if (state == "next")
+        else if (state == nextState)
             return BoardState.NEXT;
         else
             throw new ArgumentException("Invalid state variable: " + state);
@@ -328,9 +419,9 @@ public class PredicateParser
         (var functionName, var args) = func;
         switch(functionName)
         {
-            case "absolute":
+            case absolute:
                 return new PositionAbsolute(args[0]);
-            case "relative":
+            case relative:
                 return new PositionRelative(int.Parse(args[1]), int.Parse(args[2]), ParseRelativeTo(args[3]));
             default:
                 throw new ArgumentException("Invalid position: " + position);

@@ -64,14 +64,14 @@ public class PredicateParserTests
     {
         IPredicate pawnMoved = new PieceMoved("PA");
 
-        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_pred(this, name, PA)")));
+        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_pred(this_move, piece_moved, PA)")));
     }
     [Fact]
     public void StandardChessMoveRule_shouldBeEqual()
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_pred(attacked, KI, next))")));
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_pred(next_state, attacked, KI))")));
     }
 
     [Fact]
@@ -82,8 +82,44 @@ public class PredicateParserTests
         Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
             "x=bi\n" +
             "white_king = KI\n\n" +
-            "white_king_checked_next_turn = piece_pred(attacked, white_king, next)\n" +
+            "white_king_checked_next_turn = piece_pred(next_state, attacked, white_king)\n" +
             "white_move_rule = NOT(white_king_checked_next_turn)\n" +
             "return = white_move_rule\n")));
+    }
+
+    [Fact]
+    public void AntiChessMoveRuleScript_shouldBeEqual()
+    {
+        IPredicate moveRule = new Operator(new Attacked(BoardState.THIS, "BLACK"), OperatorType.IMPLIES, new PieceCaptured("BLACK"));
+
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
+            "black_attacked = piece_pred(this_state, attacked, BLACK)\n" +
+            "black_captured = move_pred(this_move, captured, BLACK)\n" +
+            "return = IMPLIES(black_attacked, black_captured)\n")));
+    }
+
+    [Fact]
+    public void DuckChessMoveRuleScript_shouldBeEqual()
+    {
+        IPredicate lastMoveWasDuck = new PieceMoved(Constants.DuckIdentifier, MoveState.LAST);
+        IPredicate lastMoveWasWhite = new PieceMoved("WHITE", MoveState.LAST);
+
+        IPredicate thisMoveWasDuckMove = new PieceMoved(Constants.DuckIdentifier, MoveState.THIS);
+
+        IPredicate firstMove = new FirstMove();
+
+        IPredicate moveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
+
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
+            "last_move_duck = move_pred(last_move, piece_moved, DU)\n" +
+            "last_move_white = move_pred(last_move, piece_moved, WHITE)\n" +
+            "\n" +
+            "this_move_duck = move_pred(this_move, piece_moved, DU)\n" +
+            "\n" +
+            "first_m = move_pred(this_move, first_move)\n" +
+            "\n" +
+            "move_rule = OR(AND(this_move_duck,last_move_white), AND(NOT(this_move_duck), OR(last_move_duck, first_m)))\n" +
+            "\r\n" +
+            "return = move_rule\n")));
     }
 }
