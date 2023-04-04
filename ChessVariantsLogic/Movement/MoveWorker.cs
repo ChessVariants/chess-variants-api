@@ -204,6 +204,8 @@ public class MoveWorker
         return false;
     }
 
+    public bool RemoveFromBoard(string square) { return Board.Remove(square); }
+
     /// <summary>
     /// Gets all valid move for a given player.
     /// </summary>

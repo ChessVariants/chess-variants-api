@@ -85,6 +85,11 @@ public static class IClientProxyExtensions
     {
         await clients.SendAsync(Events.InvalidMove);
     }
+
+    public static async Task SendUpdatedEditorState(this IClientProxy clients, EditorState state)
+    {
+        await clients.SendAsync(Events.UpdatedEditorState, state);
+    }
 }
 
 public static class Events
@@ -113,6 +118,12 @@ public static class Events
     public readonly static string GameVariantSet = "gameVariantSet";
     public readonly static string GameVariantNotSet = "gameVariantNotSet";
     public readonly static string GameStarted = "gameStarted";
+
+#region Editor events
+
+    public readonly static string UpdatedEditorState = "updatedEditorState";
+
+#endregion
 
     public static class Errors
     {

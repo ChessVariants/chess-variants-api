@@ -1,4 +1,5 @@
 using ChessVariantsLogic.Editor;
+using ChessVariantsLogic.Export;
 
 namespace ChessVariantsAPI;
 
@@ -14,9 +15,13 @@ public class EditorOrganizer
         this._pieceEditor = new PieceEditor();
     }
 
-    public string GetValidMoves(string square) { return _pieceEditor.GetAllCurrentlyValidMovesFromSquareAsJson(square); }
+    public void SetActiveSquare(string square) { _pieceEditor.SetActiveSquare(square); }
 
-    public string GetValidCaptures(string square) { return _pieceEditor.GetAllCurrentlyValidCapturesFromSquareAsJson(square); }
+    public EditorState GetcurrentState() { return _pieceEditor.GetCurrentState(); }
+
+    //public string GetValidMoves(string square) { return _pieceEditor.GetAllCurrentlyValidMovesFromSquareAsJson(square); }
+
+    //public string GetValidCaptures(string square) { return _pieceEditor.GetAllCurrentlyValidCapturesFromSquareAsJson(square); }
 
     public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {

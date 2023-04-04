@@ -10,10 +10,49 @@ public class PieceEditor
 
     private readonly PieceBuilder _builder;
     private Piece? _piece;
+    private MoveWorker _moveWorker;
+    
+    private Piece _dummy;
+    private string _square;
 
     public PieceEditor()
     {
         this._builder = new PieceBuilder();
+        this._moveWorker = new MoveWorker(new Chessboard(8));
+        this._square = "e4";
+        this._dummy = _builder.GetDummyPieceWithCurrentMovement();
+
+        _moveWorker.InsertOnBoard(_dummy, _square);
+    }
+
+    public EditorState GetCurrentState()
+    {
+        return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+    }
+
+    public void UpdateBoardSize(int row, int col)
+    {
+        _moveWorker.Board = new Chessboard(row, col);
+    }
+
+    public void SetActiveSquare(string square)
+    {
+        _moveWorker.RemoveFromBoard(_square);
+        this._square = square;
+        _moveWorker.InsertOnBoard(_dummy, _square);
+    }
+
+    /// <summary>
+    /// Genereates all valid moves from the current state of the builder.
+    /// </summary>
+    /// <param name="square">is the square where the piece should be inserted on.</param>
+    /// <returns>A HashSet of all the currently valid moves from the square <paramref name="square"/>.</returns>
+    public HashSet<string> GetAllCurrentlyValidMoves()
+    {
+        _dummy = _builder.GetDummyPieceWithCurrentMovement();
+        if(_moveWorker.InsertOnBoard(_dummy, _square))
+            return _moveWorker.GetAllValidMoves(Player.White);
+        throw new ArgumentException("Invalid square.");
     }
 
     /// <summary>
@@ -21,22 +60,22 @@ public class PieceEditor
     /// </summary>
     /// <param name="square">is the square on which the moves are calculated.</param>
     /// <returns>A json-string of all valid moves.</returns>
-    public string GetAllCurrentlyValidMovesFromSquareAsJson(string square)
-    {
-        var moves = _builder.GetAllCurrentlyValidMovesFromSquare(square);
-        return PieceExporter.ExportLegalMovesAsJson(moves);
-    }
+    //public string GetAllCurrentlyValidMovesFromSquareAsJson(string square)
+    //{
+    //    var moves = GetAllCurrentlyValidMoves();
+    //    return PieceExporter.ExportLegalMovesAsJson(moves);
+    //}
 
     /// <summary>
     /// Returns a string in json-format of all valid capture-moves from the current state of the builder.
     /// </summary>
     /// <param name="square">is the square on which the capture-moves are calculated.</param>
     /// <returns>A json-string of all valid capture-moves.</returns>
-    public string GetAllCurrentlyValidCapturesFromSquareAsJson(string square)
-    {
-        var moves = _builder.GetAllCurrentlyValidCaptureMovesFromSquare(square);
-        return PieceExporter.ExportLegalMovesAsJson(moves);
-    }
+    //public string GetAllCurrentlyValidCapturesFromSquareAsJson(string square)
+    //{
+    //    var moves = _builder.GetAllCurrentlyValidCaptureMovesFromSquare(square);
+    //    return PieceExporter.ExportLegalMovesAsJson(moves);
+    //}
 
     /// <summary>
     /// Adds a pattern to the set of allowed movement. 

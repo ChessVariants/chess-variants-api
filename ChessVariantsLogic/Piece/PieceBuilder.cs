@@ -97,6 +97,16 @@ public class PieceBuilder
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");
     }
 
+    public Piece GetDummyPieceWithCurrentMovement()
+    {
+        return new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+    }
+
+    public Piece GetDummyPieceWithCurrentCaptures()
+    {
+        return new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+    }
+
     /// <summary>
     /// Genereates all valid capture moves from the current state of the builder.
     /// </summary>
