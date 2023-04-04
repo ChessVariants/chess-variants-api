@@ -8,23 +8,20 @@ public class PredicateParser
 
     private IDictionary<string, string> variables = new Dictionary<string, string>();
 
-
-    #region Predicates
-    private const string countPredicate = "count_pred";
-    private const string movePredicate = "move_pred";
-    private const string piecePredicate = "piece_pred";
-    private const string squarePredicate = "square_pred";
-    private static readonly string[] predicateTypes = new string[] { countPredicate, movePredicate, piecePredicate, squarePredicate };
+    #region BoardStates
+    private const string thisState = "this_state";
+    private const string nextState = "next_state";
+    private static readonly string[] boardstates = new string[] { thisState, nextState };
     #endregion
 
-    #region Operators
-    private const string AND = "AND";
-    private const string OR = "OR";
-    private const string IMPLIES = "IMPLIES";
-    private const string XOR = "XOR";
-    private const string EQUALS_OPERATOR = "EQUALS";
-    private const string NOT = "NOT";
-    private static readonly string[] operatorTypes = new string[] { AND, OR, IMPLIES, XOR, EQUALS_OPERATOR, NOT };
+    #region Comparators
+    private const string GREATER_THAN = "GREATER_THAN";
+    private const string LESS_THAN = "LESS_THAN";
+    private const string GREATER_THAN_OR_EQUALS = "GREATER_THAN_OR_EQUALS";
+    private const string LESS_THAN_OR_EQUALS = "LESS_THAN_OR_EQUALS";
+    private const string EQUALS_COMPARATOR = "EQUALS";
+    private const string NOT_EQUALS = "NOT_EQUALS";
+    private static readonly string[] comparators = new string[] { GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS_COMPARATOR, NOT_EQUALS };
     #endregion
 
     #region ConstValues
@@ -38,16 +35,6 @@ public class PredicateParser
     private static readonly string[] countPredicateTypes = new string[] { piecesLeft };
     #endregion
 
-    #region Comparators
-    private const string GREATER_THAN = "GREATER_THAN";
-    private const string LESS_THAN = "LESS_THAN";
-    private const string GREATER_THAN_OR_EQUALS = "GREATER_THAN_OR_EQUALS";
-    private const string LESS_THAN_OR_EQUALS = "LESS_THAN_OR_EQUALS";
-    private const string EQUALS_COMPARATOR = "EQUALS";
-    private const string NOT_EQUALS = "NOT_EQUALS";
-    private static readonly string[] comparators = new string[] { GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS_COMPARATOR, NOT_EQUALS };
-    #endregion
-
     #region MovePredicateTypes
     private const string captured = "captured";
     private const string pieceMoved = "piece_moved";
@@ -56,9 +43,46 @@ public class PredicateParser
     private static readonly string[] movePredicateTypes = new string[] { captured, pieceMoved, was, firstMove };
     #endregion
 
+    #region MoveStates
+    private const string thisMove = "this_move";
+    private const string lastMove = "last_move";
+    private static readonly string[] moveStates = new string[] { thisMove, lastMove };
+    #endregion
+
+    #region Operators
+    private const string AND = "AND";
+    private const string OR = "OR";
+    private const string IMPLIES = "IMPLIES";
+    private const string XOR = "XOR";
+    private const string EQUALS_OPERATOR = "EQUALS";
+    private const string NOT = "NOT";
+    private static readonly string[] operatorTypes = new string[] { AND, OR, IMPLIES, XOR, EQUALS_OPERATOR, NOT };
+    #endregion
+
+    #region PieceClassifiers
+    private const string white = "WHITE";
+    private const string black = "BLACK";
+    private const string shared = "SHARED";
+    private static readonly string[] pieceClassifiers = new string[] { white, black, shared };
+    #endregion
+
     #region PiecePredicateTypes
     private const string attacked = "attacked";
     private static readonly string[] piecePredicateTypes = new string[] { attacked };
+    #endregion
+
+    #region Predicates
+    private const string countPredicate = "count_pred";
+    private const string movePredicate = "move_pred";
+    private const string piecePredicate = "piece_pred";
+    private const string squarePredicate = "square_pred";
+    private static readonly string[] predicateTypes = new string[] { countPredicate, movePredicate, piecePredicate, squarePredicate };
+    #endregion
+
+    #region RelativeToTypes
+    private const string from = "from";
+    private const string to = "to";
+    private static readonly string[] relativeTo = new string[] { from, to };
     #endregion
 
     #region SquarePredicateTypes
@@ -71,43 +95,34 @@ public class PredicateParser
     private static readonly string[] squarePredicateTypes = new string[] { attackedBy, hasMoved, _is, hasPiece, hasRank, hasFile };
     #endregion
 
-    #region RelativeToRegion
-    private const string from = "from";
-    private const string to = "to";
-    private static readonly string[] relativeTo = new string[] { from, to };
-    #endregion
-
     #region SquareTypes
     private const string absolute = "absolute";
     private const string relative = "relative";
     private static readonly string[] squareTypes = new string[] { absolute, relative };
     #endregion
 
-    #region PieceClassifiers
-    private const string white = "WHITE";
-    private const string black = "BLACK";
-    private const string shared = "SHARED";
-    private static readonly string[] pieceClassifiers = new string[] { white, black, shared };
-    #endregion
 
-    #region BoardStates
-    private const string thisState = "this_state";
-    private const string nextState = "next_state";
-    private static readonly string[] boardstates = new string[] { thisState, nextState };
-    #endregion
-
-    #region MoveStates
-    private const string thisMove = "this_move";
-    private const string lastMove = "last_move";
-    private static readonly string[] moveStates = new string[] { thisMove, lastMove };
-    #endregion
 
 
     string[][] syntax = new string[][] { predicateTypes, operatorTypes, constValues, countPredicateTypes, comparators, movePredicateTypes, piecePredicateTypes, squarePredicateTypes, relativeTo, squareTypes, pieceClassifiers, boardstates, moveStates };
 
+    string allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJIKLMNOPQRSTUVWXYZ;(),[]&|!=>_^\n";
+
+    private void CheckForInvalidCharacters(string code)
+    {
+        int line = 1;
+        foreach(char c in code)
+        {
+            if (!allowedCharacters.Contains(c))
+                throw new InvalidCharacterException("Code contains invalid character '" + c + "' at line " + line);
+            if (c == '\n') line++;
+        }
+    }
+
     public IPredicate ParseCode(string code)
     {
-        code = RemoveSpacesAndNewLines(code + '\n');
+        code = RemoveSpaces(code + '\n');
+        CheckForInvalidCharacters(code);
         StringBuilder variable = new StringBuilder();
         StringBuilder value = new StringBuilder();
         bool shouldWriteToVariable = true;
@@ -139,15 +154,18 @@ public class PredicateParser
         List<string> variablesWithSyntaxNames = GetVariablesWithSyntaxNames();
         if(variablesWithSyntaxNames.Count > 0)
         {
-            throw new Exception("The following variable(s) have name(s) that interfere with syntax: " + string.Join(",", variablesWithSyntaxNames));
+            throw new InvalidNameException("The following variables have names that interfere with syntax: " + string.Join(",", variablesWithSyntaxNames));
         }
 
         variables.TryGetValue("return", out string? predicate);
         
         if (predicate == null)
-            throw new ArgumentException("Code does not contain a return value");
+            throw new NoReturnValueException("Code does not contain a return value");
 
         string finalPredicate = GetFinalPredicate(predicate);
+        List<string> tokens = ShuntingYard(finalPredicate);
+        if(tokens.Count > 0)
+            finalPredicate = ConvertToExpression(tokens);
 
         return ParsePredicate(finalPredicate);
 
@@ -206,7 +224,7 @@ public class PredicateParser
 
     public IPredicate ParsePredicate(string pred)
     {
-        pred = RemoveSpacesAndNewLines(pred);
+        pred = RemoveSpaces(pred);
         Tuple<string, List<string>> function = GetFunction(pred);
         (var functionName, _) = function;
         
@@ -217,7 +235,7 @@ public class PredicateParser
         if(IsConstant(pred))
             return ParseConst(pred);
         
-        throw new ArgumentException("Unknown identifier: " + pred);
+        throw new UnknownIdentifierException("Unknown identifier: " + pred);
     }
 
     private bool IsConstant(string pred) => pred switch
@@ -512,12 +530,12 @@ public class PredicateParser
         return stringBuilder.ToString();
     }
 
-    private string RemoveSpacesAndNewLines(string input)
+    private string RemoveSpaces(string input)
     {
         StringBuilder stringBuilder = new StringBuilder();
         foreach (char c in input)
         {
-            if (c.Equals(' '))
+            if (c.Equals(' ') || c.Equals('\r'))
                 continue;
             else
                 stringBuilder.Append(c);
@@ -528,6 +546,239 @@ public class PredicateParser
     {
         return str.Substring(start, end - start);
     }
+    char[] operators = new char[] { '#', '¤', '^', '*', '+', '-'};
+
+    private bool IsOperator(char c)
+    {
+        foreach(var op in operators)
+        {
+            if (c.Equals(op))
+                return true;
+        }
+        return false;
+    }
+    private bool IsFunction(char c)
+    {
+        return c.Equals('!');
+    }
+
+    private bool IsIdentifier(char c)
+    {
+        return !IsOperator(c) && !IsFunction(c) && !c.Equals('[') && !c.Equals(']');
+    }
+
+    IDictionary<string, string> booleanOperators = new Dictionary<string, string>()
+    {
+        { "&&", "*"},
+        {"\\|\\|", "+" },
+        {"=>", "-" },
+        {"==", "#" },
+        {"!=", "¤" }
+    };
+
+    private string ReplaceSymbols(string input)
+    {
+        foreach(string op in booleanOperators.Keys)
+        {
+            input = Regex.Replace(input, op, booleanOperators[op]);
+        }
+        return input;
+    }
+    public List<string> ShuntingYard(string input)
+    {
+        input = RemoveSpaces(input);
+        input = ReplaceSymbols(input);
+        List<string> output = new List<string>();
+        Stack<char> opStack = new Stack<char>();
+        StringBuilder currentWord = new StringBuilder();
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            while (IsIdentifier(input[i]))
+            {
+                currentWord.Append(input[i]);
+                i++;
+                if(i == input.Length)
+                {
+                    AddWord(output, currentWord);
+                    break;
+                }
+            }
+            if (i == input.Length)
+            {
+                break;
+            }
+            AddWord(output, currentWord);
+            char c = input[i];
+            if (IsFunction(c))
+            {
+                opStack.Push(c);
+            }
+            else if (IsOperator(c))
+            {
+                while (opStack.Count > 0 && HasHigherPrecedence(opStack.Peek(), c) && !opStack.Peek().Equals('('))
+                {
+                    output.Add(opStack.Pop().ToString());
+                }
+                opStack.Push(c);
+            }
+            else if (c.Equals('['))
+            {
+                opStack.Push(c);
+            }
+            else if (c.Equals(']'))
+            {
+                while (opStack.Count > 0 && !opStack.Peek().Equals('['))
+                {
+                    output.Add(opStack.Pop().ToString());
+                }
+                if (opStack.Count == 0)
+                    throw new Exception("Mismatched paranthesis");
+                if (opStack.Peek().Equals('['))
+                    opStack.Pop();
+                if (opStack.Count > 0 && IsFunction(opStack.Peek()))
+                {
+                    output.Add(opStack.Pop().ToString());
+                }
+            }
+        }
+        while (opStack.Count > 0)
+        {
+            if (opStack.Peek().Equals('['))
+            {
+                throw new Exception("Mismatched paranthesis");
+            }
+            output.Add(opStack.Pop().ToString());
+        }
+        return output;
+    }
+
+    public string ConvertToExpression(List<string> tokens)
+    {
+        Stack<string> exprStack = new Stack<string>();
+        foreach (string token in tokens)
+        {
+            char c = token[0];
+            if (IsIdentifier(c))
+            {
+                exprStack.Push(token);
+            }
+            else if (IsOperator(c))
+            {
+                if (exprStack.Count < 2)
+                    throw new Exception($"Not enough operands for operator {token}");
+
+                string operand2 = exprStack.Pop();
+                string operand1 = exprStack.Pop();
+
+                switch (c)
+                {
+                    case '*':
+                        exprStack.Push($"AND({operand1},{operand2})");
+                        break;
+                    case '+':
+                        exprStack.Push($"OR({operand1},{operand2})");
+                        break;
+                    case '^':
+                        exprStack.Push($"XOR({operand1},{operand2})");
+                        break;
+                    case '#':
+                        exprStack.Push($"EQUALS({operand1},{operand2})");
+                        break;
+                    case '¤':
+                        exprStack.Push($"NOT(EQUALS({operand1},{operand2}))");
+                        break;
+                    case '>':
+                        exprStack.Push($"IMPLIES({operand1},{operand2})");
+                        break;
+                    default:
+                        throw new Exception($"Unknown operator: {token}");
+                }
+            }
+            else if (token == "!")
+            {
+                if (exprStack.Count < 1)
+                    throw new Exception($"Not enough operands for operator {token}");
+
+                string operand = exprStack.Pop();
+                exprStack.Push($"NOT({operand})");
+            }
+            else
+            {
+                throw new Exception($"Invalid token: {token}");
+            }
+        }
+
+        if (exprStack.Count != 1)
+            throw new Exception("Invalid expression");
+
+        return exprStack.Pop();
+    }
+
+    private static void AddWord(List<string> output, StringBuilder currentWord)
+    {
+        if (currentWord.Length == 0)
+            return;
+        output.Add(currentWord.ToString());
+        currentWord.Clear();
+    }
+
+    private bool HasHigherPrecedence(char o1, char o2)
+    {
+        if (IsIdentifier(o1) || IsIdentifier(o2)) throw new Exception("not operators: " + o1 + ", " + o2);
+        int o1Precedence = operators.Length;
+        int o2Precedence = operators.Length;
+        for(int i = 0; i < operators.Length; i++)
+        {
+            if (operators[i].Equals(o1))
+            {
+                o1Precedence = i;
+            }
+            if (operators[i].Equals(o2))
+            {
+                o2Precedence = i;
+            }
+        }
+        if (IsFunction(o1))
+            o1Precedence = -1;
+        if (IsFunction(o2))
+            o2Precedence = -1;
+        if (o1.Equals('(') || o1.Equals(')'))
+            o1Precedence = -2;
+        if (o2.Equals('(') || o2.Equals(')'))
+            o2Precedence = -2;
+
+        return o1Precedence <= o2Precedence;
+    }
+}
 
 
+public class InvalidNameException : Exception
+{
+    public InvalidNameException(string message) : base(message)
+    {
+
+    }
+}
+public class NoReturnValueException : Exception
+{
+    public NoReturnValueException(string message) : base(message)
+    {
+
+    }
+}
+public class UnknownIdentifierException : Exception
+{
+    public UnknownIdentifierException(string message) : base(message)
+    {
+
+    }
+}
+
+public class InvalidCharacterException : Exception
+{
+    public InvalidCharacterException(string message) : base(message)
+    {
+
+    }
 }

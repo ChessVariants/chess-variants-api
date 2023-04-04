@@ -6,6 +6,7 @@ using System;
 using Xunit;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ChessVariantsLogic.Tests.RulesTests;
 public class PredicateParserTests
@@ -118,14 +119,22 @@ public class PredicateParserTests
             "\n" +
             "first_m = move_pred(this_move, first_move)\n" +
             "\n" +
+            "move_rule_new = this_move_duck && last_move_white || !this_move_duck && [last_move_duck || first_m]\n" +
             "move_rule = OR(AND(this_move_duck,last_move_white), AND(NOT(this_move_duck), OR(last_move_duck, first_m)))\n" +
             "\r\n" +
-            "return = move_rule\n")));
+            "return = move_rule_new\n")));
     }
     [Fact]
     public void SyntaxNames_ShouldThrowException()
     {
-        Assert.Throws<Exception>(() => pp.ParseCode("this_move = move_pred(this_move, piece_moved, DU)\n" +
+        Assert.Throws<InvalidNameException>(() => pp.ParseCode("this_move = move_pred(this_move, piece_moved, DU)\n" +
             "return = this_move\n"));
+    }
+    [Fact]
+    public void ShuntingYard_()
+    {
+        List<string> input = pp.ShuntingYard("!(test && b) || (c && d) == f");
+        string output = pp.ConvertToExpression(input);
+        Assert.True(output.Length > 0);
     }
 }

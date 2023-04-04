@@ -22,7 +22,3 @@ public abstract class PiecePredicate : IPredicate
     }
 
 }
-public enum PiecePredType
-{
-    CAPTURED, MOVED
-}
