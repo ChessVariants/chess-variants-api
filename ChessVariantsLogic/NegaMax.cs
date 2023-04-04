@@ -14,6 +14,8 @@ public class NegaMax
     private Move nextMove;
     private int whiteToMove = 1;
     private int blackToMove = -1;
+    private int alpha = -1000;
+    private int beta = 1000;
     private List<Piece> pieces;
     
     private PieceValue _pieceValue;
@@ -44,7 +46,7 @@ public class NegaMax
             validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             turnMultiplier = blackToMove;
         }
-        negaMax(depth, turnMultiplier, depth, validMoves, game);
+        negaMax(depth, turnMultiplier, depth,alpha, beta, validMoves, game);
 
         if(nextMove == null)
         {
@@ -55,7 +57,7 @@ public class NegaMax
 
     
 
-    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, IEnumerable<Move> validMoves, Game game)
+    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, IEnumerable<Move> validMoves, Game game)
     {
         if (currentDepth == 0)
         {
@@ -78,7 +80,7 @@ public class NegaMax
             {
                 nextValidMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             }
-            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, nextValidMoves, game);
+            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, nextValidMoves, game);
             if (score > max)
             {
                 max = score;
@@ -88,6 +90,11 @@ public class NegaMax
                 }
             }
             game.MoveWorker.undoMove();
+            if (score > alpha)
+                alpha = score;
+            if(alpha >= beta)
+                break;
+
 
         }
         return max;
