@@ -14,6 +14,7 @@ public class Chessboard
 
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
+    
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
@@ -334,6 +335,7 @@ public class Chessboard
         }
         return hasMovedBoard;
     }
+
 
     private bool validIndex(int row, int col)
     {
