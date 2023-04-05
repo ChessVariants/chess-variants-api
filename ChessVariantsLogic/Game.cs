@@ -10,11 +10,12 @@ using System.Collections.Generic;
 public class Game {
 
     protected readonly MoveWorker _moveWorker;
-    private Player _playerTurn;
+    public Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     protected readonly RuleSet _whiteRules;
     protected readonly RuleSet _blackRules;
+    
 
     public MoveWorker MoveWorker
     {
@@ -29,7 +30,9 @@ public class Game {
         get { return _blackRules; }
     }
 
-    private IDictionary<string, Move> _legalMoves;
+    public IDictionary<string, Move> _legalMoves;
+
+    
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
@@ -92,6 +95,7 @@ public class Game {
 
         // Update legal moves to new player's legal moves
 
+
         UpdateLegalMovesForPlayer(_playerTurn);
 
         return events;
@@ -118,22 +122,23 @@ public class Game {
         return moveDict;
     }
 
-    private ISet<GameEvent> RunEventsForPlayer(Player player, BoardTransition lastTransition)
+    public ISet<GameEvent> RunEventsForPlayer(Player player, BoardTransition lastTransition)
     {
         return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, false);
     }
 
-    private ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
+    public ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
     {
         return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, true);
     }
 
-    private void UpdateLegalMovesForPlayer(Player player)
+    public void UpdateLegalMovesForPlayer(Player player)
     {
+        
         _legalMoves = GetRuleSetForPlayer(player).GetLegalMoves(_moveWorker, player);
     }
 
-    private bool HasLegalMoves(Player player)
+    public bool HasLegalMoves(Player player)
     {
         return GetRuleSetForPlayer(player).HasLegalMoves(_moveWorker, player);
     }
@@ -153,7 +158,7 @@ public class Game {
     /// <summary>
     /// Decrements the number of moves remaining for the current player. If the player has no moves left, switches the player turn and resets the number of moves remaining.
     /// </summary>
-    private void DecrementPlayerMoves() {
+    public void DecrementPlayerMoves() {
         _playerMovesRemaining--;
         if (_playerMovesRemaining <= 0) {
             _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;
