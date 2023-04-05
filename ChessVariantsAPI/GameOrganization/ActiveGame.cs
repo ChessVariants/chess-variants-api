@@ -191,7 +191,7 @@ public class ActiveGame
         }
     }
 
-    private IEnumerable<Player> GetAvailableColors()
+    public IEnumerable<Player> GetAvailableColors()
     {
         var colors = new HashSet<Player>() { Player.White, Player.Black };
         colors.RemoveWhere(player => _playerDict.ContainsValue(player));

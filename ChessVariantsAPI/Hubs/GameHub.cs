@@ -165,7 +165,20 @@ public class GameHub : Hub
             _logger.LogInformation("When trying to leave game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendGenericError(e.Message);
         }
-        
+    }
+
+    public async Task AssignAI(string gameId)
+    {
+        try
+        {
+            var color = _organizer.AssignAI(gameId);
+            await Clients.Caller.SendPlayerJoinedGame(color.AsString(), "AI");
+        }
+        catch (OrganizerException e)
+        {
+            _logger.LogInformation("When trying to add an AI to game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
+            await Clients.Caller.SendGenericError(e.Message);
+        }
     }
 
     /// <summary>
@@ -215,46 +228,50 @@ public class GameHub : Hub
     public async Task MovePiece(string move, string gameId)
     {
         // if move is valid, compute new board
-        ISet<GameEvent>? result;
-        GameState? state;
+        //ISet<GameEvent>? result;
+        //GameState? state;
         try
         {
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to make move <{move}> in game <{gameid}>", user, move, gameId);
-            result = _organizer.Move(move, gameId, user);
-            state = _organizer.GetState(gameId);
+            var results = _organizer.Move(move, gameId, user);
+
+            foreach (var result in results)
+            {
+                var state = _organizer.GetState(gameId);
+
+                if (result.Contains(GameEvent.InvalidMove))
+                {
+                    _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
+                    await Clients.Caller.SendInvalidMove();
+                    return;
+                }
+                if (result.Contains(GameEvent.MoveSucceeded))
+                {
+                    _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
+                    await Clients.Groups(gameId).SendUpdatedGameState(state!);
+                }
+                if (result.Contains(GameEvent.WhiteWon))
+                {
+                    _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
+                    await Clients.Group(gameId).SendWhiteWon();
+                }
+                else if (result.Contains(GameEvent.BlackWon))
+                {
+                    _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
+                    await Clients.Group(gameId).SendBlackWon();
+                }
+                else if (result.Contains(GameEvent.Tie))
+                {
+                    _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
+                    await Clients.Group(gameId).SendTie();
+                }
+            }
         }
         catch (OrganizerException e)
         {
             await Clients.Caller.SendGenericError(e.Message);
             return;
-        }
-
-        if (result.Contains(GameEvent.InvalidMove))
-        {
-            _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
-            await Clients.Caller.SendInvalidMove();
-            return;
-        }
-        if (result.Contains(GameEvent.MoveSucceeded))
-        {
-            _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
-            await Clients.Groups(gameId).SendUpdatedGameState(state!);
-        }
-        if (result.Contains(GameEvent.WhiteWon))
-        {
-            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
-            await Clients.Group(gameId).SendWhiteWon();
-        }
-        else if (result.Contains(GameEvent.BlackWon))
-        {
-            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
-            await Clients.Group(gameId).SendBlackWon();
-        }
-        else if (result.Contains(GameEvent.Tie))
-        {
-            _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
-            await Clients.Group(gameId).SendTie();
         }
     }
 

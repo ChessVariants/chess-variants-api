@@ -14,7 +14,8 @@ public class PieceValue
         pieces = Pieces;
         pieceValue = initPieces();
     }
-    public Dictionary<string, int> initStandardPieceValues()
+
+    public Dictionary<string, int> InitStandardPieceValues()
     {
         var dictionary = new Dictionary<string, int>();
 
@@ -45,19 +46,19 @@ public class PieceValue
 
         foreach (var piece in pieces)
         {
-            int pieceValue = calculateMovementValue(piece) + calculateCaptureValue(piece);
+            int pieceValue = CalculateMovementValue(piece) + CalculateCaptureValue(piece);
             dictionary.Add(piece.PieceIdentifier, pieceValue);
         }
 
         return dictionary;
     }
 
-    public int getValue(string piece)
+    public int GetValue(string piece)
     {
         return pieceValue[piece];
     }
 
-    private int calculateMovementValue(Piece piece)
+    private int CalculateMovementValue(Piece piece)
     {
         int value = 0;
         foreach (var pattern in piece.GetAllMovementPatterns())
@@ -78,7 +79,7 @@ public class PieceValue
         return value;
     }
 
-    private int calculateCaptureValue(Piece piece)
+    private int CalculateCaptureValue(Piece piece)
     {
         int value = 0;
         foreach (var pattern in piece.GetAllCapturePatterns())
