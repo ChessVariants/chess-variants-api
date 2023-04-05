@@ -14,8 +14,8 @@ public class NegaMax
     private Move nextMove;
     private int whiteToMove = 1;
     private int blackToMove = -1;
-    private int alpha = -1000;
-    private int beta = 1000;
+    private int alpha = -10000;
+    private int beta = 100000;
     private List<Piece> pieces;
     
     private PieceValue _pieceValue;
@@ -63,7 +63,7 @@ public class NegaMax
         {
             return turnMultiplier * scoreBoard(game.MoveWorker);
         }
-        int max = -1000;
+        int max = -100000;
         int score;
         IEnumerable<Move> nextValidMoves;
 

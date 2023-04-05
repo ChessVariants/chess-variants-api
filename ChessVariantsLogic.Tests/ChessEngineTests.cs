@@ -11,7 +11,7 @@ public class ChessEngineTests : IDisposable
     private static List<Piece> pieces= new List<Piece>();
     private Game game;
     private MoveWorker moveWorker;
-    private static PieceValue pieceValue = new PieceValue(pieces);
+    private static PieceValue pieceValue = new PieceValue(Piece.AllStandardPieces());
     private NegaMax negaMax= new NegaMax(pieceValue);
 
     public ChessEngineTests()
