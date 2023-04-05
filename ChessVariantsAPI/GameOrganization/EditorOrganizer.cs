@@ -15,6 +15,8 @@ public class EditorOrganizer
         this._pieceEditor = new PieceEditor();
     }
 
+    public void SetBoardSize(int rows, int cols) { _pieceEditor.UpdateBoardSize(rows, cols); }
+
     public void SetActiveSquare(string square) { _pieceEditor.SetActiveSquare(square); }
 
     public EditorState GetcurrentState() { return _pieceEditor.GetCurrentState(); }
