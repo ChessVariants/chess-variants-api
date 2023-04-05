@@ -6,15 +6,18 @@ using ChessVariantsLogic.Export;
 
 using System;
 using System.Collections.Generic;
+using ChessVariantsLogic.Engine;
 
 public class Game {
 
-    protected readonly MoveWorker _moveWorker;
+    readonly protected MoveWorker _moveWorker;
+    readonly protected RuleSet _whiteRules;
+    readonly protected RuleSet _blackRules;
     private Player _playerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
-    protected readonly RuleSet _whiteRules;
-    protected readonly RuleSet _blackRules;
+    private AIPlayer? _ai;
+
 
     public MoveWorker MoveWorker
     {
@@ -28,10 +31,11 @@ public class Game {
     {
         get { return _blackRules; }
     }
+    public bool ActiveAI => _ai != null;
 
     private IDictionary<string, Move> _legalMoves;
 
-    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules, AIPlayer? ai=null)
     {
         _moveWorker = moveWorker;
         _playerTurn = playerToStart;
@@ -39,9 +43,8 @@ public class Game {
         _whiteRules = whiteRules;
         _blackRules = blackRules;
         _legalMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
+        _ai = ai;
     }
-    
-    
 
     /// <summary>
     /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move and if the move requested to be made is a legal move.
@@ -96,6 +99,27 @@ public class Game {
 
         return events;
     }
+
+    public void AssignAI(AIPlayer ai)
+    {
+        _ai = ai;
+    }
+
+    public ISet<GameEvent> MakeAIMove()
+    {
+        if (_ai == null)
+        {
+            throw new InvalidOperationException("Unable to make AI move as there is no AI assigned to this game.");
+        }
+        var bestMove = _ai.SearchMove(this);
+        return MakeMove(bestMove.FromTo, _ai.PlayingAs);
+    }
+
+    public bool AIShouldMakeMove()
+    {
+        return _ai != null && _playerTurn == _ai.PlayingAs;
+    }
+
     public Dictionary<string, List<string>> GetLegalMoveDict()
     {
         var moveDict = new Dictionary<string, List<string>>();

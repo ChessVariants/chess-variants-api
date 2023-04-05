@@ -1,5 +1,6 @@
 ﻿using ChessVariantsAPI.Hubs;
 using ChessVariantsLogic;
+using ChessVariantsLogic.Engine;
 using ChessVariantsLogic.Export;
 
 namespace ChessVariantsAPI.GameOrganization;
@@ -83,6 +84,22 @@ public class GameOrganizer
         var activeGame = new ActiveGame(playerIdentifier);
         _activeGames.Add(gameId, activeGame);
         return activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    public Player AssignAI(string gameId)
+    {
+        try
+        {
+            var color = GetActiveGame(gameId).AddPlayer("AI");
+            var ai = AIFactory.NegaMaxAI(color);
+            GetGame(gameId).AssignAI(ai);
+            return color;
+        }
+        catch (GameFullException)
+        {
+            _logger.LogInformation("Unable to add an AI to game {g} as the game is already full", gameId);
+            throw new OrganizerException("Unable to add an AI player to an already full game");
+        }
     }
 
     private void AssertGameDoesNotExist(string gameId)
@@ -233,12 +250,17 @@ public class GameOrganizer
 
     #region GameControl
 
-    public ISet<GameEvent> Move(string move, string gameId, string playerIdentifier)
+    public IEnumerable<ISet<GameEvent>> Move(string move, string gameId, string playerIdentifier)
     {
         var game = GetGame(gameId);
         var player = GetPlayer(gameId, playerIdentifier);
         ISet<GameEvent> result = game.MakeMove(move, player);
-        return result;
+        yield return result;
+
+        while (game.AIShouldMakeMove())
+        {
+            yield return game.MakeAIMove();
+        }
     }
 
     #endregion

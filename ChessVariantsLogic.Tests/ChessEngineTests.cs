@@ -1,8 +1,8 @@
 using ChessVariantsLogic.Rules.Moves;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
+using ChessVariantsLogic.Engine;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -32,7 +32,7 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string from = "a3";
-        Move bestMove = negaMax.findBestMove(2,game, Player.Black);
+        Move bestMove = negaMax.FindBestMove(2,game, Player.Black);
         Assert.Equal(from, bestMove.From);
     }
 
@@ -41,7 +41,7 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.findBestMove(2,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(2,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
@@ -52,7 +52,7 @@ public class ChessEngineTests : IDisposable
         game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d6");
         game.MoveWorker.InsertOnBoard(Piece.Knight(PieceClassifier.WHITE), "b2");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.findBestMove(2,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(2,game, Player.White);
         Assert.NotEqual(moveFreePiece, bestMove.To);
     }
 }

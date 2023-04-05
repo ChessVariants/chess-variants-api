@@ -1,5 +1,4 @@
-using ChessVariantsLogic;
-
+namespace ChessVariantsLogic.Engine;
 
 public class PieceValue
 {
@@ -8,9 +7,10 @@ public class PieceValue
 
     public PieceValue(List<Piece> pieces)
     {
-        pieceValue = initStandardPieceValues();
+        pieceValue = InitStandardPieceValues();
     }
-    public Dictionary<string, int> initStandardPieceValues()
+
+    public Dictionary<string, int> InitStandardPieceValues()
     {
         var dictionary = new Dictionary<string, int>();
 
@@ -33,7 +33,7 @@ public class PieceValue
         return dictionary;
     }
 
-    public int getValue(string piece)
+    public int GetValue(string piece)
     {
         return pieceValue[piece];
     }

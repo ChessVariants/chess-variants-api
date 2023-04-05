@@ -1,15 +1,8 @@
-namespace ChessVariantsLogic;
-
-using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
-using ChessVariantsLogic.Export;
-using ChessVariantsLogic;
 
+namespace ChessVariantsLogic.Engine;
 
-using System;
-using System.Collections.Generic;
-
-public class NegaMax
+public class NegaMax : IMoveFinder
 {
     private Move nextMove;
     private int whiteToMove = 1;
@@ -30,7 +23,7 @@ public class NegaMax
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move findBestMove(int depth, Game game, Player player)
+    public Move FindBestMove(int depth, Game game, Player player)
     {
         IEnumerable<Move> validMoves;
         int turnMultiplier;
@@ -44,7 +37,7 @@ public class NegaMax
             validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             turnMultiplier = blackToMove;
         }
-        negaMax(depth, turnMultiplier, depth, validMoves, game);
+        SearchNegaMax(depth, turnMultiplier, depth, validMoves, game);
 
         if(nextMove == null)
         {
@@ -55,11 +48,11 @@ public class NegaMax
 
     
 
-    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, IEnumerable<Move> validMoves, Game game)
+    private int SearchNegaMax(int currentDepth, int turnMultiplier, int maxDepth, IEnumerable<Move> validMoves, Game game)
     {
         if (currentDepth == 0)
         {
-            return turnMultiplier * scoreBoard(game.MoveWorker);
+            return turnMultiplier * ScoreBoard(game.MoveWorker);
         }
         int max = -1000;
         int score;
@@ -78,7 +71,7 @@ public class NegaMax
             {
                 nextValidMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             }
-            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, nextValidMoves, game);
+            score = -SearchNegaMax(currentDepth - 1, -turnMultiplier, maxDepth, nextValidMoves, game);
             if (score > max)
             {
                 max = score;
@@ -93,7 +86,7 @@ public class NegaMax
         return max;
     }
 
-    public int scoreBoard(MoveWorker moveWorker)
+    public int ScoreBoard(MoveWorker moveWorker)
     {
         int score = 0;
         for(int row = 0; row < moveWorker.Board.Rows; row++)
@@ -103,7 +96,7 @@ public class NegaMax
                 var piece = moveWorker.Board.GetPieceIdentifier(row,col);
                 if(piece != null)
                 {
-                    score += _pieceValue.getValue(piece);
+                    score += _pieceValue.GetValue(piece);
                 }
             }
         }
