@@ -34,19 +34,16 @@ public class NegaMax
     /// <returns> The best move for the player </returns>
     public Move findBestMove(int depth, Game game, Player player)
     {
-        IEnumerable<Move> validMoves;
         int turnMultiplier;
         if(player.Equals(Player.White))
         {
-            validMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
             turnMultiplier = whiteToMove;
         }
         else
         {
-            validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             turnMultiplier = blackToMove;
         }
-        negaMax(depth, turnMultiplier, depth,alpha, beta, validMoves, game);
+        negaMax(depth, turnMultiplier, depth,alpha, beta, game);
 
         if(nextMove == null)
         {
@@ -57,7 +54,7 @@ public class NegaMax
 
     
 
-    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, IEnumerable<Move> validMoves, Game game)
+    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, Game game)
     {
         if (currentDepth == 0)
         {
@@ -65,22 +62,24 @@ public class NegaMax
         }
         int max = -100000;
         int score;
-        IEnumerable<Move> nextValidMoves;
+        IEnumerable<Move> validMoves;
+
+        if (turnMultiplier == whiteToMove)
+            {
+                validMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
+            }
+            else
+            {
+                validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
+            }
 
         foreach (var move in validMoves)
         {
             var boardTmp = game.MoveWorker.Board.CopyBoard();
             game.MoveWorker.StateLog.Push(boardTmp);
             game.MoveWorker.PerformMove(move);
-            if (turnMultiplier == blackToMove)
-            {
-                nextValidMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
-            }
-            else
-            {
-                nextValidMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
-            }
-            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, nextValidMoves, game);
+
+            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
             if (score > max)
             {
                 max = score;
