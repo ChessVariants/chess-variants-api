@@ -16,5 +16,4 @@ public class UserRepository : GenericRepository<User>
     {
         return await _collection.Find(x => x.Email == email).FirstOrDefaultAsync();
     }
-
 }

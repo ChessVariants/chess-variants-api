@@ -18,4 +18,10 @@
     <ProjectReference Include="..\DataAccess.MongoDB\DataAccess.MongoDB.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="DTOs\VariantDTOs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DTOs\VariantDTOs\" />
+  </ItemGroup>
 </Project>
