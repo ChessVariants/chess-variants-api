@@ -9,7 +9,7 @@ public static class AIFactory
 {
     public static AIPlayer NegaMaxAI(Player player)
     {
-        var pieceValues = new PieceValue(new List<Piece>());
+        var pieceValues = new PieceValue(Piece.AllStandardPieces());
         var negaMax = new NegaMax(pieceValues);
         return new AIPlayer(negaMax, player);
     }

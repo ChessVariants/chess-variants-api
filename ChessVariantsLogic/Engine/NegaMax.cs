@@ -7,8 +7,10 @@ public class NegaMax : IMoveFinder
     private Move nextMove;
     private int whiteToMove = 1;
     private int blackToMove = -1;
+    private int alpha = -10000;
+    private int beta = 100000;
     private List<Piece> pieces;
-    
+
     private PieceValue _pieceValue;
     public NegaMax(PieceValue pieceValue)
     {
@@ -23,55 +25,54 @@ public class NegaMax : IMoveFinder
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move FindBestMove(int depth, Game game, Player player)
+    public Move findBestMove(int depth, Game game, Player player)
     {
-        IEnumerable<Move> validMoves;
         int turnMultiplier;
-        if(player.Equals(Player.White))
+        if (player.Equals(Player.White))
         {
-            validMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
             turnMultiplier = whiteToMove;
         }
         else
         {
-            validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
             turnMultiplier = blackToMove;
         }
-        SearchNegaMax(depth, turnMultiplier, depth, validMoves, game);
+        negaMax(depth, turnMultiplier, depth, alpha, beta, game);
 
-        if(nextMove == null)
+        if (nextMove == null)
         {
             throw new ArgumentNullException("no valid nextMove found!");
         }
         return nextMove;
     }
 
-    
 
-    private int SearchNegaMax(int currentDepth, int turnMultiplier, int maxDepth, IEnumerable<Move> validMoves, Game game)
+
+    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, Game game)
     {
         if (currentDepth == 0)
         {
             return turnMultiplier * ScoreBoard(game.MoveWorker);
         }
-        int max = -1000;
+        int max = -100000;
         int score;
-        IEnumerable<Move> nextValidMoves;
+        IEnumerable<Move> validMoves;
+
+        if (turnMultiplier == whiteToMove)
+        {
+            validMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
+        }
+        else
+        {
+            validMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
+        }
 
         foreach (var move in validMoves)
         {
             var boardTmp = game.MoveWorker.Board.CopyBoard();
             game.MoveWorker.StateLog.Push(boardTmp);
             game.MoveWorker.PerformMove(move);
-            if (turnMultiplier == blackToMove)
-            {
-                nextValidMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White).Values;
-            }
-            else
-            {
-                nextValidMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black).Values;
-            }
-            score = -SearchNegaMax(currentDepth - 1, -turnMultiplier, maxDepth, nextValidMoves, game);
+
+            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
             if (score > max)
             {
                 max = score;
@@ -81,6 +82,11 @@ public class NegaMax : IMoveFinder
                 }
             }
             game.MoveWorker.undoMove();
+            if (score > alpha)
+                alpha = score;
+            if (alpha >= beta)
+                break;
+
 
         }
         return max;
@@ -89,14 +95,14 @@ public class NegaMax : IMoveFinder
     public int ScoreBoard(MoveWorker moveWorker)
     {
         int score = 0;
-        for(int row = 0; row < moveWorker.Board.Rows; row++)
+        for (int row = 0; row < moveWorker.Board.Rows; row++)
         {
-            for(int col = 0; col < moveWorker.Board.Cols; col++)
+            for (int col = 0; col < moveWorker.Board.Cols; col++)
             {
-                var piece = moveWorker.Board.GetPieceIdentifier(row,col);
-                if(piece != null)
+                var piece = moveWorker.Board.GetPieceIdentifier(row, col);
+                if (piece != null)
                 {
-                    score += _pieceValue.GetValue(piece);
+                    score += _pieceValue.getValue(piece);
                 }
             }
         }

@@ -8,11 +8,11 @@ namespace ChessVariantsLogic.Tests;
 
 public class ChessEngineTests : IDisposable
 {
-    private static List<Piece> pieces= new List<Piece>();
+    private static List<Piece> pieces = new List<Piece>();
     private Game game;
     private MoveWorker moveWorker;
-    private static PieceValue pieceValue = new PieceValue(pieces);
-    private NegaMax negaMax= new NegaMax(pieceValue);
+    private static PieceValue pieceValue = new PieceValue(Piece.AllStandardPieces());
+    private NegaMax negaMax = new NegaMax(pieceValue);
 
     public ChessEngineTests()
     {
@@ -32,7 +32,7 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string from = "a3";
-        Move bestMove = negaMax.FindBestMove(2,game, Player.Black);
+        Move bestMove = negaMax.findBestMove(2, game, Player.Black);
         Assert.Equal(from, bestMove.From);
     }
 
@@ -41,18 +41,18 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.FindBestMove(2,game, Player.White);
+        Move bestMove = negaMax.findBestMove(3, game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
-    [Fact ]
+    [Fact]
     public void negaMaxDoesNotTakeDefendedPawnWithKnigt()
     {
         game.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "a3");
         game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d6");
         game.MoveWorker.InsertOnBoard(Piece.Knight(PieceClassifier.WHITE), "b2");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.FindBestMove(2,game, Player.White);
+        Move bestMove = negaMax.findBestMove(3, game, Player.White);
         Assert.NotEqual(moveFreePiece, bestMove.To);
     }
 }

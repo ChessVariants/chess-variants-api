@@ -14,6 +14,6 @@ public class AIPlayer
 
     public Move SearchMove(Game game, int depth=3)
     {
-        return _moveFinder.FindBestMove(depth, game, PlayingAs);
+        return _moveFinder.findBestMove(depth, game, PlayingAs);
     }
 }

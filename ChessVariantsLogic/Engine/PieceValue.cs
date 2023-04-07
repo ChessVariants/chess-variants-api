@@ -3,11 +3,15 @@ namespace ChessVariantsLogic.Engine;
 public class PieceValue
 {
     private Dictionary<string, int> pieceValue;
-   
+    private int jumpPatternValue = 3;
+    private int regularPatternValue = 1;
+    private HashSet<Piece> pieces;
 
-    public PieceValue(List<Piece> pieces)
+
+    public PieceValue(HashSet<Piece> Pieces)
     {
-        pieceValue = InitStandardPieceValues();
+        pieces = Pieces;
+        pieceValue = initPieces();
     }
 
     public Dictionary<string, int> InitStandardPieceValues()
@@ -33,8 +37,65 @@ public class PieceValue
         return dictionary;
     }
 
-    public int GetValue(string piece)
+    public Dictionary<string, int> initPieces()
+    {
+        var dictionary = new Dictionary<string, int>();
+
+        dictionary.Add(Constants.UnoccupiedSquareIdentifier, 0);
+
+        foreach (var piece in pieces)
+        {
+            int pieceValue = calculateMovementValue(piece) + calculateCaptureValue(piece);
+            dictionary.Add(piece.PieceIdentifier, pieceValue);
+        }
+
+        return dictionary;
+    }
+
+    public int getValue(string piece)
     {
         return pieceValue[piece];
+    }
+
+    private int calculateMovementValue(Piece piece)
+    {
+        int value = 0;
+        foreach (var pattern in piece.GetAllMovementPatterns())
+        {
+            if (pattern is JumpPattern)
+            {
+                value += jumpPatternValue;
+            }
+            if (pattern is RegularPattern)
+            {
+                value += (pattern.MaxLength - pattern.MinLength) * (piece.Repeat + 1);
+            }
+        }
+        if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
+        {
+            value = -value;
+        }
+        return value;
+    }
+
+    private int calculateCaptureValue(Piece piece)
+    {
+        int value = 0;
+        foreach (var pattern in piece.GetAllCapturePatterns())
+        {
+            if (pattern is JumpPattern)
+            {
+                value += jumpPatternValue;
+            }
+            if (pattern is RegularPattern)
+            {
+                value += (pattern.MaxLength - pattern.MinLength + 1) * (piece.Repeat + 1);
+            }
+        }
+        if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
+        {
+            value = -value;
+        }
+        return value;
     }
 }
