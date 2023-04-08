@@ -23,13 +23,10 @@ public abstract class Action
     /// This method should only be called from the MoveWorker class
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="from">The position of the piece that performed the action before the action was performed.</param>
-    /// <param name="to">The position of the piece that performed the action after the action was performed.</param>
-    /// 
-    /// CHANGE THIS
+    /// <param name="moveCoordinates">The move coordinates that any PositionRelative will use to calculate it's position relative to.</param>
     /// 
     /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
-    public abstract GameEvent Perform(MoveWorker moveWorker, string pivotPosition);
+    public abstract GameEvent Perform(MoveWorker moveWorker, string moveCoordinates);
 
 }
