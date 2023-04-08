@@ -1,4 +1,6 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// This predicate determines if how many pieces of a certain type are left in the game
@@ -7,7 +9,9 @@
 /// </summary>
 public class PiecesLeft : CountPredicate
 {
+    [JsonProperty]
     private readonly BoardState _state;
+    [JsonProperty]
     private readonly string _pieceIdentifier;
 
     public PiecesLeft(string pieceIdentifier, Comparator comparator, int compareValue, BoardState state) : base(comparator, compareValue)

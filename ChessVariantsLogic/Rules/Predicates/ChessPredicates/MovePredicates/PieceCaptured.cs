@@ -1,4 +1,5 @@
 ﻿using ChessVariantsLogic.Rules.Moves;
+using Newtonsoft.Json;
 
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
@@ -7,6 +8,7 @@ namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// </summary>
 public class PieceCaptured : MovePredicate
 {
+    [JsonProperty]
     private readonly string _pieceIdentifier;
 
     public PieceCaptured(string pieceIdentifier, MoveState moveState = MoveState.THIS) : base(moveState) 

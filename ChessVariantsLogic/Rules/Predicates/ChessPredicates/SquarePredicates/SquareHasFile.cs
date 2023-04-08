@@ -1,4 +1,6 @@
 ﻿
+using Newtonsoft.Json;
+
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square has a certain file.
@@ -6,6 +8,7 @@ namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// </summary>
 public class SquareHasFile : SquarePredicate
 {
+    [JsonProperty]
     private readonly int _file;
 
 

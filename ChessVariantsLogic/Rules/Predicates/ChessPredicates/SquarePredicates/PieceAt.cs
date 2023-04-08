@@ -1,9 +1,12 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+﻿using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate evaluates if a given board coordinate contains a piece that has the type of the internal _pieceIdentifier.
 /// </summary>
 public class PieceAt : SquarePredicate
 {
+    [JsonProperty]
     private readonly string _pieceIdentifier;
 
 

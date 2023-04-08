@@ -1,12 +1,16 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
-using ChessVariantsLogic.Rules.Moves;
+﻿using ChessVariantsLogic.Rules.Moves;
+using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// This predicate evaluates if the from and to values of a move is equal to the compare values.
 /// </summary>
 public class MoveWas : MovePredicate
 {
+    [JsonProperty]
     private readonly IPosition _compareFrom;
+    [JsonProperty]
     private readonly IPosition _compareTo;
 
     public MoveWas(IPosition compareFrom, IPosition compareTo, MoveState moveState) : base(moveState)

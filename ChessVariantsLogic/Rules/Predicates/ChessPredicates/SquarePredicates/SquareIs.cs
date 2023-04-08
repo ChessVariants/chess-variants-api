@@ -1,10 +1,13 @@
 ﻿
+using Newtonsoft.Json;
+
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 /// <summary>
 /// This predicate determines if a square has the same coordinates as another square.
 /// </summary>
 public class SquareIs : SquarePredicate
 {
+    [JsonProperty]
     private readonly IPosition _isPosition;
 
 
