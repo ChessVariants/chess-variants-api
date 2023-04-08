@@ -301,7 +301,11 @@ public class PieceBuilder
     /// Set how many times the movement pattern can be repeated. Argument must be between 0 and 3.
     /// </summary>
     /// <param name="repeat">is the amount of times the movement pattern should be repeated.</param>
-    public void RepeatMovement(int repeat) { this.repeat = repeat; }
+    public void RepeatMovement(int repeat)
+    {
+        System.Console.WriteLine("repeat: " + repeat);
+        this.repeat = repeat; 
+    }
 
     /// <summary>
     /// Set true if the piece should be royal.

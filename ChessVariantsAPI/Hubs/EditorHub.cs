@@ -83,5 +83,30 @@ public class EditorHub : Hub
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
+    public async Task PieceCanBeCaptured(bool enable)
+    {
+        Console.WriteLine("Set CanBeCaptured");
+        _organizer.CanBeCaptured(enable);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
+    public async Task BelongsToPlayer(string player)
+    {
+        Console.WriteLine("Set belongs to player");
+        _organizer.BelongsToPlayer(player);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
+    // There is a bug causing an error to arise when setting repeat to "2" or higher. I'm looking into it.
+    public async Task AmountRepeat(int repeat)
+    {
+        Console.WriteLine("Set repeat");
+        _organizer.RepeatMovement(repeat);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
 
 }
