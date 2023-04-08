@@ -14,7 +14,7 @@ public abstract class ActionGameEvent : Action
         _eventType = eventType;
     }
 
-    public override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
+    public override GameEvent Perform(MoveWorker moveWorker, string moveCoordinates)
     {
         return _eventType;
     }
