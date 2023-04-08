@@ -3,10 +3,68 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ChessVariantsLogic.Rules.Predicates;
+
+/// <summary>
+/// A parser for translating a simple DSL to an IPredicate object.
+/// </summary>
 public class PredicateParser
 {
 
     private IDictionary<string, string> variables = new Dictionary<string, string>();
+
+    /*
+        DOCUMENTATION OF THE PREDICATE DSL
+
+        This documentation is probably not very understandable at the moment and is mostly for my own use.
+        If you have any questions, feel free to ask me //Joakim
+      
+        ----------------OPERATORS----------------
+
+        operators:  &&, ||,      =>,   ^,     ==,         !=,   !
+        operators: AND, OR, IMPLIES, XOR, EQUALS, NOT_EQUALS, NOT
+
+        paranthesis for boolean precedence: []
+
+        ----------------VARIABLE TYPES----------------
+
+
+        RelativeTo : {from, to}
+
+        Integer : {1, 2, 3, 4, ... n}
+
+        Coord : {a1, a2, a3, ... t20}
+
+        Color : {white, black, shared}
+
+        BoardState : {this_state, next_state}
+
+        MoveState : {this_move, last_move}
+
+        PieceName : {ki, bi, ... PA}
+
+        Square : {absolute(Coord coordinate), relative(int x, int y, RelativeTo relativeTo)}
+
+        CountPredType : {pieces_left}
+        CountArg : {pieces_left: PieceName name}
+        Comparator : {greater_than, less_than, greater_than_or_equals, less_than_or_equals, equals, not_equals}
+
+        MovePredType : {captured, piece_moved, was, first_move}
+        MoveArgs : {captured: PieceName, name: PieceName, was: Square, Square}
+
+        PiecePredType : {attacked}
+
+        SquarePredType : {attacked_by, has_moved, is, has_piece, has_rank, has_file}
+        SquareArg : {attacked_by: color, is: square, has_piece: piece_name, has_rank: int, has_file: char}
+
+        ----------------PREDICATES----------------
+    
+        true
+        false
+        count_pred(BoardState state, CountPredType type, CountArg arg, Comparator comparator, Integer compare_val)
+        move_pred(MoveState state, MovePredType type, MoveArgs args)
+        piece_pred(BoardState state, PiecePredType type, PieceName piece)
+        square_pred(BoardState boardState, Square square, SquarePredType type, SquareArg arg)
+*/
 
     #region BoardStates
     private const string thisState = "this_state";
@@ -15,12 +73,12 @@ public class PredicateParser
     #endregion
 
     #region Comparators
-    private const string GREATER_THAN = "GREATER_THAN";
-    private const string LESS_THAN = "LESS_THAN";
-    private const string GREATER_THAN_OR_EQUALS = "GREATER_THAN_OR_EQUALS";
-    private const string LESS_THAN_OR_EQUALS = "LESS_THAN_OR_EQUALS";
-    private const string EQUALS_COMPARATOR = "EQUALS";
-    private const string NOT_EQUALS = "NOT_EQUALS";
+    private const string GREATER_THAN = "greater_than";
+    private const string LESS_THAN = "less_than";
+    private const string GREATER_THAN_OR_EQUALS = "greater_than_or_equals";
+    private const string LESS_THAN_OR_EQUALS = "less_than_or_equals";
+    private const string EQUALS_COMPARATOR = "equals";
+    private const string NOT_EQUALS = "not_equals";
     private static readonly string[] comparators = new string[] { GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, EQUALS_COMPARATOR, NOT_EQUALS };
     #endregion
 
@@ -50,13 +108,22 @@ public class PredicateParser
     #endregion
 
     #region Operators
+
+    private const string AND_OP = "&&";
+    private const string OR_OP =  "\\|\\|";
+    private const string IMPLIES_OP = "=>";
+    private const string EQUALS_OP = "==";
+    private const string NOT_EQUALS_OP = "!=";
+    private const string XOR_OP = "^";
+
     private const string AND = "AND";
     private const string OR = "OR";
     private const string IMPLIES = "IMPLIES";
     private const string XOR = "XOR";
     private const string EQUALS_OPERATOR = "EQUALS";
     private const string NOT = "NOT";
-    private static readonly string[] operatorTypes = new string[] { AND, OR, IMPLIES, XOR, EQUALS_OPERATOR, NOT };
+    private static readonly string[] operatorTypes = new string[] { AND, OR, IMPLIES, XOR, EQUALS_OPERATOR, NOT, AND_OP, OR_OP, IMPLIES_OP, EQUALS_OP, NOT_EQUALS_OP, XOR_OP };
+
     #endregion
 
     #region PieceClassifiers
@@ -436,7 +503,6 @@ public class PredicateParser
 
     private Player ParsePlayer(string info)
     {
-
         if (info == black)
             return Player.Black;
         else if (info == white)
@@ -546,7 +612,20 @@ public class PredicateParser
     {
         return str.Substring(start, end - start);
     }
-    char[] operators = new char[] { '#', '¤', '^', '*', '+', '-'};
+
+    // Yes this is an ugly fix because I couldn't figure out how to make the shunting yard algorithm work with operators with several symbols such as '=>' or '&&' (as opposed to using a single symbol such as '!').
+    // Instead they get translated to a single symbol last minute.
+
+    private static readonly IDictionary<string, string> _booleanOperators = new Dictionary<string, string>()
+    {
+        {AND_OP, "*"},
+        {OR_OP, "+" },
+        {IMPLIES_OP, "-" },
+        {EQUALS_OP, "#" },
+        {NOT_EQUALS_OP, "¤" }
+    };
+
+    private static readonly char[] operators = new char[] { '#', '¤', '^', '*', '+', '-'};
 
     private bool IsOperator(char c)
     {
@@ -567,20 +646,12 @@ public class PredicateParser
         return !IsOperator(c) && !IsFunction(c) && !c.Equals('[') && !c.Equals(']');
     }
 
-    IDictionary<string, string> booleanOperators = new Dictionary<string, string>()
-    {
-        { "&&", "*"},
-        {"\\|\\|", "+" },
-        {"=>", "-" },
-        {"==", "#" },
-        {"!=", "¤" }
-    };
 
     private string ReplaceSymbols(string input)
     {
-        foreach(string op in booleanOperators.Keys)
+        foreach(string op in _booleanOperators.Keys)
         {
-            input = Regex.Replace(input, op, booleanOperators[op]);
+            input = Regex.Replace(input, op, _booleanOperators[op]);
         }
         return input;
     }
