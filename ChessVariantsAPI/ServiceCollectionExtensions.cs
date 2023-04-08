@@ -27,6 +27,12 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddEditorOrganization(this IServiceCollection services)
+    {
+        services.AddSingleton<EditorOrganizer>();
+        return services;
+    }
+
     /// <summary>
     /// Adds authentication to the program and configures JWT both for http and SignalR.
     /// </summary>

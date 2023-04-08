@@ -15,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddOrganization();
+builder.Services.AddEditorOrganization();
 builder.Services.AddMongoDatabase(builder.Configuration);
 builder.Services.AddJWT(builder.Configuration);
 

@@ -354,7 +354,7 @@ public class MoveWorker
     }
 
      // Returns all regular moves for a regularpattern.
-    private HashSet<Tuple<int, int>> getRegularMoves(Piece piece, IPattern pattern, Tuple<int,int> pos)
+    private HashSet<Tuple<int, int>> getRegularMoves(Piece piece, Pattern pattern, Tuple<int,int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
@@ -393,7 +393,7 @@ public class MoveWorker
     }
 
     // Returns all valid capture moves for a regularpattern.
-    private HashSet<Tuple<int, int>> getRegularCaptureMoves(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getRegularCaptureMoves(Piece piece, Pattern pattern, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
@@ -451,7 +451,7 @@ public class MoveWorker
     }
 
     // Returns move for jumpingpattern
-    private HashSet<Tuple<int, int>> getJumpMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    private HashSet<Tuple<int, int>> getJumpMove(Piece piece, Pattern pattern, Tuple<int, int> pos)
     {
         var moves = new HashSet<Tuple<int, int>>();
 
@@ -472,7 +472,7 @@ public class MoveWorker
     }
 
     // Returns capture move for a jumpingpattern.
-    private Tuple<int,int>? getJumpCaptureMove(Piece piece, IPattern pattern, Tuple<int, int> pos)
+    private Tuple<int,int>? getJumpCaptureMove(Piece piece, Pattern pattern, Tuple<int, int> pos)
     {
         
         if (pattern == null)

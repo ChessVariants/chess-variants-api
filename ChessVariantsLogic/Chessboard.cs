@@ -14,6 +14,7 @@ public class Chessboard
 
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
+    
 
     /// <summary>
     /// Maps a string representation of a square to its corresponding index on the board.
@@ -97,42 +98,6 @@ public class Chessboard
                 yield return (i,j);
             }
         }
-    }
-
-    /// <summary>
-    /// Produces FEN representation of the chessboard
-    /// </summary>
-    /// <returns> a string representing the chessboard in FEN </returns>
-    public string ReadBoardAsFEN()
-    {
-        string fen = "";
-        int unoccupiedCounter = 0;
-
-        for(int i = 0; i < this.rows; i++)
-        {
-            for(int j = 0; j < this.cols; j++)
-            {
-                if(board[i,j].Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    unoccupiedCounter++;
-                    continue;
-                }
-                if (unoccupiedCounter != 0)
-                {
-                    fen += unoccupiedCounter.ToString();
-                    unoccupiedCounter = 0;
-                }
-                fen += board[i,j];
-            }
-            if(unoccupiedCounter != 0)
-            {
-                fen += unoccupiedCounter.ToString();
-                unoccupiedCounter = 0;
-            }
-            fen += "/";
-        }
-
-        return fen.Remove(fen.Length - 1, 1);
     }
 
     /// <returns> an instance of Chessboard with the standard set up. </returns>
@@ -370,6 +335,7 @@ public class Chessboard
         }
         return hasMovedBoard;
     }
+
 
     private bool validIndex(int row, int col)
     {
