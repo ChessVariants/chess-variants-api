@@ -43,6 +43,22 @@ public class EditorHub : Hub
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
+    public async Task AddCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    {
+        Console.WriteLine("Adding CapturePattern");
+        _organizer.AddCapturePattern(xDir, yDir, minLength, maxLength);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
+    public async Task RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
+    {
+        Console.WriteLine("Removing capturePattern");
+        _organizer.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
     public async Task UpdateBoardSize(int rows, int cols)
     {
         Console.WriteLine("Setting board size");
