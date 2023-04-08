@@ -270,6 +270,8 @@ public class PieceBuilder
     /// </summary>
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
+   
+    public bool HasSameMovementAndCapturePattern() { return sameCaptureAsMovement; }
 
     /// <summary>
     /// Set true if the piece can be captured, false if it can not. Is true from the preset.

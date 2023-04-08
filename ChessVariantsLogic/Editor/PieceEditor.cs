@@ -15,19 +15,28 @@ public class PieceEditor
     private Piece _dummy;
     private string _square;
 
+    private bool _showMovement;
+
     public PieceEditor()
     {
         this._builder = new PieceBuilder();
         this._moveWorker = new MoveWorker(new Chessboard(8));
         this._square = "e4";
         this._dummy = _builder.GetDummyPieceWithCurrentMovement();
+        this._showMovement = true;
 
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
+    public void ShowMovement() { _showMovement = true; }
+    public void ShowCaptures() { _showMovement = false; }
+
     public EditorState GetCurrentState()
     {
-        return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+        if(_showMovement)
+            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+        else
+            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
     }
 
     public void UpdateBoardSize(int row, int col)
@@ -52,6 +61,19 @@ public class PieceEditor
         _dummy = _builder.GetDummyPieceWithCurrentMovement();
         if(_moveWorker.InsertOnBoard(_dummy, _square))
             return _moveWorker.GetAllValidMoves(Player.White);
+        throw new ArgumentException("Invalid square.");
+    }
+
+    public HashSet<string> GetAllCurrentlyValidCaptures()
+    {
+        if(_builder.HasSameMovementAndCapturePattern())
+            return GetAllCurrentlyValidMoves();
+        _dummy = _builder.GetDummyPieceWithCurrentCaptures(); // Does not work due to pieces being saved by their classifiers when looking up their movement pattern.
+        if(_moveWorker.InsertOnBoard(_dummy, _square))
+        {
+            var test = _moveWorker.GetAllValidMoves(Player.White);
+            return test;
+        }
         throw new ArgumentException("Invalid square.");
     }
 

@@ -51,4 +51,21 @@ public class EditorHub : Hub
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
+    public async Task SetCaptureSameAsMovement(bool enable)
+    {
+        Console.WriteLine("Setting capture and movement");
+        _organizer.SameMovementAndCapture(enable);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+    
+    public async Task ShowMovement(bool enable)
+    {
+        Console.WriteLine("Show movement or capture");
+        _organizer.ShowMovement(enable);
+        var state = _organizer.GetcurrentState();
+        await Clients.Caller.SendUpdatedEditorState(state);
+    }
+
+
 }

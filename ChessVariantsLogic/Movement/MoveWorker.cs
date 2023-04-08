@@ -197,8 +197,9 @@ public class MoveWorker
     {
         if(Board.Insert(piece.PieceIdentifier, square))
         {
-            if(!this.stringToPiece.ContainsKey(piece.PieceIdentifier))
-                this.stringToPiece.Add(piece.PieceIdentifier, piece);
+            if(stringToPiece.ContainsKey(piece.PieceIdentifier))
+                stringToPiece.Remove(piece.PieceIdentifier);
+            stringToPiece.Add(piece.PieceIdentifier, piece);
             return true;
         }
         return false;

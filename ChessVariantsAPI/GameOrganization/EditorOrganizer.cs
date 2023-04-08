@@ -15,6 +15,14 @@ public class EditorOrganizer
         this._pieceEditor = new PieceEditor();
     }
 
+    public void ShowMovement(bool enable)
+    {
+        if(enable)
+            _pieceEditor.ShowMovement();
+        else
+            _pieceEditor.ShowCaptures();
+    }
+
     public void SetBoardSize(int rows, int cols) { _pieceEditor.UpdateBoardSize(rows, cols); }
 
     public void SetActiveSquare(string square) { _pieceEditor.SetActiveSquare(square); }
