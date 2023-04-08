@@ -1,6 +1,10 @@
 ﻿using Newtonsoft.Json;
 
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+/// <summary>
+/// A predicate that evaluates if something is true about a certain square on the board.
+/// /// Can either evaluate this state or the next state.
+/// </summary>
 public abstract class SquarePredicate : IPredicate
 {
     [JsonProperty]

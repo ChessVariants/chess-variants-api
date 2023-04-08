@@ -2,6 +2,9 @@
 using Newtonsoft.Json;
 
 namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+/// <summary>
+/// A predicate that evaluates if something is true about a move. Can either check this or the last move.
+/// </summary>
 public abstract class MovePredicate : IPredicate
 {
     [JsonProperty]
