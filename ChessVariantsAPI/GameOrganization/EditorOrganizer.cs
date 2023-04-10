@@ -27,7 +27,9 @@ public class EditorOrganizer
 
     public void SetActiveSquare(string square) { _pieceEditor.SetActiveSquare(square); }
 
-    public EditorState GetcurrentState() { return _pieceEditor.GetCurrentState(); }
+    public EditorState GetCurrentState() { return _pieceEditor.GetCurrentState(); }
+
+    public PatternState GetCurrentPatternState() { return _pieceEditor.GetCurrentPatternState(); }
 
     //public string GetValidMoves(string square) { return _pieceEditor.GetAllCurrentlyValidMovesFromSquareAsJson(square); }
 

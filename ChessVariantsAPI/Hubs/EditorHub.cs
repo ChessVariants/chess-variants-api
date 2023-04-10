@@ -16,14 +16,14 @@ public class EditorHub : Hub
     public EditorState RequestState()
     {
         Console.WriteLine("In RequestState editorHub");
-        return _organizer.GetcurrentState();
+        return _organizer.GetCurrentState();
     }
 
     public async Task ActivateSquare(string square)
     {
         Console.WriteLine("Activating square");
         _organizer.SetActiveSquare(square);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -31,15 +31,15 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Adding movementPattern");
         _organizer.AddMovementPattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetcurrentState();
-        await Clients.Caller.SendUpdatedEditorState(state);
+        var state = _organizer.GetCurrentPatternState();
+        await Clients.Caller.SendUpdatedPatternState(state);
     }
 
     public async Task RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         Console.WriteLine("Removing movementPattern");
         _organizer.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -47,7 +47,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Adding CapturePattern");
         _organizer.AddCapturePattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -55,7 +55,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Removing capturePattern");
         _organizer.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -63,7 +63,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Setting board size");
         _organizer.SetBoardSize(rows, cols);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -71,7 +71,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Setting capture and movement");
         _organizer.SameMovementAndCapture(enable);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
     
@@ -79,7 +79,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Show movement or capture");
         _organizer.ShowMovement(enable);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -87,7 +87,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Set CanBeCaptured");
         _organizer.CanBeCaptured(enable);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -95,7 +95,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Set belongs to player");
         _organizer.BelongsToPlayer(player);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -104,7 +104,7 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Set repeat");
         _organizer.RepeatMovement(repeat);
-        var state = _organizer.GetcurrentState();
+        var state = _organizer.GetCurrentState();
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 

@@ -5,6 +5,26 @@ namespace ChessVariantsLogic.Export;
 public class EditorExporter
 {
 
+    public static PatternState ExportPatternState(MovementPattern pattern)
+    {
+        var list = new List<PatternRecord>();
+        foreach(var p in pattern.GetAllPatterns())
+        {
+            list.Add(new PatternRecord
+            {
+                XDir = p.XDir,
+                YDir = p.YDir,
+                MinLength = p.MinLength,
+                MaxLength = p.MaxLength,
+            });
+        }
+        var state = new PatternState
+        {
+            Patterns = list,
+        };
+        return state;
+    }
+
     public static EditorState ExportEditorState(Chessboard chessboard, Player sideToMove, HashSet<string> moves, string square)
     {
         var gameState = GameExporter.ExportGameState(chessboard, sideToMove, getLegalMovesDict(moves));
@@ -57,6 +77,17 @@ public record EditorState
     [JsonProperty("square")]
     public string Square { get; set; } = null!;
 
+    public string AsJson()
+    {
+        return JsonConvert.SerializeObject(this, Formatting.Indented);
+    }
+}
+
+public record PatternState
+{
+    [JsonProperty("patterns")]
+    public List<PatternRecord> Patterns {get; set; } = null!;
+        
     public string AsJson()
     {
         return JsonConvert.SerializeObject(this, Formatting.Indented);

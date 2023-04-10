@@ -39,6 +39,11 @@ public class PieceEditor
             return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
     }
 
+    public PatternState GetCurrentPatternState()
+    {
+        return EditorExporter.ExportPatternState(_builder.MovementPattern);
+    }
+
     public void UpdateBoardSize(int row, int col)
     {
         SetActiveSquare("a1"); // Moves the dummy piece to a1 in case the piece stands on a square not present on the new board.
@@ -52,7 +57,7 @@ public class PieceEditor
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
-    /// <summary>
+    /// <summary>   
     /// Genereates all valid moves from the current state of the builder.
     /// </summary>
     /// <param name="square">is the square where the piece should be inserted on.</param>

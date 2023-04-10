@@ -90,6 +90,11 @@ public static class IClientProxyExtensions
     {
         await clients.SendAsync(Events.UpdatedEditorState, state);
     }
+
+    public static async Task SendUpdatedPatternState(this IClientProxy clients, PatternState state)
+    {
+        await clients.SendAsync("PatternAdded", state);
+    }
 }
 
 public static class Events

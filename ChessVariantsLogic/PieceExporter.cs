@@ -90,7 +90,7 @@ public record PieceState
 }
 
 /// <summary>
-/// Represents a Json-object of an <see cref="Pattern"/>.
+/// Represents a Json-object of an <see cref="PatternRecord"/>.
 /// </summary>
 public record PatternRecord
 {

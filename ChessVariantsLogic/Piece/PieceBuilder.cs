@@ -9,6 +9,8 @@ namespace ChessVariantsLogic;
 public class PieceBuilder
 {
     private MovementPattern movementPattern;
+
+    public MovementPattern MovementPattern {get { return this.movementPattern; } }
     private MovementPattern capturePattern;
     private bool royal;
     private PieceClassifier pc;
