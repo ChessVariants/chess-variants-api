@@ -41,6 +41,7 @@ public class PieceEditor
 
     public void UpdateBoardSize(int row, int col)
     {
+        SetActiveSquare("a1"); // Moves the dummy piece to a1 in case the piece stands on a square not present on the new board.
         _moveWorker.Board = new Chessboard(row, col);
     }
 
