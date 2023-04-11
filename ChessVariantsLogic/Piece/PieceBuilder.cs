@@ -11,6 +11,7 @@ public class PieceBuilder
     private MovementPattern movementPattern;
 
     public MovementPattern MovementPattern {get { return this.movementPattern; } }
+    public MovementPattern CapturePattern {get { return this.capturePattern; } }
     private MovementPattern capturePattern;
     private bool royal;
     private PieceClassifier pc;

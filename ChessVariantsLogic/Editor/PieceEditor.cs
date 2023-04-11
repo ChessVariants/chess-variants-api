@@ -41,7 +41,10 @@ public class PieceEditor
 
     public PatternState GetCurrentPatternState()
     {
-        return EditorExporter.ExportPatternState(_builder.MovementPattern);
+        if(_showMovement)
+            return EditorExporter.ExportPatternState(_builder.MovementPattern);
+        else
+            return EditorExporter.ExportPatternState(_builder.CapturePattern);
     }
 
     public void UpdateBoardSize(int row, int col)
@@ -144,39 +147,35 @@ public class PieceEditor
     /// <param name="maxLength">is the maximum length.</param>
     public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        if(minLength < 0)
+        if (_showMovement)
         {
-            if(_builder.RemoveJumpMovementPattern(xDir, yDir))
-                return EditorEvent.Success;
+            if (minLength < 0)
+            {
+                if (_builder.RemoveJumpMovementPattern(xDir, yDir))
+                    return EditorEvent.Success;
+            }
+            else
+            {
+                if (_builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength))
+                    return EditorEvent.Success;
+            }
+            return EditorEvent.NoPatternRemoved;
         }
         else
         {
-            if(_builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength))
-                return EditorEvent.Success;
+            if (minLength < 0)
+            {
+                if (_builder.RemoveJumpCapturePattern(xDir, yDir))
+                    return EditorEvent.Success;
+            }
+            else
+            {
+                if (_builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength))
+                    return EditorEvent.Success;
+            }
+            return EditorEvent.NoPatternRemoved;
         }
-        return EditorEvent.NoPatternRemoved;
-    }
 
-    /// <summary>
-    /// Removes a pattern to the set of currently allowed captures. 
-    /// </summary>
-    /// <param name="xDir">is the direction on the x-axis.</param>
-    /// <param name="yDir">is the direction on the y-axis.</param>
-    /// <param name="minLength">is the minimum length.</param>
-    /// <param name="maxLength">is the maximum length.</param>
-    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
-    {
-        if(minLength < 0)
-        {
-            if(_builder.RemoveJumpCapturePattern(xDir, yDir))
-                return EditorEvent.Success;
-        }
-        else
-        {
-            if(_builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength))
-                return EditorEvent.Success;
-        }
-        return EditorEvent.NoPatternRemoved;
     }
 
     /// <summary>

@@ -50,11 +50,6 @@ public class EditorOrganizer
         return this._pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
-    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
-    {
-        return this._pieceEditor.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
-    }
-
     public EditorEvent BelongsToPlayer(string player) { return _pieceEditor.BelongsToPlayer(player); }
 
     public void SameMovementAndCapture(bool enable) { _pieceEditor.SetSameMovementAndCapturePattern(enable); }

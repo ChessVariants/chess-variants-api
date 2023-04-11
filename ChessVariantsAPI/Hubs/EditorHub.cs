@@ -31,15 +31,19 @@ public class EditorHub : Hub
     {
         Console.WriteLine("Adding movementPattern");
         _organizer.AddMovementPattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetCurrentPatternState();
-        await Clients.Caller.SendUpdatedPatternState(state);
+        var patternState = _organizer.GetCurrentPatternState();
+        var state = _organizer.GetCurrentState();
+        await Clients.Caller.SendUpdatedPatternState(patternState);
+        await Clients.Caller.SendUpdatedEditorState(state);
     }
 
     public async Task RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         Console.WriteLine("Removing movementPattern");
         _organizer.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
+        var patternState = _organizer.GetCurrentPatternState();
         var state = _organizer.GetCurrentState();
+        await Clients.Caller.SendUpdatedPatternState(patternState);
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -48,14 +52,8 @@ public class EditorHub : Hub
         Console.WriteLine("Adding CapturePattern");
         _organizer.AddCapturePattern(xDir, yDir, minLength, maxLength);
         var state = _organizer.GetCurrentState();
-        await Clients.Caller.SendUpdatedEditorState(state);
-    }
-
-    public async Task RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
-    {
-        Console.WriteLine("Removing capturePattern");
-        _organizer.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
-        var state = _organizer.GetCurrentState();
+        var patternState = _organizer.GetCurrentPatternState();
+        await Clients.Caller.SendUpdatedPatternState(patternState);
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -80,6 +78,8 @@ public class EditorHub : Hub
         Console.WriteLine("Show movement or capture");
         _organizer.ShowMovement(enable);
         var state = _organizer.GetCurrentState();
+        var patternState = _organizer.GetCurrentPatternState();
+        await Clients.Caller.SendUpdatedPatternState(patternState);
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -99,7 +99,6 @@ public class EditorHub : Hub
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
-    // There is a bug causing an error to arise when setting repeat to "2" or higher. I'm looking into it.
     public async Task AmountRepeat(int repeat)
     {
         Console.WriteLine("Set repeat");
