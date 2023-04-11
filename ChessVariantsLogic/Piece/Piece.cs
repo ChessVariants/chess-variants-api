@@ -64,26 +64,6 @@ public class Piece
     }
 
     /// <summary>
-    /// Gets a specific movement pattern by index.
-    /// </summary>
-    /// <param name="index" is the index of the movement pattern></param>
-    /// <returns>the movement pattern at <paramref name="index"/> if the index is valid, otherwise null.</returns>
-    public Pattern? GetMovementPattern(int index)
-    {
-        return this.movementPattern.GetPattern(index);
-    }
-
-    /// <summary>
-    /// Gets a specific capture pattern by index.
-    /// </summary>
-    /// <param name="index" is the index of the capture pattern></param>
-    /// <returns>the capture pattern at <paramref name="index"/> if the index is valid, otherwise null.</returns>
-    public Pattern? GetCapturePattern(int index)
-    {
-        return this.capturePattern.GetPattern(index);
-    }
-
-    /// <summary>
     /// Yield returns all IPatterns existing in this movement pattern.
     /// </summary>
     /// <returns>each IPattern in this movement pattern individually.</returns>
@@ -131,9 +111,9 @@ public class Piece
         throw new ArgumentException("PieceClassifier could not be parsed correctly.");
     }
 
-    private static List<Pattern> fetchPatterns(List<PatternRecord> patterns)
+    private static HashSet<Pattern> fetchPatterns(List<PatternRecord> patterns)
     {
-        var movementPatterns = new List<Pattern>();
+        var movementPatterns = new HashSet<Pattern>();
         foreach(var p in patterns)
         {
             Pattern pattern;
@@ -153,7 +133,7 @@ public class Piece
     /// <returns> an instance of Piece with the movement pattern of a standard rook.</returns>
     public static Piece Rook(PieceClassifier pieceClassifier)
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.East,  1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.South, 1, Constants.MaxBoardHeight),
@@ -173,7 +153,7 @@ public class Piece
     /// <returns> an instance of Piece with the movement pattern of a standard bishop.</returns>
     public static Piece Bishop(PieceClassifier pieceClassifier)
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.NorthEast,  1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.SouthEast,  1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.SouthWest,  1, Constants.MaxBoardHeight),
@@ -193,7 +173,7 @@ public class Piece
     /// <returns> an instance of Piece with the movement pattern of a standard queen.</returns>
     public static Piece Queen(PieceClassifier pieceClassifier)
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North,     1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.NorthEast, 1, Constants.MaxBoardHeight),
             new RegularPattern(Constants.East,      1, Constants.MaxBoardHeight),
@@ -217,7 +197,7 @@ public class Piece
     /// <returns> an instance of Piece with the movement pattern of a standard king.</returns>
     public static Piece King(PieceClassifier pieceClassifier)
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North,     1, 1),
             new RegularPattern(Constants.NorthEast, 1, 1),
             new RegularPattern(Constants.East,      1, 1),
@@ -240,7 +220,7 @@ public class Piece
     /// <returns> an instance of Piece with the movement pattern of a standard knight.</returns>
     public static Piece Knight(PieceClassifier pieceClassifier)
     {
-        var pattern = new List<Pattern> {
+        var pattern = new HashSet<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -262,11 +242,11 @@ public class Piece
     /// <returns>an instance of Piece with the movement pattern of a standard black pawn.</returns>
     public static Piece BlackPawn()
     {
-        var capturePatterns = new List<Pattern> {
+        var capturePatterns = new HashSet<Pattern> {
             new RegularPattern(Constants.SouthEast, 1, 1),
             new RegularPattern(Constants.SouthWest, 1, 1)
         };
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.South, 1,1),
         };
         var mp = new MovementPattern(patterns);
@@ -280,11 +260,11 @@ public class Piece
     /// <returns>an instance of Piece with the movement pattern of a standard white pawn.</returns>
     public static Piece WhitePawn()
     {
-        var capturePatterns = new List<Pattern> {
+        var capturePatterns = new HashSet<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 1),
             new RegularPattern(Constants.NorthWest, 1, 1)
         };
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1,1),
         };
         var mp = new MovementPattern(patterns);
@@ -298,10 +278,8 @@ public class Piece
     /// <returns>an instance of Piece with the movement pattern of a duck.</returns>
     public static Piece Duck()
     {
-        var capturePatterns = new List<Pattern> {
-        };
-        var patterns = new List<Pattern> {
-        };
+        var capturePatterns = new HashSet<Pattern> {};
+        var patterns = new HashSet<Pattern> {};
 
         for (int i = -Constants.MaxBoardWidth; i < Constants.MaxBoardWidth; i++)
         {
