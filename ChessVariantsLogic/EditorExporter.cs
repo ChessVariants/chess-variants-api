@@ -30,7 +30,6 @@ public class EditorExporter
         var gameState = GameExporter.ExportGameState(chessboard, sideToMove, getLegalMovesDict(moves));
         var editorState = new EditorState
         {
-            SideToMove = gameState.SideToMove,
             Board = gameState.Board,
             BoardSize = gameState.BoardSize,
             Moves = gameState.Moves,
@@ -62,8 +61,6 @@ public class EditorExporter
 
 public record EditorState
 {
-    [JsonProperty("sideToMove")]
-    public string SideToMove { get; set; } = null!;
 
     [JsonProperty("board")]
     public List<string> Board { get; set; } = null!;
