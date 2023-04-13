@@ -85,4 +85,20 @@ public class ChessEngineTests : IDisposable
         Move bestMove = negaMax.findBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
+
+    [Fact]
+    public void negaMaxDefendsCheckMateBug()
+    {
+        Chessboard empty = new Chessboard(8,8);
+        game.MoveWorker.Board = empty;
+        game.MoveWorker.InsertOnBoard(Piece.WhitePawn(), "a2");
+        game.MoveWorker.InsertOnBoard(Piece.WhitePawn(), "b2");
+        game.MoveWorker.InsertOnBoard(Piece.King(PieceClassifier.WHITE), "a1");
+        game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.WHITE), "c2");
+        game.MoveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.BLACK), "e1");
+        
+        string moveFreePiece = "d1";
+        Move bestMove = negaMax.findBestMove(3,game, Player.White);
+        Assert.Equal(moveFreePiece, bestMove.To);
+    }
 }
