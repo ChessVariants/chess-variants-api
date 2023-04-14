@@ -571,9 +571,8 @@ public class MoveWorker
             else
             {
                 var jumpMove = getJumpMove(piece, pattern, pos);
-                if(jumpMove == null)
-                    continue;
-                capturemoves.Add(jumpMove);
+                if(jumpMove != null)
+                    capturemoves.Add(jumpMove);
                 var captureMove = getJumpCaptureMove(piece, pattern, pos);
                 if(captureMove == null)
                     continue;
@@ -623,13 +622,11 @@ public class MoveWorker
                     else
                     {
                         var jumpMove = getJumpMove(piece, pattern, move);
-                        if(jumpMove == null)
-                            continue;
-                        capturemoves.Add(jumpMove);
+                        if(jumpMove != null)
+                            capturemoves.Add(jumpMove);
                         var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                        if(captureMove == null)
-                            continue;
-                        capturemoves.Add(captureMove);
+                        if(captureMove != null)
+                            capturemoves.Add(captureMove);
                     }
                 }
             }
