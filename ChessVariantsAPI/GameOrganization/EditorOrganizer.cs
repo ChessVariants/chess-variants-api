@@ -12,16 +12,10 @@ public class EditorOrganizer
 
     public EditorOrganizer()
     {
-        this._pieceEditor = new PieceEditor();
+        _pieceEditor = new PieceEditor();
     }
 
-    public void ShowMovement(bool enable)
-    {
-        if(enable)
-            _pieceEditor.ShowMovement();
-        else
-            _pieceEditor.ShowCaptures();
-    }
+    public void ShowMovement(bool enable) { _pieceEditor.ShowMovement(enable); }
 
     public void SetBoardSize(int rows, int cols) { _pieceEditor.UpdateBoardSize(rows, cols); }
 
@@ -33,17 +27,17 @@ public class EditorOrganizer
 
     public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.AddMovementPattern(xDir, yDir, minLength, maxLength);
+        _pieceEditor.AddMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public void AddCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.AddCapturePattern(xDir, yDir, minLength, maxLength);
+        _pieceEditor.AddCapturePattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        return this._pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
+        return _pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent BelongsToPlayer(string player) { return _pieceEditor.BelongsToPlayer(player); }

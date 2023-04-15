@@ -28,8 +28,7 @@ public class PieceEditor
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
-    public void ShowMovement() { _showMovement = true; }
-    public void ShowCaptures() { _showMovement = false; }
+    public void ShowMovement(bool enable) { _showMovement = enable; }
 
     public EditorState GetCurrentState()
     {
