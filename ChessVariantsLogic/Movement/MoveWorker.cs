@@ -607,6 +607,110 @@ public class MoveWorker
         }
         return capturemoves;
     }
+
+    public HashSet<string> GetAllThreatMoves(Player player)
+    {
+        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
+
+        foreach (var coor in this.board.GetAllCoordinates())
+        {
+            int row = coor.Item1;
+            int col = coor.Item2;
+            var square = this.board.GetPieceIdentifier(row, col);
+
+            if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? p = null;
+            try
+            {
+                p = this.stringToPiece[square];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if(pieceBelongsToPlayer(p, player))
+            {
+                var startPosition = new Tuple<int,int>(row, col);
+                var legalMoves = getAllThreatMovesByPiece(p, startPosition);
+                foreach (var pos in legalMoves)
+                {
+                    coorMoves.Add((startPosition, pos));
+                }
+            }
+        }
+        return coorSetToStringSet(coorMoves);
+    }
+
+    private HashSet<Tuple<int, int>> getAllThreatMovesByPiece(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        var capturemoves = new HashSet<Tuple<int, int>>();
+
+        int repeat = piece.Repeat;
+        
+        foreach (var pattern in piece.GetAllCapturePatterns())
+        {
+            if (pattern is RegularPattern)
+            {
+                //capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+            }
+            else
+            {
+                //capturemoves.UnionWith(getJumpMove(piece, pattern, pos));
+                var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                if(captureMove == null)
+                    continue;
+                capturemoves.Add(captureMove);
+            }
+        }
+
+        foreach (var pattern in piece.GetAllMovementPatterns())
+        {
+            if (pattern is RegularPattern)
+                moves.UnionWith(getRegularMoves(piece, pattern, pos));
+            else
+                moves.UnionWith(getJumpMove(piece, pattern, pos));
+        }
+
+        var movesTmp = moves.ToHashSet();
+
+        while (repeat >= 1)
+        {
+            foreach (var move in movesTmp)
+            {
+                foreach (var pattern in piece.GetAllMovementPatterns())
+                {
+                    if (pattern is RegularPattern)
+                        moves.UnionWith(getRegularMoves(piece, pattern, move));
+                    else
+                        moves.UnionWith(getJumpMove(piece, pattern, move));
+                }
+                foreach (var pattern in piece.GetAllCapturePatterns())
+                {
+                    if (pattern is RegularPattern)
+                    {    
+                        //capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                    }
+                    else
+                    {
+                        //capturemoves.UnionWith(getJumpMove(piece, pattern, move));
+                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                        if(captureMove == null)
+                            continue;
+                        capturemoves.Add(captureMove);
+                    }
+                }
+            }
+            movesTmp = moves;
+            repeat--;
+        }
+        return capturemoves;
+    }
     public void undoMove()
     {
         if(stateLog.Count() != 0)

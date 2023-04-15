@@ -340,8 +340,11 @@ public class ChessboardTests : IDisposable
     public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
         Move move = new Move("e2e3", PieceClassifier.WHITE);
+
+        this.moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.BLACK), "a3");
         
         var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
+        var moves8 = this.moveWorker.GetAllThreatMoves(Player.White);
         moveWorker.PerformMove(move);
         var moves2 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
 
@@ -353,6 +356,7 @@ public class ChessboardTests : IDisposable
         Assert.Equal(18, moves1.Count);
         Assert.Equal(27, moves2.Count);
         Assert.Equal(27, movesQueen.Count);
+        Assert.Equal(2, moves8.Count);
     }
 
     [Fact]
