@@ -37,7 +37,7 @@ public class NegaMax
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move findBestMove(int depth, Game game, Player player)
+    public Move FindBestMove(int depth, Game game, Player player)
     {
         int turnMultiplier;
         var tmp_legalMoves = game._legalMoves;
@@ -70,7 +70,7 @@ public class NegaMax
     {
         if (currentDepth == 0)
         {
-            return turnMultiplier * scoreBoard(game.MoveWorker);
+            return turnMultiplier * ScoreBoard(game.MoveWorker);
         }
 
         int max = -100000;
@@ -105,7 +105,7 @@ public class NegaMax
         return max;
     }
 
-    public int scoreBoard(MoveWorker moveWorker)
+    public int ScoreBoard(MoveWorker moveWorker)
     {
         int score = 0;
         if (_blackWon)
@@ -146,10 +146,10 @@ public class NegaMax
         {
             return new HashSet<GameEvent>() { GameEvent.InvalidMove };
         }
-        return MakeAiMoveImplementation(move, game, _playerTurn);
+        return makeAiMoveImplementation(move, game, _playerTurn);
     }
 
-    private ISet<GameEvent> MakeAiMoveImplementation(Move move, Game game, Player _playerTurn)
+    private ISet<GameEvent> makeAiMoveImplementation(Move move, Game game, Player _playerTurn)
     {
         var currentPlayer = _playerTurn;
         var opponent = _playerTurn == Player.White ? Player.Black : Player.White;
