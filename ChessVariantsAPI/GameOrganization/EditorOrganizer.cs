@@ -31,10 +31,6 @@ public class EditorOrganizer
 
     public PatternState GetCurrentPatternState() { return _pieceEditor.GetCurrentPatternState(); }
 
-    //public string GetValidMoves(string square) { return _pieceEditor.GetAllCurrentlyValidMovesFromSquareAsJson(square); }
-
-    //public string GetValidCaptures(string square) { return _pieceEditor.GetAllCurrentlyValidCapturesFromSquareAsJson(square); }
-
     public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
         this._pieceEditor.AddMovementPattern(xDir, yDir, minLength, maxLength);

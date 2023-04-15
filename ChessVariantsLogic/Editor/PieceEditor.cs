@@ -19,11 +19,11 @@ public class PieceEditor
 
     public PieceEditor()
     {
-        this._builder = new PieceBuilder();
-        this._moveWorker = new MoveWorker(new Chessboard(8));
-        this._square = "e4";
-        this._dummy = _builder.GetDummyPieceWithCurrentMovement();
-        this._showMovement = true;
+        _builder = new PieceBuilder();
+        _moveWorker = new MoveWorker(new Chessboard(8));
+        _square = "e4";
+        _dummy = _builder.GetDummyPieceWithCurrentMovement();
+        _showMovement = true;
 
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
@@ -56,7 +56,7 @@ public class PieceEditor
     public void SetActiveSquare(string square)
     {
         _moveWorker.RemoveFromBoard(_square);
-        this._square = square;
+        _square = square;
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
@@ -85,28 +85,6 @@ public class PieceEditor
         }
         throw new ArgumentException("Invalid square.");
     }
-
-    /// <summary>
-    /// Returns a string in json-format of all valid moves from the current state of the builder.
-    /// </summary>
-    /// <param name="square">is the square on which the moves are calculated.</param>
-    /// <returns>A json-string of all valid moves.</returns>
-    //public string GetAllCurrentlyValidMovesFromSquareAsJson(string square)
-    //{
-    //    var moves = GetAllCurrentlyValidMoves();
-    //    return PieceExporter.ExportLegalMovesAsJson(moves);
-    //}
-
-    /// <summary>
-    /// Returns a string in json-format of all valid capture-moves from the current state of the builder.
-    /// </summary>
-    /// <param name="square">is the square on which the capture-moves are calculated.</param>
-    /// <returns>A json-string of all valid capture-moves.</returns>
-    //public string GetAllCurrentlyValidCapturesFromSquareAsJson(string square)
-    //{
-    //    var moves = _builder.GetAllCurrentlyValidCaptureMovesFromSquare(square);
-    //    return PieceExporter.ExportLegalMovesAsJson(moves);
-    //}
 
     /// <summary>
     /// Adds a pattern to the set of allowed movement. 
