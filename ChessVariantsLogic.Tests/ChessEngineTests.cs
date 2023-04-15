@@ -32,7 +32,7 @@ public class ChessEngineTests : IDisposable
     {
         //game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string from = "a3";
-        Move bestMove = negaMax.findBestMove(1,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(1,game, Player.White);
         Assert.Equal(from, bestMove.From);
     }
 
@@ -41,7 +41,7 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.findBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
@@ -52,7 +52,7 @@ public class ChessEngineTests : IDisposable
         game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d6");
         game.MoveWorker.InsertOnBoard(Piece.Knight(PieceClassifier.WHITE), "b2");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.findBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.NotEqual(moveFreePiece, bestMove.To);
     }
 
@@ -67,7 +67,7 @@ public class ChessEngineTests : IDisposable
        game.MoveWorker.PerformMove(move2);
        game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "h4";
-        Move bestMove = negaMax.findBestMove(3,game, Player.Black);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
@@ -82,7 +82,7 @@ public class ChessEngineTests : IDisposable
        game.MoveWorker.PerformMove(move2);
        game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "d3";
-        Move bestMove = negaMax.findBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
@@ -98,7 +98,7 @@ public class ChessEngineTests : IDisposable
         game.MoveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.BLACK), "c1");
         
         string moveFreePiece = "c2";
-        Move bestMove = negaMax.findBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.From);
     }
 
@@ -115,7 +115,7 @@ public class ChessEngineTests : IDisposable
         var abc = game.MoveWorker.GetAllCapturePatternMoves(Player.Black);
         
         string moveFreePiece = "c7";
-        Move bestMove = negaMax.findBestMove(3,game, Player.Black);
+        Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
         Assert.Equal(moveFreePiece, bestMove.From);
     }
 }
