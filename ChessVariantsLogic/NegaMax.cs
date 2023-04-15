@@ -163,7 +163,7 @@ public class NegaMax
         {
             return new HashSet<GameEvent>() { GameEvent.InvalidMove };
         }
-        return MakeAiMoveImplementation(move, game, _playerTurn);
+        return makeAiMoveImplementation(move, game, _playerTurn);
     }
 
     private ISet<GameEvent> makeAiMoveImplementation(Move move, Game game, Player _playerTurn)
