@@ -21,7 +21,7 @@ public class NegaMax
     private bool _blackWon = false;
     private bool _whiteWon = false;
     private bool _draw = false;
-    public Stack<IDictionary<string,Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
+    private Stack<IDictionary<string,Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
 
     private PieceValue _pieceValue;
     public NegaMax(PieceValue pieceValue)
