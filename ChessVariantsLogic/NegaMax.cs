@@ -12,15 +12,15 @@ using System.Collections.Generic;
 public class NegaMax
 {
     private Move nextMove;
-    private int _whiteToMove = 1;
-    private int _blackToMove = -1;
-    private int _alpha = -100000;
-    private int _beta = 100000;
-    private int _score;
-    private List<Piece> _pieces;
-    private bool _blackWon = false;
-    private bool _whiteWon = false;
-    private bool _draw = false;
+    private int whiteToMove = 1;
+    private int blackToMove = -1;
+    private int alpha = -100000;
+    private int beta = 100000;
+    private int score;
+    private List<Piece> pieces;
+    private bool blackWon = false;
+    private bool whiteWon = false;
+    private bool draw = false;
     public Stack<IDictionary<string,Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
 
     private PieceValue _pieceValue;
@@ -28,23 +28,6 @@ public class NegaMax
     {
         _pieceValue = pieceValue;
     }
-
-    private HeatMap _heatMap123 = new HeatMap(8,8);
-
-  
-
-    private int[,] _heatMap = new int[,]   {{1,1,1,1,1,1,1,1},
-                                           {1,2,2,2,2,2,2,1},
-                                           {1,2,3,3,3,3,2,1},
-                                           {1,2,3,4,4,3,2,1},
-                                           {1,2,3,4,4,3,2,1},
-                                           {1,2,3,3,3,3,2,1},
-                                           {1,2,2,2,2,2,2,1},
-                                           {1,1,1,1,1,1,1,1}};
-
-    
-    
-                              
 
 
     /// <summary>
@@ -54,7 +37,7 @@ public class NegaMax
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move FindBestMove(int depth, Game game, Player player)
+    public Move findBestMove(int depth, Game game, Player player)
     {
         int turnMultiplier;
         var tmp_legalMoves = game._legalMoves;
@@ -62,15 +45,15 @@ public class NegaMax
         
         if (player.Equals(Player.White))
         {
-            turnMultiplier = _whiteToMove;
+            turnMultiplier = whiteToMove;
             game._playerTurn = Player.White;
         }
         else
         {
-            turnMultiplier = _blackToMove;
+            turnMultiplier = blackToMove;
             game._playerTurn = Player.Black;
         }
-        negaMax(depth, turnMultiplier, depth, _alpha, _beta, game);
+        negaMax(depth, turnMultiplier, depth, alpha, beta, game);
 
         game._legalMoves = tmp_legalMoves;
         game._playerTurn = tmp_playerTurn;
@@ -102,11 +85,11 @@ public class NegaMax
 
             updatePlayerVictory(events);
 
-            _score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
+            score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
 
-            if (_score > max)
+            if (score > max)
             {
-                max = _score;
+                max = score;
                 if (currentDepth == maxDepth)
                 {
                     nextMove = move;
@@ -114,30 +97,30 @@ public class NegaMax
             }
             game.MoveWorker.undoMove();
             game._legalMoves = _legalMovesLog.Pop();
-            if (_score > alpha)
-                alpha = _score;
+            if (score > alpha)
+                alpha = score;
             if (alpha >= beta)
                 break;
         }
         return max;
     }
 
-    private int scoreBoard(MoveWorker moveWorker)
+    public int scoreBoard(MoveWorker moveWorker)
     {
         int score = 0;
-        if (_blackWon)
+        if (blackWon)
         {
-            _blackWon = false;
+            blackWon = false;
             return -1000000;
         }
-        if (_whiteWon)
+        if (whiteWon)
         {
-            _whiteWon = false;
+            whiteWon = false;
             return 1000000;
         }
-        if (_draw)
+        if (draw)
         {
-            _draw = false;
+            draw = false;
             return 0;
         }
 
@@ -148,7 +131,7 @@ public class NegaMax
                 var piece = moveWorker.Board.GetPieceIdentifier(row, col);
                 if (piece != null)
                 {
-                    score += _pieceValue.getValue(piece) * _heatMap[row,col];
+                    score += _pieceValue.getValue(piece);
                 }
             }
         }
@@ -166,7 +149,7 @@ public class NegaMax
         return MakeAiMoveImplementation(move, game, _playerTurn);
     }
 
-    private ISet<GameEvent> makeAiMoveImplementation(Move move, Game game, Player _playerTurn)
+    private ISet<GameEvent> MakeAiMoveImplementation(Move move, Game game, Player _playerTurn)
     {
         var currentPlayer = _playerTurn;
         var opponent = _playerTurn == Player.White ? Player.Black : Player.White;
@@ -210,21 +193,21 @@ public class NegaMax
         
         if (hasWhiteWon(events))
             {
-                _whiteWon = true;
+                whiteWon = true;
             }
             if (hasBlackWon(events))
             {
-                _blackWon = true;
+                blackWon = true;
             }
             if (hasDrawn(events))
             {
-                _draw = true;
+                draw = true;
             }
     }
 
     private void updatePlayerTurn(Game game, int turnMultiplier)
     {
-        if (turnMultiplier == _whiteToMove)
+        if (turnMultiplier == whiteToMove)
         {
             game._legalMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White);
             game._playerTurn = Player.White;
