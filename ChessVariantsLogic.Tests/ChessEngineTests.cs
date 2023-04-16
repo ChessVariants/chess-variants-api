@@ -39,8 +39,8 @@ public class ChessEngineTests : IDisposable
     [Fact]
     public void negaMaxTakesFreePiece()
     {
-        HeatMap asdfasdfasdf = new HeatMap(8,8);
-        game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "e5");
+        //HeatMap asdfasdfasdf = new HeatMap(8,8);
+        //game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "e5");
         string moveFreePiece = "a3";
         Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);

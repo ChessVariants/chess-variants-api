@@ -28,7 +28,7 @@ public class NegaMax
     {
         _pieceValue = pieceValue;
     }
-    //private HeatMap asdfasdfasdf = new HeatMap(8,8);
+    private HeatMap heatMap = new HeatMap(8,8);
 
 
     /// <summary>
@@ -130,9 +130,14 @@ public class NegaMax
             for (int col = 0; col < moveWorker.Board.Cols; col++)
             {
                 var piece = moveWorker.Board.GetPieceIdentifier(row, col);
-                if (piece != null)
+                if (piece != null && piece != "--")
                 {
                     score += _pieceValue.getValue(piece);
+                    
+                    if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.WHITE))
+                        score += heatMap.GetValue(row,col);
+                    if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.BLACK))
+                        score -= heatMap.GetValue(row,col);
                 }
             }
         }
@@ -140,7 +145,9 @@ public class NegaMax
         double numberOfThreats = moveWorker.GetAllThreatMoves(player).Count();
         if(player.Equals(Player.Black))
             numberOfThreats = -numberOfThreats;
-        return score + numberOfThreats*5;
+
+        
+        return score ;
     }
 
     public ISet<GameEvent> MakeAiMove(Game game, string moveCoordinates, Player? playerRequestingMove, IDictionary<string, Move> _legalMoves, Player _playerTurn)
