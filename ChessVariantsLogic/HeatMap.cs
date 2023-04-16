@@ -24,14 +24,14 @@ public class HeatMap
         int min = Math.Min(rows,cols);
      
         double value = weight /4;
-        int index = 1;
+        int index = 2;
         while (index <=4)
         {
             for (int row = index; row < rows; row++)
             {
                 for (int col = index; col < cols; col++)
                 {
-                    if (col >= index && col <= cols - (index + 2) &&(row >= index && row <= rows - (index + 2)))
+                    if (col >= index && col <= cols - (index + 1) &&(row >= index && row <= rows - (index + 1)))
                     {
                         heatMap[row, col] += value;
                     }
