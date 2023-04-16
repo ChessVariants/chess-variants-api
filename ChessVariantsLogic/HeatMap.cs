@@ -13,6 +13,7 @@ public class HeatMap
         cols = Cols;
         heatMap = new int[Rows,Cols];
         initHeatMap(4);
+        printMatrix(heatMap);
     }
 
 
@@ -23,21 +24,18 @@ public class HeatMap
         int min = Math.Min(rows,cols);
       
         int test = 1;
-        int index = 0;
+        int index = 2;
         while (index != 4)
         {
             for (int row = index; row < rows; row++)
             {
                 for (int col = index; col < cols; col++)
                 {
-                    if (col >= index && col <= cols - (index + 1))
+                    if ((col >= index && col <= cols - (index + 1) &&(row >= index && row <= rows - (index + 1))))
                     {
                         heatMap[row, col]++;
                     }
-                    if (row >= index && row <= rows - (index + 1))
-                    {
-                        heatMap[row, col]++;
-                    }
+                    
                 }
             }
             index++;
@@ -51,6 +49,15 @@ public class HeatMap
     }
 
    
+        static void printMatrix(int[,] m)
+        {
+            for(int i = 0; i < m.GetLength(0); i++){
+                for(int j = 0; j < m.GetLength(0); j++){
+                    Console.Write("{0} ", m[i,j]);
+                }
+                Console.WriteLine();
+            }
+        }
 
     private int[,] heatMap1234 = new int[,]   {{1,1,1,1,1,1,1,1},
                                            {1,2,2,2,2,2,2,1},
