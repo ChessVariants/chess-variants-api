@@ -5,38 +5,52 @@ public class HeatMap
     private int rows;
     private int cols;
 
-    public int[,] heatMap;
+    private int[,] heatMap;
 
     public HeatMap(int Rows, int Cols)
     {
         rows = Rows;
         cols = Cols;
         heatMap = new int[Rows,Cols];
-        initHeatMap();
+        initHeatMap(4);
     }
 
 
-    private void initHeatMap()
+    private void initHeatMap(int weight)
     {
         int rowabc = rows/4;
         int colabc = cols/4;
-        for(int row = 2; row < rows -2; row++)
+        int min = Math.Min(rows,cols);
+      
+        int test = 1;
+        int index = 0;
+        while (index != 4)
         {
-            for(int col = 2; col < cols -2; col++)
+            for (int row = index; row < rows; row++)
             {
-                if(row > rowabc & row < rows - rowabc & col > colabc & col < cols - colabc)
+                for (int col = index; col < cols; col++)
                 {
-                    heatMap[row,col] = 2;
-                }
-                else
-                {
-                    heatMap[row,col] = 1;
+                    if (col >= index && col <= cols - (index + 1))
+                    {
+                        heatMap[row, col]++;
+                    }
+                    if (row >= index && row <= rows - (index + 1))
+                    {
+                        heatMap[row, col]++;
+                    }
                 }
             }
+            index++;
         }
+        
     }
 
-    private HeatMap heatMap123 = new HeatMap(8,8);
+    public int GetValue(int row, int col)
+    {
+        return heatMap[row, col];
+    }
+
+   
 
     private int[,] heatMap1234 = new int[,]   {{1,1,1,1,1,1,1,1},
                                            {1,2,2,2,2,2,2,1},

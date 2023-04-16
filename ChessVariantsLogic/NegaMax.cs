@@ -14,9 +14,9 @@ public class NegaMax
     private Move _nextMove;
     private int _whiteToMove = 1;
     private int _blackToMove = -1;
-    private int _alpha = -100000;
-    private int _beta = 100000;
-    private int _score;
+    private double _alpha = -100000;
+    private double _beta = 100000;
+    private double _score;
     private List<Piece> _pieces;
     private bool _blackWon = false;
     private bool _whiteWon = false;
@@ -28,6 +28,7 @@ public class NegaMax
     {
         _pieceValue = pieceValue;
     }
+    //private HeatMap asdfasdfasdf = new HeatMap(8,8);
 
 
     /// <summary>
@@ -66,14 +67,14 @@ public class NegaMax
 
 
 
-    private int negaMax(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, Game game)
+    private double negaMax(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game)
     {
         if (currentDepth == 0)
         {
-            return turnMultiplier * ScoreBoard(game.MoveWorker);
+            return turnMultiplier * ScoreBoard(game.MoveWorker, game._playerTurn);
         }
 
-        int max = -100000;
+        double max = -100000;
 
         updatePlayerTurn(game, turnMultiplier);
 
@@ -105,9 +106,9 @@ public class NegaMax
         return max;
     }
 
-    public int ScoreBoard(MoveWorker moveWorker)
+    public double ScoreBoard(MoveWorker moveWorker, Player player)
     {
-        int score = 0;
+        double score = 0;
         if (_blackWon)
         {
             _blackWon = false;
@@ -135,7 +136,11 @@ public class NegaMax
                 }
             }
         }
-        return score;
+
+        double numberOfThreats = moveWorker.GetAllThreatMoves(player).Count();
+        if(player.Equals(Player.Black))
+            numberOfThreats = -numberOfThreats;
+        return score + numberOfThreats*5;
     }
 
     public ISet<GameEvent> MakeAiMove(Game game, string moveCoordinates, Player? playerRequestingMove, IDictionary<string, Move> _legalMoves, Player _playerTurn)
