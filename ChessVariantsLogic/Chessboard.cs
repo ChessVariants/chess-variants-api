@@ -162,6 +162,29 @@ public class Chessboard
     }
 
 #region Getters and setters
+
+    public bool Remove(int row, int col)
+    {
+        if(validIndex(row, col))
+        {
+            board[row,col] = Constants.UnoccupiedSquareIdentifier;
+            return true;
+        }
+        return false;
+    }
+
+    public bool Remove(string coordinate)
+    {
+        try {
+            var key = this.coorToIndex[coordinate];
+            return Remove(key.Item1, key.Item2);
+        }
+        catch (KeyNotFoundException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// Inserts the piece onto the square on the chessboard.
     /// </summary>

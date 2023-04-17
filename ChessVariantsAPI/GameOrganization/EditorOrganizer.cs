@@ -1,4 +1,5 @@
 using ChessVariantsLogic.Editor;
+using ChessVariantsLogic.Export;
 
 namespace ChessVariantsAPI;
 
@@ -11,31 +12,32 @@ public class EditorOrganizer
 
     public EditorOrganizer()
     {
-        this._pieceEditor = new PieceEditor();
+        _pieceEditor = new PieceEditor();
     }
 
-    public string GetValidMoves(string square) { return _pieceEditor.GetAllCurrentlyValidMovesFromSquareAsJson(square); }
+    public void ShowMovement(bool enable) { _pieceEditor.ShowMovement(enable); }
 
-    public string GetValidCaptures(string square) { return _pieceEditor.GetAllCurrentlyValidCapturesFromSquareAsJson(square); }
+    public void SetBoardSize(int rows, int cols) { _pieceEditor.UpdateBoardSize(rows, cols); }
+
+    public void SetActiveSquare(string square) { _pieceEditor.SetActiveSquare(square); }
+
+    public EditorState GetCurrentState() { return _pieceEditor.GetCurrentState(); }
+
+    public PatternState GetCurrentPatternState() { return _pieceEditor.GetCurrentPatternState(); }
 
     public void AddMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.AddMovementPattern(xDir, yDir, minLength, maxLength);
+        _pieceEditor.AddMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public void AddCapturePattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this._pieceEditor.AddCapturePattern(xDir, yDir, minLength, maxLength);
+        _pieceEditor.AddCapturePattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        return this._pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
-    }
-
-    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
-    {
-        return this._pieceEditor.RemoveCapturePattern(xDir, yDir, minLength, maxLength);
+        return _pieceEditor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent BelongsToPlayer(string player) { return _pieceEditor.BelongsToPlayer(player); }

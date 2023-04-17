@@ -37,26 +37,6 @@ public static class PieceExporter
         return pieceState;
     }
 
-    public static string ExportLegalMovesAsJson(HashSet<string> moveSet)
-    {
-        var moveDict = new Dictionary<string, List<string>>();
-
-        foreach (var move in moveSet)
-        {
-            var fromTo = MoveWorker.ParseMove(move);
-            if (fromTo == null)
-                throw new InvalidOperationException($"Could not parse move {move}");
-
-            var moveList = moveDict.GetValueOrDefault(fromTo.Item1, new List<string>());
-            if (moveList.Count == 0)
-            {
-                moveDict[fromTo.Item1] = moveList;
-            }
-            moveList.Add(fromTo.Item2);
-        }
-        return GameExporter.ExportMovesAsJson(moveDict);
-    }
-
     private static List<PatternRecord> exportPattern(IEnumerable<Pattern> movement)
     {
         var patterns = new List<PatternRecord>();
@@ -110,7 +90,7 @@ public record PieceState
 }
 
 /// <summary>
-/// Represents a Json-object of an <see cref="Pattern"/>.
+/// Represents a Json-object of an <see cref="PatternRecord"/>.
 /// </summary>
 public record PatternRecord
 {

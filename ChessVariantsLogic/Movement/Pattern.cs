@@ -13,8 +13,8 @@ public abstract class Pattern : IEquatable<Pattern>
 
     public Pattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        this.xDir = xDir != 0 ? xDir/Math.Abs(xDir) : 0;
-        this.yDir = yDir != 0 ? yDir/Math.Abs(yDir) : 0;
+        this.xDir = xDir;
+        this.yDir = yDir;
         this.minLength = minLength;
         this.maxLength = maxLength;
     }
