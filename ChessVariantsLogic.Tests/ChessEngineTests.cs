@@ -28,7 +28,7 @@ public class ChessEngineTests : IDisposable
     }
 
     [Fact]
-    public void negaMaxDoesNotLetOpponentTakeFreePiece()
+    public void NegaMaxDoesNotLetOpponentTakeFreePiece()
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string from = "a3";
@@ -37,7 +37,7 @@ public class ChessEngineTests : IDisposable
     }
 
     [Fact]
-    public void negaMaxTakesFreePiece()
+    public void NegaMaxTakesFreePiece()
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
@@ -46,7 +46,7 @@ public class ChessEngineTests : IDisposable
     }
 
     [Fact ]
-    public void negaMaxDoesNotTakeDefendedPawnWithKnigt()
+    public void NegaMaxDoesNotTakeDefendedPawnWithKnigt()
     {
         game.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "a3");
         game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d6");
@@ -57,30 +57,30 @@ public class ChessEngineTests : IDisposable
     }
 
     [Fact ]
-    public void negaMaxCheckMate()
+    public void NegaMaxCheckMate()
     {
-        Move move1 = new Move("g2g4", PieceClassifier.WHITE);
-        Move move2 = new Move("e7e5", PieceClassifier.BLACK);
-        Move move3 = new Move("f2f3", PieceClassifier.WHITE);
+        Move move1 = new Move("g2g4", Piece.WhitePawn());
+        Move move2 = new Move("e7e5", Piece.BlackPawn());
+        Move move3 = new Move("f2f3", Piece.WhitePawn());
       
-       game.MoveWorker.PerformMove(move1);
-       game.MoveWorker.PerformMove(move2);
-       game.MoveWorker.PerformMove(move3);
+        game.MoveWorker.PerformMove(move1);
+        game.MoveWorker.PerformMove(move2);
+        game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "h4";
         Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
     [Fact ]
-    public void negaMaxDefendsCheckMate()
+    public void NegaMaxDefendsCheckMate()
     {
-        Move move1 = new Move("g2g4", PieceClassifier.WHITE);
-        Move move2 = new Move("e7e5", PieceClassifier.BLACK);
-        Move move3 = new Move("f2f3", PieceClassifier.WHITE);
-      
-       game.MoveWorker.PerformMove(move1);
-       game.MoveWorker.PerformMove(move2);
-       game.MoveWorker.PerformMove(move3);
+        Move move1 = new Move("g2g4", Piece.WhitePawn());
+        Move move2 = new Move("e7e5", Piece.BlackPawn());
+        Move move3 = new Move("f2f3", Piece.WhitePawn());
+
+        game.MoveWorker.PerformMove(move1);
+        game.MoveWorker.PerformMove(move2);
+        game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "d3";
         Move bestMove = negaMax.FindBestMove(3,game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);

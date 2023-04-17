@@ -10,11 +10,11 @@ namespace ChessVariantsLogic.Rules.Moves.Actions;
 /// </summary>
 public abstract class Action
 {
-    private readonly RelativeTo _relativeTo;
+    protected Piece? _capturedPiece = null;
 
-    protected Action(RelativeTo relativeTo)
+    public bool DidCapturePiece(string pieceIdentifier)
     {
-        _relativeTo = relativeTo;
+        return Utils.IsOfType(_capturedPiece, pieceIdentifier);
     }
 
 
@@ -23,22 +23,10 @@ public abstract class Action
     /// This method should only be called from the MoveWorker class
     /// </summary>
     /// <param name="moveWorker">MoveWorker that should perform the action.</param>
-    /// <param name="from">The position of the piece that performed the action before the action was performed.</param>
-    /// <param name="to">The position of the piece that performed the action after the action was performed.</param>
+    /// <param name="moveCoordinates">The move coordinates that any PositionRelative will use to calculate it's position relative to.</param>
     /// 
     /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
-    public GameEvent Perform(MoveWorker moveWorker, string from, string to)
-    {
-        string pivotPosition = GetPivotPosition(from, to);
-        return Perform(moveWorker, pivotPosition);
-    }
-
-    protected abstract GameEvent Perform(MoveWorker moveWorker, string pivotPosition);
-
-    private string GetPivotPosition(string from, string to)
-    {
-        return _relativeTo == RelativeTo.FROM ? from : to;
-    }
+    public abstract GameEvent Perform(MoveWorker moveWorker, string moveCoordinates);
 
 }

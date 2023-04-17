@@ -16,8 +16,9 @@ public class Utils
     /// <returns>True if a piece with the supplied <paramref name="pieceIdentifier"/> is attacked, otherwise false.</returns>
     public static bool PieceAttacked(MoveWorker board, string pieceIdentifier)
     {
-        var player = GetPlayer(pieceIdentifier);
-        var attacker = player == Player.White ? Player.Black : Player.White;
+        var player = GetPieceClassifier(board, pieceIdentifier);
+        var attacker = player == PieceClassifier.WHITE ? Player.Black : Player.White;
+        // CHANGE THIS
         var piecePositions = FindPiecesOfType(board, pieceIdentifier);
         var attackedPieces = board.GetAllCapturePatternMoves(attacker);
         foreach (var attackerMove in attackedPieces)
@@ -51,22 +52,32 @@ public class Utils
         return false;
     }
 
-    /// <summary>
-    /// Returns the owner of the piece with the supplied <paramref name="pieceIdentifier"/>.
-    /// </summary>
-    /// <param name="pieceIdentifier">The piece identifier to check ownership of</param>
-    /// <returns>The <see cref="Player"/> who owns the piece</returns>
-    public static Player GetPlayer(string pieceIdentifier)
+    public static PieceClassifier GetPieceClassifier(MoveWorker board, string pieceIdentifier)
     {
-        if (pieceIdentifier.Any(char.IsUpper) && pieceIdentifier != "ANY_BLACK" && pieceIdentifier != "ROYAL_BLACK" || pieceIdentifier == "ANY_WHITE")
-        {
-            return Player.White;
-        }
-        else if (pieceIdentifier.Any(char.IsLower) || pieceIdentifier == "ANY_BLACK" || pieceIdentifier == "ROYAL_BLACK")
-        {
-            return Player.Black;
-        }
-        return Player.None;
+        if (pieceIdentifier == "BLACK")
+            return PieceClassifier.BLACK;
+        if (pieceIdentifier == "WHITE")
+            return PieceClassifier.WHITE;
+        if (pieceIdentifier == "SHARED")
+            return PieceClassifier.SHARED;
+
+        return board.GetPieceClassifier(pieceIdentifier);
+    }
+
+    public static bool IsOfType(Piece? piece, string pieceIdentifier)
+    {
+        if (piece == null)
+            return false;
+        if (pieceIdentifier == "ANY")
+            return true;
+        if (pieceIdentifier == "BLACK")
+            return piece.PieceClassifier.Equals(PieceClassifier.BLACK);
+        if (pieceIdentifier == "WHITE")
+            return piece.PieceClassifier.Equals(PieceClassifier.WHITE);
+        if (pieceIdentifier == "SHARED")
+            return piece.PieceClassifier.Equals(PieceClassifier.SHARED);
+
+        return piece.PieceIdentifier == pieceIdentifier;
     }
 
     /// <summary>
@@ -80,47 +91,15 @@ public class Utils
         var pieceLocations = new List<string>();
         foreach (var position in board.Board.CoorToIndex.Keys)
         {
-            if (IsOfType(position, board, pieceIdentifier))
+            string? pieceId = board.Board.GetPieceIdentifier(position);
+            if (pieceId == null || pieceId == Constants.UnoccupiedSquareIdentifier) continue;
+            var piece = board.GetPieceFromIdentifier(pieceId);
+            if (IsOfType(piece, pieceIdentifier))
             {
                 pieceLocations.Add(position);
             }
         }
         return pieceLocations;
-    }
-
-    /// <summary>
-    /// Returns whether a piece at <paramref name="position"/> is of the supplied <paramref name="pieceIdentifier"/> type.
-    /// </summary>
-    /// <param name="position">The location to check</param>
-    /// <param name="board">The board to check on</param>
-    /// <param name="pieceIdentifier">The identifier for the type</param>
-    /// <returns>True if the piece at <paramref name="position"/> conforms to the type of the <paramref name="pieceIdentifier"/></returns>
-    public static bool IsOfType(string position, MoveWorker board, string pieceIdentifier)
-    {
-        var piece = board.Board.GetPieceIdentifier(position);
-        switch (pieceIdentifier)
-        {
-            case "ANY":
-                return piece != Constants.UnoccupiedSquareIdentifier;
-            case "ANY_BLACK":
-                if (piece != null)
-                {
-                    return GetPlayer(piece) == Player.Black;
-                }
-                return false;
-            case "ANY_WHITE":
-                if (piece != null)
-                {
-                    return GetPlayer(piece) == Player.White;
-                }
-                return false;
-            case "ROYAL_BLACK":
-                return piece == Constants.BlackKingIdentifier;
-            case "ROYAL_WHITE":
-                return piece == Constants.WhiteKingIdentifier;
-            default:
-                return piece == pieceIdentifier;
-        }
     }
 
 }

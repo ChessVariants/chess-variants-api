@@ -9,7 +9,7 @@ public class ActionMovePiece : Action
     private readonly IPosition _from;
     private readonly IPosition _to;
 
-    public ActionMovePiece(IPosition from, IPosition to, RelativeTo relativeTo = RelativeTo.FROM) : base(relativeTo)
+    public ActionMovePiece(IPosition from, IPosition to)
     {
         _from = from;
         _to = to;
@@ -17,13 +17,13 @@ public class ActionMovePiece : Action
 
     //If from position is not specified, the piece performing the action will be moved.
 
-    public ActionMovePiece(IPosition to) : base(RelativeTo.FROM)
+    public ActionMovePiece(IPosition to)
     {
-        _from = new PositionRelative(Tuple.Create(0, 0));
+        _from = new PositionRelative(Tuple.Create(0, 0), RelativeTo.FROM);
         _to = to;
     }
 
-    public ActionMovePiece(string fromTo) : base(RelativeTo.FROM)
+    public ActionMovePiece(string fromTo)
     {
         Tuple<string, string>? fromToTuple = MoveWorker.ParseMove(fromTo);
         if (fromToTuple == null) throw new ArgumentException("fromTo is not a proper string: " + fromTo);
@@ -41,13 +41,18 @@ public class ActionMovePiece : Action
     /// 
     /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
-    protected override GameEvent Perform(MoveWorker moveWorker, string pivotPosition)
+    public override GameEvent Perform(MoveWorker moveWorker, string moveCoordinates)
     {
-        string? from = _from.GetPosition(moveWorker, pivotPosition);
+        string? from = _from.GetPosition(moveWorker, moveCoordinates);
         if (from == null) return GameEvent.InvalidMove;
-        string? to = _to.GetPosition(moveWorker, pivotPosition);
+        string? to = _to.GetPosition(moveWorker, moveCoordinates);
         if (to == null) return GameEvent.InvalidMove;
         string move = from + to;
+        string? pieceIdentifier = moveWorker.Board.GetPieceIdentifier(to);
+        if(pieceIdentifier != null && !pieceIdentifier.Equals(Constants.UnoccupiedSquareIdentifier))
+            _capturedPiece = moveWorker.GetPieceFromIdentifier(pieceIdentifier);
+
+        
         return moveWorker.Move(move, true);
     }
 }

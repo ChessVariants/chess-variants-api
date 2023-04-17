@@ -103,6 +103,14 @@ public class MoveWorker
     {
         _moveLog.Add(move);
     }
+   
+    public Piece GetPieceFromIdentifier(string identifier)
+    {
+        stringToPiece.TryGetValue(identifier, out var piece);
+        if(piece == null)
+            throw new ArgumentException("Invalid PieceIdentifier: " + identifier);
+        return piece;
+    }
 
     /// <summary>
     /// Splits <paramref name="move"/> into the two corresponding substrings "from" and "to" squares.   
@@ -141,7 +149,7 @@ public class MoveWorker
     /// <returns>A set of GameEvents that occured when the move was performed.</returns>
     public ISet<GameEvent> PerformMove(Move move)
     {
-        AddMove(new Move(new List<Action>(), move.FromTo, move.PieceClassifier));
+        AddMove(new Move(new List<Action>(), move.FromTo, move.Piece));
         return PerformActions(move.GetActions());
     }
     /// <summary>
@@ -169,7 +177,7 @@ public class MoveWorker
     {
         var lastMove = GetLastMove();
         if (lastMove == null) throw new NullReferenceException("Can't add action if movelog is empty");
-        var result = action.Perform(this, lastMove.From, lastMove.To);
+        var result = action.Perform(this, lastMove.FromTo);
         lastMove.AddAction(action);
         return result;
     }

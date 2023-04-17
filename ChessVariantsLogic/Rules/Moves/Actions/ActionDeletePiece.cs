@@ -11,7 +11,7 @@ namespace ChessVariantsLogic.Rules.Moves.Actions;
 /// </summary>
 public class ActionDeletePiece : ActionSetPiece
 {
-    public ActionDeletePiece(IPosition at, RelativeTo relativeTo = RelativeTo.FROM) : base(at, Constants.UnoccupiedSquareIdentifier, relativeTo)
+    public ActionDeletePiece(IPosition at) : base(at, Constants.UnoccupiedSquareIdentifier)
     {
     }
 

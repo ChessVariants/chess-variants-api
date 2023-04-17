@@ -38,9 +38,9 @@ public class Event
         int rank = player == Player.White ? (boardHeight) : 1;
 
         IPredicate pawnMoved = new PieceMoved(pawnIdentifier);
-        IPredicate pawnAtRank = new PositionHasRank(new PositionRelative(0, 0), rank, RelativeTo.TO);
+        IPredicate pawnAtRank = new SquareHasRank(new PositionRelative(0, 0, RelativeTo.TO), rank);
 
-        List<Action> actions = new List<Action> { new ActionSetPiece(new PositionRelative(0, 0), queenIdentifier, RelativeTo.TO) };
+        List<Action> actions = new List<Action> { new ActionSetPiece(new PositionRelative(0, 0, RelativeTo.TO), queenIdentifier) };
 
         return new Event(pawnMoved & pawnAtRank, actions);
     }
@@ -52,12 +52,12 @@ public class Event
     /// </summary>
     public static Event ExplosionEvent(Player player, IPosition position, bool destroyPawn)
     {
-        IPredicate pieceCaptured = player == Player.White ? new PieceCaptured("ANY_BLACK") : new PieceCaptured("ANY_WHITE");
+        IPredicate pieceCaptured = player == Player.White ? new PieceCaptured("BLACK") : new PieceCaptured("WHITE");
 
-        IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
-        IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT, RelativeTo.TO);
+        IPredicate whitePawnAt = new PieceAt(Constants.WhitePawnIdentifier, position, BoardState.NEXT);
+        IPredicate blackPawnAt = new PieceAt(Constants.BlackPawnIdentifier, position, BoardState.NEXT);
 
-        List<Action> actions = new List<Action> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier, RelativeTo.TO) };
+        List<Action> actions = new List<Action> { new ActionSetPiece(position, Constants.UnoccupiedSquareIdentifier) };
 
         var predicate = pieceCaptured;
         if(!destroyPawn)

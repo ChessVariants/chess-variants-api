@@ -1,12 +1,17 @@
-﻿namespace ChessVariantsLogic.Rules.Predicates;
+﻿using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
 /// Represents a logical operator which can be performed on <see cref="IPredicate"/> objects.
 /// </summary>
 public class Operator : IPredicate
 {
+    [JsonProperty]
     private readonly OperatorType _type;
+    [JsonProperty]
     private readonly IPredicate _p;
+    [JsonProperty]
     private readonly IPredicate _q;
 
     public Operator(IPredicate p, OperatorType type, IPredicate q)

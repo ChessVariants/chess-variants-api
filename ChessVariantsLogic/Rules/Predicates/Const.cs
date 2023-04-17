@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace ChessVariantsLogic.Rules.Predicates;
 /// </summary>
 public class Const : IPredicate
 {
+    [JsonProperty]
     private readonly bool _value;
 
     public Const(bool value)

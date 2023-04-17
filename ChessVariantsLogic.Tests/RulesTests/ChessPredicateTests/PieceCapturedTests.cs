@@ -31,15 +31,15 @@ public class PieceCapturedTests {
         board.Move("f1c4");
         board.Move("g8f6");
 
-        pieceWasNotCapturedTransition = new BoardTransition(board, new Move("a2a3", PieceClassifier.WHITE));
-        pieceWasCapturedTransition = new BoardTransition(board, new Move("h5f7", PieceClassifier.WHITE));
+        pieceWasNotCapturedTransition = new BoardTransition(board, new Move("a2a3", Piece.WhitePawn()));
+        pieceWasCapturedTransition = new BoardTransition(board, new Move("h5f7", board.GetPieceFromIdentifier(board.Board.GetPieceIdentifier("h5"))));
     }
 
     [Fact]
     public void PieceCaptured_ShouldReturnTrue()
     {
         IPredicate pawnCaptured = new PieceCaptured(Constants.BlackPawnIdentifier);
-        IPredicate pieceCaptured = new PieceCaptured("ANY_BLACK");
+        IPredicate pieceCaptured = new PieceCaptured("BLACK");
         Assert.True(pawnCaptured.Evaluate(pieceWasCapturedTransition));
         Assert.True(pieceCaptured.Evaluate(pieceWasCapturedTransition));
     }
@@ -48,6 +48,14 @@ public class PieceCapturedTests {
     {
         IPredicate pawnCaptured = new PieceCaptured(Constants.BlackPawnIdentifier);
         Assert.False(pawnCaptured.Evaluate(pieceWasNotCapturedTransition));
+    }
+    [Fact]
+    public void PieceCaptured_ShouldReturnFalse()
+    {
+        IPredicate queenCaptured = new PieceCaptured(Constants.BlackQueenIdentifier);
+        IPredicate pieceCaptured = new PieceCaptured("WHITE");
+        Assert.False(queenCaptured.Evaluate(pieceWasCapturedTransition));
+        Assert.False(pieceCaptured.Evaluate(pieceWasCapturedTransition));
     }
 
 }
