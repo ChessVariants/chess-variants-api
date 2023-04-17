@@ -8,9 +8,11 @@ using ChessVariantsLogic;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class NegaMax
 {
+    private Random _rand;
     private Move _nextMove;
     private int _whiteToMove = 1;
     private int _blackToMove = -1;
@@ -27,8 +29,10 @@ public class NegaMax
     public NegaMax(PieceValue pieceValue)
     {
         _pieceValue = pieceValue;
+        
     }
-    private HeatMap heatMap = new HeatMap(8,8);
+    private HeatMap _heatMap;
+
 
 
     /// <summary>
@@ -41,6 +45,7 @@ public class NegaMax
     public Move FindBestMove(int depth, Game game, Player player)
     {
         int turnMultiplier;
+        _heatMap = new HeatMap(game.MoveWorker.Board.Rows,game.MoveWorker.Board.Rows);
         var tmp_legalMoves = game._legalMoves;
         var tmp_playerTurn = game._playerTurn;
         
@@ -79,7 +84,16 @@ public class NegaMax
         updatePlayerTurn(game, turnMultiplier);
 
         var validMoves = game._legalMoves.Values;
-        foreach (var move in validMoves)
+
+        List<Move> L = validMoves.ToList();
+        
+        GenerateRandomLoop(L);
+
+        
+
+        
+
+        foreach (var move in L)
         {
             var legalMoves = saveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game._playerTurn, legalMoves, game._playerTurn);
@@ -135,16 +149,15 @@ public class NegaMax
                     score += _pieceValue.getValue(piece);
                     
                     if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.WHITE))
-                        score += heatMap.GetValue(row,col);
+                        score += _heatMap.GetValue(row,col);
                     if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.BLACK))
-                        score -= heatMap.GetValue(row,col);
+                        score -= _heatMap.GetValue(row,col);
                 }
             }
         }
 
-        double numberOfThreats = moveWorker.GetAllThreatMoves(player).Count();
-        if(player.Equals(Player.Black))
-            numberOfThreats = -numberOfThreats;
+        double numberOfThreats = moveWorker.GetAllThreatMoves(Player.White).Count() - moveWorker.GetAllThreatMoves(Player.Black).Count();
+       
 
         
         return score ;
@@ -243,5 +256,18 @@ public class NegaMax
         return legalMoves;
     }
 
+    public List<Move> GenerateRandomLoop(List<Move> listToShuffle)
+    {
+        _rand = new Random();
+        for (int i = listToShuffle.Count - 1; i > 0; i--)
+        {
+            var k = _rand.Next(i + 1);
+            var value = listToShuffle[k];
+            listToShuffle[k] = listToShuffle[i];
+            listToShuffle[i] = value;
+        }
+
+        return listToShuffle;
+    }
     
 }

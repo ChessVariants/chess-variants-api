@@ -25,7 +25,7 @@ public class HeatMap
      
         double value = weight /4;
         int index = 2;
-        while (index <=4)
+        while (index <=min)
         {
             for (int row = index; row < rows; row++)
             {
