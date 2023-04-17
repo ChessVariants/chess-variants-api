@@ -10,11 +10,12 @@ using System.Collections.Generic;
 public class Game {
 
     protected readonly MoveWorker _moveWorker;
-    private Player _playerTurn;
+    public Player PlayerTurn;
     private int _playerMovesRemaining;
     private readonly int _movesPerTurn;
     protected readonly RuleSet _whiteRules;
     protected readonly RuleSet _blackRules;
+    
 
     public MoveWorker MoveWorker
     {
@@ -29,16 +30,18 @@ public class Game {
         get { return _blackRules; }
     }
 
-    private IDictionary<string, Move> _legalMoves;
+    public IDictionary<string, Move> LegalMoves;
+
+    
 
     public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
     {
         _moveWorker = moveWorker;
-        _playerTurn = playerToStart;
+        PlayerTurn = playerToStart;
         _movesPerTurn = _playerMovesRemaining = movesPerTurn;
         _whiteRules = whiteRules;
         _blackRules = blackRules;
-        _legalMoves = GetRuleSetForPlayer(_playerTurn).GetLegalMoves(_moveWorker, _playerTurn);
+        LegalMoves = GetRuleSetForPlayer(PlayerTurn).GetLegalMoves(_moveWorker, PlayerTurn);
     }
     
     
@@ -51,9 +54,9 @@ public class Game {
     /// <param name="playerRequestingMove">The player requesting to make a move</param>
     public ISet<GameEvent> MakeMove(string moveCoordinates, Player? playerRequestingMove)
     {
-        _legalMoves.TryGetValue(moveCoordinates, out Move? move);
+        LegalMoves.TryGetValue(moveCoordinates, out Move? move);
 
-        if (move == null || playerRequestingMove != _playerTurn)
+        if (move == null || playerRequestingMove != PlayerTurn)
         {
             return new HashSet<GameEvent>() { GameEvent.InvalidMove };
         }
@@ -68,8 +71,8 @@ public class Game {
     /// <returns>A set of GameEvents of what happened in the game</returns>
     private ISet<GameEvent> MakeMoveImplementation(Move move)
     {
-        var currentPlayer = _playerTurn;
-        var opponent = _playerTurn == Player.White ? Player.Black : Player.White;
+        var currentPlayer = PlayerTurn;
+        var opponent = PlayerTurn == Player.White ? Player.Black : Player.White;
 
         BoardTransition boardTransition = new BoardTransition(_moveWorker, move);
 
@@ -92,14 +95,15 @@ public class Game {
 
         // Update legal moves to new player's legal moves
 
-        UpdateLegalMovesForPlayer(_playerTurn);
+
+        UpdateLegalMovesForPlayer(PlayerTurn);
 
         return events;
     }
     public Dictionary<string, List<string>> GetLegalMoveDict()
     {
         var moveDict = new Dictionary<string, List<string>>();
-        foreach (var move in _legalMoves)
+        foreach (var move in LegalMoves)
         {
             var fromTo = MoveWorker.ParseMove(move.Key);
             if (fromTo == null)
@@ -118,22 +122,23 @@ public class Game {
         return moveDict;
     }
 
-    private ISet<GameEvent> RunEventsForPlayer(Player player, BoardTransition lastTransition)
+    public ISet<GameEvent> RunEventsForPlayer(Player player, BoardTransition lastTransition)
     {
         return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, false);
     }
 
-    private ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
+    public ISet<GameEvent> RunStalemateEventsForPlayer(Player player, BoardTransition lastTransition)
     {
         return GetRuleSetForPlayer(player).RunEvents(lastTransition, _moveWorker, true);
     }
 
-    private void UpdateLegalMovesForPlayer(Player player)
+    public void UpdateLegalMovesForPlayer(Player player)
     {
-        _legalMoves = GetRuleSetForPlayer(player).GetLegalMoves(_moveWorker, player);
+        
+        LegalMoves = GetRuleSetForPlayer(player).GetLegalMoves(_moveWorker, player);
     }
 
-    private bool HasLegalMoves(Player player)
+    public bool HasLegalMoves(Player player)
     {
         return GetRuleSetForPlayer(player).HasLegalMoves(_moveWorker, player);
     }
@@ -153,22 +158,22 @@ public class Game {
     /// <summary>
     /// Decrements the number of moves remaining for the current player. If the player has no moves left, switches the player turn and resets the number of moves remaining.
     /// </summary>
-    private void DecrementPlayerMoves() {
+    public void DecrementPlayerMoves() {
         _playerMovesRemaining--;
         if (_playerMovesRemaining <= 0) {
-            _playerTurn = _playerTurn == Player.White ? Player.Black : Player.White;
+            PlayerTurn = PlayerTurn == Player.White ? Player.Black : Player.White;
             _playerMovesRemaining = _movesPerTurn;
         }
     }
 
     public string ExportStateAsJson()
     {
-        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, _playerTurn, GetLegalMoveDict());
+        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
     }
 
     public GameState ExportState()
     {
-        return GameExporter.ExportGameState(_moveWorker.Board, _playerTurn, GetLegalMoveDict());
+        return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
     }
 }
 
