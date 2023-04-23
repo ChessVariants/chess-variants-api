@@ -3,8 +3,8 @@ using ChessVariantsLogic;
 
 public class PieceValue
 {
-    private Dictionary<string, int> pieceValue;
-    private int jumpPatternValue = 2;
+    private Dictionary<string, double> pieceValue;
+    private double jumpPatternValue = 2.1;
     private int regularPatternValue = 1;
     private HashSet<Piece> pieces;
     private Chessboard _chessboard;
@@ -16,9 +16,9 @@ public class PieceValue
         _chessboard = chessboard;
         pieceValue = initPieces();
     }
-    public Dictionary<string, int> initStandardPieceValues()
+    public Dictionary<string, double> initStandardPieceValues()
     {
-        var dictionary = new Dictionary<string, int>();
+        var dictionary = new Dictionary<string, double>();
 
         dictionary.Add(Constants.WhitePawnIdentifier, 1);
         dictionary.Add(Constants.WhiteKnightIdentifier, 3);
@@ -39,29 +39,29 @@ public class PieceValue
         return dictionary;
     }
 
-    public Dictionary<string, int> initPieces()
+    public Dictionary<string, double> initPieces()
     {
-        var dictionary = new Dictionary<string, int>();
+        var dictionary = new Dictionary<string, double>();
 
         dictionary.Add(Constants.UnoccupiedSquareIdentifier, 0);
 
         foreach (var piece in pieces)
         {
-            int pieceValue = calculateMovementValue(piece) + calculateCaptureValue(piece);
+            double pieceValue = calculateMovementValue(piece) + calculateCaptureValue(piece);
             dictionary.Add(piece.PieceIdentifier, pieceValue);
         }
 
         return dictionary;
     }
 
-    public int getValue(string piece)
+    public double getValue(string piece)
     {
         return pieceValue[piece];
     }
 
-    private int calculateMovementValue(Piece piece)
+    private double calculateMovementValue(Piece piece)
     {
-        int value = 0;
+        double value = 0;
         int maxRow;
         int maxCol;;
         foreach (var pattern in piece.GetAllMovementPatterns())
@@ -84,7 +84,7 @@ public class PieceValue
             {
                 int minBoard = Math.Min(maxCol, maxRow);
                 int maxMoves = Math.Min(minBoard, pattern.MaxLength);
-                value +=  ((maxCol - pattern.MinLength) * (piece.Repeat + 1)*10/14);
+                value +=  ((maxMoves - pattern.MinLength) * (piece.Repeat + 1)*16.8/28);
             }
             
 
@@ -96,9 +96,9 @@ public class PieceValue
         return value;
     }
 
-    private int calculateCaptureValue(Piece piece)
+    private double calculateCaptureValue(Piece piece)
     {
-        int value = 0;
+        double value = 0;
         
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
