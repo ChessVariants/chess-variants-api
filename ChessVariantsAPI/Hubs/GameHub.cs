@@ -68,8 +68,7 @@ public class GameHub : Hub
         }
     }
 
-
-    public async Task<SetVariantDTO> SetGame(string gameId, string variantIdentifier)
+    public async Task SetGame(string gameId, string variantIdentifier)
     {
         try
         {
@@ -79,17 +78,14 @@ public class GameHub : Hub
             if (result == false)
             {
                 await Clients.Caller.SendGenericError($"Could not set game variant to {variantIdentifier}");
-                return new SetVariantDTO { Success = false, FailReason = $"Could not set game variant to {variantIdentifier}" };
             }
             await Clients.Groups(gameId).SendGameVariantSet(variantIdentifier);
             _logger.LogDebug("User <{user}> set game variant to {variant} for game <{gameid}> result: {bool}", user, variantIdentifier, gameId, result);
-            return new SetVariantDTO { Success = true };
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to create game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendGenericError(e.Message);
-            return new SetVariantDTO { Success = false, FailReason = e.Message };
         }
     }
 
@@ -123,7 +119,7 @@ public class GameHub : Hub
     /// <param name="gameId">The id for the game to join</param>
     /// <param name="variantIdentifier">What variant to create</param>
     /// <returns></returns
-    public async Task<SetVariantDTO> CreateGame(string gameId, string variantIdentifier)
+    public async Task CreateGame(string gameId, string variantIdentifier)
     {
         try
         {
@@ -132,13 +128,11 @@ public class GameHub : Hub
             Player createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
             await AddToGroup(user, gameId);
             await Clients.Caller.SendGameCreated(createdPlayer.AsString(), user);
-            return new SetVariantDTO { Success = true };
         }
         catch (OrganizerException e)
         {
             _logger.LogInformation("When trying to create game with id <{gameid}> the following error occured: {error}", gameId, e.Message);
             await Clients.Caller.SendGenericError(e.Message);
-            return new SetVariantDTO { Success = false, FailReason = e.Message };
         }
     }
 
