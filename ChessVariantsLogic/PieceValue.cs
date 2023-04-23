@@ -4,14 +4,16 @@ using ChessVariantsLogic;
 public class PieceValue
 {
     private Dictionary<string, int> pieceValue;
-    private int jumpPatternValue = 3;
+    private int jumpPatternValue = 2;
     private int regularPatternValue = 1;
     private HashSet<Piece> pieces;
+    private Chessboard _chessboard;
 
 
-    public PieceValue(HashSet<Piece> Pieces)
+    public PieceValue(HashSet<Piece> Pieces, Chessboard chessboard)
     {
         pieces = Pieces;
+        _chessboard = chessboard;
         pieceValue = initPieces();
     }
     public Dictionary<string, int> initStandardPieceValues()
@@ -60,16 +62,32 @@ public class PieceValue
     private int calculateMovementValue(Piece piece)
     {
         int value = 0;
+        int maxRow;
+        int maxCol;;
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
+            maxRow = Math.Min(_chessboard.Rows,pattern.MaxLength);
+            maxCol = Math.Min(_chessboard.Cols,pattern.MaxLength);
             if (pattern is JumpPattern)
             {
                 value += jumpPatternValue;
             }
-            if (pattern is RegularPattern)
+            else if (pattern is RegularPattern && pattern.XDir == 0)
             {
-                value += (pattern.MaxLength - pattern.MinLength) * (piece.Repeat + 1);
+                value += (maxCol - pattern.MinLength) * (piece.Repeat + 1);
             }
+            else if (pattern is RegularPattern && pattern.YDir == 0)
+            {
+                value += (maxRow - pattern.MinLength) * (piece.Repeat + 1);
+            }
+            else
+            {
+                int minBoard = Math.Min(maxCol, maxRow);
+                int maxMoves = Math.Min(minBoard, pattern.MaxLength);
+                value +=  ((maxCol - pattern.MinLength) * (piece.Repeat + 1)*10/14);
+            }
+            
+
         }
         if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
         {
@@ -81,6 +99,7 @@ public class PieceValue
     private int calculateCaptureValue(Piece piece)
     {
         int value = 0;
+        
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if (pattern is JumpPattern)

@@ -10,8 +10,9 @@ public class ChessEngineTests : IDisposable
 {
     private static List<Piece> pieces= new List<Piece>();
     private Game game;
+    private static Chessboard chessboard = new Chessboard(8,8);
     private MoveWorker moveWorker;
-    private static PieceValue pieceValue = new PieceValue(Piece.AllStandardPieces());
+    private static PieceValue pieceValue = new PieceValue(Piece.AllStandardPieces(), chessboard);
     private NegaMax negaMax= new NegaMax(pieceValue);
 
     public ChessEngineTests()
