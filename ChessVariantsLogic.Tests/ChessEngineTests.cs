@@ -17,7 +17,7 @@ public class ChessEngineTests : IDisposable
     public ChessEngineTests()
     {
         this.moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        this.game = GameFactory.StandardChess();
+        this.game = GameFactory.AntiChess();
     }
 
 
@@ -117,5 +117,20 @@ public class ChessEngineTests : IDisposable
         string moveFreePiece = "c7";
         Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
         Assert.Equal(moveFreePiece, bestMove.From);
+    }
+
+    [Fact ]
+    public void antiChess()
+    {
+        Move move1 = new Move("e2e4", PieceClassifier.WHITE);
+        Move move2 = new Move("b7b5", PieceClassifier.BLACK);
+        Move move3 = new Move("f1b5", PieceClassifier.WHITE);
+      
+       game.MoveWorker.PerformMove(move1);
+       game.MoveWorker.PerformMove(move2);
+       game.MoveWorker.PerformMove(move3);
+        string moveFreePiece = "h4";
+        Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
+        Assert.Equal(moveFreePiece, bestMove.To);
     }
 }

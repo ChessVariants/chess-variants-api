@@ -160,7 +160,7 @@ public class NegaMax
        
 
         
-        return score ;
+        return -score ;
     }
 
     public ISet<GameEvent> MakeAiMove(Game game, string moveCoordinates, Player? playerRequestingMove, IDictionary<string, Move> _legalMoves, Player _playerTurn)
