@@ -1,15 +1,9 @@
-namespace ChessVariantsLogic;
-
 using ChessVariantsLogic.Rules;
 using ChessVariantsLogic.Rules.Moves;
-using ChessVariantsLogic.Export;
-using ChessVariantsLogic;
 
+namespace ChessVariantsLogic.Engine;
 
-using System;
-using System.Collections.Generic;
-
-public class NegaMax
+public class NegaMax : IMoveFinder
 {
     private Move _nextMove;
     private const int WhiteToMove = 1;
@@ -131,7 +125,7 @@ public class NegaMax
                 var piece = moveWorker.Board.GetPieceIdentifier(row, col);
                 if (piece != null)
                 {
-                    score += _pieceValue.getValue(piece);
+                    score += _pieceValue.GetValue(piece);
                 }
             }
         }
@@ -230,6 +224,6 @@ public class NegaMax
         _legalMovesLog.Push(legalMoves);
         return legalMoves;
     }
-
-
 }
+
+

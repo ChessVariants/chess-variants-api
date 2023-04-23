@@ -1,18 +1,18 @@
 using ChessVariantsLogic.Rules.Moves;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
+using ChessVariantsLogic.Engine;
 
 namespace ChessVariantsLogic.Tests;
 
 public class ChessEngineTests : IDisposable
 {
-    private static List<Piece> pieces= new List<Piece>();
+    private static List<Piece> pieces = new List<Piece>();
     private Game game;
     private MoveWorker moveWorker;
     private static PieceValue pieceValue = new PieceValue(Piece.AllStandardPieces());
-    private NegaMax negaMax= new NegaMax(pieceValue);
+    private NegaMax negaMax = new NegaMax(pieceValue);
 
     public ChessEngineTests()
     {
@@ -32,7 +32,7 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string from = "a3";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
+        Move bestMove = negaMax.FindBestMove(3, game, Player.Black);
         Assert.Equal(from, bestMove.From);
     }
 
@@ -41,37 +41,37 @@ public class ChessEngineTests : IDisposable
     {
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3, game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
-    [Fact ]
+    [Fact]
     public void NegaMaxDoesNotTakeDefendedPawnWithKnigt()
     {
         game.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "a3");
         game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d6");
         game.MoveWorker.InsertOnBoard(Piece.Knight(PieceClassifier.WHITE), "b2");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3, game, Player.White);
         Assert.NotEqual(moveFreePiece, bestMove.To);
     }
 
-    [Fact ]
+    [Fact]
     public void NegaMaxCheckMate()
     {
         Move move1 = new Move("g2g4", Piece.WhitePawn());
         Move move2 = new Move("e7e5", Piece.BlackPawn());
         Move move3 = new Move("f2f3", Piece.WhitePawn());
-      
+
         game.MoveWorker.PerformMove(move1);
         game.MoveWorker.PerformMove(move2);
         game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "h4";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.Black);
+        Move bestMove = negaMax.FindBestMove(3, game, Player.Black);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 
-    [Fact ]
+    [Fact]
     public void NegaMaxDefendsCheckMate()
     {
         Move move1 = new Move("g2g4", Piece.WhitePawn());
@@ -82,7 +82,7 @@ public class ChessEngineTests : IDisposable
         game.MoveWorker.PerformMove(move2);
         game.MoveWorker.PerformMove(move3);
         string moveFreePiece = "d3";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.White);
+        Move bestMove = negaMax.FindBestMove(3, game, Player.White);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 }

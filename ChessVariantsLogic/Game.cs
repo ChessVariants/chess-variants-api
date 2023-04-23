@@ -6,6 +6,7 @@ using ChessVariantsLogic.Export;
 
 using System;
 using System.Collections.Generic;
+using ChessVariantsLogic.Engine;
 
 public class Game {
 
@@ -15,6 +16,7 @@ public class Game {
     private readonly int _movesPerTurn;
     protected readonly RuleSet _whiteRules;
     protected readonly RuleSet _blackRules;
+    private AIPlayer? _ai;
     
 
     public MoveWorker MoveWorker
@@ -29,12 +31,13 @@ public class Game {
     {
         get { return _blackRules; }
     }
+    public bool ActiveAI => _ai != null;
 
     public IDictionary<string, Move> LegalMoves;
 
     
 
-    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules)
+    public Game(MoveWorker moveWorker, Player playerToStart, int movesPerTurn, RuleSet whiteRules, RuleSet blackRules, AIPlayer? ai=null)
     {
         _moveWorker = moveWorker;
         PlayerTurn = playerToStart;
@@ -43,8 +46,6 @@ public class Game {
         _blackRules = blackRules;
         LegalMoves = GetRuleSetForPlayer(PlayerTurn).GetLegalMoves(_moveWorker, PlayerTurn);
     }
-    
-    
 
     /// <summary>
     /// Checks whether the given <paramref name="playerRequestingMove"/> is the one to move and if the move requested to be made is a legal move.
@@ -100,6 +101,27 @@ public class Game {
 
         return events;
     }
+
+    public void AssignAI(AIPlayer ai)
+    {
+        _ai = ai;
+    }
+
+    public ISet<GameEvent> MakeAIMove()
+    {
+        if (_ai == null)
+        {
+            throw new InvalidOperationException("Unable to make AI move as there is no AI assigned to this game.");
+        }
+        var bestMove = _ai.SearchMove(this);
+        return MakeMove(bestMove.FromTo, _ai.PlayingAs);
+    }
+
+    public bool AIShouldMakeMove()
+    {
+        return _ai != null && PlayerTurn == _ai.PlayingAs;
+    }
+
     public Dictionary<string, List<string>> GetLegalMoveDict()
     {
         var moveDict = new Dictionary<string, List<string>>();
