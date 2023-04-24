@@ -43,7 +43,7 @@ public class Perft : Game
             _moveWorker.StateLog.Push(boardTmp);
             _moveWorker.PerformMove(move);
             PerftTest(depth - 1, turn);
-            _moveWorker.undoMove();
+            _moveWorker.UndoMove();
         }
         return;
     }

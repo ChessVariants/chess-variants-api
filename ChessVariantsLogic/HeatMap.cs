@@ -2,38 +2,37 @@ namespace ChessVariantsLogic;
 
 public class HeatMap
 {
-    private int rows;
-    private int cols;
-
-    private double[,] heatMap;
+    private int _rows;
+    private int _cols;
+    private int _mapWeight = 2;
+    private double[,] _heatMap;
 
     public HeatMap(int Rows, int Cols)
     {
-        rows = Rows;
-        cols = Cols;
-        heatMap = new double[Rows,Cols];
-        initHeatMap(2);
-        printMatrix(heatMap);
+        _rows = Rows;
+        _cols = Cols;
+        _heatMap = new double[Rows,Cols];
+        InitHeatMap(_mapWeight);
     }
 
 
-    private void initHeatMap(double weight)
+    private void InitHeatMap(double weight)
     {
-        int rowabc = rows/4;
-        int colabc = cols/4;
-        int min = Math.Min(rows,cols);
+        int rowabc = _rows/4;
+        int colabc = _cols/4;
+        int min = Math.Min(_rows,_cols);
      
         double value = weight /4;
         int index = 2;
         while (index <=min)
         {
-            for (int row = index; row < rows; row++)
+            for (int row = index; row < _rows; row++)
             {
-                for (int col = index; col < cols; col++)
+                for (int col = index; col < _cols; col++)
                 {
-                    if (col >= index && col <= cols - (index + 1) &&(row >= index && row <= rows - (index + 1)))
+                    if (col >= index && col <= _cols - (index + 1) &&(row >= index && row <= _rows - (index + 1)))
                     {
-                        heatMap[row, col] += value;
+                        _heatMap[row, col] += value;
                     }
                     
                 }
@@ -45,19 +44,21 @@ public class HeatMap
 
     public double GetValue(int row, int col)
     {
-        return heatMap[row, col];
+        return _heatMap[row, col];
     }
 
-   
-        static void printMatrix(double[,] m)
+
+    static void PrintMatrix(double[,] m)
+    {
+        for (int i = 0; i < m.GetLength(0); i++)
         {
-            for(int i = 0; i < m.GetLength(0); i++){
-                for(int j = 0; j < m.GetLength(1); j++){
-                    Console.Write("{0} ", m[i,j]);
-                }
-                Console.WriteLine();
+            for (int j = 0; j < m.GetLength(1); j++)
+            {
+                Console.Write("{0} ", m[i, j]);
             }
+            Console.WriteLine();
         }
+    }
 
     
 }

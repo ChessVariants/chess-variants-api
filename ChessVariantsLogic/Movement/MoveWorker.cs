@@ -711,7 +711,7 @@ public class MoveWorker
         }
         return capturemoves;
     }
-    public void undoMove()
+    public void UndoMove()
     {
         if(stateLog.Count() != 0)
         {

@@ -23,13 +23,13 @@ public class NegaMax
     private bool _blackWon = false;
     private bool _whiteWon = false;
     private bool _draw = false;
-    private Stack<IDictionary<string,Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
+    private Stack<IDictionary<string, Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
 
     private PieceValue _pieceValue;
     public NegaMax(PieceValue pieceValue)
     {
         _pieceValue = pieceValue;
-        
+
     }
     private HeatMap _heatMap;
 
@@ -45,10 +45,10 @@ public class NegaMax
     public Move FindBestMove(int depth, Game game, Player player)
     {
         int turnMultiplier;
-        _heatMap = new HeatMap(game.MoveWorker.Board.Rows,game.MoveWorker.Board.Rows);
+        _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
         var tmp_legalMoves = game._legalMoves;
         var tmp_playerTurn = game._playerTurn;
-        
+
         if (player.Equals(Player.White))
         {
             turnMultiplier = _whiteToMove;
@@ -59,7 +59,7 @@ public class NegaMax
             turnMultiplier = _blackToMove;
             game._playerTurn = Player.Black;
         }
-        negaMax(depth, turnMultiplier, depth, _alpha, _beta, game);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game);
 
         game._legalMoves = tmp_legalMoves;
         game._playerTurn = tmp_playerTurn;
@@ -72,7 +72,7 @@ public class NegaMax
 
 
 
-    private double negaMax(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game)
     {
         if (currentDepth == 0)
         {
@@ -81,26 +81,22 @@ public class NegaMax
 
         double max = -100000;
 
-        updatePlayerTurn(game, turnMultiplier);
+        UpdatePlayerTurn(game, turnMultiplier);
 
         var validMoves = game._legalMoves.Values;
 
         List<Move> L = validMoves.ToList();
-        
-        GenerateRandomLoop(L);
 
-        
-
-        
+        Shuffle(L);
 
         foreach (var move in L)
         {
-            var legalMoves = saveGameState(game);
+            var legalMoves = SaveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game._playerTurn, legalMoves, game._playerTurn);
 
-            updatePlayerVictory(events);
+            UpdatePlayerVictory(events);
 
-            _score = -negaMax(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
+            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
 
             if (_score > max)
             {
@@ -110,7 +106,7 @@ public class NegaMax
                     _nextMove = move;
                 }
             }
-            game.MoveWorker.undoMove();
+            game.MoveWorker.UndoMove();
             game._legalMoves = _legalMovesLog.Pop();
             if (_score > alpha)
                 alpha = _score;
@@ -147,20 +143,20 @@ public class NegaMax
                 if (piece != null && piece != "--")
                 {
                     score += _pieceValue.getValue(piece);
-                    
-                    if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.WHITE))
-                        score += _heatMap.GetValue(row,col);
-                    if(moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.BLACK))
-                        score -= _heatMap.GetValue(row,col);
+
+                    if (moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.WHITE))
+                        score += _heatMap.GetValue(row, col);
+                    if (moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.BLACK))
+                        score -= _heatMap.GetValue(row, col);
                 }
             }
         }
 
         double numberOfThreats = moveWorker.GetAllThreatMoves(Player.White).Count() - moveWorker.GetAllThreatMoves(Player.Black).Count();
-       
 
-        
-        return -score ;
+
+
+        return -score;
     }
 
     public ISet<GameEvent> MakeAiMove(Game game, string moveCoordinates, Player? playerRequestingMove, IDictionary<string, Move> _legalMoves, Player _playerTurn)
@@ -198,39 +194,39 @@ public class NegaMax
         return events;
     }
 
-    private bool hasWhiteWon(ISet<GameEvent> events)
+    private bool HasWhiteWon(ISet<GameEvent> events)
     {
         return events.Contains(GameEvent.WhiteWon);
     }
 
-    private bool hasBlackWon(ISet<GameEvent> events)
+    private bool HasBlackWon(ISet<GameEvent> events)
     {
         return events.Contains(GameEvent.BlackWon);
     }
 
-    private bool hasDrawn(ISet<GameEvent> events)
+    private bool HasDrawn(ISet<GameEvent> events)
     {
         return events.Contains(GameEvent.Tie);
     }
 
-    private void updatePlayerVictory(ISet<GameEvent> events)
+    private void UpdatePlayerVictory(ISet<GameEvent> events)
     {
-        
-        if (hasWhiteWon(events))
-            {
-                _whiteWon = true;
-            }
-            if (hasBlackWon(events))
-            {
-                _blackWon = true;
-            }
-            if (hasDrawn(events))
-            {
-                _draw = true;
-            }
+
+        if (HasWhiteWon(events))
+        {
+            _whiteWon = true;
+        }
+        if (HasBlackWon(events))
+        {
+            _blackWon = true;
+        }
+        if (HasDrawn(events))
+        {
+            _draw = true;
+        }
     }
 
-    private void updatePlayerTurn(Game game, int turnMultiplier)
+    private void UpdatePlayerTurn(Game game, int turnMultiplier)
     {
         if (turnMultiplier == _whiteToMove)
         {
@@ -244,7 +240,7 @@ public class NegaMax
         }
     }
 
-    private Dictionary<string, Move> saveGameState(Game game)
+    private Dictionary<string, Move> SaveGameState(Game game)
     {
         var boardTmp = game.MoveWorker.Board.CopyBoard();
         game.MoveWorker.StateLog.Push(boardTmp);
@@ -256,7 +252,7 @@ public class NegaMax
         return legalMoves;
     }
 
-    public List<Move> GenerateRandomLoop(List<Move> listToShuffle)
+    public List<Move> Shuffle(List<Move> listToShuffle)
     {
         _rand = new Random();
         for (int i = listToShuffle.Count - 1; i > 0; i--)
@@ -269,5 +265,5 @@ public class NegaMax
 
         return listToShuffle;
     }
-    
+
 }
