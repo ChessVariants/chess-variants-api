@@ -42,7 +42,7 @@ public class NegaMax
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move FindBestMove(int depth, Game game, Player player)
+    public Move FindBestMove(int depth, Game game, Player player, ScoreVariant scoreVariant)
     {
         int turnMultiplier;
         _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
@@ -59,7 +59,7 @@ public class NegaMax
             turnMultiplier = _blackToMove;
             game._playerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant);
 
         game._legalMoves = tmp_legalMoves;
         game._playerTurn = tmp_playerTurn;
@@ -72,11 +72,11 @@ public class NegaMax
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant)
     {
         if (currentDepth == 0)
         {
-            return turnMultiplier * ScoreBoard(game.MoveWorker, game._playerTurn);
+            return turnMultiplier * ScoreBoard(game.MoveWorker, game._playerTurn, scoreVariant);
         }
 
         double max = -100000;
@@ -96,7 +96,7 @@ public class NegaMax
 
             UpdatePlayerVictory(events);
 
-            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
+            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant);
 
             if (_score > max)
             {
@@ -116,7 +116,7 @@ public class NegaMax
         return max;
     }
 
-    public double ScoreBoard(MoveWorker moveWorker, Player player)
+    public double ScoreBoard(MoveWorker moveWorker, Player player, ScoreVariant scoreVariant)
     {
         double score = 0;
         if (_blackWon)
@@ -154,9 +154,10 @@ public class NegaMax
 
         double numberOfThreats = moveWorker.GetAllThreatMoves(Player.White).Count() - moveWorker.GetAllThreatMoves(Player.Black).Count();
 
+        if (scoreVariant.Equals(ScoreVariant.AntiChess))
+            score = -score;
 
-
-        return -score;
+        return score;
     }
 
     public ISet<GameEvent> MakeAiMove(Game game, string moveCoordinates, Player? playerRequestingMove, IDictionary<string, Move> _legalMoves, Player _playerTurn)
@@ -266,4 +267,11 @@ public class NegaMax
         return listToShuffle;
     }
 
+    
+
 }
+public enum ScoreVariant
+    {
+        AntiChess,
+        RegularChess
+    }
