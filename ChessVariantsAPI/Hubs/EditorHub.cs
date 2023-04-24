@@ -93,5 +93,18 @@ public class EditorHub : Hub
         await UpdateEditorState();
     }
 
+    public async Task ClearMovementPatterns()
+    {
+        _organizer.RemoveAllMovementPatterns();
+        await UpdatePatternState();
+        await UpdateEditorState();
+    }
+
+    public async Task ResetPiece()
+    {
+        _organizer.Reset();
+        await UpdatePatternState();
+        await UpdateEditorState();
+    }
 
 }

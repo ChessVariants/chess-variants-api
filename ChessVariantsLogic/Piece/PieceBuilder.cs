@@ -200,6 +200,10 @@ public class PieceBuilder
         return this.movementPattern.RemovePattern(pattern);
     }
 
+    public void RemoveAllMovementPatterns() { movementPattern = new MovementPattern(); }
+
+    public void RemoveAllCapturePatterns() { capturePattern = new MovementPattern(); }
+
     /// <summary>
     /// Adds a regular pattern to the allowed capture patterns. 
     /// </summary>

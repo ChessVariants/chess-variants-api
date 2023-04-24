@@ -155,6 +155,14 @@ public class PieceEditor
 
     }
 
+    public void RemoveAllMovementPatterns()
+    { 
+        if(_showMovement)
+            _builder.RemoveAllMovementPatterns();
+        else
+            _builder.RemoveAllCapturePatterns();
+    }
+
     /// <summary>
     /// Sets the player that the piece should belong to, i.e. "white", "black", or "shared".
     /// </summary>

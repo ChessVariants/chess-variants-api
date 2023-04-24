@@ -15,6 +15,8 @@ public class EditorOrganizer
         _pieceEditor = new PieceEditor();
     }
 
+    public void RemoveAllMovementPatterns() { _pieceEditor.RemoveAllMovementPatterns(); }
+
     public void ShowMovement(bool enable) { _pieceEditor.ShowMovement(enable); }
 
     public void SetBoardSize(int rows, int cols) { _pieceEditor.UpdateBoardSize(rows, cols); }
