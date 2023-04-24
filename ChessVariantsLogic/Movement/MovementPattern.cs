@@ -5,7 +5,7 @@ namespace ChessVariantsLogic;
 /// </summary>
 public class MovementPattern
 {
-    private readonly List<Pattern> movement;
+    private readonly HashSet<Pattern> movement;
     public int Count { get { return this.movement.Count; } }
 
     /// <summary>
@@ -13,14 +13,14 @@ public class MovementPattern
     /// that corresponds to each other should have the same index.
     /// </summary>
     /// <param name="movement">is a list of all allowed movements.</param>
-    public MovementPattern(List<Pattern> movement)
+    public MovementPattern(HashSet<Pattern> movement)
     {
         this.movement = movement;
     }
 
     public MovementPattern()
     {
-        this.movement = new List<Pattern>();
+        this.movement = new HashSet<Pattern>();
     }
 
     /// <summary>
@@ -52,24 +52,6 @@ public class MovementPattern
     public bool RemovePattern(Pattern pattern)
     {
         return this.movement.Remove(pattern);
-    }
-
-    public void RemoveLast()
-    {
-        if(this.movement.Count > 0)
-            this.movement.RemoveAt(this.movement.Count - 1);
-    }
-
-    /// <summary>
-    /// Gets a pattern at a specific index.
-    /// </summary>
-    /// <param name="index"> is the index where the pattern is fetched from.</param>
-    /// <returns>the IPattern at index <paramref name="index"/> if the index is valid, otherwise null.</returns>
-    public Pattern? GetPattern(int index)
-    {
-        if(index >= 0 && index < this.movement.Count)
-            return this.movement[index];
-        return null;
     }
 
 }

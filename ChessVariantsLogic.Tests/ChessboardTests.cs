@@ -16,6 +16,7 @@ public class ChessboardTests : IDisposable
     private const string customPieceNotation = "CA";
 
     private Perft perft;
+   
     
 
     public ChessboardTests()
@@ -257,7 +258,7 @@ public class ChessboardTests : IDisposable
     {
         moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North,     1, 3),
             new RegularPattern(Constants.NorthEast, 1, 1),
             new RegularPattern(Constants.SouthEast, 2, 2),
@@ -295,7 +296,7 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
@@ -338,7 +339,7 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
-        Move move = new Move("e2e3", PieceClassifier.WHITE);
+        Move move = new Move("e2e3", Piece.WhitePawn());
         
         var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
         moveWorker.PerformMove(move);
@@ -358,10 +359,10 @@ public class ChessboardTests : IDisposable
     public void MoveLogCorrectlySavesAllMoves()
     {
         var moves = new List<Move> {
-            new Move("h2h3", PieceClassifier.WHITE),
-            new Move("h3h4", PieceClassifier.WHITE),
-            new Move("h1h3", PieceClassifier.WHITE),
-            new Move("h3e3", PieceClassifier.WHITE),
+            new Move("h2h3", Piece.WhitePawn()),
+            new Move("h3h4", Piece.WhitePawn()),
+            new Move("h1h3", Piece.WhitePawn()),
+            new Move("h3e3", Piece.WhitePawn()  ),
         };
 
         foreach (var move in moves)
@@ -377,14 +378,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MovesLikeRook_capturesLikeBishop()
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new RegularPattern(Constants.East,  1, 8),
             new RegularPattern(Constants.South, 1, 8),
             new RegularPattern(Constants.West,  1, 8),
         };
 
-        var capturePatterns = new List<Pattern> {
+        var capturePatterns = new HashSet<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
@@ -410,14 +411,14 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void MoveLikeBishop_captureLikeKnight()
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.NorthEast, 1, 8),
             new RegularPattern(Constants.SouthEast, 1, 8),
             new RegularPattern(Constants.SouthWest, 1, 8),
             new RegularPattern(Constants.NorthWest, 1, 8),
         };
 
-        var capturePattern = new List<Pattern> {
+        var capturePattern = new HashSet<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -449,7 +450,7 @@ public class ChessboardTests : IDisposable
     {
         this.moveWorker.Board = new Chessboard(8);
 
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new JumpPattern( 1, 2),
             new JumpPattern( 2, 1),
             new JumpPattern( 1,-2),
@@ -460,7 +461,7 @@ public class ChessboardTests : IDisposable
             new JumpPattern(-2,-1),
         };
         
-        var capturePatterns = new List<Pattern> {
+        var capturePatterns = new HashSet<Pattern> {
             new JumpPattern( 3, 1),
             new JumpPattern( 1, 3),
             new JumpPattern(-1, 3),
@@ -493,4 +494,6 @@ public class ChessboardTests : IDisposable
        this.perft.PerftTest( 5, Player.White);
        Assert.Equal(4865609, perft.Nodes);
     }
+
+    
 }

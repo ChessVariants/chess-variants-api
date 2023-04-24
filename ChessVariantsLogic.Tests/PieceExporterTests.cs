@@ -48,7 +48,7 @@ public class PieceExporterTests
     [Fact]
     public void ExportCustomPieceWithBothJumpAndRegularMovement_MovementShouldRemainSame()
     {
-        var patterns = new List<Pattern> {
+        var patterns = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new JumpPattern(1, 2),
         };
@@ -64,13 +64,13 @@ public class PieceExporterTests
     [Fact]
     public void SeparateMovementAndCapture_MovementAndCaptureShouldRemainSeparate()
     {
-        var movements = new List<Pattern> {
+        var movements = new HashSet<Pattern> {
             new RegularPattern(Constants.North, 1, 8),
             new JumpPattern(1, 2),
         };
         var mp = new MovementPattern(movements);
 
-        var captures = new List<Pattern> {
+        var captures = new HashSet<Pattern> {
             new RegularPattern(Constants.West, 1, 8),
             new JumpPattern(3, 1),
         };

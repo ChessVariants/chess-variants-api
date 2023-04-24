@@ -9,6 +9,9 @@ namespace ChessVariantsLogic;
 public class PieceBuilder
 {
     private MovementPattern movementPattern;
+
+    public MovementPattern MovementPattern {get { return this.movementPattern; } }
+    public MovementPattern CapturePattern {get { return this.capturePattern; } }
     private MovementPattern capturePattern;
     private bool royal;
     private PieceClassifier pc;
@@ -95,6 +98,16 @@ public class PieceBuilder
         if(moveWorker.InsertOnBoard(dummyPiece, square))
             return moveWorker.GetAllValidMoves(Player.White);
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");
+    }
+
+    public Piece GetDummyPieceWithCurrentMovement()
+    {
+        return new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+    }
+
+    public Piece GetDummyPieceWithCurrentCaptures()
+    {
+        return new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
     }
 
     /// <summary>
@@ -260,6 +273,8 @@ public class PieceBuilder
     /// </summary>
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
+   
+    public bool HasSameMovementAndCapturePattern() { return sameCaptureAsMovement; }
 
     /// <summary>
     /// Set true if the piece can be captured, false if it can not. Is true from the preset.
@@ -289,7 +304,11 @@ public class PieceBuilder
     /// Set how many times the movement pattern can be repeated. Argument must be between 0 and 3.
     /// </summary>
     /// <param name="repeat">is the amount of times the movement pattern should be repeated.</param>
-    public void RepeatMovement(int repeat) { this.repeat = repeat; }
+    public void RepeatMovement(int repeat)
+    {
+        System.Console.WriteLine("repeat: " + repeat);
+        this.repeat = repeat; 
+    }
 
     /// <summary>
     /// Set true if the piece should be royal.

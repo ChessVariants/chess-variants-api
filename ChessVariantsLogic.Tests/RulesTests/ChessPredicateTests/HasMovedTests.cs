@@ -22,7 +22,7 @@ public class HasMovedTests
         toStr = "e3";
         from = new PositionAbsolute(fromStr);
         to = new PositionAbsolute(toStr);
-        Move move = new Move(fromStr + toStr, PieceClassifier.WHITE);
+        Move move = new Move(fromStr + toStr, Piece.WhitePawn());
 
         boardTransition = new BoardTransition(board, move);
     }

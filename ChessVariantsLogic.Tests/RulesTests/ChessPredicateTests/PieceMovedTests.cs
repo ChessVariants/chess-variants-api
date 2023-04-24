@@ -18,7 +18,7 @@ public class PieceMovedTests
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         fromStr = "e2";
         toStr = "e3";
-        Move move = new Move(fromStr + toStr, PieceClassifier.WHITE);
+        Move move = new Move(fromStr + toStr, Piece.WhitePawn());
         boardTransition = new BoardTransition(board, move);
     }
 

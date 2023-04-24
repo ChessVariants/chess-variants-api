@@ -14,7 +14,7 @@ public class PiecesLeftTests : IDisposable {
     public PiecesLeftTests()
     {
         board = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        boardTransition = new BoardTransition(board, new Move("a1a1", PieceClassifier.WHITE));
+        boardTransition = new BoardTransition(board, new Move("a1a1", Piece.WhitePawn()));
     }
 
     public void Dispose()
@@ -79,14 +79,14 @@ public class PiecesLeftTests : IDisposable {
     [Fact]
     public void StandardChessAnyBlack_ShouldReturnTrue()
     {
-        IPredicate sixteenBlackPieces = new PiecesLeft("ANY_BLACK", Comparator.EQUALS, 16, BoardState.THIS);
+        IPredicate sixteenBlackPieces = new PiecesLeft("BLACK", Comparator.EQUALS, 16, BoardState.THIS);
         Assert.True(sixteenBlackPieces.Evaluate(boardTransition));
     }
 
     [Fact]
     public void StandardChessAnyWhite_ShouldReturnTrue()
     {
-        IPredicate sixteenWhitePieces = new PiecesLeft("ANY_WHITE", Comparator.EQUALS, 16, BoardState.THIS);
+        IPredicate sixteenWhitePieces = new PiecesLeft("WHITE", Comparator.EQUALS, 16, BoardState.THIS);
         Assert.True(sixteenWhitePieces.Evaluate(boardTransition));
     }
 }

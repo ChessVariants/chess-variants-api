@@ -10,32 +10,79 @@ public class PieceEditor
 
     private readonly PieceBuilder _builder;
     private Piece? _piece;
+    private MoveWorker _moveWorker;
+    
+    private Piece _dummy;
+    private string _square;
+
+    private bool _showMovement;
 
     public PieceEditor()
     {
-        this._builder = new PieceBuilder();
+        _builder = new PieceBuilder();
+        _moveWorker = new MoveWorker(new Chessboard(8));
+        _square = "e4";
+        _dummy = _builder.GetDummyPieceWithCurrentMovement();
+        _showMovement = true;
+
+        _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
-    /// <summary>
-    /// Returns a string in json-format of all valid moves from the current state of the builder.
-    /// </summary>
-    /// <param name="square">is the square on which the moves are calculated.</param>
-    /// <returns>A json-string of all valid moves.</returns>
-    public string GetAllCurrentlyValidMovesFromSquareAsJson(string square)
+    public void ShowMovement(bool enable) { _showMovement = enable; }
+
+    public EditorState GetCurrentState()
     {
-        var moves = _builder.GetAllCurrentlyValidMovesFromSquare(square);
-        return PieceExporter.ExportLegalMovesAsJson(moves);
+        if(_showMovement)
+            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+        else
+            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
     }
 
-    /// <summary>
-    /// Returns a string in json-format of all valid capture-moves from the current state of the builder.
-    /// </summary>
-    /// <param name="square">is the square on which the capture-moves are calculated.</param>
-    /// <returns>A json-string of all valid capture-moves.</returns>
-    public string GetAllCurrentlyValidCapturesFromSquareAsJson(string square)
+    public PatternState GetCurrentPatternState()
     {
-        var moves = _builder.GetAllCurrentlyValidCaptureMovesFromSquare(square);
-        return PieceExporter.ExportLegalMovesAsJson(moves);
+        if(_showMovement)
+            return EditorExporter.ExportPatternState(_builder.MovementPattern);
+        else
+            return EditorExporter.ExportPatternState(_builder.CapturePattern);
+    }
+
+    public void UpdateBoardSize(int row, int col)
+    {
+        SetActiveSquare("a1"); // Moves the dummy piece to a1 in case the piece stands on a square not present on the new board.
+        _moveWorker.Board = new Chessboard(row, col);
+    }
+
+    public void SetActiveSquare(string square)
+    {
+        _moveWorker.RemoveFromBoard(_square);
+        _square = square;
+        _moveWorker.InsertOnBoard(_dummy, _square);
+    }
+
+    /// <summary>   
+    /// Genereates all valid moves from the current state of the builder.
+    /// </summary>
+    /// <param name="square">is the square where the piece should be inserted on.</param>
+    /// <returns>A HashSet of all the currently valid moves from the square <paramref name="square"/>.</returns>
+    public HashSet<string> GetAllCurrentlyValidMoves()
+    {
+        _dummy = _builder.GetDummyPieceWithCurrentMovement();
+        if(_moveWorker.InsertOnBoard(_dummy, _square))
+            return _moveWorker.GetAllValidMoves(Player.White);
+        throw new ArgumentException("Invalid square.");
+    }
+
+    public HashSet<string> GetAllCurrentlyValidCaptures()
+    {
+        if(_builder.HasSameMovementAndCapturePattern())
+            return GetAllCurrentlyValidMoves();
+        _dummy = _builder.GetDummyPieceWithCurrentCaptures(); // Does not work due to pieces being saved by their classifiers when looking up their movement pattern.
+        if(_moveWorker.InsertOnBoard(_dummy, _square))
+        {
+            var test = _moveWorker.GetAllValidMoves(Player.White);
+            return test;
+        }
+        throw new ArgumentException("Invalid square.");
     }
 
     /// <summary>
@@ -77,39 +124,35 @@ public class PieceEditor
     /// <param name="maxLength">is the maximum length.</param>
     public EditorEvent RemoveMovementPattern(int xDir, int yDir, int minLength, int maxLength)
     {
-        if(minLength < 0)
+        if (_showMovement)
         {
-            if(_builder.RemoveJumpMovementPattern(xDir, yDir))
-                return EditorEvent.Success;
+            if (minLength < 0)
+            {
+                if (_builder.RemoveJumpMovementPattern(xDir, yDir))
+                    return EditorEvent.Success;
+            }
+            else
+            {
+                if (_builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength))
+                    return EditorEvent.Success;
+            }
+            return EditorEvent.NoPatternRemoved;
         }
         else
         {
-            if(_builder.RemoveMovementPattern(xDir, yDir, minLength, maxLength))
-                return EditorEvent.Success;
+            if (minLength < 0)
+            {
+                if (_builder.RemoveJumpCapturePattern(xDir, yDir))
+                    return EditorEvent.Success;
+            }
+            else
+            {
+                if (_builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength))
+                    return EditorEvent.Success;
+            }
+            return EditorEvent.NoPatternRemoved;
         }
-        return EditorEvent.NoPatternRemoved;
-    }
 
-    /// <summary>
-    /// Removes a pattern to the set of currently allowed captures. 
-    /// </summary>
-    /// <param name="xDir">is the direction on the x-axis.</param>
-    /// <param name="yDir">is the direction on the y-axis.</param>
-    /// <param name="minLength">is the minimum length.</param>
-    /// <param name="maxLength">is the maximum length.</param>
-    public EditorEvent RemoveCapturePattern(int xDir, int yDir, int minLength, int maxLength)
-    {
-        if(minLength < 0)
-        {
-            if(_builder.RemoveJumpCapturePattern(xDir, yDir))
-                return EditorEvent.Success;
-        }
-        else
-        {
-            if(_builder.RemoveCapturePattern(xDir, yDir, minLength, maxLength))
-                return EditorEvent.Success;
-        }
-        return EditorEvent.NoPatternRemoved;
     }
 
     /// <summary>

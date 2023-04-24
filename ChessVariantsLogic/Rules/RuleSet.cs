@@ -41,7 +41,7 @@ public class RuleSet
 
             var pieceIdentifier = board.Board.GetPieceIdentifier(from);
 
-            Move move = new Move(moveCoordinates, board.GetPieceClassifier(pieceIdentifier));
+            Move move = new Move(moveCoordinates, board.GetPieceFromIdentifier(pieceIdentifier));
             BoardTransition transition = new BoardTransition(board, move, _events);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
@@ -80,7 +80,7 @@ public class RuleSet
 
             var pieceIdentifier = board.Board.GetPieceIdentifier(from);
 
-            Move move = new Move(moveCoordinates, board.GetPieceClassifier(pieceIdentifier));
+            Move move = new Move(moveCoordinates, board.GetPieceFromIdentifier(pieceIdentifier));
             BoardTransition transition = new BoardTransition(board, move, _events);
 
             bool ruleSatisfied = _moveRule.Evaluate(transition);
