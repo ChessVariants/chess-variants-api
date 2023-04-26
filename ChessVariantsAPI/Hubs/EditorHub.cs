@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
 using ChessVariantsLogic.Export;
-using ChessVariantsAPI.Hubs.DTOs;
-using static ChessVariantsAPI.Hubs.GameHub;
-using ChessVariantsAPI.GameOrganization;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -10,14 +7,12 @@ public class EditorHub : Hub
 {
 
     private readonly EditorOrganizer _organizer;
-    private readonly GroupOrganizer _groupOrganizer;
     readonly protected ILogger _logger;
 
-    public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger, GroupOrganizer groupOrganizer)
+    public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger)
     {
         _organizer = organizer;
         _logger = logger;
-        _groupOrganizer = groupOrganizer;
     }
 
     public async Task CreateEditor(string editorId)
@@ -25,17 +20,6 @@ public class EditorHub : Hub
         _organizer.CreateEditor(editorId);
         await UpdateEditorState(editorId);
         await UpdatePatternState(editorId);
-    }
-
-    private string GetUsername()
-    {
-        var username = Context.GetUsername(); // returns null for some reason.
-        if (username == null)
-        {
-            _logger.LogInformation("Unauthenticated request by connection: {connId}", Context.ConnectionId);
-            throw new AuthenticationError(Events.Errors.UnauthenticatedRequest);
-        }
-        return username;
     }
 
     public EditorState RequestState(string editorId) { return _organizer.GetCurrentState(editorId); }

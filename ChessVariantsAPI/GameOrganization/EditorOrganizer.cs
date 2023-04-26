@@ -30,7 +30,7 @@ public class EditorOrganizer
         var editor = _activeEditors.GetValueOrDefault(editorId, null);
         if (editor != null)
         {
-            throw new OrganizerException($"The game (id: {editorId}) you're trying to create already exists");
+            throw new OrganizerException($"The editor (id: {editorId}) you're trying to create already exists");
         }
     }
 
@@ -39,7 +39,7 @@ public class EditorOrganizer
         var editor = _activeEditors.GetValueOrDefault(editorId, null);
         if (editor == null)
         {
-            throw new EditorNotFoundException($"No active game for gameId: {editorId}");
+            throw new EditorNotFoundException($"No active editor for editorId: {editorId}");
         }
         return editor;
     }
