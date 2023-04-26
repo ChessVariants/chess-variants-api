@@ -23,7 +23,7 @@ public class GameNotFoundException : OrganizerException
 /// </summary>
 public class EditorNotFoundException : OrganizerException
 {
-    public EditorNotFoundException() : base("The game you were looking for does not exist") { }
+    public EditorNotFoundException() : base("The editor you were looking for does not exist") { }
     public EditorNotFoundException(string message) : base(message) { }
 }
 

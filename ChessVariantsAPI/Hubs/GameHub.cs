@@ -328,7 +328,7 @@ public class GameHub : Hub
     }
 
 
-    public class AuthenticationError : Exception
+    private class AuthenticationError : Exception
     {
         public string ErrorType { get; }
         public AuthenticationError(string errorType)
