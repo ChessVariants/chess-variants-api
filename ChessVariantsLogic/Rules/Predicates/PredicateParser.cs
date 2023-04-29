@@ -634,7 +634,7 @@ public class PredicateParser
         StringBuilder stringBuilder = new StringBuilder();
         foreach (char c in input)
         {
-            if (c.Equals(' ') || c.Equals('\r'))
+            if (c.Equals(' ') || c.Equals('\r') || c.Equals('\t'))
                 continue;
             else
                 stringBuilder.Append(c);
