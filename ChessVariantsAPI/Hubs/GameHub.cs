@@ -68,7 +68,6 @@ public class GameHub : Hub
         }
     }
 
-
     public async Task<SetVariantDTO> SetGame(string gameId, string variantIdentifier)
     {
         try
