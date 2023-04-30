@@ -28,21 +28,21 @@ public class PredicateParserTests
     }
 
     [Fact]
-    public void ConstTrue_shouldBeEqual()
+    public void ConstTrue_ShouldBeEqual()
     {
         var pred = new Const(true);
 
         Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(pp.ParsePredicate("true")));
     }
     [Fact]
-    public void ConstFalse_shouldBeEqual()
+    public void ConstFalse_ShouldBeEqual()
     {
         var pred = new Const(false);
 
         Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(pp.ParsePredicate("false")));
     }
     [Fact]
-    public void And_shouldBeEqual()
+    public void And_ShouldBeEqual()
     {
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
@@ -53,7 +53,7 @@ public class PredicateParserTests
         Assert.Equal(JsonConvert.SerializeObject((tru & tru)), JsonConvert.SerializeObject(pp.ParsePredicate("AND(true, true)")));
     }
     [Fact]
-    public void And_shouldBeEqualNested()
+    public void And_ShouldBeEqualNested()
     {
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
@@ -61,46 +61,59 @@ public class PredicateParserTests
         Assert.Equal(JsonConvert.SerializeObject((tru & (fals | (tru & (fals | tru))))), JsonConvert.SerializeObject(pp.ParsePredicate("AND(true, OR(false, AND(true, OR(false, true))))")));
     }
     [Fact]
-    public void PawnMoved_shouldBeEqual()
+    public void PawnMoved_ShouldBeEqual()
     {
         IPredicate pawnMoved = new PieceMoved("PA");
 
-        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_pred(this_move, piece_moved, PA)")));
+        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_piece_is(this_move, PA)")));
     }
     [Fact]
-    public void StandardChessMoveRule_shouldBeEqual()
+    public void StandardChessMoveRule_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_pred(next_state, attacked, KI))")));
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_attacked(next_state, KI))")));
     }
 
     [Fact]
-    public void StandardChessMoveRuleScript_shouldBeEqual()
+    public void CountPred_ShouldBeEqual()
+    {
+        IPredicate countPred = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("count_pieces_with_id(next_state, KI, equals, 0)")));
+    }
+    [Fact]
+    public void FilePred_ShouldBeEqual()
+    {
+        IPredicate countPred = new SquareHasFile(new PositionRelative(0, 1, RelativeTo.FROM), 1);
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("square_has_file(relative(0, 1, from), 1)")));
+    }
+
+    [Fact]
+    public void StandardChessMoveRuleScript_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
         Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
             "x=bi\n" +
             "white_king = KI\n\n" +
-            "white_king_checked_next_turn = piece_pred(next_state, attacked, white_king)\n" +
+            "white_king_checked_next_turn = piece_attacked(next_state, white_king)\n" +
             "white_move_rule = NOT(white_king_checked_next_turn)\n" +
             "return = white_move_rule\n")));
     }
 
     [Fact]
-    public void AntiChessMoveRuleScript_shouldBeEqual()
+    public void AntiChessMoveRuleScript_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(new Attacked(BoardState.THIS, "BLACK"), OperatorType.IMPLIES, new PieceCaptured("BLACK"));
 
         Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
-            "black_attacked = piece_pred(this_state, attacked, BLACK)\n" +
-            "black_captured = move_pred(this_move, captured, BLACK)\n" +
+            "black_attacked = piece_attacked(this_state, BLACK)\n" +
+            "black_captured = move_captured(this_move, BLACK)\n" +
             "return = IMPLIES(black_attacked, black_captured)\n")));
     }
 
     [Fact]
-    public void DuckChessMoveRuleScript_shouldBeEqual()
+    public void DuckChessMoveRuleScript_ShouldBeEqual()
     {
         IPredicate lastMoveWasDuck = new PieceMoved(Constants.DuckIdentifier, MoveState.LAST);
         IPredicate lastMoveWasWhite = new PieceMoved("WHITE", MoveState.LAST);
@@ -112,12 +125,12 @@ public class PredicateParserTests
         IPredicate moveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
 
         Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
-            "last_move_duck = move_pred(last_move, piece_moved, DU)\n" +
-            "last_move_white = move_pred(last_move, piece_moved, WHITE)\n" +
+            "last_move_duck = move_piece_is(last_move, DU)\n" +
+            "last_move_white = move_piece_is(last_move, WHITE)\n" +
             "\n" +
-            "this_move_duck = move_pred(this_move, piece_moved, DU)\n" +
+            "this_move_duck = move_piece_is(this_move, DU)\n" +
             "\n" +
-            "first_m = move_pred(this_move, first_move)\n" +
+            "first_m = move_first(this_move)\n" +
             "\n" +
             "move_rule_new = this_move_duck && last_move_white || !this_move_duck && [last_move_duck || first_m]\n" +
             "move_rule = OR(AND(this_move_duck,last_move_white), AND(NOT(this_move_duck), OR(last_move_duck, first_m)))\n" +
@@ -127,7 +140,7 @@ public class PredicateParserTests
     [Fact]
     public void SyntaxNames_ShouldThrowException()
     {
-        Assert.Throws<InvalidNameException>(() => pp.ParseCode("this_move = move_pred(this_move, piece_moved, DU)\n" +
+        Assert.Throws<InvalidNameException>(() => pp.ParseCode("this_move = move_piece_is(this_move, DU)\n" +
             "return = this_move\n"));
     }
     [Fact]

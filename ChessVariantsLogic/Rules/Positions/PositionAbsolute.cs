@@ -1,9 +1,12 @@
-﻿namespace ChessVariantsLogic.Rules;
+﻿using Newtonsoft.Json;
+
+namespace ChessVariantsLogic.Rules;
 /// <summary>
 /// Represents an absolute position on the board.
 /// </summary>
 public class PositionAbsolute : IPosition
 {
+    [JsonProperty]
     private readonly string _position;
 
     public PositionAbsolute(string position)
