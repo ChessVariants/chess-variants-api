@@ -16,6 +16,7 @@ public static class WebApplicationExtensions
     {
         app.MapHub<GameHub>("/game");
         app.MapHub<EditorHub>("/editor");
+        app.MapHub<RuleSetEditorHub>("/ruleEditor");
         return app;
     }
 }

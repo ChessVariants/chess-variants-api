@@ -11,11 +11,9 @@ namespace ChessVariantsAPI.Controllers;
 public abstract class GenericController : ControllerBase
 {
     readonly protected DatabaseService _db;
-    readonly protected ILogger _logger;
 
-    public GenericController(DatabaseService databaseService, ILogger<UsersController> logger)
+    public GenericController(DatabaseService databaseService)
     {
         _db = databaseService;
-        _logger = logger;
     }
 }
