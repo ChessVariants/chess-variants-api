@@ -20,18 +20,24 @@ public class PredicateController : GenericController
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByUserName()
+    public async Task<ActionResult<RequestPredicateDTO>> GetByUserName()
     {
         _logger.LogDebug("logging some");
         var username = GetUsername();
-        if (username == null || username == "")
-        {
-            _logger.LogDebug("User tried to request predicates but was either not logged in or not authorized for the action.");
-            return Unauthorized("User is either not logged in or not authorized for this action.");
-        }
 
-        _logger.LogInformation("User {u} requested predicates", username);
-        return Ok();
+        var predicates = await _db.Predicates.FindAsync((p) => p.CreatorName == username);
+        List<PredicateDTO> predicateDTOs = new();
+        foreach (var predicate in predicates)
+        {
+            predicateDTOs.Add(new PredicateDTO
+            {
+                Name = predicate.Name,
+                Description = predicate.Description,
+                Code = predicate.Code,
+            });
+        }
+        _logger.LogInformation("User {u} requested {n} predicates", username, predicates.Count);
+        return Ok(predicateDTOs);
     }
     
     [HttpPost]
