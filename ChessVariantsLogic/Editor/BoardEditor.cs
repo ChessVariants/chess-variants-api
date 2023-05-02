@@ -17,15 +17,17 @@ public class BoardEditor
         _board = new Chessboard(row, col);
     }
 
-    //Parameter "piece" should probably be processed in some way.
-    public void InsertPiece(int row, int col)
+    public void InsertPiece(string square)
     {
-        if(_piece != null)
-            _board.Insert(_piece, row, col);
+        if(_piece == null)
+            return;
+        if(_piece.Equals("remove"))
+            _board.Remove(square);
+        else
+            _board.Insert(_piece, square);
     }
 
-    public void RemovePiece(int row, int col) { _board.Remove(row, col); }
-
+    //Parameter "piece" should probably be processed in some way.
     public void SetActivePiece(string piece) { _piece = piece; }
 
     public void ResetStartingPosition() { _board = Chessboard.StandardChessboard(); }

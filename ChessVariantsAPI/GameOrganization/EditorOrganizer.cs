@@ -57,16 +57,10 @@ public class EditorOrganizer
         editor.SetActivePiece(piece);
     }
 
-    public void InsertPiece(string editorId, int row, int col)
+    public void InsertPiece(string editorId, string square)
     {
         var editor = GetBoardEditor(editorId);
-        editor.InsertPiece(row, col);
-    }
-
-    public void RemovePiece(string editorId, int row, int col)
-    {
-        var editor = GetBoardEditor(editorId);
-        editor.RemovePiece(row, col);
+        editor.InsertPiece(square);
     }
 
     public void ResetStartingPosition(string editorId)
