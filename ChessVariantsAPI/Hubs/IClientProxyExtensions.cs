@@ -86,9 +86,14 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.InvalidMove);
     }
 
-    public static async Task SendUpdatedEditorState(this IClientProxy clients, PieceEditorState state)
+    public static async Task SendUpdatedBoardEditorState(this IClientProxy clients, BoardEditorState state)
     {
-        await clients.SendAsync(Events.UpdatedEditorState, state);
+        await clients.SendAsync(Events.UpdatedPieceEditorState, state);
+    }
+
+    public static async Task SendUpdatedPieceEditorState(this IClientProxy clients, PieceEditorState state)
+    {
+        await clients.SendAsync(Events.UpdatedPieceEditorState, state);
     }
 
     public static async Task SendUpdatedPatternState(this IClientProxy clients, PatternState state)
@@ -115,7 +120,7 @@ public static class Events
     public readonly static string Tie = "tie";
     public readonly static string Colors = "colors";
 
-    // Lobby events
+#region Lobby events
     public readonly static string PlayerJoinedLobby = "playerJoinedLobby";
     public readonly static string PlayerLeftLobby = "playerLeftLobby";
     public readonly static string LobbyCreated = "lobbyCreated";
@@ -124,9 +129,12 @@ public static class Events
     public readonly static string GameVariantNotSet = "gameVariantNotSet";
     public readonly static string GameStarted = "gameStarted";
 
+#endregion
+
 #region Editor events
 
-    public readonly static string UpdatedEditorState = "updatedEditorState";
+    public readonly static string UpdatedPieceEditorState = "updatedPieceEditorState";
+    public readonly static string UpdatedBoardEditorState = "updatedBoardEditorState";
 
 #endregion
 
