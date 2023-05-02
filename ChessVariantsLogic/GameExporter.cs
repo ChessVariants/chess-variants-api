@@ -44,7 +44,7 @@ public static class GameExporter
         return moves;
     }
 
-    private static List<string> ExportBoard(Chessboard board)
+    public static List<string> ExportBoard(Chessboard board)
     {
         var boardPieces = new List<string>();
         int sameConsecutivePieceCount = 1;

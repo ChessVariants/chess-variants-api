@@ -30,12 +30,12 @@ public class PieceEditor
 
     public void ShowMovement(bool enable) { _showMovement = enable; }
 
-    public EditorState GetCurrentState()
+    public PieceEditorState GetCurrentState()
     {
         if(_showMovement)
-            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
         else
-            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
+            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
     }
 
     public PatternState GetCurrentPatternState()

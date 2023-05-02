@@ -15,14 +15,14 @@ public class EditorHub : Hub
         _logger = logger;
     }
 
-    public async Task CreateEditor(string editorId)
+    public async Task CreatePieceEditor(string editorId)
     { 
-        _organizer.CreateEditor(editorId);
+        _organizer.CreatePieceEditor(editorId);
         await UpdateEditorState(editorId);
         await UpdatePatternState(editorId);
     }
 
-    public EditorState RequestState(string editorId) { return _organizer.GetCurrentState(editorId); }
+    public PieceEditorState RequestState(string editorId) { return _organizer.GetCurrentPieceEditorState(editorId); }
     public PatternState RequestPatternState(string editorId) { return _organizer.GetCurrentPatternState(editorId); }
 
     public async Task UpdatePatternState(string editorId)
@@ -33,7 +33,7 @@ public class EditorHub : Hub
 
     public async Task UpdateEditorState(string editorId)
     {
-        var state = _organizer.GetCurrentState(editorId);
+        var state = _organizer.GetCurrentPieceEditorState(editorId);
         await Clients.Caller.SendUpdatedEditorState(state);
     }
 
@@ -66,7 +66,7 @@ public class EditorHub : Hub
 
     public async Task UpdateBoardSize(string editorId, int rows, int cols)
     {
-        _organizer.SetBoardSize(editorId, rows, cols);
+        _organizer.SetPieceEditorBoardSize(editorId, rows, cols);
         await UpdateEditorState(editorId);
     }
 
