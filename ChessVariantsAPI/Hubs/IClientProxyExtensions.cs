@@ -88,7 +88,7 @@ public static class IClientProxyExtensions
 
     public static async Task SendUpdatedBoardEditorState(this IClientProxy clients, BoardEditorState state)
     {
-        await clients.SendAsync(Events.UpdatedPieceEditorState, state);
+        await clients.SendAsync(Events.UpdatedBoardEditorState, state);
     }
 
     public static async Task SendUpdatedPieceEditorState(this IClientProxy clients, PieceEditorState state)

@@ -17,7 +17,8 @@ public class EditorHub : Hub
 
 #region BoardEditor
 
-    public async Task CreaBoardEditor(string editorId)
+    public BoardEditorState RequestBoardEditorState(string editorId) { return _organizer.GetCurrentBoardEditorState(editorId); }
+    public async Task CreateBoardEditor(string editorId)
     {
         _organizer.CreateBoardEditor(editorId);
         await UpdateBoardEditorState(editorId);
@@ -75,7 +76,7 @@ public class EditorHub : Hub
         await UpdatePatternState(editorId);
     }
 
-    public PieceEditorState RequestState(string editorId) { return _organizer.GetCurrentPieceEditorState(editorId); }
+    public PieceEditorState RequestPieceEditorState(string editorId) { return _organizer.GetCurrentPieceEditorState(editorId); }
     public PatternState RequestPatternState(string editorId) { return _organizer.GetCurrentPatternState(editorId); }
 
     private async Task UpdatePatternState(string editorId)
