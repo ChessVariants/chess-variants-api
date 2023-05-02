@@ -42,15 +42,9 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-    public async Task InsertPiece(string editorId, int row, int col)
+    public async Task UpdateSquare(string editorId, string square)
     {
-        _organizer.InsertPiece(editorId, row, col);
-        await UpdateBoardEditorState(editorId);
-    }
-
-    public async Task RemovePiece(string editorId, int row, int col)
-    {
-        _organizer.RemovePiece(editorId, row, col);
+        _organizer.InsertPiece(editorId, square);
         await UpdateBoardEditorState(editorId);
     }
 
