@@ -86,7 +86,7 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.InvalidMove);
     }
 
-    public static async Task SendUpdatedEditorState(this IClientProxy clients, EditorState state)
+    public static async Task SendUpdatedEditorState(this IClientProxy clients, PieceEditorState state)
     {
         await clients.SendAsync(Events.UpdatedEditorState, state);
     }

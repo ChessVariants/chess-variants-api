@@ -10,141 +10,206 @@ namespace ChessVariantsAPI;
 public class EditorOrganizer
 {
 
-    private readonly Dictionary<string, PieceEditor?> _activeEditors;
+    private readonly Dictionary<string, PieceEditor?> _activePieceEditors;
+    private readonly Dictionary<string, BoardEditor?> _activeBoardEditors;
 
     public EditorOrganizer()
     {
-        _activeEditors = new Dictionary<string, PieceEditor?>();
+        _activePieceEditors = new Dictionary<string, PieceEditor?>();
+        _activeBoardEditors = new Dictionary<string, BoardEditor?>();
     }
 
-    public PieceEditor CreateEditor(string editorId)
+#region Board editor
+    public BoardEditor CreateBoardEditor(string editorId)
     {
-        AssertEditorDoesNotExist(editorId);
-        var editor = new PieceEditor();
-        _activeEditors.Add(editorId, editor);
+        AssertPieceEditorDoesNotExist(editorId);
+        var editor = new BoardEditor();
+        _activeBoardEditors.Add(editorId, editor);
         return editor;
     }
 
-    private void AssertEditorDoesNotExist(string editorId)
+    private void AssertBoardEditorDoesNotExist(string editorId)
     {
-        var editor = _activeEditors.GetValueOrDefault(editorId, null);
+        var editor = _activeBoardEditors.GetValueOrDefault(editorId, null);
         if (editor != null)
         {
             throw new OrganizerException($"The editor (id: {editorId}) you're trying to create already exists");
         }
     }
 
-    private PieceEditor GetEditor(string editorId)
+    private BoardEditor GetBoardEditor(string editorId)
     {
-        var editor = _activeEditors.GetValueOrDefault(editorId, null);
+        var editor = _activeBoardEditors.GetValueOrDefault(editorId, null);
         if (editor == null)
-        {
             throw new EditorNotFoundException($"No active editor for editorId: {editorId}");
-        }
+        return editor;
+    }
+
+    public void SetBoardEditorBoardSize(string editorId, int rows, int cols)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.UpdateBoardSize(rows, cols);
+    }
+
+    public void SetActivePiece(string editorId, string piece)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.SetActivePiece(piece);
+    }
+
+    public void InsertPiece(string editorId, int row, int col)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.InsertPiece(row, col);
+    }
+
+    public void RemovePiece(string editorId, int row, int col)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.RemovePiece(row, col);
+    }
+
+    public void ResetStartingPosition(string editorId)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.ResetStartingPosition();
+    }
+
+    public void ClearBoard(string editorId)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.ClearBoard();
+    }
+
+    public BoardEditorState GetCurrentBoardEditorState(string editorId)
+    {
+        var editor = GetBoardEditor(editorId);
+        return editor.GetCurrentState();
+    }
+
+#endregion
+
+#region Piece editor
+    public PieceEditor CreatePieceEditor(string editorId)
+    {
+        AssertPieceEditorDoesNotExist(editorId);
+        var editor = new PieceEditor();
+        _activePieceEditors.Add(editorId, editor);
+        return editor;
+    }
+
+    private void AssertPieceEditorDoesNotExist(string editorId)
+    {
+        var editor = _activePieceEditors.GetValueOrDefault(editorId, null);
+        if (editor != null)
+            throw new OrganizerException($"The editor (id: {editorId}) you're trying to create already exists");
+    }
+
+    private PieceEditor GetPieceEditor(string editorId)
+    {
+        var editor = _activePieceEditors.GetValueOrDefault(editorId, null);
+        if (editor == null)
+            throw new EditorNotFoundException($"No active editor for editorId: {editorId}");
         return editor;
     }
 
     public void RemoveAllMovementPatterns(string editorId)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.RemoveAllMovementPatterns();
     }
 
     public void ShowMovement(string editorId, bool enable)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.ShowMovement(enable); 
     }
 
-    public void SetBoardSize(string editorId, int rows, int cols)
+    public void SetPieceEditorBoardSize(string editorId, int rows, int cols)
     { 
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.UpdateBoardSize(rows, cols);
     }
 
     public void SetActiveSquare(string editorId, string square)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.SetActiveSquare(square);
     }
 
-    public EditorState GetCurrentState(string editorId)
+    public PieceEditorState GetCurrentPieceEditorState(string editorId)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         return editor.GetCurrentState();
     }
 
     public PatternState GetCurrentPatternState(string editorId)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         return editor.GetCurrentPatternState();
     }
 
     public void AddMovementPattern(string editorId, int xDir, int yDir, int minLength, int maxLength)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.AddMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public void AddCapturePattern(string editorId, int xDir, int yDir, int minLength, int maxLength)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.AddCapturePattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent RemoveMovementPattern(string editorId, int xDir, int yDir, int minLength, int maxLength)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         return editor.RemoveMovementPattern(xDir, yDir, minLength, maxLength);
     }
 
     public EditorEvent BelongsToPlayer(string editorId, string player)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         return editor.BelongsToPlayer(player);
     }
 
     public void SameMovementAndCapture(string editorId, bool enable)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.SetSameMovementAndCapturePattern(enable);
     }
 
     public void CanBeCaptured(string editorId, bool enable)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.SetCanBeCaptured(enable);
     }
 
     public void RepeatMovement(string editorId, int repeat)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.RepeatMovement(repeat);
     }
 
     public void SetRoyal(string editorId, bool enable)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.SetRoyal(enable);
     }
 
     public EditorEvent Build(string editorId)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         return editor.BuildPiece();
     }
 
     public void Reset(string editorId)
     {
-        var editor = GetEditor(editorId);
+        var editor = GetPieceEditor(editorId);
         editor.ResetPiece();
     }
 
-    public string GetStateAsJson(string editorId)
-    {
-        var editor = GetEditor(editorId);
-        return editor.ExportStateAsJson();
-    }
 
+#endregion
 
 }
