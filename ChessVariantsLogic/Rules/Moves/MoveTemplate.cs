@@ -41,6 +41,7 @@ public class MoveTemplate
         List<string> positions = (List<string>)Utils.FindPiecesOfType(moveWorker, _pieceIdentifier);
         PieceClassifier pieceClassifier = moveWorker.GetPieceClassifier(_pieceIdentifier);
         ISet<Move> moves = new HashSet<Move>();
+        ClearActions();
 
         foreach (string from in positions)
         {
@@ -69,6 +70,7 @@ public class MoveTemplate
     {
         List<string> positions = (List<string>)Utils.FindPiecesOfType(moveWorker, _pieceIdentifier);
         PieceClassifier pieceClassifier = moveWorker.GetPieceClassifier(_pieceIdentifier);
+        ClearActions();
 
         foreach (string from in positions)
         {
@@ -85,6 +87,14 @@ public class MoveTemplate
         }
 
         return false;
+    }
+
+    private void ClearActions()
+    {
+        foreach(Action a in _actions)
+        {
+            a.ClearAction();
+        }
     }
 
     public static MoveTemplate CastleMove(Player player, bool kingSide, bool kingCanMoveThroughChecks)

@@ -17,6 +17,10 @@ public abstract class Action
         return Utils.IsOfType(_capturedPiece, pieceIdentifier);
     }
 
+    public void ClearAction()
+    {
+        _capturedPiece = null;
+    }
 
     /// <summary>
     /// Performs an action on the given moveWorker according to implementation.
