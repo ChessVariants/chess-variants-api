@@ -98,7 +98,12 @@ public static class IClientProxyExtensions
 
     public static async Task SendUpdatedPatternState(this IClientProxy clients, PatternState state)
     {
-        await clients.SendAsync("PatternAdded", state);
+        await clients.SendAsync(Events.PatternAdded, state);
+    }
+
+    public static async Task SendBuildFailed(this IClientProxy clients)
+    {
+        await clients.SendAsync(Events.BuildFailed);
     }
 }
 
@@ -135,6 +140,8 @@ public static class Events
 
     public readonly static string UpdatedPieceEditorState = "updatedPieceEditorState";
     public readonly static string UpdatedBoardEditorState = "updatedBoardEditorState";
+    public readonly static string PatternAdded = "PatternAdded";
+    public readonly static string BuildFailed = "buildFailed";
 
 #endregion
 

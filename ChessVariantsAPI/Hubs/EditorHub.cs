@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using ChessVariantsLogic.Export;
+using ChessVariantsLogic.Editor;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -15,7 +16,7 @@ public class EditorHub : Hub
         _logger = logger;
     }
 
-#region BoardEditor
+    #region BoardEditor
 
     public BoardEditorState RequestBoardEditorState(string editorId) { return _organizer.GetCurrentBoardEditorState(editorId); }
     public async Task CreateBoardEditor(string editorId)
@@ -60,11 +61,11 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-#endregion
+    #endregion
 
-#region PieceEditor
+    #region PieceEditor
     public async Task CreatePieceEditor(string editorId)
-    { 
+    {
         _organizer.CreatePieceEditor(editorId);
         await UpdatePieceEditorState(editorId);
         await UpdatePatternState(editorId);
@@ -123,7 +124,7 @@ public class EditorHub : Hub
         _organizer.SameMovementAndCapture(editorId, enable);
         await UpdatePieceEditorState(editorId);
     }
-    
+
     public async Task ShowMovement(string editorId, bool enable)
     {
         _organizer.ShowMovement(editorId, enable);
@@ -163,6 +164,19 @@ public class EditorHub : Hub
         await UpdatePieceEditorState(editorId);
     }
 
-#endregion
+    public async Task BuildPiece(string editorId)
+    {
+        var buildEvent = _organizer.Build(editorId);
+        if (buildEvent.Equals(EditorEvent.BuildFailed))
+            await Clients.Caller.SendBuildFailed();
+        else
+        {
+            await UpdatePatternState(editorId);
+            await UpdatePieceEditorState(editorId);
+
+        }
+    }
+
+    #endregion
 
 }
