@@ -277,7 +277,7 @@ public class NegaMax : IMoveFinder
         return listToShuffle;
     }
 
-    private void initZobristKey(HashSet<Piece> pieces, Chessboard chessboard)
+    private void InitZobristKey(HashSet<Piece> pieces, Chessboard chessboard)
     {
         foreach(var piece in pieces)
         {
@@ -290,6 +290,23 @@ public class NegaMax : IMoveFinder
                 }
             }
         }
+    }
+
+    private ulong ComputeHashKay(Chessboard chessboard)
+    {
+        ulong hash = 0;
+        for(int r = 0; r <= chessboard.Rows - 1; r++)
+        {
+            for(int c = 0; c <= chessboard.Cols - 1; c++)
+            {
+                string piece = chessboard.GetPieceIdentifier(r,c);
+                if(piece != null && !piece.Equals(Constants.UnoccupiedSquareIdentifier))
+                {
+                    hash ^= _zobristKeys[(piece, r, c)];
+                }
+            }
+        }
+        return hash;
     }
 
     
