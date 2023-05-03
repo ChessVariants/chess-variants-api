@@ -18,11 +18,16 @@ public class NegaMax : IMoveFinder
     private bool _whiteWon = false;
     private bool _draw = false;
     private Stack<IDictionary<string, Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
+    Random random = new Random();
+    Dictionary<(string,int,int),ulong> _zobristKeys = new Dictionary<(string,int,int),ulong>();
+    
 
     private PieceValue _pieceValue;
     public NegaMax(HashSet<Piece> pieces, Chessboard chessboard)
     {
         _pieceValue = new PieceValue(pieces, chessboard);
+
+        initZobristKey(pieces, chessboard);
 
     }
     private HeatMap _heatMap;
@@ -270,6 +275,21 @@ public class NegaMax : IMoveFinder
         }
 
         return listToShuffle;
+    }
+
+    private void initZobristKey(HashSet<Piece> pieces, Chessboard chessboard)
+    {
+        foreach(var piece in pieces)
+        {
+            for(int c = 0; c <= chessboard.Cols - 1; c++)
+            {
+                for(int r = 0; r <= chessboard.Rows - 1; r++)
+                {
+                    ulong randomKey = (ulong)random.NextLong();
+                    _zobristKeys[(piece.PieceIdentifier,c,r)] = randomKey;
+                }
+            }
+        }
     }
 
     
