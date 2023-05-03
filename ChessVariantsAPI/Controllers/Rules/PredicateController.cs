@@ -37,12 +37,13 @@ public class PredicateController : GenericController
             });
         }
         _logger.LogInformation("User {u} requested {n} predicates", username, predicates.Count);
-        return Ok(predicateDTOs);
+        return Ok(new RequestPredicateDTO { Predicates = predicateDTOs});
     }
     
     [HttpPost]
     public async Task<IActionResult> SavePredicate(SavePredicateDTO dto)
     {
+
         var pred = new Predicate
         {
             CreatorName = GetUsername(),
@@ -51,7 +52,21 @@ public class PredicateController : GenericController
             Description = dto.Description,
         };
         _logger.LogDebug("Trying to save pred: \n{p}", pred);
+
         await _db.Predicates.CreateAsync(pred);
+
+        return Ok();
+    }
+
+    [HttpDelete("{name}")]
+    public async Task<IActionResult> DeletePredicate(string name)
+    {
+        var username = GetUsername();
+        var predicates = await _db.Predicates.FindAsync((p) => p.CreatorName == username && p.Name == name);
+        foreach(var pred in predicates)
+        {
+            await _db.Predicates.RemoveAsync(pred.Id);
+        }
 
         return Ok();
     }
