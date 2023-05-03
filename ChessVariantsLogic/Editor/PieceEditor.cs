@@ -209,7 +209,7 @@ public class PieceEditor
     /// Builds the piece with the current settings.
     /// </summary>
     /// <returns>EditorEvent.Success if the build was successful, otherwise EditorEvent.BuildFailed.</returns>
-    public EditorEvent BuildPiece()
+    public Piece? BuildPiece()
     {
         try 
         {
@@ -217,9 +217,9 @@ public class PieceEditor
         }
         catch (ArgumentException)
         {
-            return EditorEvent.BuildFailed;
+            return null;
         }
-        return EditorEvent.Success;
+        return _piece;
     }
 
     /// <summary>

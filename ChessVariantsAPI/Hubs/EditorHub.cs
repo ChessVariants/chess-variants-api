@@ -1,19 +1,25 @@
 using Microsoft.AspNetCore.SignalR;
 using ChessVariantsLogic.Export;
 using ChessVariantsLogic.Editor;
+using DataAccess.MongoDB;
+using ChessVariantsAPI.ObjectTranslations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChessVariantsAPI.Hubs;
 
+[Authorize]
 public class EditorHub : Hub
 {
 
     private readonly EditorOrganizer _organizer;
     readonly protected ILogger _logger;
+    private DatabaseService _db;
 
-    public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger)
+    public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger, DatabaseService databaseService)
     {
         _organizer = organizer;
         _logger = logger;
+        _db = databaseService;
     }
 
     #region BoardEditor
@@ -164,17 +170,35 @@ public class EditorHub : Hub
         await UpdatePieceEditorState(editorId);
     }
 
-    public async Task BuildPiece(string editorId)
+    public async Task BuildPiece(string editorId, string pieceName, string filename)
     {
-        var buildEvent = _organizer.Build(editorId);
-        if (buildEvent.Equals(EditorEvent.BuildFailed))
+        System.Console.WriteLine("building piece");
+        var piece = _organizer.Build(editorId);
+        if (piece == null)
             await Clients.Caller.SendBuildFailed();
         else
         {
-            await UpdatePatternState(editorId);
-            await UpdatePieceEditorState(editorId);
+            var user = GetUsername();
+            var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, filename);
+            _logger.LogDebug("Attempting to save piece by user {user}", user);
+            await _db.Pieces.CreateAsync(modelPiece);
+            _logger.LogDebug("Piece saved to database.");
 
+            //await UpdatePatternState(editorId);
+            //await UpdatePieceEditorState(editorId);
         }
+
+    }
+
+    private string GetUsername()
+    {
+        var username = Context.GetUsername();
+        if (username == null)
+        {
+            _logger.LogInformation("Unauthenticated request by connection: {connId}", Context.ConnectionId);
+            throw new GameHub.AuthenticationError(Events.Errors.UnauthenticatedRequest);
+        }
+        return username;
     }
 
     #endregion

@@ -1,4 +1,7 @@
+using ChessVariantsAPI.Controllers;
 using ChessVariantsAPI.GameOrganization;
+using ChessVariantsAPI.ObjectTranslations;
+using ChessVariantsLogic;
 using ChessVariantsLogic.Editor;
 using ChessVariantsLogic.Export;
 
@@ -191,7 +194,7 @@ public class EditorOrganizer
         editor.SetRoyal(enable);
     }
 
-    public EditorEvent Build(string editorId)
+    public Piece? Build(string editorId)
     {
         var editor = GetPieceEditor(editorId);
         return editor.BuildPiece();

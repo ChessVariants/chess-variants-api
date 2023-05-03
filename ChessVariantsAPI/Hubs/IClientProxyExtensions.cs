@@ -103,7 +103,7 @@ public static class IClientProxyExtensions
 
     public static async Task SendBuildFailed(this IClientProxy clients)
     {
-        await clients.SendAsync(Events.BuildFailed);
+        await clients.SendAsync(Events.BuildFailed, "Stoopid build");
     }
 }
 
