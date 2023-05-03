@@ -76,12 +76,7 @@ public class NegaMax : IMoveFinder
 
     private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant)
     {
-        if (currentDepth == 0)
-        {
-            index++;
-            return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
-        }
-
+        var alphaOrigo = alpha;
         var hash = ComputeHashKey(game.MoveWorker.Board);
 
         if (_transpositionalTable.ContainsKey(hash))
@@ -110,6 +105,14 @@ public class NegaMax : IMoveFinder
 
             }
         }
+
+        if (currentDepth == 0)
+        {
+            index++;
+            return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
+        }
+
+        
 
         double max = -100000;
 
@@ -148,20 +151,21 @@ public class NegaMax : IMoveFinder
         }
         TranspositionTableEntry newEntry = new TranspositionTableEntry();
         newEntry.Hash = ComputeHashKey(game.MoveWorker.Board);
+        newEntry.Score = max;
         newEntry.Depth = currentDepth;
-        if (max <= alpha)
+        if (max <= alphaOrigo)
         {
-            newEntry.Score = alpha;
+            //newEntry.Score = alpha;
             newEntry.Type = TranspositionTableEntry.EntryType.UpperBound;
         }
         else if (max >= beta)
         {
-            newEntry.Score = beta;
+            //newEntry.Score = beta;
             newEntry.Type = TranspositionTableEntry.EntryType.LowerBound;
         }
         else
         {
-            newEntry.Score = max;
+            //newEntry.Score = max;
             newEntry.Type = TranspositionTableEntry.EntryType.Exact;
         }
         _transpositionalTable[hash] = newEntry;
