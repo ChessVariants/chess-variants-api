@@ -69,9 +69,11 @@ public class EditorHub : Hub
 
     #endregion
 
-    #region PieceEditor
+
+#region PieceEditor
+
     public async Task CreatePieceEditor(string editorId)
-    {
+    { 
         _organizer.CreatePieceEditor(editorId);
         await UpdatePieceEditorState(editorId);
         await UpdatePatternState(editorId);
