@@ -54,7 +54,7 @@ public class PieceExporterTests
         };
         var mp = new MovementPattern(patterns);
 
-        var expected = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, "ca", true);
+        var expected = new Piece(mp, mp, PieceClassifier.WHITE, 1, "ca", true, true);
         string jsonPiece = expected.ExportAsJson();
         var actual = PieceBuilder.ParseJson(jsonPiece);
 
@@ -76,7 +76,7 @@ public class PieceExporterTests
         };
         var cp = new MovementPattern(captures);
 
-        var expected = new Piece(mp, cp, false, PieceClassifier.WHITE, 1, "ca", true);
+        var expected = new Piece(mp, cp, PieceClassifier.WHITE, 1, "ca", true, true);
         string jsonPiece = expected.ExportAsJson();
         var actual = PieceBuilder.ParseJson(jsonPiece);
 

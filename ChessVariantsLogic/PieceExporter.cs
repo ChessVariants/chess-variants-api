@@ -28,8 +28,8 @@ public static class PieceExporter
         {
             Movement = exportPattern(piece.GetAllMovementPatterns()),
             Captures = exportPattern(piece.GetAllCapturePatterns()),
-            Royal = piece.Royal,
             CanBeCaptured = piece.CanBeCaptured,
+            CanBePromotedTo = piece.CanBePromotedTo,
             PieceClassifier = piece.PieceClassifier.AsString(),
             PieceIdentifier = piece.PieceIdentifier,
             Repeat = piece.Repeat,
@@ -81,6 +81,9 @@ public record PieceState
 
     [JsonProperty("canBeCaptured")]
     public bool CanBeCaptured { get; set; }
+
+    [JsonProperty("canBePromotedTo")]
+    public bool CanBePromotedTo { get; set; }
 
     public string AsJson()
     {

@@ -17,6 +17,7 @@ public class PieceBuilder
     private PieceClassifier pc;
     private int repeat;
     private bool canBeCaptured;
+    private bool canBePromotedTo;
 
     private bool sameCaptureAsMovement;
 
@@ -78,9 +79,9 @@ public class PieceBuilder
             pieceString = this.pc == PieceClassifier.WHITE ? whiteCustomPieceIdentifier : blackCustomPieceIdentifier; 
 
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.pc, this.repeat, pieceString, this.canBeCaptured, this.canBePromotedTo);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.pc, this.repeat, pieceString, this.canBeCaptured, this.canBePromotedTo);
     }
 
     /// <summary>
@@ -94,7 +95,7 @@ public class PieceBuilder
         //Create helper class to remove dependency on MoveWorker and to avoid creating new objects each time this method is called?
 
         var moveWorker = new MoveWorker(new Chessboard(8));
-        var dummyPiece = new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        var dummyPiece = new Piece(this.movementPattern, this.movementPattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo);
         if(moveWorker.InsertOnBoard(dummyPiece, square))
             return moveWorker.GetAllValidMoves(Player.White);
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");
@@ -102,12 +103,12 @@ public class PieceBuilder
 
     public Piece GetDummyPieceWithCurrentMovement()
     {
-        return new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        return new Piece(this.movementPattern, this.movementPattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo);
     }
 
     public Piece GetDummyPieceWithCurrentCaptures()
     {
-        return new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        return new Piece(this.capturePattern, this.capturePattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo);
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ public class PieceBuilder
             return GetAllCurrentlyValidMovesFromSquare(square);
             
         var moveWorker = new MoveWorker(new Chessboard(8));
-        var dummyPiece = new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        var dummyPiece = new Piece(this.capturePattern, this.capturePattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo);
         if(moveWorker.InsertOnBoard(dummyPiece, square))
             return moveWorker.GetAllValidMoves(Player.White);
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");

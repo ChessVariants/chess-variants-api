@@ -25,6 +25,9 @@ public record Piece : IModel
     [BsonElement("canBeCaptured")]
     public bool CanBeCaptured { get; set; } = true;
 
+    [BsonElement("canBePromotedTo")]
+    public bool CanBePromotedTo { get; set; } = true;
+
     [BsonElement("imagePath")]
     public string ImagePath { get; set; } = null!;
 

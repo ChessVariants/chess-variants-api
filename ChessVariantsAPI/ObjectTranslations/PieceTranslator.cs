@@ -13,6 +13,7 @@ public static class PieceTranslator
             Creator = creator,
             Repeat = piece.Repeat,
             CanBeCaptured = piece.CanBeCaptured,
+            CanBePromotedTo = piece.CanBePromotedTo,
             ImagePath = imagePath,
             Movement = TranslatePatterns(piece.GetAllMovementPatterns()),
             Captures = TranslatePatterns(piece.GetAllCapturePatterns()),
