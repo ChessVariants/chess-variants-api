@@ -59,6 +59,17 @@ public class PieceValue
         return _pieceValue[piece];
     }
 
+    public string GetHighestValuePieceIdentifier(ISet<string> promotablePieces, Player forPlayer)
+    {
+        var promotableEntires = _pieceValue.Where(pv => promotablePieces.Contains(pv.Key));
+        if (forPlayer == Player.White)
+        {
+            return promotableEntires.OrderByDescending(pv => pv.Value).First().Key;
+        }
+        return 
+        promotableEntires.OrderBy(pv => pv.Value).First().Key;
+    }
+
     private double calculateMovementValue(Piece piece)
     {
         double value = 0;

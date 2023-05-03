@@ -28,6 +28,11 @@ public class NegaMax : IMoveFinder
     private HeatMap _heatMap;
 
 
+    public PieceValue GetPieceValue()
+    {
+        return _pieceValue;
+    }
+
 
     /// <summary>
     /// Calculates the best move for a player using negaMax algorithm

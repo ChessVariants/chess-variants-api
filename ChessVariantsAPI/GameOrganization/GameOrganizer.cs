@@ -102,6 +102,23 @@ public class GameOrganizer
         }
     }
 
+    public ISet<Piece> GetPromotablePieces(string gameId)
+    {
+        var game = GetGame(gameId);
+        return game.GetPromotablePieces();
+    }
+
+    public ISet<GameEvent> PromotePiece(string gameId, string pieceIdentifier)
+    {
+        var game = GetGame(gameId);
+        if (!game.PendingPromotion)
+        {
+            _logger.LogWarning("Unable to promote piece in game {g} as there is no promotion pending", gameId);
+            throw new OrganizerException("Cannot promote piece as there is no promotion pending. This should not have happend!");
+        }
+        return game.PlayerPromotionMove(pieceIdentifier);
+    }
+
     private void AssertGameDoesNotExist(string gameId)
     {
         var activeGame = _activeGames.GetValueOrDefault(gameId, null);
@@ -257,6 +274,15 @@ public class GameOrganizer
         ISet<GameEvent> result = game.MakeMove(move, player);
         yield return result;
 
+        while (game.AIShouldMakeMove())
+        {
+            yield return game.MakeAIMove();
+        }
+    }
+
+    public IEnumerable<ISet<GameEvent>> MakePendingAIMoveIfApplicable(string gameId)
+    {
+        var game = GetGame(gameId);
         while (game.AIShouldMakeMove())
         {
             yield return game.MakeAIMove();

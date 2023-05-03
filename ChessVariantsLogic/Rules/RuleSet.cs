@@ -121,7 +121,7 @@ public class RuleSet
             }
         }
 
-        gameEvents.IntersectWith(new HashSet<GameEvent>() { GameEvent.Tie, GameEvent.WhiteWon, GameEvent.BlackWon });
+        gameEvents.IntersectWith(new HashSet<GameEvent>() { GameEvent.Tie, GameEvent.WhiteWon, GameEvent.BlackWon, GameEvent.Promotion });
         if (gameEvents.Count > 1)
             throw new Exception("Running events return multiple win/tie events. Events: " + gameEvents);
 
