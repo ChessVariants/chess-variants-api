@@ -17,10 +17,12 @@ public class NegaMax : IMoveFinder
     private bool _blackWon = false;
     private bool _whiteWon = false;
     private bool _draw = false;
+    public int index = 0;
     private Stack<IDictionary<string, Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
     Random random = new Random();
-    Dictionary<(string,int,int),ulong> _zobristKeys = new Dictionary<(string,int,int),ulong>();
-    
+    Dictionary<(string, int, int), ulong> _zobristKeys = new Dictionary<(string, int, int), ulong>();
+    Dictionary<ulong, TranspositionTableEntry> _transpositionalTable = new Dictionary<ulong, TranspositionTableEntry>();
+
 
     private PieceValue _pieceValue;
     public NegaMax(HashSet<Piece> pieces, Chessboard chessboard)
@@ -47,6 +49,7 @@ public class NegaMax : IMoveFinder
         _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
         var tmp_legalMoves = game.LegalMoves;
         var tmp_playerTurn = game.PlayerTurn;
+
 
         if (player.Equals(Player.White))
         {
@@ -75,7 +78,37 @@ public class NegaMax : IMoveFinder
     {
         if (currentDepth == 0)
         {
+            index++;
             return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
+        }
+
+        var hash = ComputeHashKey(game.MoveWorker.Board);
+
+        if (_transpositionalTable.ContainsKey(hash))
+        {
+            var entry = _transpositionalTable[hash];
+
+            if (entry.Depth >= currentDepth)
+            {
+                if (entry.Type == TranspositionTableEntry.EntryType.Exact)
+                {
+                    return entry.Score;
+                }
+                else if (entry.Type == TranspositionTableEntry.EntryType.LowerBound)
+                {
+                    alpha = Math.Max(alpha, entry.Score);
+                }
+                else if (entry.Type == TranspositionTableEntry.EntryType.UpperBound)
+                {
+                    beta = Math.Min(beta, entry.Score);
+                }
+
+                if (alpha >= beta)
+                {
+                    return entry.Score;
+                }
+
+            }
         }
 
         double max = -100000;
@@ -113,6 +146,25 @@ public class NegaMax : IMoveFinder
             if (alpha >= beta)
                 break;
         }
+        TranspositionTableEntry newEntry = new TranspositionTableEntry();
+        newEntry.Hash = ComputeHashKey(game.MoveWorker.Board);
+        newEntry.Depth = currentDepth;
+        if (max <= alpha)
+        {
+            newEntry.Score = alpha;
+            newEntry.Type = TranspositionTableEntry.EntryType.UpperBound;
+        }
+        else if (max >= beta)
+        {
+            newEntry.Score = beta;
+            newEntry.Type = TranspositionTableEntry.EntryType.LowerBound;
+        }
+        else
+        {
+            newEntry.Score = max;
+            newEntry.Type = TranspositionTableEntry.EntryType.Exact;
+        }
+        _transpositionalTable[hash] = newEntry;
         return max;
     }
 
@@ -155,8 +207,8 @@ public class NegaMax : IMoveFinder
         double numberOfThreats = moveWorker.GetAllThreatMoves(Player.White).Count() - moveWorker.GetAllThreatMoves(Player.Black).Count();
 
         double numberOfMoves = moveWorker.GetAllValidMoves(Player.White).Count() - moveWorker.GetAllValidMoves(Player.Black).Count();
-        
-        score += numberOfThreats/5 + numberOfMoves/30;
+
+        score += numberOfThreats / 5 + numberOfMoves / 30;
 
         if (scoreVariant.Equals(ScoreVariant.AntiChess))
             score = -score;
@@ -195,11 +247,11 @@ public class NegaMax : IMoveFinder
         if (!game.HasLegalMoves(opponent))
             events.UnionWith(game.RunStalemateEventsForPlayer(opponent, boardTransition));
 
-        
 
-        
 
-        
+
+
+
 
 
         return events;
@@ -241,12 +293,12 @@ public class NegaMax : IMoveFinder
     {
         if (turnMultiplier == _whiteToMove)
         {
-            game.LegalMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White);            
+            game.LegalMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White);
             game.PlayerTurn = Player.White;
         }
         else
         {
-            game.LegalMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black);          
+            game.LegalMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black);
             game.PlayerTurn = Player.Black;
         }
     }
@@ -279,28 +331,28 @@ public class NegaMax : IMoveFinder
 
     private void InitZobristKey(HashSet<Piece> pieces, Chessboard chessboard)
     {
-        foreach(var piece in pieces)
+        foreach (var piece in pieces)
         {
-            for(int c = 0; c <= chessboard.Cols - 1; c++)
+            for (int c = 0; c <= chessboard.Cols - 1; c++)
             {
-                for(int r = 0; r <= chessboard.Rows - 1; r++)
+                for (int r = 0; r <= chessboard.Rows - 1; r++)
                 {
                     ulong randomKey = (ulong)random.NextLong();
-                    _zobristKeys[(piece.PieceIdentifier,c,r)] = randomKey;
+                    _zobristKeys[(piece.PieceIdentifier, c, r)] = randomKey;
                 }
             }
         }
     }
 
-    private ulong ComputeHashKay(Chessboard chessboard)
+    private ulong ComputeHashKey(Chessboard chessboard)
     {
         ulong hash = 0;
-        for(int r = 0; r <= chessboard.Rows - 1; r++)
+        for (int r = 0; r <= chessboard.Rows - 1; r++)
         {
-            for(int c = 0; c <= chessboard.Cols - 1; c++)
+            for (int c = 0; c <= chessboard.Cols - 1; c++)
             {
-                string piece = chessboard.GetPieceIdentifier(r,c);
-                if(piece != null && !piece.Equals(Constants.UnoccupiedSquareIdentifier))
+                string piece = chessboard.GetPieceIdentifier(r, c);
+                if (piece != null && !piece.Equals(Constants.UnoccupiedSquareIdentifier))
                 {
                     hash ^= _zobristKeys[(piece, r, c)];
                 }
@@ -309,13 +361,28 @@ public class NegaMax : IMoveFinder
         return hash;
     }
 
-    
+
 
 }
 public enum ScoreVariant
+{
+    AntiChess,
+    RegularChess
+}
+
+public struct TranspositionTableEntry
+{
+    public enum EntryType
     {
-        AntiChess,
-        RegularChess
+        Exact,
+        LowerBound,
+        UpperBound
     }
+
+    public ulong Hash;
+    public int Depth;
+    public double Score;
+    public EntryType Type;
+}
 
 
