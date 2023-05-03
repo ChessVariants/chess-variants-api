@@ -27,7 +27,7 @@ public class NegaMax : IMoveFinder
     {
         _pieceValue = new PieceValue(pieces, chessboard);
 
-        initZobristKey(pieces, chessboard);
+        InitZobristKey(pieces, chessboard);
 
     }
     private HeatMap _heatMap;
