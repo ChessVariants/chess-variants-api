@@ -17,6 +17,8 @@ public class PieceEditor
 
     private bool _showMovement;
 
+    private string _player;
+
     public PieceEditor()
     {
         _builder = new PieceBuilder();
@@ -24,6 +26,7 @@ public class PieceEditor
         _square = "e4";
         _dummy = _builder.GetDummyPieceWithCurrentMovement();
         _showMovement = true;
+        _player = "white";
 
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
@@ -32,10 +35,15 @@ public class PieceEditor
 
     public PieceEditorState GetCurrentState()
     {
-        if(_showMovement)
-            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+        Player player = Player.None;
+        if(_player.Equals("white"))
+            player = Player.White;
         else
-            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
+            player = Player.Black;
+        if(_showMovement)
+            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, player, GetAllCurrentlyValidMoves(), _square);
+        else
+            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, player, GetAllCurrentlyValidCaptures(), _square);
     }
 
     public PatternState GetCurrentPatternState()
@@ -173,6 +181,7 @@ public class PieceEditor
         try
         {
             _builder.BelongsToPlayer(player);
+            _player = player;
         }
         catch(ArgumentException)
         {

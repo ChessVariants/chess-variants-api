@@ -43,6 +43,7 @@ public class EditorExporter
             BoardSize = gameState.BoardSize,
             Moves = gameState.Moves,
             Square = square,
+            BelongsTo = gameState.SideToMove,
         };
         return editorState;
     }
@@ -91,6 +92,9 @@ public record PieceEditorState
 
     [JsonProperty("square")]
     public string Square { get; set; } = null!;
+
+    [JsonProperty("belongsTo")]
+    public string BelongsTo { get; set; } = null!;
 
     public string AsJson()
     {
