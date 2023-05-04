@@ -3,21 +3,22 @@ using ChessVariantsLogic;
 
 public class PieceValue
 {
-    private Dictionary<string, int> pieceValue;
-    private int jumpPatternValue = 3;
-    private int regularPatternValue = 1;
-    private HashSet<Piece> pieces;
+    private Dictionary<string, double> _pieceValue;
+    private double _jumpPatternValue = 2.1;
+    private int _regularPatternValue = 1;
+    private HashSet<Piece> _pieces;
+    private Chessboard _chessboard;
 
 
-    public PieceValue(HashSet<Piece> Pieces)
+    public PieceValue(HashSet<Piece> Pieces, Chessboard chessboard)
     {
-        pieces = Pieces;
-        pieceValue = initPieces();
+        _pieces = Pieces;
+        _chessboard = chessboard;
+        _pieceValue = initPieces();
     }
-
-    public Dictionary<string, int> InitStandardPieceValues()
+    public Dictionary<string, double> initStandardPieceValues()
     {
-        var dictionary = new Dictionary<string, int>();
+        var dictionary = new Dictionary<string, double>();
 
         dictionary.Add(Constants.WhitePawnIdentifier, 1);
         dictionary.Add(Constants.WhiteKnightIdentifier, 3);
@@ -38,39 +39,55 @@ public class PieceValue
         return dictionary;
     }
 
-    public Dictionary<string, int> initPieces()
+    public Dictionary<string, double> initPieces()
     {
-        var dictionary = new Dictionary<string, int>();
+        var dictionary = new Dictionary<string, double>();
 
         dictionary.Add(Constants.UnoccupiedSquareIdentifier, 0);
 
-        foreach (var piece in pieces)
+        foreach (var piece in _pieces)
         {
-            int pieceValue = CalculateMovementValue(piece) + CalculateCaptureValue(piece);
+            double pieceValue = calculateMovementValue(piece) + calculateCaptureValue(piece);
             dictionary.Add(piece.PieceIdentifier, pieceValue);
         }
 
         return dictionary;
     }
 
-    public int GetValue(string piece)
+    public double getValue(string piece)
     {
-        return pieceValue[piece];
+        return _pieceValue[piece];
     }
 
-    private int CalculateMovementValue(Piece piece)
+    private double calculateMovementValue(Piece piece)
     {
-        int value = 0;
+        double value = 0;
+        int maxRow;
+        int maxCol;
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
+            maxRow = Math.Min(_chessboard.Rows,pattern.MaxLength);
+            maxCol = Math.Min(_chessboard.Cols,pattern.MaxLength);
             if (pattern is JumpPattern)
             {
-                value += jumpPatternValue;
+                value += _jumpPatternValue;
             }
-            if (pattern is RegularPattern)
+            else if (pattern is RegularPattern && pattern.XDir == 0)
             {
-                value += (pattern.MaxLength - pattern.MinLength) * (piece.Repeat + 1);
+                value += (maxCol - pattern.MinLength + 1) * (piece.Repeat + 1);
             }
+            else if (pattern is RegularPattern && pattern.YDir == 0)
+            {
+                value += (maxRow - pattern.MinLength + 1) * (piece.Repeat + 1);
+            }
+            else
+            {
+                int minBoard = Math.Min(maxCol, maxRow);
+                int maxMoves = Math.Min(minBoard, pattern.MaxLength);
+                value +=  ((maxMoves - pattern.MinLength) * (piece.Repeat + 1)*16.8/28);
+            }
+            
+
         }
         if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
         {
@@ -79,18 +96,32 @@ public class PieceValue
         return value;
     }
 
-    private int CalculateCaptureValue(Piece piece)
+    private double calculateCaptureValue(Piece piece)
     {
-        int value = 0;
+        double value = 0;
+        int maxRow;
+        int maxCol;
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
+            maxRow = Math.Min(_chessboard.Rows,pattern.MaxLength);
+            maxCol = Math.Min(_chessboard.Cols,pattern.MaxLength);
             if (pattern is JumpPattern)
             {
-                value += jumpPatternValue;
+                value += _jumpPatternValue;
             }
-            if (pattern is RegularPattern)
+            else if (pattern is RegularPattern && pattern.XDir == 0)
             {
-                value += (pattern.MaxLength - pattern.MinLength + 1) * (piece.Repeat + 1);
+                value += (maxCol - pattern.MinLength + 1) * (piece.Repeat + 1);
+            }
+            else if (pattern is RegularPattern && pattern.YDir == 0)
+            {
+                value += (maxRow - pattern.MinLength + 1) * (piece.Repeat + 1);
+            }
+            else
+            {
+                int minBoard = Math.Min(maxCol, maxRow);
+                int maxMoves = Math.Min(minBoard, pattern.MaxLength);
+                value +=  ((maxMoves - pattern.MinLength) * (piece.Repeat + 1)*16.8/28);
             }
         }
         if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
