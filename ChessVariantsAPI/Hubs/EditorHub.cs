@@ -24,6 +24,18 @@ public class EditorHub : Hub
 
     #region BoardEditor
 
+    public override Task OnConnectedAsync()
+    {
+        _logger.LogDebug("Connected editor");
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        _logger.LogDebug("disconnected editor");
+        return base.OnDisconnectedAsync(exception); 
+    }
+
     public BoardEditorState RequestBoardEditorState(string editorId) { return _organizer.GetCurrentBoardEditorState(editorId); }
     public async Task CreateBoardEditor(string editorId)
     {
