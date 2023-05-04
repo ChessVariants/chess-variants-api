@@ -263,6 +263,19 @@ public class Chessboard
         return null;
     }
 
+    public string? GetPieceImagePath(MoveWorker mw, int row, int col)
+    {
+        if(validIndex(row, col))
+        {
+            var pieceIdentifier = board[row,col];
+            if(pieceIdentifier.Equals(Constants.UnoccupiedSquareIdentifier))
+                return pieceIdentifier;
+            Piece piece = mw.GetPieceFromIdentifier(pieceIdentifier);
+            return piece.ImagePath;
+        }
+        return null;
+    }
+
     /// <summary>
     /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
     /// </summary>

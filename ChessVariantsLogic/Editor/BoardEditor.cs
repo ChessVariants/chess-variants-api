@@ -4,17 +4,18 @@ namespace ChessVariantsLogic.Editor;
 
 public class BoardEditor
 {
-    private Chessboard _board;
+    private MoveWorker _mw;
     private string? _piece;
 
     public BoardEditor()
     {
-        _board = Chessboard.StandardChessboard();
+
+        _mw = new MoveWorker(Chessboard.StandardChessboard());
     }
 
     public void UpdateBoardSize(int row, int col)
     {
-        _board = new Chessboard(row, col);
+        _mw.Board = new Chessboard(row, col);
     }
 
     public void InsertPiece(string square)
@@ -22,23 +23,23 @@ public class BoardEditor
         if(_piece == null)
             return;
         if(_piece.Equals("remove"))
-            _board.Remove(square);
+            _mw.Board.Remove(square);
         else
-            _board.Insert(_piece, square);
+            _mw.Board.Insert(_piece, square);
     }
 
     //Parameter "piece" should probably be processed in some way.
     public void SetActivePiece(string piece) { _piece = piece; }
 
-    public void ResetStartingPosition() { _board = Chessboard.StandardChessboard(); }
+    public void ResetStartingPosition() { _mw.Board = Chessboard.StandardChessboard(); }
 
     public void ClearBoard()
     {
-        int row = _board.Rows;
-        int col = _board.Cols;
-        _board = new Chessboard(row, col);
+        int row = _mw.Board.Rows;
+        int col = _mw.Board.Cols;
+        _mw.Board = new Chessboard(row, col);
     }
 
-    public BoardEditorState GetCurrentState() { return EditorExporter.ExportBoardEditorState(_board); }
+    public BoardEditorState GetCurrentState() { return EditorExporter.ExportBoardEditorState(_mw); }
 
 }

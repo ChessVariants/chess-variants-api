@@ -3,9 +3,9 @@ using static ChessVariantsLogic.Game;
 namespace ChessVariantsLogic.Export;
 public static class GameExporter
 {
-    public static string ExportGameStateAsJson(Chessboard chessboard, Player sideToMove, Dictionary<string, List<string>> moveDict)
+    public static string ExportGameStateAsJson(MoveWorker mv, Player sideToMove, Dictionary<string, List<string>> moveDict)
     {
-        var gameState = ExportGameState(chessboard, sideToMove, moveDict);
+        var gameState = ExportGameState(mv, sideToMove, moveDict);
         return gameState.AsJson();
     }
 
@@ -23,13 +23,13 @@ public static class GameExporter
     /// <param name="sideToMove">The side whose turn it is to move</param>
     /// <param name="moveDict">Moves to export</param>
     /// <returns></returns>
-    public static GameState ExportGameState(Chessboard chessboard, Player sideToMove, Dictionary<string, List<string>> moveDict)
+    public static GameState ExportGameState(MoveWorker mw, Player sideToMove, Dictionary<string, List<string>> moveDict)
     {
         return new GameState
         {
             SideToMove = sideToMove.AsString(),
-            Board = ExportBoard(chessboard),
-            BoardSize = new BoardSize { Rows = chessboard.Rows, Cols = chessboard.Cols },
+            Board = ExportBoard(mw),
+            BoardSize = new BoardSize { Rows = mw.Board.Rows, Cols = mw.Board.Cols },
             Moves = ExportMoves(moveDict)
         };
     }
@@ -44,15 +44,15 @@ public static class GameExporter
         return moves;
     }
 
-    public static List<string> ExportBoard(Chessboard board)
+    public static List<string> ExportBoard(MoveWorker mw)
     {
         var boardPieces = new List<string>();
         int sameConsecutivePieceCount = 1;
         string previousPieceIdentifier = "";
 
-        foreach (var pos in board.GetAllCoordinates())
+        foreach (var pos in mw.Board.GetAllCoordinates())
         {
-            string pieceIdentifier = TryGetPieceIdentifier(board, pos);
+            string pieceIdentifier = TryGetPieceIdentifier(mw, pos);
 
             if (pieceIdentifier == previousPieceIdentifier)
             {
@@ -80,12 +80,13 @@ public static class GameExporter
         boardPieces.Add($"{previousPieceIdentifier}{count}");
     }
 
-    private static string TryGetPieceIdentifier(Chessboard board, (int, int) pos)
+    private static string TryGetPieceIdentifier(MoveWorker mw, (int, int) pos)
     {
-        var pieceIdentifier = board.GetPieceIdentifier(pos.Item1, pos.Item2);
+        //var pieceIdentifier = mw.Board.GetPieceIdentifier(pos.Item1, pos.Item2);
+        var pieceIdentifier = mw.Board.GetPieceImagePath(mw, pos.Item1, pos.Item2);
         if (pieceIdentifier == null)
         {
-            throw new InvalidOperationException($"Position {pos} was eligible for board of size {board.Rows}x{board.Cols}");
+            throw new InvalidOperationException($"Position {pos} was eligible for board of size {mw.Board.Rows}x{mw.Board.Cols}");
         }
         return pieceIdentifier;
     }

@@ -41,9 +41,9 @@ public class PieceEditor
         else
             player = Player.Black;
         if(_showMovement)
-            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, player, GetAllCurrentlyValidMoves(), _square);
+            return EditorExporter.ExportPieceEditorState(_moveWorker, player, GetAllCurrentlyValidMoves(), _square);
         else
-            return EditorExporter.ExportPieceEditorState(_moveWorker.Board, player, GetAllCurrentlyValidCaptures(), _square);
+            return EditorExporter.ExportPieceEditorState(_moveWorker, player, GetAllCurrentlyValidCaptures(), _square);
     }
 
     public PatternState GetCurrentPatternState()

@@ -25,18 +25,18 @@ public class EditorExporter
         return state;
     }
 
-    public static BoardEditorState ExportBoardEditorState(Chessboard board)
+    public static BoardEditorState ExportBoardEditorState(MoveWorker mw)
     {
         return new BoardEditorState
         {
-            Board = GameExporter.ExportBoard(board),
-            BoardSize = new BoardSize { Rows = board.Rows, Cols = board.Cols }
+            Board = GameExporter.ExportBoard(mw),
+            BoardSize = new BoardSize { Rows = mw.Board.Rows, Cols = mw.Board.Cols }
         };
     }
 
-    public static PieceEditorState ExportPieceEditorState(Chessboard chessboard, Player sideToMove, HashSet<string> moves, string square)
+    public static PieceEditorState ExportPieceEditorState(MoveWorker mw, Player sideToMove, HashSet<string> moves, string square)
     {
-        var gameState = GameExporter.ExportGameState(chessboard, sideToMove, getLegalMovesDict(moves));
+        var gameState = GameExporter.ExportGameState(mw, sideToMove, getLegalMovesDict(moves));
         var editorState = new PieceEditorState
         {
             Board = gameState.Board,

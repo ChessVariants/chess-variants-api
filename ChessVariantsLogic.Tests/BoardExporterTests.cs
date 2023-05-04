@@ -15,7 +15,7 @@ public class BoardExporterTests
     public BoardExporterTests()
     {
         var moveWorker = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        gameState = GameExporter.ExportGameState(moveWorker.Board, Player.White, moveWorker.GetMoveDict(Player.White));
+        gameState = GameExporter.ExportGameState(moveWorker, Player.White, moveWorker.GetMoveDict(Player.White));
     }
     
     [Fact]
@@ -74,7 +74,7 @@ public class BoardExporterTests
     {
         var mw = new MoveWorker(new Chessboard(10));
         mw.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "e4");
-        var gameState = GameExporter.ExportGameState(mw.Board, Player.Black, mw.GetMoveDict(Player.Black));
+        var gameState = GameExporter.ExportGameState(mw, Player.Black, mw.GetMoveDict(Player.Black));
         Assert.Contains(Constants.BlackBishopIdentifier, gameState.Board);
         Assert.Equal(3, gameState.Board.Count); // 1. All squares leading up to the bishop, the bishop's square, and all squares afterwards
     }
@@ -84,7 +84,7 @@ public class BoardExporterTests
     {
         var mw = new MoveWorker(new Chessboard(8));
         mw.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "e4");
-        var gameState = GameExporter.ExportGameState(mw.Board, Player.Black, mw.GetMoveDict(Player.Black));
+        var gameState = GameExporter.ExportGameState(mw, Player.Black, mw.GetMoveDict(Player.Black));
         var bishopMove = gameState.Moves.Find(move => move.From == "e4");
         Assert.Equal(13, bishopMove!.To.Count());
     }
@@ -93,7 +93,7 @@ public class BoardExporterTests
     public void ExportGameState_EmptyBoardShouldHaveNoMoves()
     {
         var mw = new MoveWorker(new Chessboard(8));
-        var emptyGameState = GameExporter.ExportGameState(mw.Board, Player.Black, mw.GetMoveDict(Player.Black));
+        var emptyGameState = GameExporter.ExportGameState(mw, Player.Black, mw.GetMoveDict(Player.Black));
         Assert.Empty(emptyGameState.Moves);
     }
 
@@ -101,7 +101,7 @@ public class BoardExporterTests
     public void ExportGameState_EmptyBoardShouldOnlyBeUnoccupied()
     {
         var mw = new MoveWorker(new Chessboard(10));
-        var emptyGameState = GameExporter.ExportGameState(mw.Board, Player.Black, mw.GetMoveDict(Player.Black));
+        var emptyGameState = GameExporter.ExportGameState(mw, Player.Black, mw.GetMoveDict(Player.Black));
         Assert.Equal(Constants.UnoccupiedSquareIdentifier + "100", emptyGameState.Board.First());
         Assert.Single(emptyGameState.Board);
     }

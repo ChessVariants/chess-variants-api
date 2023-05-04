@@ -190,12 +190,12 @@ public class Game {
 
     public string ExportStateAsJson()
     {
-        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        return GameExporter.ExportGameStateAsJson(_moveWorker, PlayerTurn, GetLegalMoveDict());
     }
 
     public GameState ExportState()
     {
-        return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        return GameExporter.ExportGameState(_moveWorker, PlayerTurn, GetLegalMoveDict());
     }
 }
 

@@ -22,6 +22,8 @@ public class Piece
 
     public bool CanBePromotedTo { get; }
 
+    public string ImagePath { get; set; }
+
     /// <summary>
     /// Constructor for a new Piece.
     /// </summary>
@@ -39,6 +41,7 @@ public class Piece
         this.PieceIdentifier = pieceIdentifier;
         this.CanBeCaptured = canBeCaptured;
         this.CanBePromotedTo = canBePromotedTo;
+        ImagePath = pieceIdentifier;
 
         //This might not be optimal since it doesn't notify the user that the value is not what it was set to.
         if(repeat < 0)
