@@ -190,16 +190,15 @@ public class EditorHub : Hub
         await UpdatePieceEditorState(editorId);
     }
 
-    public async Task BuildPiece(string editorId, string pieceName, string filename)
+    public async Task BuildPiece(string editorId, string pieceName)
     {
-        System.Console.WriteLine("building piece");
         var piece = _organizer.Build(editorId);
         if (piece == null)
             await Clients.Caller.SendBuildFailed();
         else
         {
             var user = GetUsername();
-            var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, filename);
+            var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
             _logger.LogDebug("Attempting to save piece by user {user}", user);
             await _db.Pieces.CreateAsync(modelPiece);
             _logger.LogDebug("Piece saved to database.");

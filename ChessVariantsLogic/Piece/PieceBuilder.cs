@@ -26,6 +26,8 @@ public class PieceBuilder
     private static string whiteCustomPieceIdentifier = "CA"; // Reset these values when a game is initialized to keep each identifier unique.
     private static string blackCustomPieceIdentifier = "ca";
 
+    private static string initialImagePath = "JO";
+
     public PieceBuilder()
     {
         this.movementPattern = new MovementPattern();
@@ -35,7 +37,7 @@ public class PieceBuilder
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
-        _imagePath = "JO";
+        _imagePath = initialImagePath;
     }
 
     /// <summary>
@@ -66,6 +68,7 @@ public class PieceBuilder
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
+        _imagePath = initialImagePath;
     }
 
     /// <summary>
