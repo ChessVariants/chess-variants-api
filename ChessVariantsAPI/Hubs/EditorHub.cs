@@ -91,6 +91,12 @@ public class EditorHub : Hub
         await UpdatePatternState(editorId);
     }
 
+    public async Task SetImagePath(string editorId, string imagePath)
+    {
+        _organizer.SetImagePath(editorId, imagePath);
+        await UpdatePieceEditorState(editorId);
+    }
+
     public PieceEditorState RequestPieceEditorState(string editorId) { return _organizer.GetCurrentPieceEditorState(editorId); }
     public PatternState RequestPatternState(string editorId) { return _organizer.GetCurrentPatternState(editorId); }
 

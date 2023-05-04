@@ -110,6 +110,12 @@ public class EditorOrganizer
         return editor;
     }
 
+    public void SetImagePath(string editorId, string imagePath)
+    {
+        var editor = GetPieceEditor(editorId);
+        editor.SetImagePath(imagePath);
+    }
+
     public void RemoveAllMovementPatterns(string editorId)
     {
         var editor = GetPieceEditor(editorId);

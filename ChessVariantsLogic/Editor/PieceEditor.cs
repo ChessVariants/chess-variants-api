@@ -54,6 +54,8 @@ public class PieceEditor
             return EditorExporter.ExportPatternState(_builder.CapturePattern);
     }
 
+    public void SetImagePath(string imagePath) { _builder.SetImagePath(imagePath); }
+
     public void UpdateBoardSize(int row, int col)
     {
         SetActiveSquare("a1"); // Moves the dummy piece to a1 in case the piece stands on a square not present on the new board.

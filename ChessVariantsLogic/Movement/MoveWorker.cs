@@ -107,6 +107,7 @@ public class MoveWorker
     public Piece GetPieceFromIdentifier(string identifier)
     {
         stringToPiece.TryGetValue(identifier, out var piece);
+        System.Console.WriteLine("MoveWorker identifier: " + identifier);
         if(piece == null)
             throw new ArgumentException("Invalid PieceIdentifier: " + identifier);
         return piece;
