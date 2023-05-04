@@ -61,7 +61,7 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, false);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
@@ -74,7 +74,7 @@ public class NegaMax : IMoveFinder
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, bool capture)
     {
         var alphaOrigo = alpha;
         var hash = ComputeHashKey(game.MoveWorker.Board);
@@ -126,12 +126,20 @@ public class NegaMax : IMoveFinder
 
         foreach (var move in L)
         {
+ 
+            var piece = game.MoveWorker.Board.GetPieceIdentifier(move.To);
+            
             var legalMoves = SaveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
 
             UpdatePlayerVictory(events);
-
-            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant);
+            
+            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier))
+            {
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, true);
+            }
+            else 
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, false);
 
             if (_score > max)
             {
@@ -169,6 +177,9 @@ public class NegaMax : IMoveFinder
             newEntry.Type = TranspositionTableEntry.EntryType.Exact;
         }
         _transpositionalTable[hash] = newEntry;
+
+        if(capture)
+            max = NegaMaxAlgorithm(currentDepth - 1, turnMultiplier, maxDepth, alpha, beta, game, scoreVariant, false);
         return max;
     }
 
