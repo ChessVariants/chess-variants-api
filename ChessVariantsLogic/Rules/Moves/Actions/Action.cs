@@ -1,7 +1,7 @@
 global using Action = ChessVariantsLogic.Rules.Moves.Actions.Action;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+using DataAccess.MongoDB.Models;
 using System;
-
 
 namespace ChessVariantsLogic.Rules.Moves.Actions;
 
@@ -32,5 +32,33 @@ public abstract class Action
     /// <returns>A GameEvent that occured when the action was performed.</returns>
     /// 
     public abstract GameEvent Perform(MoveWorker moveWorker, string moveCoordinates);
+
+    public static Action? ConstructFromModel(ActionRec actionRec)
+    {
+        if(actionRec.Move != null)
+        {
+            IPosition? from = IPosition.ConstructFromModel(actionRec.Move.From);
+            IPosition? to = IPosition.ConstructFromModel(actionRec.Move.To);
+            if (from == null || to == null)
+                return null;
+            return new ActionMovePiece(from, to);
+        }
+        else if(actionRec.Set != null)
+        {
+            IPosition? at = IPosition.ConstructFromModel(actionRec.Set.At);
+            if (at == null)
+                return null;
+            return new ActionSetPiece(at, actionRec.Set.Identifier);
+        }
+        else if(actionRec.Win != null)
+        {
+            return new ActionWin(actionRec.Win.WhiteWins ? Player.White : Player.Black);
+        }
+        else if(actionRec.IsTie)
+        {
+            return new ActionTie();
+        }
+        return null;
+    }
 
 }

@@ -26,7 +26,7 @@ public class MoveController : GenericController
     {
         var username = GetUsername();
 
-        List<MoveTemplate> moves = await _db.Moves.FindAsync((p) => p.CreatorName == username);
+        List<MoveTemplateModel> moves = await _db.Moves.FindAsync((p) => p.CreatorName == username);
 
         List<MoveDTO> moveDTOs = moves.Select((e) => new MoveDTO {
             Name = e.Name,
@@ -55,7 +55,7 @@ public class MoveController : GenericController
             await _db.Moves.RemoveAsync(move.Id);
         }
 
-        var m = new MoveTemplate
+        var m = new MoveTemplateModel
         {
             CreatorName = username,
             Name = dto.Name,

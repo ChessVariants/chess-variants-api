@@ -2,11 +2,11 @@
 using MongoDB.Driver;
 
 namespace DataAccess.MongoDB.Repositories;
-public class MoveRepository : GenericRepository<MoveTemplate>
+public class MoveRepository : GenericRepository<MoveTemplateModel>
 {
     public const string CollectionName = "Moves";
 
-    public MoveRepository(IMongoDatabase database) : base(database.GetCollection<MoveTemplate>(CollectionName))
+    public MoveRepository(IMongoDatabase database) : base(database.GetCollection<MoveTemplateModel>(CollectionName))
     {
     }
 }

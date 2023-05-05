@@ -11,7 +11,6 @@ namespace ChessVariantsLogic.Rules.Predicates;
 public class PredicateParser
 {
 
-    private IDictionary<string, string> variables = new Dictionary<string, string>();
 
     /*
         DOCUMENTATION OF THE PREDICATE DSL
@@ -178,23 +177,24 @@ public class PredicateParser
 
 
 
-    string[][] syntax = new string[][] { predicateTypes, operatorTypes, constValues, countPredicateTypes, comparators, movePredicateTypes, piecePredicateTypes, squarePredicateTypes, relativeTo, squareTypes, pieceClassifiers, boardstates, moveStates };
+    private static string[][] syntax = new string[][] { predicateTypes, operatorTypes, constValues, countPredicateTypes, comparators, movePredicateTypes, piecePredicateTypes, squarePredicateTypes, relativeTo, squareTypes, pieceClassifiers, boardstates, moveStates };
 
-    string allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJIKLMNOPQRSTUVWXYZ;(),[]&|!=>_^\n";
+    private static string allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJIKLMNOPQRSTUVWXYZ0123456789-;(),[]&|!=>_^\n";
 
-    private void CheckForInvalidCharacters(string code)
+    private static void CheckForInvalidCharacters(string code)
     {
         int line = 1;
         foreach(char c in code)
         {
             if (!allowedCharacters.Contains(c))
-                throw new InvalidCharacterException("Code contains invalid character '" + c + "' at line " + line);
+                throw new PrediChessException("Code contains invalid character '" + c + "' at line " + line);
             if (c == '\n') line++;
         }
     }
 
-    public IPredicate ParseCode(string code)
+    public static IPredicate ParseCode(string code)
     {
+        IDictionary<string, string> variables = new Dictionary<string, string>();
         code = RemoveSpaces(code + '\n');
         CheckForInvalidCharacters(code);
         StringBuilder variable = new StringBuilder();
@@ -225,18 +225,18 @@ public class PredicateParser
             }
         }
 
-        List<string> variablesWithSyntaxNames = GetVariablesWithSyntaxNames();
+        List<string> variablesWithSyntaxNames = GetVariablesWithSyntaxNames(variables);
         if(variablesWithSyntaxNames.Count > 0)
         {
-            throw new InvalidNameException("The following variables have names that interfere with syntax: " + string.Join(",", variablesWithSyntaxNames));
+            throw new PrediChessException("The following variables have names that interfere with syntax: " + string.Join(",", variablesWithSyntaxNames));
         }
 
         variables.TryGetValue("return", out string? predicate);
         
         if (predicate == null)
-            throw new NoReturnValueException("Code does not contain a return value");
+            throw new PrediChessException("Code does not contain a return value");
 
-        string finalPredicate = GetFinalPredicate(predicate);
+        string finalPredicate = GetFinalPredicate(predicate, variables);
         List<string> tokens = ShuntingYard(finalPredicate);
         if(tokens.Count > 0)
             finalPredicate = ConvertToExpression(tokens);
@@ -245,7 +245,7 @@ public class PredicateParser
 
     }
 
-    private List<string> GetVariablesWithSyntaxNames()
+    private static List<string> GetVariablesWithSyntaxNames(IDictionary<string,string> variables)
     {
         var flat = syntax.SelectMany(a => a).ToArray();
 
@@ -261,7 +261,7 @@ public class PredicateParser
         return variablesWithSyntaxNames;
     }
 
-    private string ReplaceWord(string input, string wordToFind, string replace)
+    private static string ReplaceWord(string input, string wordToFind, string replace)
     {
         string pattern = string.Format(@"\b{0}\b", wordToFind);
         return Regex.Replace(input, wordToFind, replace);
@@ -269,9 +269,9 @@ public class PredicateParser
 
 
 
-    private string GetFinalPredicate(string predicate)
+    private static string GetFinalPredicate(string predicate, IDictionary<string, string> variables)
     {
-        while (ContainsAnyVariable(predicate))
+        while (ContainsAnyVariable(predicate, variables))
         {
             foreach (string variableName in variables.Keys)
             {
@@ -284,7 +284,7 @@ public class PredicateParser
         return predicate;
     }
 
-    private bool ContainsAnyVariable(string predicate)
+    private static bool ContainsAnyVariable(string predicate, IDictionary<string, string> variables)
     {
         foreach(string variableName in variables.Keys)
         {
@@ -296,7 +296,7 @@ public class PredicateParser
         return false;
     }
 
-    public IPredicate ParsePredicate(string pred)
+    public static IPredicate ParsePredicate(string pred)
     {
         pred = RemoveSpaces(pred);
         Tuple<string, List<string>> function = GetFunction(pred);
@@ -309,27 +309,27 @@ public class PredicateParser
         if(IsConstant(pred))
             return ParseConst(pred);
         
-        throw new UnknownIdentifierException("Unknown identifier: " + pred);
+        throw new PrediChessException("Unknown identifier: " + pred);
     }
 
-    private bool IsConstant(string pred) => pred switch
+    private static bool IsConstant(string pred) => pred switch
     {
         TRUE => true,
         FALSE => true,
         _ => false,
     };
 
-    private IPredicate ParseConst(string pred)
+    private static IPredicate ParseConst(string pred)
     {
         return pred switch
         {
             TRUE => new Const(true),
             FALSE => new Const(false),
-            _ => throw new ArgumentException("invalid argument"),
+            _ => throw new PrediChessException("invalid argument"),
         };
     }
 
-    private bool IsOperator(string word)
+    private static bool IsOperator(string word)
     {
         return word switch
         {
@@ -342,7 +342,7 @@ public class PredicateParser
             _ => false,
         };
     }
-    private bool IsChessPredicate(string word)
+    private static bool IsChessPredicate(string word)
     {
         if (word.StartsWith(COUNT_PREDICATE))
         {
@@ -352,11 +352,11 @@ public class PredicateParser
         {
             return true;
         }
-        else if (word.StartsWith(MOVE_PREDICATE))
+        else if (movePredicateTypes.Contains(word))
         {
             return true;
         }
-        else if (word.StartsWith(SQUARE_PREDICATE))
+        else if (squarePredicateTypes.Contains(word))
         {
             return true;
         }
@@ -364,7 +364,7 @@ public class PredicateParser
     }
 
 
-    private IPredicate ParseOperator(Tuple<string, List<string>> operatorFunction)
+    private static IPredicate ParseOperator(Tuple<string, List<string>> operatorFunction)
     {
         (var operatorType, var args) = operatorFunction;
         if (operatorType == "NOT")
@@ -381,12 +381,12 @@ public class PredicateParser
             IMPLIES => (arg1 - arg2),
             XOR => (arg1 ^ arg2),
             EQUALS_OPERATOR => new Operator(arg1, OperatorType.EQUALS, arg2),
-            _ => throw new ArgumentException("Invalid operator: " + operatorType),
+            _ => throw new PrediChessException("Invalid operator: " + operatorType),
         };
     }
 
 
-    private Comparator ParseComparator(string comparator)
+    private static Comparator ParseComparator(string comparator)
     {
         return comparator switch
         {
@@ -396,11 +396,11 @@ public class PredicateParser
             LESS_THAN_OR_EQUALS => Comparator.LESS_THAN_OR_EQUALS,
             EQUALS_COMPARATOR => Comparator.EQUALS,
             NOT_EQUALS => Comparator.NOT_EQUALS,
-            _ => throw new ArgumentException("Invalid comparator: " + comparator),
+            _ => throw new PrediChessException("Invalid comparator: " + comparator),
         };
     }
 
-    private IPredicate ParseChessPredicate(Tuple<string, List<string>> predicate)
+    private static IPredicate ParseChessPredicate(Tuple<string, List<string>> predicate)
     {
         var predName = predicate.Item1;
         string predType = GetPredType(predName);
@@ -411,11 +411,11 @@ public class PredicateParser
             PIECE_PREDICATE => ParsePiecePred(predicate),
             MOVE_PREDICATE => ParseMovePred(predicate),
             SQUARE_PREDICATE => ParseSquarePred(predicate),
-            _ => throw new UnknownIdentifierException("Unknown identifier: " + predName),
+            _ => throw new PrediChessException("Unknown identifier: " + predName),
         };
     }
 
-    private string GetPredType(string predName)
+    private static string GetPredType(string predName)
     {
         if(predName.StartsWith(COUNT_PREDICATE))
         {
@@ -429,15 +429,15 @@ public class PredicateParser
         {
             return MOVE_PREDICATE;
         }
-        else if (predName.StartsWith(SQUARE_PREDICATE))
+        else if (squarePredicateTypes.Contains(predName))
         {
             return SQUARE_PREDICATE;
         }
-        throw new UnknownIdentifierException("Unknown identifier: " + predName);
+        throw new PrediChessException("Unknown identifier: " + predName);
     }
 
 
-    private CountPredicate ParseCountPred(Tuple<string, List<string>> predicate)
+    private static CountPredicate ParseCountPred(Tuple<string, List<string>> predicate)
     {
         var (type, args) = predicate;
         string state = args[0];
@@ -453,11 +453,11 @@ public class PredicateParser
         return type switch
         {
             piecesLeft => new PiecesLeft(arg, comparatorEnum, val, boardState),
-            _ => throw new ArgumentException("Invalid type argument of count_pred function: " + type),
+            _ => throw new PrediChessException("Invalid type argument of count_pred function: " + type),
         };
     }
 
-    private MovePredicate ParseMovePred(Tuple<string, List<string>> predicate)
+    private static MovePredicate ParseMovePred(Tuple<string, List<string>> predicate)
     {
         var (type, args) = predicate;
         string state = args[0];
@@ -474,11 +474,11 @@ public class PredicateParser
             PIECE_MOVED => new PieceMoved(arg1, moveState),
             WAS => new MoveWas(ParsePosition(arg1), ParsePosition(arg2), moveState),
             FIRST_MOVE => new FirstMove(moveState),
-            _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
+            _ => throw new PrediChessException("Invalid type argument of move_pred function: " + type),
         };
     }
 
-    private PiecePredicate ParsePiecePred(Tuple<string, List<string>> predicate)
+    private static PiecePredicate ParsePiecePred(Tuple<string, List<string>> predicate)
     {
         var (type, args) = predicate;
         string state = args[0];
@@ -487,11 +487,11 @@ public class PredicateParser
         return type switch
         {
             ATTACKED => new Attacked(boardState, piece),
-            _ => throw new ArgumentException("Invalid type argument of move_pred function: " + type),
+            _ => throw new PrediChessException("Invalid type argument of move_pred function: " + type),
         };
     }
 
-    private SquarePredicate ParseSquarePred(Tuple<string, List<string>> predicate)
+    private static SquarePredicate ParseSquarePred(Tuple<string, List<string>> predicate)
     {
         var (type, args) = predicate;
         string arg0 = args[0];
@@ -508,19 +508,19 @@ public class PredicateParser
             SQUARE_IS => new SquareIs(ParsePosition(arg0), ParsePosition(arg1)),
             SQUARE_HAS_RANK => new SquareHasRank(ParsePosition(arg0), int.Parse(arg1)),
             SQUARE_HAS_FILE => new SquareHasFile(ParsePosition(arg0), int.Parse(arg1)),
-            _ => throw new UnknownIdentifierException("Unknown Identifier: " + type),
+            _ => throw new PrediChessException("Unknown Identifier: " + type),
         };
         ;
     }
 
-    private MoveState ParseMoveState(string state)
+    private static MoveState ParseMoveState(string state)
     {
         if (state == THIS_MOVE)
             return MoveState.THIS;
         else if (state == LAST_MOVE)
             return MoveState.LAST;
         else
-            throw new ArgumentException("Invalid move_state variable: " + state);
+            throw new PrediChessException("Invalid move_state variable: " + state);
     }
 
 
@@ -531,10 +531,10 @@ public class PredicateParser
         else if (relative_to == TO)
             return RelativeTo.TO;
         else
-            throw new ArgumentException("Invalid relative_to argument: " + relative_to);
+            throw new PrediChessException("Invalid relative_to argument: " + relative_to);
     }
 
-    private Player ParsePlayer(string info)
+    private static Player ParsePlayer(string info)
     {
         if (info == BLACK)
             return Player.Black;
@@ -543,7 +543,7 @@ public class PredicateParser
         else if(info == SHARED) 
             return Player.None;
         else
-            throw new ArgumentException("Invalid player variable: " + info);
+            throw new PrediChessException("Invalid player variable: " + info);
     }
 
     private static BoardState ParseBoardState(string state)
@@ -553,10 +553,10 @@ public class PredicateParser
         else if (state == NEXT_STATE)
             return BoardState.NEXT;
         else
-            throw new ArgumentException("Invalid state variable: " + state);
+            throw new PrediChessException("Invalid state variable: " + state);
     }
 
-    private IPosition ParsePosition(string position)
+    private static IPosition ParsePosition(string position)
     {
         var func = GetFunction(position);
         (var functionName, var args) = func;
@@ -567,12 +567,12 @@ public class PredicateParser
             case RELATIVE:
                 return new PositionRelative(int.Parse(args[0]), int.Parse(args[1]), ParseRelativeTo(args[2]));
             default:
-                throw new ArgumentException("Invalid position: " + position);
+                throw new PrediChessException("Invalid position: " + position);
         }
 
     }
 
-    private Tuple<string, List<string>> GetFunction(string function)
+    private static Tuple<string, List<string>> GetFunction(string function)
     {
 
         string functionName = GetFirstWord(function);
@@ -609,9 +609,9 @@ public class PredicateParser
             return new Tuple<string, List<string>>(functionName, args);
         }
 
-        throw new ArgumentException("function isn't a proper function");
+        throw new PrediChessException("function " + function + "  isn't a proper function");
     }
-    private string GetFirstWord(string line)
+    private static string GetFirstWord(string line)
     {
         StringBuilder stringBuilder = new StringBuilder();
         foreach(char c in line)
@@ -629,7 +629,7 @@ public class PredicateParser
         return stringBuilder.ToString();
     }
 
-    private string RemoveSpaces(string input)
+    private static string RemoveSpaces(string input)
     {
         StringBuilder stringBuilder = new StringBuilder();
         foreach (char c in input)
@@ -641,7 +641,7 @@ public class PredicateParser
         }
         return stringBuilder.ToString();
     }
-    private string SubstringFromTo(string str, int start, int end)
+    private static string SubstringFromTo(string str, int start, int end)
     {
         return str.Substring(start, end - start);
     }
@@ -653,14 +653,14 @@ public class PredicateParser
     {
         {AND_OP, "*"},
         {OR_OP, "+" },
-        {IMPLIES_OP, "-" },
+        {IMPLIES_OP, "%" },
         {EQUALS_OP, "#" },
         {NOT_EQUALS_OP, "¤" }
     };
 
-    private static readonly char[] operators = new char[] { '#', '¤', '^', '*', '+', '-'};
+    private readonly static char[] operators = new char[] { '#', '¤', '^', '*', '+', '%'};
 
-    private bool IsOperator(char c)
+    private static bool IsOperator(char c)
     {
         foreach(var op in operators)
         {
@@ -669,18 +669,18 @@ public class PredicateParser
         }
         return false;
     }
-    private bool IsFunction(char c)
+    private static bool IsFunction(char c)
     {
         return c.Equals('!');
     }
 
-    private bool IsIdentifier(char c)
+    private static bool IsIdentifier(char c)
     {
         return !IsOperator(c) && !IsFunction(c) && !c.Equals('[') && !c.Equals(']');
     }
 
 
-    private string ReplaceSymbols(string input)
+    private static string ReplaceSymbols(string input)
     {
         foreach(string op in _booleanOperators.Keys)
         {
@@ -688,7 +688,7 @@ public class PredicateParser
         }
         return input;
     }
-    public List<string> ShuntingYard(string input)
+    public static List<string> ShuntingYard(string input)
     {
         input = RemoveSpaces(input);
         input = ReplaceSymbols(input);
@@ -737,7 +737,7 @@ public class PredicateParser
                     output.Add(opStack.Pop().ToString());
                 }
                 if (opStack.Count == 0)
-                    throw new Exception("Mismatched paranthesis");
+                    throw new PrediChessException("Mismatched paranthesis");
                 if (opStack.Peek().Equals('['))
                     opStack.Pop();
                 if (opStack.Count > 0 && IsFunction(opStack.Peek()))
@@ -750,14 +750,14 @@ public class PredicateParser
         {
             if (opStack.Peek().Equals('['))
             {
-                throw new Exception("Mismatched paranthesis");
+                throw new PrediChessException("Mismatched paranthesis");
             }
             output.Add(opStack.Pop().ToString());
         }
         return output;
     }
 
-    public string ConvertToExpression(List<string> tokens)
+    public static string ConvertToExpression(List<string> tokens)
     {
         Stack<string> exprStack = new Stack<string>();
         foreach (string token in tokens)
@@ -770,7 +770,7 @@ public class PredicateParser
             else if (IsOperator(c))
             {
                 if (exprStack.Count < 2)
-                    throw new Exception($"Not enough operands for operator {token}");
+                    throw new PrediChessException($"Not enough operands for operator {token}");
 
                 string operand2 = exprStack.Pop();
                 string operand1 = exprStack.Pop();
@@ -796,25 +796,25 @@ public class PredicateParser
                         exprStack.Push($"IMPLIES({operand1},{operand2})");
                         break;
                     default:
-                        throw new Exception($"Unknown operator: {token}");
+                        throw new PrediChessException($"Unknown operator: {token}");
                 }
             }
             else if (token == "!")
             {
                 if (exprStack.Count < 1)
-                    throw new Exception($"Not enough operands for operator {token}");
+                    throw new PrediChessException($"Not enough operands for operator {token}");
 
                 string operand = exprStack.Pop();
                 exprStack.Push($"NOT({operand})");
             }
             else
             {
-                throw new Exception($"Invalid token: {token}");
+                throw new PrediChessException($"Invalid token: {token}");
             }
         }
 
         if (exprStack.Count != 1)
-            throw new Exception("Invalid expression");
+            throw new PrediChessException("Invalid expression");
 
         return exprStack.Pop();
     }
@@ -827,9 +827,9 @@ public class PredicateParser
         currentWord.Clear();
     }
 
-    private bool HasHigherPrecedence(char o1, char o2)
+    private static bool HasHigherPrecedence(char o1, char o2)
     {
-        if (IsIdentifier(o1) || IsIdentifier(o2)) throw new Exception("not operators: " + o1 + ", " + o2);
+        if (IsIdentifier(o1) || IsIdentifier(o2)) throw new PrediChessException("not operators: " + o1 + ", " + o2);
         int o1Precedence = operators.Length;
         int o2Precedence = operators.Length;
         for(int i = 0; i < operators.Length; i++)
@@ -856,32 +856,9 @@ public class PredicateParser
     }
 }
 
-
-public class InvalidNameException : Exception
+public class PrediChessException : Exception
 {
-    public InvalidNameException(string message) : base(message)
-    {
-
-    }
-}
-public class NoReturnValueException : Exception
-{
-    public NoReturnValueException(string message) : base(message)
-    {
-
-    }
-}
-public class UnknownIdentifierException : Exception
-{
-    public UnknownIdentifierException(string message) : base(message)
-    {
-
-    }
-}
-
-public class InvalidCharacterException : Exception
-{
-    public InvalidCharacterException(string message) : base(message)
+    public PrediChessException(string message) : base(message)
     {
 
     }
