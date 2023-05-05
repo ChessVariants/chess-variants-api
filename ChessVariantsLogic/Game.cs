@@ -257,12 +257,30 @@ public class Game {
 
     public string ExportStateAsJson()
     {
-        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        return ExportState().AsJson();
     }
 
     public GameState ExportState()
     {
-        return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        try
+        {
+            string latestMoveFrom = _moveWorker.Movelog.Last().From;
+            string latestMoveTo = _moveWorker.Movelog.Last().To;
+            var indexFromTopFrom = CalculateIndexFromTopOfBoardToSquare(latestMoveFrom);
+            var indexFromTopTo = CalculateIndexFromTopOfBoardToSquare(latestMoveTo);
+            return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict(), indexFromTopFrom, indexFromTopTo);
+        }
+        catch (InvalidOperationException)
+        {
+            return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        }
+    }
+
+    private int CalculateIndexFromTopOfBoardToSquare(string square)
+    {
+        var rowColIndices = _moveWorker.Board.CoorToIndex[square];
+        var indexFromTop = _moveWorker.Board.Rows * rowColIndices.Item1 + rowColIndices.Item2;
+        return indexFromTop;
     }
 }
 
