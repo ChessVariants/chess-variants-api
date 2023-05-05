@@ -102,6 +102,26 @@ public class PredicateParserTests
     }
 
     [Fact]
+    public void PawnMoveScript_ShouldBeEqual()
+    {
+        string script = "this_position = relative(0, 0, from)\n" +
+            "position_one = relative(0, -1, from)\n" +
+            "position_two = relative(0, -2, from)\n" +
+            "\n" +
+            "has_moved = square_has_moved(this_state, this_position)\n" +
+            "target_square_empty_one = square_has_piece(this_state, position_one, --)\n" +
+            "target_square_empty_two = square_has_piece(this_state, position_two, --)\n" +
+            "\n" +
+            "final_pred = !has_moved && target_square_empty_one && target_square_empty_two\n" +
+            "\n" +
+            "return = final_pred";
+
+        IPredicate test = pp.ParseCode(script);
+        test.ToString();
+    }
+
+
+    [Fact]
     public void AntiChessMoveRuleScript_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(new Attacked(BoardState.THIS, "BLACK"), OperatorType.IMPLIES, new PieceCaptured("BLACK"));

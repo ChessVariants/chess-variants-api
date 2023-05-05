@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 
 namespace DataAccess.MongoDB.Models;
-public record MoveTemplateModel : IModel
+public record RuleSet : IModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -15,11 +15,11 @@ public record MoveTemplateModel : IModel
     public string Description { get; set; } = null!;
     [BsonElement("predicate")]
     public string Predicate { get; set; } = null!;
-    [BsonElement("actions")]
-    public List<ActionRec> Actions { get; set; } = null!;
-    [BsonElement("identifier")]
-    public string Identifier { get; set; } = null!;
-    [BsonElement("click")]
-    public Position Click { get; set; } = null!;
+    [BsonElement("moves")]
+    public List<string> Moves { get; set; } = null!;
+    [BsonElement("events")]
+    public List<string> Events { get; set; } = null!;
+    [BsonElement("stalemateEvents")]
+    public List<string> StalemateEvents { get; set; } = null!;
 
 }

@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 
 namespace DataAccess.MongoDB.Models;
-public record Event : IModel
+public record EventModel : IModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -35,7 +35,7 @@ public record ActionRec
 public record Win
 {
     [BsonElement("whiteWins")]
-    public bool? WhiteWins { get; set; } = null;
+    public bool WhiteWins { get; set; } = false;
 }
 
 public record SetPiece
@@ -56,25 +56,25 @@ public record MovePiece
 public record Position
 {
     [BsonElement("positionAbsolute")]
-    public PositionAbsolute PositionAbsolute { get; set; } = null!;
+    public PositionAbsoluteModel PositionAbsolute { get; set; } = null!;
     [BsonElement("positionRelative")]
-    public PositionRelative PositionRelative { get; set; } = null!;
+    public PositionRelativeModel PositionRelative { get; set; } = null!;
 }
 
-public record PositionAbsolute
+public record PositionAbsoluteModel
 {
     [BsonElement("coordinate")]
     public string Coordinate { get; set; } = null!;
 }
 
 
-public record PositionRelative
+public record PositionRelativeModel
 {
     [BsonElement("x")]
-    public int? X { get; set; } = null;
+    public int X { get; set; } = 0;
     [BsonElement("y")]
-    public int? Y { get; set; } = null;
+    public int Y { get; set; } = 0;
     [BsonElement("to")]
-    public bool? To { get; set; } = null;
+    public bool To { get; set; } = false;
 }
 

@@ -25,7 +25,7 @@ public class EventController : GenericController
     {
         var username = GetUsername();
 
-        List<Event> events = await _db.Events.FindAsync((p) => p.CreatorName == username);
+        List<EventModel> events = await _db.Events.FindAsync((p) => p.CreatorName == username);
 
         List<EventDTO> eventDTOs = events.Select((e) => new EventDTO{
             Name = e.Name,
@@ -52,7 +52,7 @@ public class EventController : GenericController
             await _db.Events.RemoveAsync(ev.Id);
         }
 
-        var e = new Event
+        var e = new EventModel
         {
             CreatorName = username,
             Name = dto.Name,
@@ -169,12 +169,12 @@ public class EventController : GenericController
         if (positionDTO.Absolute != null)
         {
             var absoluteRec = positionDTO.Absolute;
-            position.PositionAbsolute = new PositionAbsolute { Coordinate = absoluteRec.Coordinate };
+            position.PositionAbsolute = new PositionAbsoluteModel { Coordinate = absoluteRec.Coordinate };
         }
         else if (positionDTO.Relative != null)
         {
             var relativeRec = positionDTO.Relative;
-            position.PositionRelative = new PositionRelative { X = relativeRec.X, Y = relativeRec.Y, To = relativeRec.To };
+            position.PositionRelative = new PositionRelativeModel { X = relativeRec.X, Y = relativeRec.Y, To = relativeRec.To };
         }
         return position;
     }

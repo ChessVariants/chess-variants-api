@@ -15,6 +15,7 @@ public abstract class DatabaseService
     public readonly PredicateRepository Predicates;
     public readonly EventRepository Events;
     public readonly MoveRepository Moves;
+    public readonly RuleSetRepository RuleSets;
 
     public DatabaseService(string connectionString, string databaseName)
     {
@@ -24,5 +25,6 @@ public abstract class DatabaseService
         Predicates = new PredicateRepository(_database);
         Events = new EventRepository(_database);
         Moves = new MoveRepository(_database);
+        RuleSets = new RuleSetRepository(_database);
     }
 }
