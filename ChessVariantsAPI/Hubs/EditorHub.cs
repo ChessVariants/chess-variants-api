@@ -4,6 +4,7 @@ using ChessVariantsLogic.Editor;
 using DataAccess.MongoDB;
 using ChessVariantsAPI.ObjectTranslations;
 using Microsoft.AspNetCore.Authorization;
+using System.Data.SqlClient;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -55,9 +56,22 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-    public async Task SetActivePiece(string editorId, string piece)
+    public async Task SetActivePiece(string editorId, string pieceID)
     {
-        _organizer.SetActivePiece(editorId, piece);
+        var piece = await _db.Pieces.GetAsync(pieceID);
+        if(piece == null)
+        {
+            await Clients.Caller.SendCouldNotFetchPiece();
+            return;
+        }
+        _logger.LogDebug("piece: " + piece.Name);
+        _organizer.SetActivePiece(editorId, pieceID, piece.ImagePath);
+        await UpdateBoardEditorState(editorId);
+    }
+
+    public async Task SetActiveRemove(string editorId)
+    {
+        _organizer.SetActivePiece(editorId, "", "remove");
         await UpdateBoardEditorState(editorId);
     }
 
@@ -198,15 +212,25 @@ public class EditorHub : Hub
         else
         {
             var user = GetUsername();
+
+            
             var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
             _logger.LogDebug("Attempting to save piece by user {user}", user);
             await _db.Pieces.CreateAsync(modelPiece);
             _logger.LogDebug("Piece saved to database.");
+        }
+    }
 
-            //await UpdatePatternState(editorId);
-            //await UpdatePieceEditorState(editorId);
+    public async Task GetUserPieces(string editorId)
+    {
+        var user = GetUsername();
+        var pieces = await _db.Pieces.GetByUserAsync(user);
+        foreach (var p in pieces)
+        {
+            _logger.LogDebug("Piece: " + p.Name + ", ID: " + p.Id);
         }
 
+        
     }
 
     private string GetUsername()

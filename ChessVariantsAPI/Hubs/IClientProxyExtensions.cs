@@ -105,6 +105,11 @@ public static class IClientProxyExtensions
     {
         await clients.SendAsync(Events.BuildFailed, "Build failed");
     }
+
+    public static async Task SendCouldNotFetchPiece(this IClientProxy clients)
+    {
+        await clients.SendAsync(Events.CouldNotFetchPiece, "Unable to fetch piece.");
+    }
 }
 
 public static class Events
@@ -142,6 +147,7 @@ public static class Events
     public readonly static string UpdatedBoardEditorState = "updatedBoardEditorState";
     public readonly static string PatternAdded = "PatternAdded";
     public readonly static string BuildFailed = "buildFailed";
+    public readonly static string CouldNotFetchPiece = "couldNotFetchPiece";
 
 #endregion
 
