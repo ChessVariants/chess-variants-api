@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using DataAccess.MongoDB.Models;
+using Newtonsoft.Json.Linq;
 
 namespace ChessVariantsAPI.Controllers;
 
@@ -43,13 +44,21 @@ public class PredicateController : GenericController
     [HttpPost]
     public async Task<IActionResult> SavePredicate(SavePredicateDTO dto)
     {
+        _logger.LogDebug(dto.ToString());
+
+        var username = GetUsername();
+        var predicates = await _db.Predicates.FindAsync((p) => p.CreatorName == username && p.Name == dto.Name);
+        foreach (var pred_ in predicates)
+        {
+            await _db.Predicates.RemoveAsync(pred_.Id);
+        }
 
         var pred = new Predicate
         {
-            CreatorName = GetUsername(),
-            Name = dto.Name,
-            Code = dto.Code,
-            Description = dto.Description,
+            CreatorName = username,
+            Name = dto!.Name,
+            Code = dto!.Code,
+            Description = dto!.Description,
         };
         _logger.LogDebug("Trying to save pred: \n{p}", pred);
 
