@@ -59,6 +59,10 @@ public class NegaMax : IMoveFinder
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
+            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant);
+        }
+        if (_nextMove == null)
+        {
             throw new ArgumentNullException("no valid nextMove found!");
         }
         return _nextMove;
