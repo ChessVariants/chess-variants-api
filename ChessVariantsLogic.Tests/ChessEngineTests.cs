@@ -115,11 +115,11 @@ public class ChessEngineTests : IDisposable
         game.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "a7");
         game.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "b7");
         game.MoveWorker.InsertOnBoard(Piece.King(PieceClassifier.BLACK), "a8");
-        game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "c7");
-        game.MoveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "e8");
+        game.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "d7");
+        game.MoveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "h8");
         
         string moveFreePiece = "c7";
-        Move bestMove = negaMax.FindBestMove(3,game, Player.Black, ScoreVariant.RegularChess);
+        Move bestMove = negaMax.FindBestMove(2,game, Player.Black, ScoreVariant.RegularChess);
         Assert.Equal(moveFreePiece, bestMove.From);
     }
 
