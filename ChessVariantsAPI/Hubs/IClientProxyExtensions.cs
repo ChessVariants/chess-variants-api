@@ -1,4 +1,5 @@
 ﻿using ChessVariantsAPI.GameOrganization;
+using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic.Export;
 using Microsoft.AspNetCore.SignalR;
 
@@ -86,6 +87,16 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.InvalidMove);
     }
 
+    public static async Task SendPromotionOptions(this IClientProxy clients, PromotionOptionsDTO promotionOptionsDTO)
+    {
+        await clients.SendAsync(Events.Promotion, promotionOptionsDTO);
+    }
+
+    public static async Task SendPromotionDone(this IClientProxy clients)
+    {
+        await clients.SendAsync(Events.Promoted);
+    }
+
     public static async Task SendUpdatedEditorState(this IClientProxy clients, EditorState state)
     {
         await clients.SendAsync(Events.UpdatedEditorState, state);
@@ -114,6 +125,9 @@ public static class Events
     public readonly static string BlackWon = "blackWon";
     public readonly static string Tie = "tie";
     public readonly static string Colors = "colors";
+    public readonly static string Promotion = "promotion";
+    public readonly static string Promoted = "promoted";
+
 
     // Lobby events
     public readonly static string PlayerJoinedLobby = "playerJoinedLobby";

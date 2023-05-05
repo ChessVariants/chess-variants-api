@@ -72,6 +72,11 @@ public class MoveWorker
         string from = splitMove.Item1;
         string to = splitMove.Item2;
 
+        if (from == to && force)
+        {
+            return GameEvent.MoveSucceeded;
+        }
+
         string? strPiece = board.GetPieceIdentifier(from);
         if (strPiece == null) return GameEvent.InvalidMove;
         
@@ -110,6 +115,11 @@ public class MoveWorker
         if(piece == null)
             throw new ArgumentException("Invalid PieceIdentifier: " + identifier);
         return piece;
+    }
+
+    public ISet<Piece> GetPieces()
+    {
+        return pieces;
     }
 
     /// <summary>
