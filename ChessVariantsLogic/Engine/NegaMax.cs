@@ -61,7 +61,7 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, false);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
@@ -74,7 +74,7 @@ public class NegaMax : IMoveFinder
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, bool capture)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player)
     {
         var alphaOrigo = alpha;
         var hash = ComputeHashKey(game.MoveWorker.Board);
@@ -134,17 +134,17 @@ public class NegaMax : IMoveFinder
 
             UpdatePlayerVictory(events);
             
-            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier))
+            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1)
             {
-                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, true);
+                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
             }
             else 
-                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, false);
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
 
             if (_score > max)
             {
                 max = _score;
-                if (currentDepth == maxDepth)
+                if (currentDepth == maxDepth && turnMultiplier == player)
                 {
                     _nextMove = move;
                     //test = _score;
@@ -178,8 +178,7 @@ public class NegaMax : IMoveFinder
         }
         _transpositionalTable[hash] = newEntry;
 
-        if(capture)
-            max = NegaMaxAlgorithm(currentDepth - 1, turnMultiplier, maxDepth, alpha, beta, game, scoreVariant, false);
+        
         return max;
     }
 
