@@ -6,8 +6,8 @@ public class BoardEditor
 {
     private MoveWorker _mw;     // This holds the imagepaths for all pieces
     private MoveWorker _mwPieceName;   // This holds the piece ID for the db for all pieces.
-    private string? _pieceImage;
-    private string? _pieceName;
+
+    private Piece? _piece;
 
     public BoardEditor()
     {
@@ -23,25 +23,24 @@ public class BoardEditor
 
     public void InsertPiece(string square)
     {
-        if(_pieceImage == null)
+        if (_piece == null)
             return;
-        if(_pieceImage.Equals("remove"))
+        if(_piece.ImagePath.Equals("remove"))
         {
-            _mw.Board.Remove(square);
-            _mwPieceName.Board.Remove(square);
+            _mw.RemoveFromBoard(square);
+            _mwPieceName.RemoveFromBoard(square);
         }
         else
         {
-            _mw.Board.Insert(_pieceImage, square);
-            _mwPieceName.Board.Insert(_pieceImage, square);
+            _mw.InsertOnBoard(_piece, square);
+            _mwPieceName.InsertOnBoard(_piece, square);
         }
     }
 
     //Parameter "piece" should probably be processed in some way.
-    public void SetActivePiece(string pieceName, string pieceImage)
+    public void SetActivePiece(Piece piece)
     {
-        _pieceName = pieceName;
-        _pieceImage = pieceImage;
+        _piece = piece;
     }
 
     public void ResetStartingPosition()

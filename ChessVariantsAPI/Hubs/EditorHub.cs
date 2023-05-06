@@ -4,6 +4,7 @@ using DataAccess.MongoDB;
 using ChessVariantsAPI.ObjectTranslations;
 using Microsoft.AspNetCore.Authorization;
 using ChessVariantsAPI.Hubs.DTOs;
+using DataAccess.MongoDB.Models;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -14,6 +15,9 @@ public class EditorHub : Hub
     private readonly EditorOrganizer _organizer;
     readonly protected ILogger _logger;
     private DatabaseService _db;
+
+    //Stanard pieces are for now stored in the db under this user
+    private static readonly string StandardPieceUser = "Guest-f004d09b-b95c-4a3e-b83b-b0a0fe29cbf7";
 
     public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger, DatabaseService databaseService)
     {
@@ -57,23 +61,40 @@ public class EditorHub : Hub
 
     public async Task SetActivePiece(string editorId, string pieceName, string color)
     {
-        var user = "Guest-f004d09b-b95c-4a3e-b83b-b0a0fe29cbf7";
-        var piece = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(user, pieceName, color);
-        if (piece == null)
+        var user = GetUsername();
+        Piece? pieceModel = null;
+        try
+        {
+            pieceModel = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(StandardPieceUser, pieceName, color);
+        }
+        catch (InvalidOperationException)
+        {
+            _logger.LogDebug("Piece {pName} is not a standard piece", pieceName);
+        }
+        try
+        {
+            pieceModel = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(user, pieceName, color);
+        }
+        catch (InvalidOperationException)
+        {
+            _logger.LogDebug("Piece {pName} is not a piece created bu {user}", pieceName, user);
+        }
+        if (pieceModel == null)
         {
             await Clients.Caller.SendCouldNotFetchPiece();
             return;
         }
-        _logger.LogDebug("piece: " + piece.Name);
-        _organizer.SetActivePiece(editorId, pieceName, piece.ImagePath);
+        _logger.LogDebug("piece: " + pieceModel.Name);
+        var logicPiece = PieceTranslator.CreatePieceLogic(pieceModel);
+        _organizer.SetActivePiece(editorId, logicPiece);
         await UpdateBoardEditorState(editorId);
     }
 
-    public async Task SetActiveRemove(string editorId)
-    {
-        _organizer.SetActivePiece(editorId, "", "remove");
-        await UpdateBoardEditorState(editorId);
-    }
+    //public async Task SetActiveRemove(string editorId)
+    //{
+    //    _organizer.SetActivePiece(editorId, "", "remove");
+    //    await UpdateBoardEditorState(editorId);
+    //}
 
     public async Task UpdateSquare(string editorId, string square)
     {
@@ -221,14 +242,16 @@ public class EditorHub : Hub
         }
     }
 
-    public async Task GetUserPieces(string editorId)
+    public async Task<List<PieceDTO>> GetUserPieces()
     {
         var user = GetUsername();
         var pieces = await _db.Pieces.GetByUserAsync(user);
+        var pieceDTOs = new List<PieceDTO>();
         foreach (var p in pieces)
         {
-            _logger.LogDebug("Piece: " + p.Name + ", ID: " + p.Id);
+            pieceDTOs.Add(new PieceDTO{ Name = p.Name, Image = p.ImagePath });
         }
+        return pieceDTOs;
     }
 
     public async Task<List<PieceDTO>> RequestStandardPiecesByColor(string color)
