@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
 using ChessVariantsLogic.Export;
-using ChessVariantsLogic.Editor;
 using DataAccess.MongoDB;
 using ChessVariantsAPI.ObjectTranslations;
 using Microsoft.AspNetCore.Authorization;
-using System.Data.SqlClient;
+using ChessVariantsAPI.Hubs.DTOs;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -34,7 +33,7 @@ public class EditorHub : Hub
     public override Task OnDisconnectedAsync(Exception? exception)
     {
         _logger.LogDebug("disconnected editor");
-        return base.OnDisconnectedAsync(exception); 
+        return base.OnDisconnectedAsync(exception);
     }
 
     public BoardEditorState RequestBoardEditorState(string editorId) { return _organizer.GetCurrentBoardEditorState(editorId); }
@@ -56,16 +55,17 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-    public async Task SetActivePiece(string editorId, string pieceID)
+    public async Task SetActivePiece(string editorId, string pieceName, string color)
     {
-        var piece = await _db.Pieces.GetAsync(pieceID);
-        if(piece == null)
+        var user = "Guest-f004d09b-b95c-4a3e-b83b-b0a0fe29cbf7";
+        var piece = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(user, pieceName, color);
+        if (piece == null)
         {
             await Clients.Caller.SendCouldNotFetchPiece();
             return;
         }
         _logger.LogDebug("piece: " + piece.Name);
-        _organizer.SetActivePiece(editorId, pieceID, piece.ImagePath);
+        _organizer.SetActivePiece(editorId, pieceName, piece.ImagePath);
         await UpdateBoardEditorState(editorId);
     }
 
@@ -96,10 +96,10 @@ public class EditorHub : Hub
     #endregion
 
 
-#region PieceEditor
+    #region PieceEditor
 
     public async Task CreatePieceEditor(string editorId)
-    { 
+    {
         _organizer.CreatePieceEditor(editorId);
         await UpdatePieceEditorState(editorId);
         await UpdatePatternState(editorId);
@@ -213,7 +213,7 @@ public class EditorHub : Hub
         {
             var user = GetUsername();
 
-            
+
             var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
             _logger.LogDebug("Attempting to save piece by user {user}", user);
             await _db.Pieces.CreateAsync(modelPiece);
@@ -229,8 +229,22 @@ public class EditorHub : Hub
         {
             _logger.LogDebug("Piece: " + p.Name + ", ID: " + p.Id);
         }
+    }
 
-        
+    public async Task<List<PieceDTO>> RequestStandardPiecesByColor(string color)
+    {
+
+        var pieces = await _db.Pieces.GetStandardPieces();
+        var pieceDTOs = new List<PieceDTO>();
+        foreach (var p in pieces)
+        {
+            if (!p.BelongsTo.Equals(color))
+                continue;
+            _logger.LogDebug("Piece: " + p.Name);
+            pieceDTOs.Add(new PieceDTO { Name = p.Name, Image = p.ImagePath });
+        }
+
+        return pieceDTOs;
     }
 
     private string GetUsername()

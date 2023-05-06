@@ -234,17 +234,6 @@ public class PieceEditor
     }
 
     /// <summary>
-    /// Returns the piece as a string of Json-format.
-    /// </summary>
-    /// <returns>If the piece is successfully built it returns astring on Json-format, otherwise ArgumentNullException is surfaced.</returns>
-    public string ExportStateAsJson()
-    {
-        if(_piece != null)
-            return _piece.ExportAsJson();
-        throw new ArgumentNullException("Piece has not been built successfully.");
-    }
-
-    /// <summary>
     /// Resets the current state of the builder to its original state.
     /// </summary>
     public void ResetPiece()

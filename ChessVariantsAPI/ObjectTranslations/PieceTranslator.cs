@@ -15,6 +15,7 @@ public static class PieceTranslator
             CanBeCaptured = piece.CanBeCaptured,
             CanBePromotedTo = piece.CanBePromotedTo,
             ImagePath = imagePath,
+            BelongsTo = piece.PieceClassifier.AsString(),
             Movement = TranslatePatterns(piece.GetAllMovementPatterns()),
             Captures = TranslatePatterns(piece.GetAllCapturePatterns()),
         };

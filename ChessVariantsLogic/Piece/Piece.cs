@@ -63,15 +63,6 @@ public class Piece
 #endregion
 
     /// <summary>
-    /// Exports this piece into a string of Json-format.
-    /// </summary>
-    /// <returns>A string of Json-format representing this piece.</returns>
-    public string ExportAsJson()
-    {
-        return PieceExporter.ExportPieceStateAsJson(this);
-    }
-
-    /// <summary>
     /// Yield returns all IPatterns existing in this movement pattern.
     /// </summary>
     /// <returns>each IPattern in this movement pattern individually.</returns>
@@ -100,24 +91,6 @@ public class Piece
     }
 
 #region Static methods
-
-    /// <summary>
-    /// Parses a <see cref="PieceState"/> into a <see cref="Piece"/>. 
-    /// </summary>
-    /// <param name="state">is the state that should be parsed.</param>
-    /// <returns>An object of type <see cref="Piece"/>.</returns>
-    public static Piece ParseState(PieceState state)
-    {
-        var movement = new MovementPattern(fetchPatterns(state.Movement));
-        var captures = new MovementPattern(fetchPatterns(state.Captures));
-
-        PieceClassifier pc;
-        var capitalizedPieceClassifier = state.PieceClassifier.ToUpper();
-        if(Enum.TryParse(capitalizedPieceClassifier, out pc))
-            return new Piece(movement, captures, pc, state.Repeat, state.PieceIdentifier, state.CanBeCaptured, state.CanBePromotedTo);
-
-        throw new ArgumentException("PieceClassifier could not be parsed correctly.");
-    }
 
     private static HashSet<Pattern> fetchPatterns(List<PatternRecord> patterns)
     {

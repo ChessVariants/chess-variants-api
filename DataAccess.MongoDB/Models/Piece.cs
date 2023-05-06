@@ -31,6 +31,9 @@ public record Piece : IModel
     [BsonElement("imagePath")]
     public string ImagePath { get; set; } = null!;
 
+    [BsonElement("belongsTo")]
+    public string BelongsTo { get; set; } = null!;
+
     [BsonElement("movement")]
     public List<MovePattern> Movement { get; set; } = new List<MovePattern>();
 

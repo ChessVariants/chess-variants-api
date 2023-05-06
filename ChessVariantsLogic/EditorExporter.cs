@@ -69,6 +69,15 @@ public class EditorExporter
     }
 }
 
+public record PieceImageState
+{
+    [JsonProperty("board")]
+    public List<string> Board { get; set; } = null!;
+
+    [JsonProperty("boardSize")]
+    public BoardSize BoardSize { get; set; } = null!;
+}
+
 public record BoardEditorState
 {
     [JsonProperty("board")]

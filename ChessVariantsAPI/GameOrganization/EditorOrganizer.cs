@@ -54,10 +54,10 @@ public class EditorOrganizer
         editor.UpdateBoardSize(rows, cols);
     }
 
-    public void SetActivePiece(string editorId, string pieceID, string pieceImage)
+    public void SetActivePiece(string editorId, string pieceName, string pieceImage)
     {
         var editor = GetBoardEditor(editorId);
-        editor.SetActivePiece(pieceID, pieceImage);
+        editor.SetActivePiece(pieceName, pieceImage);
     }
 
     public void InsertPiece(string editorId, string square)
