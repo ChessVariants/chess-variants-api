@@ -71,7 +71,7 @@ public class NegaMax : IMoveFinder
             {
                 depth--;
                 _transpositionalTable.Clear();
-                NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, false);
+                NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
             }
             //throw new ArgumentNullException("no valid nextMove found!");
         }
