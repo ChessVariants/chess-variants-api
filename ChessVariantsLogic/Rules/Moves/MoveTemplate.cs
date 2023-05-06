@@ -209,4 +209,5 @@ public class MoveTemplate
         return new MoveTemplate(actions, enemyPawnNextTo & targetSquareEmpty & pawnJustDidDoubleMove, PawnIdentifier, finalPosition);
     }
 
+
 }

@@ -1,7 +1,5 @@
 global using Action = ChessVariantsLogic.Rules.Moves.Actions.Action;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
-using System;
-
 
 namespace ChessVariantsLogic.Rules.Moves.Actions;
 
