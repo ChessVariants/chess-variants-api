@@ -33,7 +33,7 @@ public class ParserController : GenericController
         string exception = "Compile Successful.";
         try
         {
-            _logger.LogDebug("Predicate compiled successfully: " + JsonConvert.SerializeObject(pp.ParseCode(code)));
+            _logger.LogDebug("Predicate compiled successfully: " + JsonConvert.SerializeObject(PredicateParser.ParseCode(code)));
         }
         catch (PrediChessException ex)
         {

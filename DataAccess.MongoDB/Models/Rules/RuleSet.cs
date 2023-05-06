@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 
 namespace DataAccess.MongoDB.Models;
-public record RuleSet : IModel
+public record RuleSetModel : IModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

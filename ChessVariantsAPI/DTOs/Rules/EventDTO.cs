@@ -26,13 +26,16 @@ public record ActionDTO
     public WinDTO? Win { get; set; } = null;
     public SetPieceDTO? Set { get; set; } = null;
     public MovePieceDTO? Move { get; set; } = null;
-    public bool Tie = false;
+    [Required]
+    public bool Tie { get; set; } = false;
+    [Required]
+    public bool Promotion { get; set; } = false;
 }
 
 public record WinDTO
 {
     [Required]
-    public bool? White { get; set; } = null;
+    public bool White { get; set; } = false;
 }
 
 public record SetPieceDTO
@@ -66,10 +69,10 @@ public record PositionAbsoluteDTO
 public record PositionRelativeDTO
 {
     [Required]
-    public int? X { get; set; } = null;
+    public int X { get; set; } = 0;
     [Required]
-    public int? Y { get; set; } = null;
+    public int Y { get; set; } = 0;
     [Required]
-    public bool? To { get; set; } = null;
+    public bool To { get; set; } = false;
 }
 

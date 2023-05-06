@@ -16,11 +16,9 @@ public class PredicateParserTests
     IPredicate constFalse;
     MoveWorker board;
     BoardTransition transition;
-    PredicateParser pp;
 
     public PredicateParserTests()
     {
-        pp = new PredicateParser();
         constTrue = new Const(true);
         constFalse = new Const(false);
         board = new MoveWorker(new Chessboard(8));
@@ -32,14 +30,14 @@ public class PredicateParserTests
     {
         var pred = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(pp.ParsePredicate("true")));
+        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("true")));
     }
     [Fact]
     public void ConstFalse_ShouldBeEqual()
     {
         var pred = new Const(false);
 
-        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(pp.ParsePredicate("false")));
+        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("false")));
     }
     [Fact]
     public void And_ShouldBeEqual()
@@ -47,10 +45,10 @@ public class PredicateParserTests
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject((fals & fals)), JsonConvert.SerializeObject(pp.ParsePredicate("AND(false, false)")));
-        Assert.Equal(JsonConvert.SerializeObject((fals & tru)), JsonConvert.SerializeObject(pp.ParsePredicate("AND(false, true)")));
-        Assert.Equal(JsonConvert.SerializeObject((tru & fals)), JsonConvert.SerializeObject(pp.ParsePredicate("AND(true, false)")));
-        Assert.Equal(JsonConvert.SerializeObject((tru & tru)), JsonConvert.SerializeObject(pp.ParsePredicate("AND(true, true)")));
+        Assert.Equal(JsonConvert.SerializeObject((fals & fals)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(false, false)")));
+        Assert.Equal(JsonConvert.SerializeObject((fals & tru)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(false, true)")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & fals)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, false)")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & tru)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, true)")));
     }
     [Fact]
     public void And_ShouldBeEqualNested()
@@ -58,34 +56,34 @@ public class PredicateParserTests
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject((tru & (fals | (tru & (fals | tru))))), JsonConvert.SerializeObject(pp.ParsePredicate("AND(true, OR(false, AND(true, OR(false, true))))")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & (fals | (tru & (fals | tru))))), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, OR(false, AND(true, OR(false, true))))")));
     }
     [Fact]
     public void PawnMoved_ShouldBeEqual()
     {
         IPredicate pawnMoved = new PieceMoved("PA");
 
-        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(pp.ParsePredicate("move_piece_is(this_move, PA)")));
+        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("move_piece_is(this_move, PA)")));
     }
     [Fact]
     public void StandardChessMoveRule_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_attacked(next_state, KI))")));
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("NOT(piece_attacked(next_state, KI))")));
     }
 
     [Fact]
     public void CountPred_ShouldBeEqual()
     {
         IPredicate countPred = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
-        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("count_pieces_with_id(next_state, KI, equals, 0)")));
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("count_pieces_with_id(next_state, KI, equals, 0)")));
     }
     [Fact]
     public void FilePred_ShouldBeEqual()
     {
         IPredicate countPred = new SquareHasFile(new PositionRelative(0, 1, RelativeTo.FROM), 1);
-        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("square_has_file(relative(0, 1, from), 1)")));
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("square_has_file(relative(0, 1, from), 1)")));
     }
 
     [Fact]
@@ -93,7 +91,7 @@ public class PredicateParserTests
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParseCode("" +
             "x=bi\n" +
             "white_king = KI\n\n" +
             "white_king_checked_next_turn = piece_attacked(next_state, white_king)\n" +
@@ -116,7 +114,7 @@ public class PredicateParserTests
             "\n" +
             "return = final_pred";
 
-        IPredicate test = pp.ParseCode(script);
+        IPredicate test = PredicateParser.ParseCode(script);
         test.ToString();
     }
 
@@ -126,7 +124,7 @@ public class PredicateParserTests
     {
         IPredicate moveRule = new Operator(new Attacked(BoardState.THIS, "BLACK"), OperatorType.IMPLIES, new PieceCaptured("BLACK"));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParseCode("" +
             "black_attacked = piece_attacked(this_state, BLACK)\n" +
             "black_captured = move_captured(this_move, BLACK)\n" +
             "return = IMPLIES(black_attacked, black_captured)\n")));
@@ -144,7 +142,7 @@ public class PredicateParserTests
 
         IPredicate moveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParseCode("" +
             "last_move_duck = move_piece_is(last_move, DU)\n" +
             "last_move_white = move_piece_is(last_move, WHITE)\n" +
             "\n" +
@@ -160,14 +158,14 @@ public class PredicateParserTests
     [Fact]
     public void SyntaxNames_ShouldThrowException()
     {
-        Assert.Throws<InvalidNameException>(() => pp.ParseCode("this_move = move_piece_is(this_move, DU)\n" +
+        Assert.Throws<PrediChessException>(() => PredicateParser.ParseCode("this_move = move_piece_is(this_move, DU)\n" +
             "return = this_move\n"));
     }
     [Fact]
     public void ShuntingYard_()
     {
-        List<string> input = pp.ShuntingYard("!(test && b) || (c && d) == f");
-        string output = pp.ConvertToExpression(input);
+        List<string> input = PredicateParser.ShuntingYard("!(test && b) || (c && d) == f");
+        string output = PredicateParser.ConvertToExpression(input);
         Assert.True(output.Length > 0);
     }
 }

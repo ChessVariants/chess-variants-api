@@ -56,7 +56,7 @@ public class RuleSetController : GenericController
             await _db.RuleSets.RemoveAsync(ruleSet.Id);
         }
 
-        var newRuleSet = new RuleSet
+        var newRuleSet = new RuleSetModel
         {
             CreatorName = username,
             Name = dto.Name,

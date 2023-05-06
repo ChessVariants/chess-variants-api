@@ -3,7 +3,6 @@ using ChessVariantsLogic.Rules.Moves.Actions;
 namespace ChessVariantsLogic.Rules.Moves;
 
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
-using DataAccess.MongoDB.Models;
 using Predicates;
 
 /// <summary>
@@ -211,27 +210,4 @@ public class MoveTemplate
     }
 
 
-    public static MoveTemplate? ConstructFromModel(MoveTemplateModel moveTemplateModel, string predicateScript)
-    {
-        List<Action> actions = new();
-        foreach(var actionRec in moveTemplateModel.Actions)
-        {
-            Action? action = Action.ConstructFromModel(actionRec);
-            if (action == null) return null;
-            actions.Add(action);
-        }
-        string identifier = moveTemplateModel.Identifier;
-        IPosition? position = IPosition.ConstructFromModel(moveTemplateModel.Click);
-        if (position == null) return null;
-        IPredicate predicate;
-        try
-        {
-            predicate = PredicateParser.ParseCode(predicateScript);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-        return new MoveTemplate(actions, predicate, identifier, position);
-    }
 }

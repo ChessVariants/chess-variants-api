@@ -2,11 +2,11 @@
 using MongoDB.Driver;
 
 namespace DataAccess.MongoDB.Repositories;
-public class RuleSetRepository : GenericRepository<RuleSet>
+public class RuleSetRepository : GenericRepository<RuleSetModel>
 {
     public const string CollectionName = "RuleSets";
 
-    public RuleSetRepository(IMongoDatabase database) : base(database.GetCollection<RuleSet>(CollectionName))
+    public RuleSetRepository(IMongoDatabase database) : base(database.GetCollection<RuleSetModel>(CollectionName))
     {
     }
 }

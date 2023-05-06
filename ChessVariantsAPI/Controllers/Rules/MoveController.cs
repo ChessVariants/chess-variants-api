@@ -33,7 +33,7 @@ public class MoveController : GenericController
             Description = e.Description,
             Predicate = e.Predicate,
             Click = EventController.ConvertPositionRecToDTO(e.Click),
-            Actions = EventController.ConvertActionRecsToDTOs(e.Actions),
+            Actions = EventController.ConvertActionRecsToDTOs(e.Actions, _logger),
             Identifier = e.Identifier,
         }).ToList();
 
@@ -61,7 +61,7 @@ public class MoveController : GenericController
             Name = dto.Name,
             Description = dto.Description,
             Predicate = dto.Predicate,
-            Actions = EventController.ConvertActionDTOsToRecs(dto.Actions),
+            Actions = EventController.ConvertActionDTOsToRecs(dto.Actions, _logger),
             Click = EventController.ConvertPositionDTOToRec(dto.Click),
             Identifier = dto.Identifier,
         };

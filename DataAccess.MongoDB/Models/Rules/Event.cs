@@ -30,6 +30,8 @@ public record ActionRec
     public MovePiece Move { get; set; } = null!;
     [BsonElement("isTie")]
     public bool IsTie { get; set; } = false;
+    [BsonElement("isPromotion")]
+    public bool IsPromotion { get; set; } = false;
 }
 
 public record Win

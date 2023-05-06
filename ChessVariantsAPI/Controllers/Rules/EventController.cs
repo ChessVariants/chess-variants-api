@@ -31,7 +31,7 @@ public class EventController : GenericController
             Name = e.Name,
             Description = e.Description,
             Predicate = e.Predicate,
-            Actions = ConvertActionRecsToDTOs(e.Actions),
+            Actions = ConvertActionRecsToDTOs(e.Actions, _logger),
         }).ToList();
 
         _logger.LogInformation("User {u} requested {n} events", username, eventDTOs.Count);
@@ -58,7 +58,7 @@ public class EventController : GenericController
             Name = dto.Name,
             Description = dto.Description,
             Predicate = dto.Predicate,
-            Actions = ConvertActionDTOsToRecs(dto.Actions),
+            Actions = ConvertActionDTOsToRecs(dto.Actions, _logger),
         };
         _logger.LogDebug("Trying to save event: \n{p}", e);
 
@@ -87,12 +87,12 @@ public class EventController : GenericController
         return User?.FindFirst(ClaimTypes.Name)?.Value!;
     }
 
-    public static List<ActionDTO> ConvertActionRecsToDTOs(List<ActionRec> actions)
+    public static List<ActionDTO> ConvertActionRecsToDTOs(List<ActionRec> actions, ILogger<GenericController> logger)
     {
-        return actions.Select((action) => ConvertActionRecToDTO(action)).ToList();
+        return actions.Select((action) => ConvertActionRecToDTO(action, logger)).ToList();
     }
 
-    public static ActionDTO ConvertActionRecToDTO(ActionRec actionRec)
+    public static ActionDTO ConvertActionRecToDTO(ActionRec actionRec, ILogger<GenericController> logger)
     {
         ActionDTO result = new();
         if (actionRec.Win != null)
@@ -114,6 +114,11 @@ public class EventController : GenericController
         {
             result.Tie = actionRec.IsTie;
         }
+        else if (actionRec.IsPromotion)
+        {
+            result.Promotion = actionRec.IsPromotion;
+        }
+        logger.LogDebug("Converted model {m} to DTO {d}", actionRec, result);
         return result;
     }
 
@@ -133,12 +138,12 @@ public class EventController : GenericController
         return positionDTO;
     }
 
-    public static List<ActionRec> ConvertActionDTOsToRecs(List<ActionDTO> actions)
+    public static List<ActionRec> ConvertActionDTOsToRecs(List<ActionDTO> actions, ILogger<GenericController> logger)
     {
-        return actions.Select((actionDTO) => ConvertActionDTOToRec(actionDTO)).ToList();
+        return actions.Select((actionDTO) => ConvertActionDTOToRec(actionDTO, logger)).ToList();
     }
 
-    public static ActionRec ConvertActionDTOToRec(ActionDTO actionDTO)
+    public static ActionRec ConvertActionDTOToRec(ActionDTO actionDTO, ILogger<GenericController> logger)
     {
         ActionRec result = new();
         if (actionDTO.Win != null)
@@ -160,6 +165,11 @@ public class EventController : GenericController
         {
             result.IsTie = actionDTO.Tie;
         }
+        else if (actionDTO.Promotion)
+        {
+            result.IsPromotion = actionDTO.Promotion;
+        }
+        logger.LogDebug("Converted DTO {d} to Model {m}", actionDTO, result);
         return result;
     }
 

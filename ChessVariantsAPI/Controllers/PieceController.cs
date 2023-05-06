@@ -8,8 +8,10 @@ namespace ChessVariantsAPI.Controllers;
 [ApiController]
 public class PieceController : GenericController
 {
-    public PieceController(DatabaseService databaseService, ILogger<UsersController> logger) : base(databaseService, logger)
+    private readonly ILogger<PieceController> _logger;
+    public PieceController(DatabaseService databaseService, ILogger<PieceController> logger) : base(databaseService)
     {
+        _logger = logger;
     }
 
     [HttpGet]
