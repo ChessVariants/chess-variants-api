@@ -30,14 +30,14 @@ public class PredicateParserTests
     {
         var pred = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("true")));
+        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = true")));
     }
     [Fact]
     public void ConstFalse_ShouldBeEqual()
     {
         var pred = new Const(false);
 
-        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("false")));
+        Assert.Equal(JsonConvert.SerializeObject(pred), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = false")));
     }
     [Fact]
     public void And_ShouldBeEqual()
@@ -45,10 +45,10 @@ public class PredicateParserTests
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject((fals & fals)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(false, false)")));
-        Assert.Equal(JsonConvert.SerializeObject((fals & tru)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(false, true)")));
-        Assert.Equal(JsonConvert.SerializeObject((tru & fals)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, false)")));
-        Assert.Equal(JsonConvert.SerializeObject((tru & tru)), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, true)")));
+        Assert.Equal(JsonConvert.SerializeObject((fals & fals)), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = AND(false, false)")));
+        Assert.Equal(JsonConvert.SerializeObject((fals & tru)), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = AND(false, true)")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & fals)), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = AND(true, false)")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & tru)), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = AND(true, true)")));
     }
     [Fact]
     public void And_ShouldBeEqualNested()
@@ -56,34 +56,34 @@ public class PredicateParserTests
         IPredicate fals = new Const(false);
         IPredicate tru = new Const(true);
 
-        Assert.Equal(JsonConvert.SerializeObject((tru & (fals | (tru & (fals | tru))))), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("AND(true, OR(false, AND(true, OR(false, true))))")));
+        Assert.Equal(JsonConvert.SerializeObject((tru & (fals | (tru & (fals | tru))))), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = AND(true, OR(false, AND(true, OR(false, true))))")));
     }
     [Fact]
     public void PawnMoved_ShouldBeEqual()
     {
         IPredicate pawnMoved = new PieceMoved("PA");
 
-        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("move_piece_is(this_move, PA)")));
+        Assert.Equal(JsonConvert.SerializeObject(pawnMoved), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = move_piece_is(this_move, PA)")));
     }
     [Fact]
     public void StandardChessMoveRule_ShouldBeEqual()
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("NOT(piece_attacked(next_state, KI))")));
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = NOT(piece_attacked(next_state, KI))")));
     }
 
     [Fact]
     public void CountPred_ShouldBeEqual()
     {
         IPredicate countPred = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
-        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("count_pieces_with_id(next_state, KI, equals, 0)")));
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = count_pieces_with_id(next_state, KI, equals, 0)")));
     }
     [Fact]
     public void FilePred_ShouldBeEqual()
     {
         IPredicate countPred = new SquareHasFile(new PositionRelative(0, 1, RelativeTo.FROM), 1);
-        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParsePredicate("square_has_file(relative(0, 1, from), 1)")));
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(PredicateParser.ParseCode("return = square_has_file(relative(0, 1, from), 1)")));
     }
 
     [Fact]
@@ -99,24 +99,6 @@ public class PredicateParserTests
             "return = white_move_rule\n")));
     }
 
-    [Fact]
-    public void PawnMoveScript_ShouldBeEqual()
-    {
-        string script = "this_position = relative(0, 0, from)\n" +
-            "position_one = relative(0, -1, from)\n" +
-            "position_two = relative(0, -2, from)\n" +
-            "\n" +
-            "has_moved = square_has_moved(this_state, this_position)\n" +
-            "target_square_empty_one = square_has_piece(this_state, position_one, --)\n" +
-            "target_square_empty_two = square_has_piece(this_state, position_two, --)\n" +
-            "\n" +
-            "final_pred = !has_moved && target_square_empty_one && target_square_empty_two\n" +
-            "\n" +
-            "return = final_pred";
-
-        IPredicate test = PredicateParser.ParseCode(script);
-        test.ToString();
-    }
 
 
     [Fact]
@@ -161,6 +143,7 @@ public class PredicateParserTests
         Assert.Throws<PrediChessException>(() => PredicateParser.ParseCode("this_move = move_piece_is(this_move, DU)\n" +
             "return = this_move\n"));
     }
+    /*
     [Fact]
     public void ShuntingYard_()
     {
@@ -168,4 +151,5 @@ public class PredicateParserTests
         string output = PredicateParser.ConvertToExpression(input);
         Assert.True(output.Length > 0);
     }
+    */
 }

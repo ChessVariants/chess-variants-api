@@ -296,7 +296,7 @@ public class PredicateParser
         return false;
     }
 
-    public static IPredicate ParsePredicate(string pred)
+    private static IPredicate ParsePredicate(string pred)
     {
         pred = RemoveSpaces(pred);
         Tuple<string, List<string>> function = GetFunction(pred);
@@ -688,7 +688,7 @@ public class PredicateParser
         }
         return input;
     }
-    public static List<string> ShuntingYard(string input)
+    private static List<string> ShuntingYard(string input)
     {
         input = RemoveSpaces(input);
         input = ReplaceSymbols(input);
@@ -757,7 +757,7 @@ public class PredicateParser
         return output;
     }
 
-    public static string ConvertToExpression(List<string> tokens)
+    private static string ConvertToExpression(List<string> tokens)
     {
         Stack<string> exprStack = new Stack<string>();
         foreach (string token in tokens)
