@@ -67,6 +67,7 @@ public class NegaMax : IMoveFinder
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
+<<<<<<< HEAD
             while(depth >= 0 && _nextMove == null)
             {
                 depth--;
@@ -74,6 +75,9 @@ public class NegaMax : IMoveFinder
                 NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
             }
             //throw new ArgumentNullException("no valid nextMove found!");
+=======
+            throw new ArgumentNullException("no valid nextMove found!");
+>>>>>>> parent of 524d589 (Merge branch 'Transposition' of https://github.com/ChessVariants/ChessVariantsAPI into Transposition)
         }
         return _nextMove;
     }
