@@ -198,6 +198,8 @@ public class PieceEditor
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { _builder.SetSameMovementAndCapturePattern(enable); }
 
+    public void SetCanBePromotedTo(bool enable) { _builder.SetCanBePromotedTo(enable); }
+
     /// <summary>
     /// Set true if the piece can be captured, false if it can not. Is true from the preset.
     /// </summary>

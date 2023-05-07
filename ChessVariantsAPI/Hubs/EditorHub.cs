@@ -211,6 +211,12 @@ public class EditorHub : Hub
         await UpdatePieceEditorState(editorId);
     }
 
+    public async Task SetCanBePromotedTo(string editorId, bool enable)
+    {
+        _organizer.CanBePromotedTo(editorId, enable);
+        await UpdatePieceEditorState(editorId);
+    }
+
     public async Task ShowMovement(string editorId, bool enable)
     {
         _organizer.ShowMovement(editorId, enable);
@@ -261,9 +267,9 @@ public class EditorHub : Hub
 
 
             var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
-            _logger.LogDebug("Attempting to save piece by user {user}", user);
+            _logger.LogDebug("Attempting to save piece <{pieceName}> by user <{user}>", pieceName, user);
             await _db.Pieces.CreateAsync(modelPiece);
-            _logger.LogDebug("Piece saved to database.");
+            _logger.LogDebug("Piece <{pieceName}> saved to database by user <{user}>.", pieceName, user);
         }
     }
 

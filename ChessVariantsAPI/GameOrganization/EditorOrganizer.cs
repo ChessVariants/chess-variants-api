@@ -201,6 +201,12 @@ public class EditorOrganizer
         editor.SetCanBeCaptured(enable);
     }
 
+    public void CanBePromotedTo(string editorId, bool enable)
+    {
+        var editor = GetPieceEditor(editorId);
+        editor.SetCanBePromotedTo(enable);
+    }
+
     public void RepeatMovement(string editorId, int repeat)
     {
         var editor = GetPieceEditor(editorId);

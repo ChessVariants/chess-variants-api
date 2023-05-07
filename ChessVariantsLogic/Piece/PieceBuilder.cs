@@ -36,6 +36,7 @@ public class PieceBuilder
         this.pc = PieceClassifier.WHITE;
         this.repeat = 0;
         this.canBeCaptured = true;
+        canBePromotedTo = true;
         this.sameCaptureAsMovement = true;
         _imagePath = initialImagePath;
     }
@@ -285,6 +286,8 @@ public class PieceBuilder
     /// </summary>
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
+
+    public void SetCanBePromotedTo(bool enable) { System.Console.WriteLine("promote to: " + enable); canBePromotedTo = enable; }
    
     public bool HasSameMovementAndCapturePattern() { return sameCaptureAsMovement; }
 
