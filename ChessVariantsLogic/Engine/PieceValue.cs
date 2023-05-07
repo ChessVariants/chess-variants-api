@@ -77,8 +77,8 @@ public class PieceValue
         int maxCol;
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
-            maxRow = Math.Min(_chessboard.Rows,pattern.MaxLength);
-            maxCol = Math.Min(_chessboard.Cols,pattern.MaxLength);
+            maxRow = Math.Min(_chessboard.Rows - 1,pattern.MaxLength);
+            maxCol = Math.Min(_chessboard.Cols - 1,pattern.MaxLength);
             if (pattern is JumpPattern)
             {
                 value += _jumpPatternValue;
@@ -95,7 +95,7 @@ public class PieceValue
             {
                 int minBoard = Math.Min(maxCol, maxRow);
                 int maxMoves = Math.Min(minBoard, pattern.MaxLength);
-                value +=  ((maxMoves - pattern.MinLength) * (piece.Repeat + 1)*16.8/28);
+                value +=  ((maxMoves - pattern.MinLength + 1) * (piece.Repeat + 1)*16.8/28);
             }
             
 
@@ -114,8 +114,8 @@ public class PieceValue
         int maxCol;
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
-            maxRow = Math.Min(_chessboard.Rows,pattern.MaxLength);
-            maxCol = Math.Min(_chessboard.Cols,pattern.MaxLength);
+            maxRow = Math.Min(_chessboard.Rows - 1,pattern.MaxLength);
+            maxCol = Math.Min(_chessboard.Cols - 1,pattern.MaxLength);
             if (pattern is JumpPattern)
             {
                 value += _jumpPatternValue;
@@ -132,7 +132,7 @@ public class PieceValue
             {
                 int minBoard = Math.Min(maxCol, maxRow);
                 int maxMoves = Math.Min(minBoard, pattern.MaxLength);
-                value +=  ((maxMoves - pattern.MinLength) * (piece.Repeat + 1)*16.8/28);
+                value +=  ((maxMoves - pattern.MinLength + 1) * (piece.Repeat + 1)*16.8/28);
             }
         }
         if (piece.PieceClassifier.Equals(PieceClassifier.BLACK))
