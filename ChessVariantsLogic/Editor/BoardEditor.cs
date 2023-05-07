@@ -5,7 +5,6 @@ namespace ChessVariantsLogic.Editor;
 public class BoardEditor
 {
     private MoveWorker _mw;     // This holds the imagepaths for all pieces
-    private MoveWorker _mwPieceName;   // This holds the piece ID for the db for all pieces.
 
     private Piece? _piece;
 
@@ -14,14 +13,12 @@ public class BoardEditor
     public BoardEditor()
     {
         _mw = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
-        _mwPieceName = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         _remove = false;
     }
 
     public void UpdateBoardSize(int row, int col)
     {
         _mw.Board = new Chessboard(row, col);
-        _mwPieceName.Board = new Chessboard(row, col);
     }
 
     public void UpdateSquare(string square)
@@ -29,7 +26,6 @@ public class BoardEditor
         if(_remove)
         {
             _mw.RemoveFromBoard(square);
-            _mwPieceName.RemoveFromBoard(square);
             return;
         }
 
@@ -38,7 +34,6 @@ public class BoardEditor
         else
         {
             _mw.InsertOnBoard(_piece, square);
-            _mwPieceName.InsertOnBoard(_piece, square);
         }
     }
 
@@ -53,7 +48,6 @@ public class BoardEditor
     public void ResetStartingPosition()
     {
         _mw.Board = Chessboard.StandardChessboard();
-        _mwPieceName.Board = Chessboard.StandardChessboard();
     }
 
     public void ClearBoard()
@@ -61,7 +55,6 @@ public class BoardEditor
         int row = _mw.Board.Rows;
         int col = _mw.Board.Cols;
         _mw.Board = new Chessboard(row, col);
-        _mwPieceName.Board = new Chessboard(row, col);
     }
 
     public void SaveBoardToDb()

@@ -38,25 +38,25 @@ public class BoardExporterTests
     {
         var correctBoard = new List<string>()
         {
-            Constants.BlackRookIdentifier,
-            Constants.BlackKnightIdentifier,
-            Constants.BlackBishopIdentifier,
-            Constants.BlackQueenIdentifier,
-            Constants.BlackKingIdentifier,
-            Constants.BlackBishopIdentifier,
-            Constants.BlackKnightIdentifier,
-            Constants.BlackRookIdentifier,
-            Constants.BlackPawnIdentifier+"8",
+            Constants.BlackRookImage,
+            Constants.BlackKnightImage,
+            Constants.BlackBishopImage,
+            Constants.BlackQueenImage,
+            Constants.BlackKingImage,
+            Constants.BlackBishopImage,
+            Constants.BlackKnightImage,
+            Constants.BlackRookImage,
+            Constants.BlackPawnImage+"8",
             Constants.UnoccupiedSquareIdentifier+"32",
-            Constants.WhitePawnIdentifier+"8",
-            Constants.WhiteRookIdentifier,
-            Constants.WhiteKnightIdentifier,
-            Constants.WhiteBishopIdentifier,
-            Constants.WhiteQueenIdentifier,
-            Constants.WhiteKingIdentifier,
-            Constants.WhiteBishopIdentifier,
-            Constants.WhiteKnightIdentifier,
-            Constants.WhiteRookIdentifier,
+            Constants.WhitePawnImage+"8",
+            Constants.WhiteRookImage,
+            Constants.WhiteKnightImage,
+            Constants.WhiteBishopImage,
+            Constants.WhiteQueenImage,
+            Constants.WhiteKingImage,
+            Constants.WhiteBishopImage,
+            Constants.WhiteKnightImage,
+            Constants.WhiteRookImage,
         };
 
         Assert.Equal(correctBoard, gameState.Board);
@@ -75,7 +75,7 @@ public class BoardExporterTests
         var mw = new MoveWorker(new Chessboard(10));
         mw.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "e4");
         var gameState = GameExporter.ExportGameState(mw, Player.Black, mw.GetMoveDict(Player.Black));
-        Assert.Contains(Constants.BlackBishopIdentifier, gameState.Board);
+        Assert.Contains(Constants.BlackBishopImage, gameState.Board);
         Assert.Equal(3, gameState.Board.Count); // 1. All squares leading up to the bishop, the bishop's square, and all squares afterwards
     }
 
