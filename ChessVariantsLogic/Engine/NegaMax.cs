@@ -61,39 +61,31 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier, 3);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
-<<<<<<< HEAD
-            while(depth >= 0 && _nextMove == null)
-            {
-                depth--;
-                _transpositionalTable.Clear();
-                NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
-            }
-            //throw new ArgumentNullException("no valid nextMove found!");
-=======
+
             throw new ArgumentNullException("no valid nextMove found!");
->>>>>>> parent of 524d589 (Merge branch 'Transposition' of https://github.com/ChessVariants/ChessVariantsAPI into Transposition)
+
         }
         return _nextMove;
     }
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player, int wtf)
     {
         var alphaOrigo = alpha;
-        var hash = ComputeHashKey(game.MoveWorker.Board);
+        /*var hash = ComputeHashKey(game.MoveWorker.Board);
 
         if (_transpositionalTable.ContainsKey(hash))
         {
             var entry = _transpositionalTable[hash];
 
-            if (entry.Depth >= currentDepth)
+            if (entry.Depth >= currentDepth + 3 - wtf)
             {
                 if (entry.Type == TranspositionTableEntry.EntryType.Exact)
                 {
@@ -114,7 +106,7 @@ public class NegaMax : IMoveFinder
                 }
 
             }
-        }
+        }*/
 
         if (currentDepth == 0)
         {
@@ -144,12 +136,13 @@ public class NegaMax : IMoveFinder
 
             UpdatePlayerVictory(events);
             
-            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1)
+            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1 && wtf > 0)
             {
-                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
+                
+                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, wtf - 1);
             }
             else 
-                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, wtf);
 
             if (_score > max)
             {
@@ -167,10 +160,10 @@ public class NegaMax : IMoveFinder
             if (alpha >= beta)
                 break;
         }
-        TranspositionTableEntry newEntry = new TranspositionTableEntry();
+        /*TranspositionTableEntry newEntry = new TranspositionTableEntry();
         newEntry.Hash = ComputeHashKey(game.MoveWorker.Board);
         newEntry.Score = max;
-        newEntry.Depth = currentDepth;
+        newEntry.Depth = currentDepth + 3 - wtf;
         if (max <= alphaOrigo)
         {
             //newEntry.Score = alpha;
@@ -186,7 +179,7 @@ public class NegaMax : IMoveFinder
             //newEntry.Score = max;
             newEntry.Type = TranspositionTableEntry.EntryType.Exact;
         }
-        _transpositionalTable[hash] = newEntry;
+        _transpositionalTable[hash] = newEntry;*/
 
         
         return max;
@@ -195,6 +188,7 @@ public class NegaMax : IMoveFinder
     public double ScoreBoard(MoveWorker moveWorker, Player player, ScoreVariant scoreVariant)
     {
         double score = 0;
+        //test = 0;
         if (_blackWon)
         {
             _blackWon = false;

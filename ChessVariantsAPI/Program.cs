@@ -39,6 +39,6 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.MapControllers();
-app.MapHubs();
+//app.MapHubs();
 
 app.Run();
