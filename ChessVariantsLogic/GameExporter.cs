@@ -23,14 +23,21 @@ public static class GameExporter
     /// <param name="sideToMove">The side whose turn it is to move</param>
     /// <param name="moveDict">Moves to export</param>
     /// <returns></returns>
-    public static GameState ExportGameState(MoveWorker mw, Player sideToMove, Dictionary<string, List<string>> moveDict)
+    public static GameState ExportGameState(
+        MoveWorker mw,
+        Player sideToMove,
+        Dictionary<string, List<string>> moveDict,
+        int? lastestMoveFromIndex = null,
+        int? lastestMoveToIndex = null)
     {
         return new GameState
         {
             SideToMove = sideToMove.AsString(),
             Board = ExportBoard(mw),
             BoardSize = new BoardSize { Rows = mw.Board.Rows, Cols = mw.Board.Cols },
-            Moves = ExportMoves(moveDict)
+            Moves = ExportMoves(moveDict),
+            LatestMoveFromIndex = lastestMoveFromIndex,
+            LatestMoveToIndex = lastestMoveToIndex,
         };
     }
 
@@ -109,6 +116,12 @@ public record GameState
 
     [JsonProperty("moves")]
     public List<MoveRecord> Moves { get; set; } = null!;
+
+    [JsonProperty("latestMoveFromIndex")]
+    public int? LatestMoveFromIndex { get; set; } = null!;
+
+    [JsonProperty("latestMoveToIndex")]
+    public int? LatestMoveToIndex { get; set; } = null!;
 
     public string AsJson()
     {

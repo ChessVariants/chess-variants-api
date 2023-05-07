@@ -14,10 +14,12 @@ namespace ChessVariantsAPI.Controllers;
 public class LoginController : GenericController
 {
     private readonly JWTUtils _jwtUtils;
+    ILogger _logger;
 
-    public LoginController(DatabaseService databaseService, ILogger<UsersController> logger, JWTUtils jwtUtils) : base(databaseService, logger)
+    public LoginController(DatabaseService databaseService, ILogger<LoginController> logger, JWTUtils jwtUtils) : base(databaseService)
     {
         _jwtUtils = jwtUtils;
+        _logger = logger;
     }
 
     [HttpGet]

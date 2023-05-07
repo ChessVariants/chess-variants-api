@@ -5,12 +5,14 @@ namespace ChessVariantsLogic.Engine;
 
 public class NegaMax : IMoveFinder
 {
+    private Random _rand;
+    private double test = 0;
     private Move _nextMove;
-    private const int WhiteToMove = 1;
-    private const int BlackToMove = -1;
-    private int _alpha = -100000;
-    private int _beta = 100000;
-    private int _score;
+    private int _whiteToMove = 1;
+    private int _blackToMove = -1;
+    private double _alpha = -100000;
+    private double _beta = 100000;
+    private double _score;
     private List<Piece> _pieces;
     private bool _blackWon = false;
     private bool _whiteWon = false;
@@ -18,9 +20,17 @@ public class NegaMax : IMoveFinder
     private Stack<IDictionary<string, Move>> _legalMovesLog = new Stack<IDictionary<string, Move>>();
 
     private PieceValue _pieceValue;
-    public NegaMax(PieceValue pieceValue)
+    public NegaMax(HashSet<Piece> pieces, Chessboard chessboard)
     {
-        _pieceValue = pieceValue;
+        _pieceValue = new PieceValue(pieces, chessboard);
+
+    }
+    private HeatMap _heatMap;
+
+
+    public PieceValue GetPieceValue()
+    {
+        return _pieceValue;
     }
 
 
@@ -31,26 +41,31 @@ public class NegaMax : IMoveFinder
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move FindBestMove(int depth, Game game, Player player)
+    public Move FindBestMove(int depth, Game game, Player player, ScoreVariant scoreVariant)
     {
         int turnMultiplier;
+        _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
         var tmp_legalMoves = game.LegalMoves;
         var tmp_playerTurn = game.PlayerTurn;
 
         if (player.Equals(Player.White))
         {
-            turnMultiplier = WhiteToMove;
+            turnMultiplier = _whiteToMove;
             game.PlayerTurn = Player.White;
         }
         else
         {
-            turnMultiplier = BlackToMove;
+            turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
+        if (_nextMove == null)
+        {
+            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant);
+        }
         if (_nextMove == null)
         {
             throw new ArgumentNullException("no valid nextMove found!");
@@ -60,26 +75,31 @@ public class NegaMax : IMoveFinder
 
 
 
-    private int NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, int alpha, int beta, Game game)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant)
     {
         if (currentDepth == 0)
         {
-            return turnMultiplier * ScoreBoard(game.MoveWorker);
+            return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
         }
 
-        int max = -100000;
+        double max = -100000;
 
         UpdatePlayerTurn(game, turnMultiplier);
 
         var validMoves = game.LegalMoves.Values;
-        foreach (var move in validMoves)
+
+        List<Move> L = validMoves.ToList();
+
+        Shuffle(L);
+
+        foreach (var move in L)
         {
             var legalMoves = SaveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
 
             UpdatePlayerVictory(events);
 
-            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game);
+            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant);
 
             if (_score > max)
             {
@@ -89,7 +109,7 @@ public class NegaMax : IMoveFinder
                     _nextMove = move;
                 }
             }
-            game.MoveWorker.undoMove();
+            game.MoveWorker.UndoMove();
             game.LegalMoves = _legalMovesLog.Pop();
             if (_score > alpha)
                 alpha = _score;
@@ -99,9 +119,9 @@ public class NegaMax : IMoveFinder
         return max;
     }
 
-    public int ScoreBoard(MoveWorker moveWorker)
+    public double ScoreBoard(MoveWorker moveWorker, Player player, ScoreVariant scoreVariant)
     {
-        int score = 0;
+        double score = 0;
         if (_blackWon)
         {
             _blackWon = false;
@@ -123,12 +143,27 @@ public class NegaMax : IMoveFinder
             for (int col = 0; col < moveWorker.Board.Cols; col++)
             {
                 var piece = moveWorker.Board.GetPieceIdentifier(row, col);
-                if (piece != null)
+                if (piece != null && piece != "--")
                 {
-                    score += _pieceValue.GetValue(piece);
+                    score += _pieceValue.getValue(piece);
+
+                    if (moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.WHITE))
+                        score += _heatMap.GetValue(row, col);
+                    if (moveWorker.GetPieceClassifier(piece).Equals(PieceClassifier.BLACK))
+                        score -= _heatMap.GetValue(row, col);
                 }
             }
         }
+
+        double numberOfThreats = moveWorker.GetAllThreatMoves(Player.White).Count() - moveWorker.GetAllThreatMoves(Player.Black).Count();
+
+        double numberOfMoves = moveWorker.GetAllValidMoves(Player.White).Count() - moveWorker.GetAllValidMoves(Player.Black).Count();
+        
+        score += numberOfThreats/5 + numberOfMoves/30;
+
+        if (scoreVariant.Equals(ScoreVariant.AntiChess))
+            score = -score;
+
         return score;
     }
 
@@ -140,10 +175,10 @@ public class NegaMax : IMoveFinder
         {
             return new HashSet<GameEvent>() { GameEvent.InvalidMove };
         }
-        return MakeAiMoveImplementation(move, game, _playerTurn);
+        return makeAiMoveImplementation(move, game, _playerTurn);
     }
 
-    private ISet<GameEvent> MakeAiMoveImplementation(Move move, Game game, Player _playerTurn)
+    private ISet<GameEvent> makeAiMoveImplementation(Move move, Game game, Player _playerTurn)
     {
         var currentPlayer = _playerTurn;
         var opponent = _playerTurn == Player.White ? Player.Black : Player.White;
@@ -162,6 +197,12 @@ public class NegaMax : IMoveFinder
 
         if (!game.HasLegalMoves(opponent))
             events.UnionWith(game.RunStalemateEventsForPlayer(opponent, boardTransition));
+
+        
+
+        
+
+        
 
 
         return events;
@@ -201,14 +242,14 @@ public class NegaMax : IMoveFinder
 
     private void UpdatePlayerTurn(Game game, int turnMultiplier)
     {
-        if (turnMultiplier == WhiteToMove)
+        if (turnMultiplier == _whiteToMove)
         {
-            game.LegalMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White);
+            game.LegalMoves = game.WhiteRules.GetLegalMoves(game.MoveWorker, Player.White);            
             game.PlayerTurn = Player.White;
         }
         else
         {
-            game.LegalMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black);
+            game.LegalMoves = game.BlackRules.GetLegalMoves(game.MoveWorker, Player.Black);          
             game.PlayerTurn = Player.Black;
         }
     }
@@ -224,6 +265,28 @@ public class NegaMax : IMoveFinder
         _legalMovesLog.Push(legalMoves);
         return legalMoves;
     }
+
+    public List<Move> Shuffle(List<Move> listToShuffle)
+    {
+        _rand = new Random();
+        for (int i = listToShuffle.Count - 1; i > 0; i--)
+        {
+            var k = _rand.Next(i + 1);
+            var value = listToShuffle[k];
+            listToShuffle[k] = listToShuffle[i];
+            listToShuffle[i] = value;
+        }
+
+        return listToShuffle;
+    }
+
+    
+
 }
+public enum ScoreVariant
+    {
+        AntiChess,
+        RegularChess
+    }
 
 

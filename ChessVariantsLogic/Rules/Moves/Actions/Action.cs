@@ -1,7 +1,5 @@
 global using Action = ChessVariantsLogic.Rules.Moves.Actions.Action;
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
-using System;
-
 
 namespace ChessVariantsLogic.Rules.Moves.Actions;
 
@@ -17,6 +15,10 @@ public abstract class Action
         return Utils.IsOfType(_capturedPiece, pieceIdentifier);
     }
 
+    public void ClearAction()
+    {
+        _capturedPiece = null;
+    }
 
     /// <summary>
     /// Performs an action on the given moveWorker according to implementation.

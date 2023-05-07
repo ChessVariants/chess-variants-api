@@ -2,6 +2,7 @@
 using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic;
 using ChessVariantsLogic.Export;
+using ChessVariantsLogic.Rules.Moves;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -105,6 +106,11 @@ public class GameHub : Hub
                 return;
             }
             await Clients.Groups(gameId).SendGameStarted(_organizer.GetColorsObject(gameId));
+            var results = _organizer.MakePendingAIMoveIfApplicable(gameId);
+            foreach (var result in results)
+            {
+                await CommunicateGameEvents(gameId, result, "AIMove", Clients.Caller);
+            }
             var state = _organizer.GetState(gameId);
             await Clients.Groups(gameId).SendUpdatedGameState(state);
             _logger.LogInformation("Started game {g}", gameId);
@@ -224,6 +230,27 @@ public class GameHub : Hub
         }
     }
 
+    public async Task PromotePiece(string gameId, string pieceIdentifier)
+    {
+        try
+        {
+            var user = GetUsername();
+            var result = _organizer.PromotePiece(gameId, pieceIdentifier);
+            _logger.LogDebug("User <{user}> trying to promote a {pieceIdentifier} in <{gameid}>", user, pieceIdentifier, gameId);
+            await Clients.Caller.SendPromotionDone();
+            await CommunicateGameEvents(gameId, result, "promotionMove", Clients.Caller);
+            var results = _organizer.MakePendingAIMoveIfApplicable(gameId);
+            foreach (var AIResult in results)
+            {
+                await CommunicateGameEvents(gameId, AIResult, "AIMove", Clients.Caller);
+            }
+        }
+        catch (OrganizerException e)
+        {
+            await Clients.Caller.SendGenericError(e.Message);
+        }
+    }
+
     /// <summary>
     /// Makes a move on the board if the move is valid and informs users of the gamestate.
     /// </summary>
@@ -243,40 +270,56 @@ public class GameHub : Hub
 
             foreach (var result in results)
             {
-                var state = _organizer.GetState(gameId);
-
-                if (result.Contains(GameEvent.InvalidMove))
+                if (result.Contains(GameEvent.Promotion))
                 {
-                    _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
-                    await Clients.Caller.SendInvalidMove();
+                    var promotablePieces = _organizer.GetPromotablePieces(gameId);
+                    var pieceInfos = promotablePieces.Select(p => p.PieceIdentifier).ToList();
+                    var currentPlayer = _organizer.GetPlayer(gameId, user).AsString();
+                    var promotionOptionsDTO = new PromotionOptionsDTO { PromotablePieces = pieceInfos, Player = currentPlayer};
+                    _logger.LogDebug("User <{user}> in <{gameid}> ready to make a promotion with pieces: {options}", user, gameId, pieceInfos);
+                    await Clients.Caller.SendUpdatedGameState(_organizer.GetState(gameId));
+                    await Clients.Caller.SendPromotionOptions(promotionOptionsDTO);
                     return;
                 }
-                if (result.Contains(GameEvent.MoveSucceeded))
-                {
-                    _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
-                    await Clients.Groups(gameId).SendUpdatedGameState(state!);
-                }
-                if (result.Contains(GameEvent.WhiteWon))
-                {
-                    _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
-                    await Clients.Group(gameId).SendWhiteWon();
-                }
-                else if (result.Contains(GameEvent.BlackWon))
-                {
-                    _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
-                    await Clients.Group(gameId).SendBlackWon();
-                }
-                else if (result.Contains(GameEvent.Tie))
-                {
-                    _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
-                    await Clients.Group(gameId).SendTie();
-                }
+
+                await CommunicateGameEvents(gameId, result, move, Clients.Caller);
             }
         }
         catch (OrganizerException e)
         {
             await Clients.Caller.SendGenericError(e.Message);
             return;
+        }
+    }
+
+    private async Task CommunicateGameEvents(string gameId, ISet<GameEvent> result, string move, IClientProxy caller)
+    {
+        if (result.Contains(GameEvent.InvalidMove))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> was invalid", move, gameId);
+            await caller.SendInvalidMove();
+            return;
+        }
+        if (result.Contains(GameEvent.MoveSucceeded))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> was successful", move, gameId);
+            var state = _organizer.GetState(gameId);
+            await Clients.Groups(gameId).SendUpdatedGameState(state!);
+        }
+        if (result.Contains(GameEvent.WhiteWon))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for white", move, gameId);
+            await Clients.Group(gameId).SendWhiteWon();
+        }
+        else if (result.Contains(GameEvent.BlackWon))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> won the game for black", move, gameId);
+            await Clients.Group(gameId).SendBlackWon();
+        }
+        else if (result.Contains(GameEvent.Tie))
+        {
+            _logger.LogDebug("Move <{move}> in game <{gameid}> resulted in a tie", move, gameId);
+            await Clients.Group(gameId).SendTie();
         }
     }
 
