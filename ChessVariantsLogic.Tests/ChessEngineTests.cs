@@ -167,4 +167,90 @@ public class ChessEngineTests : IDisposable
         
         
     }
+
+    [Fact]
+    public void GameTest()
+    {
+        game.MakeMove("e2e4", Player.White);
+        game.MakeMove("e7e5", Player.Black);   
+        game.MakeMove("g1f3", Player.White);
+        game.MakeMove("d8f6", Player.Black);   
+        game.MakeMove("b1c3", Player.White);
+        game.MakeMove("b8c6", Player.Black);   
+        game.MakeMove("f1c4", Player.White);
+        /*game.MakeMove("d8d4", Player.Black);
+        game.MakeMove("c3b5", Player.White);
+        game.MakeMove("d4e5", Player.Black);
+        game.MakeMove("f1c4", Player.White);
+        game.MakeMove("c7c6", Player.Black);
+        game.MakeMove("b5c3", Player.White);
+        game.MakeMove("e5d4", Player.Black);
+        game.MakeMove("d1e2", Player.White);
+        game.MakeMove("c8f5", Player.Black);
+        game.MakeMove("d2d3", Player.White);
+        game.MakeMove("g8f6", Player.Black);
+        game.MakeMove("c1g5", Player.White);
+        game.MakeMove("f8d6", Player.Black);
+        game.MakeMove("g5f6", Player.White);
+        game.MakeMove("g7f6", Player.Black);
+        game.MakeMove("b2c3", Player.White);
+        game.MakeMove("d4c3", Player.Black);
+        game.MakeMove("e1f1", Player.White);
+        game.MakeMove("c3a1", Player.Black);
+        game.MakeMove("e2e1", Player.White);
+        game.MakeMove("a1e1", Player.Black);
+        game.MakeMove("f1e1", Player.White);
+        game.MakeMove("f6d5", Player.Black);
+        game.MakeMove("d3d4", Player.White);
+        game.MakeMove("f7f6", Player.Black);
+        game.MakeMove("g5h4", Player.White);
+        game.MakeMove("g7g5", Player.Black);
+        game.MakeMove("h4g3", Player.White);
+        game.MakeMove("b8d7", Player.Black);
+        game.MakeMove("e1d2", Player.White);
+        game.MakeMove("e8f7", Player.Black);
+        game.MakeMove("h2h3", Player.White);
+        game.MakeMove("f7e6", Player.Black);
+        game.MakeMove("h3h4", Player.White);
+        game.MakeMove("g5h4", Player.Black);
+        game.MakeMove("h1h4", Player.White);
+        game.MakeMove("h8g8", Player.Black);
+        game.MakeMove("h4h7", Player.White);
+        game.MakeMove("f5h7", Player.Black);
+        game.MakeMove("a3a4", Player.White);
+        game.MakeMove("h7f5", Player.Black);
+        game.MakeMove("c2c3", Player.White);
+        game.MakeMove("d7b6", Player.Black);
+        game.MakeMove("c4b3", Player.White);
+        game.MakeMove("e4e3", Player.Black);
+        game.MakeMove("d2e2", Player.White);
+        game.MakeMove("f5e4", Player.Black);
+        game.MakeMove("b3d5", Player.White);
+        game.MakeMove("b6d5", Player.Black);
+        game.MakeMove("c3c4", Player.White);
+        game.MakeMove("d5e7", Player.Black);
+        game.MakeMove("e2f1", Player.White);
+        game.MakeMove("e7f5", Player.Black);
+        game.MakeMove("g3c7", Player.White);
+        game.MakeMove("f5d4", Player.Black);
+        game.MakeMove("f2e3", Player.White);
+        game.MakeMove("e4d3", Player.Black);
+        game.MakeMove("f1f2", Player.White);
+        game.MakeMove("d4f5", Player.Black);
+        game.MakeMove("a4a5", Player.White);
+        game.MakeMove("d3c4", Player.Black);
+        game.MakeMove("f2f3", Player.White);
+        game.MakeMove("e6d5", Player.Black);
+        game.MakeMove("g2g4", Player.White);
+        game.MakeMove("f5h4", Player.Black);
+        game.MakeMove("f3f4", Player.White);
+        game.MakeMove("h4g2", Player.Black);
+        game.MakeMove("f4f3", Player.White);
+        game.MakeMove("g2h4", Player.Black);
+        game.MakeMove("f3f4", Player.White);*/
+
+        string moveFreePiece = "c7";
+        Move bestMove = negaMax.FindBestMove(2,game, Player.Black, ScoreVariant.RegularChess);
+        Assert.Equal(moveFreePiece, bestMove.FromTo);
+    }
 }
