@@ -105,7 +105,7 @@ public class NegaMax : IMoveFinder
                 _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth - 1);
             }
             else 
-                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth - 1);
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth);
 
             if (_score > max)
             {
