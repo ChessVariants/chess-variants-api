@@ -136,7 +136,7 @@ public class ChessEngineTests : IDisposable
         
         
 
-        var bestMove = negaMax.FindBestMove(3,antiChessGame, Player.Black, ScoreVariant.AntiChess);
+        var bestMove = negaMax.FindBestMove(2,antiChessGame, Player.Black, ScoreVariant.AntiChess);
         Assert.Equal("f3f2", bestMove.FromTo);
     }
 
@@ -145,12 +145,25 @@ public class ChessEngineTests : IDisposable
     {
         
         
-        antiChessGame.MakeMove("h2h4", Player.White);
-        antiChessGame.MakeMove("b8a6", Player.Black);
-        antiChessGame.MakeMove("h4h5", Player.White);
-        antiChessGame.MakeMove("a6b8", Player.Black);
-        antiChessGame.MakeMove("h5h6", Player.White);
-        var legalMoves = antiChessGame.LegalMoves;
+        Chessboard empty = new Chessboard(8,8);
+        antiChessGame.MoveWorker.Board = empty;
+
+        antiChessGame.MoveWorker.Board.PieceHasMoved(3,0);
+        antiChessGame.MoveWorker.Board.PieceHasMoved(3,4);
+
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "b7");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "c7");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "e5");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.BlackPawn(), "g7");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.WhitePawn(), "g2");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.WhitePawn(), "a5");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.Bishop(PieceClassifier.BLACK), "f1");
+        antiChessGame.MoveWorker.InsertOnBoard(Piece.King(PieceClassifier.BLACK), "e8");
+        
+        
+
+        var bestMove = negaMax.FindBestMove(3,antiChessGame, Player.Black, ScoreVariant.AntiChess);
+        Assert.Equal("f3f2", bestMove.FromTo);
         
         
     }
