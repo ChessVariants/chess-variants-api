@@ -287,7 +287,7 @@ public class PieceBuilder
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
 
-    public void SetCanBePromotedTo(bool enable) { System.Console.WriteLine("promote to: " + enable); canBePromotedTo = enable; }
+    public void SetCanBePromotedTo(bool enable) { canBePromotedTo = enable; }
    
     public bool HasSameMovementAndCapturePattern() { return sameCaptureAsMovement; }
 
