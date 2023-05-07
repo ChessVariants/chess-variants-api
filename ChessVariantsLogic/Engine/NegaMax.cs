@@ -58,13 +58,13 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
-            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant);
+            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant, turnMultiplier);
         }
         if (_nextMove == null)
         {
@@ -75,7 +75,7 @@ public class NegaMax : IMoveFinder
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player)
     {
         if (currentDepth == 0)
         {
@@ -94,12 +94,18 @@ public class NegaMax : IMoveFinder
 
         foreach (var move in L)
         {
+            var pieceCaptured = game.MoveWorker.Board.GetPieceIdentifier(move.To);
             var legalMoves = SaveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
 
             UpdatePlayerVictory(events);
 
-            _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant);
+            if(!pieceCaptured.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1)
+            {
+                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
+            }
+            else 
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
 
             if (_score > max)
             {
