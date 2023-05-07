@@ -126,6 +126,18 @@ public class EditorHub : Hub
         _logger.LogDebug("User <{user}> saved board <{boardName}> to database.", user, boardName);
     }
 
+    public async Task<List<string>> RequestUserChessboards()
+    {
+        var user = GetUsername();
+        var modelBoards = await _db.Chessboards.GetByUserAsync(user);
+        var boards = new List<string>();
+        foreach (var b in modelBoards)
+        {
+            boards.Add(b.Name);
+        }
+        return boards;
+    }
+
 
     #endregion
 
@@ -255,7 +267,7 @@ public class EditorHub : Hub
         }
     }
 
-    public async Task<List<PieceDTO>> GetUserPieces()
+    public async Task<List<PieceDTO>> RequestUserPieces()
     {
         var user = GetUsername();
         var pieces = await _db.Pieces.GetByUserAsync(user);
