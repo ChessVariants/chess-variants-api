@@ -126,8 +126,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteRookIdentifier, "RO");
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackRookIdentifier, "ro");
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteRookIdentifier, Constants.WhiteRookImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackRookIdentifier, Constants.BlackRookImage);
     }
 
     /// <summary>
@@ -146,8 +146,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteBishopIdentifier, "BI");
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackBishopIdentifier, "bi");
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteBishopIdentifier, Constants.WhiteBishopImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackBishopIdentifier, Constants.BlackBishopImage);
     }
 
     /// <summary>
@@ -170,8 +170,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteQueenIdentifier, "QU");
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackQueenIdentifier, "qu");
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteQueenIdentifier, Constants.WhiteQueenImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackQueenIdentifier, Constants.BlackQueenImage);
     }
 
     /// <summary>
@@ -193,8 +193,8 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteKingIdentifier, "KI", canBePromotedTo: false);
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackKingIdentifier, "ki", canBePromotedTo: false);
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteKingIdentifier, Constants.WhiteKingImage, canBePromotedTo: false);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackKingIdentifier, Constants.BlackKingImage, canBePromotedTo: false);
     }
 
     /// <summary>
@@ -216,8 +216,8 @@ public class Piece
         };
         var mp = new MovementPattern(pattern);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier,Constants.WhiteKnightIdentifier, "KN");
-        return new Piece(mp, mp, pieceClassifier,Constants.BlackKnightIdentifier, "kn");
+            return new Piece(mp, mp, pieceClassifier,Constants.WhiteKnightIdentifier, Constants.WhiteKnightImage);
+        return new Piece(mp, mp, pieceClassifier,Constants.BlackKnightIdentifier, Constants.BlackKnightImage);
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        return new Piece(mp, cp, PieceClassifier.BLACK, Constants.BlackPawnIdentifier, "pa", canBePromotedTo: false);
+        return new Piece(mp, cp, PieceClassifier.BLACK, Constants.BlackPawnIdentifier, Constants.BlackPawnImage, canBePromotedTo: false);
     }
 
     /// <summary>
@@ -253,7 +253,7 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        return new Piece(mp, cp, PieceClassifier.WHITE, Constants.WhitePawnIdentifier, "PA", canBePromotedTo: false);
+        return new Piece(mp, cp, PieceClassifier.WHITE, Constants.WhitePawnIdentifier, Constants.WhitePawnImage, canBePromotedTo: false);
     }
 
     /// <summary>
