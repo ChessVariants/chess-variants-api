@@ -9,10 +9,13 @@ public class BoardEditor
 
     private Piece? _piece;
 
+    private bool _remove;
+
     public BoardEditor()
     {
         _mw = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
         _mwPieceName = new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces());
+        _remove = false;
     }
 
     public void UpdateBoardSize(int row, int col)
@@ -21,15 +24,17 @@ public class BoardEditor
         _mwPieceName.Board = new Chessboard(row, col);
     }
 
-    public void InsertPiece(string square)
+    public void UpdateSquare(string square)
     {
-        if (_piece == null)
-            return;
-        if(_piece.ImagePath.Equals("remove"))
+        if(_remove)
         {
             _mw.RemoveFromBoard(square);
             _mwPieceName.RemoveFromBoard(square);
+            return;
         }
+
+        if (_piece == null)
+            return;
         else
         {
             _mw.InsertOnBoard(_piece, square);
@@ -37,9 +42,11 @@ public class BoardEditor
         }
     }
 
-    //Parameter "piece" should probably be processed in some way.
+    public void SetActiveRemove() { _remove = true; }
+
     public void SetActivePiece(Piece piece)
     {
+        _remove = false;
         _piece = piece;
     }
 

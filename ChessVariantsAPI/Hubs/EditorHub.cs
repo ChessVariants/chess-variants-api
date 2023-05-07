@@ -89,11 +89,11 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-    //public async Task SetActiveRemove(string editorId)
-    //{
-    //    _organizer.SetActivePiece(editorId, "", "remove");
-    //    await UpdateBoardEditorState(editorId);
-    //}
+    public async Task SetActiveRemove(string editorId)
+    {
+        _organizer.SetActiveRemove(editorId);
+        await UpdateBoardEditorState(editorId);
+    }
 
     public async Task UpdateSquare(string editorId, string square)
     {

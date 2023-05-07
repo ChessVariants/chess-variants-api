@@ -60,10 +60,16 @@ public class EditorOrganizer
         editor.SetActivePiece(piece);
     }
 
+    public void SetActiveRemove(string editorId)
+    {
+        var editor = GetBoardEditor(editorId);
+        editor.SetActiveRemove();
+    }
+
     public void InsertPiece(string editorId, string square)
     {
         var editor = GetBoardEditor(editorId);
-        editor.InsertPiece(square);
+        editor.UpdateSquare(square);
     }
 
     public void ResetStartingPosition(string editorId)
