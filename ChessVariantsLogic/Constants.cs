@@ -9,18 +9,18 @@ public static class Constants
 
 #region Square identifiers
     public const string UnoccupiedSquareIdentifier = "--";
-    public const string BlackRookIdentifier = "ro";
-    public const string BlackKnightIdentifier = "kn";
-    public const string BlackBishopIdentifier = "bi";
-    public const string BlackQueenIdentifier = "qu";
-    public const string BlackKingIdentifier = "ki";
-    public const string BlackPawnIdentifier = "pa";
-    public const string WhiteRookIdentifier = "RO";
-    public const string WhiteKnightIdentifier = "KN";
-    public const string WhiteBishopIdentifier = "BI";
-    public const string WhiteQueenIdentifier = "QU";
-    public const string WhiteKingIdentifier = "KI";
-    public const string WhitePawnIdentifier = "PA";
+    public const string BlackRookIdentifier = "BlackRook";
+    public const string BlackKnightIdentifier = "Black";
+    public const string BlackBishopIdentifier = "BlackBishop";
+    public const string BlackQueenIdentifier = "BlackQueen";
+    public const string BlackKingIdentifier = "BlackKing";
+    public const string BlackPawnIdentifier = "BlackPawn";
+    public const string WhiteRookIdentifier = "WhiteRook";
+    public const string WhiteKnightIdentifier = "WhiteKnight";
+    public const string WhiteBishopIdentifier = "WhiteBishop";
+    public const string WhiteQueenIdentifier = "WhiteQueen";
+    public const string WhiteKingIdentifier = "WhiteKing";
+    public const string WhitePawnIdentifier = "WhitePawn";
     public const string DuckIdentifier = "DU";
 
     public const string SharedPieceIdentifier = "SH";

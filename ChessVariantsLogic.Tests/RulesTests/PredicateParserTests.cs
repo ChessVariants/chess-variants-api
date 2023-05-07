@@ -72,14 +72,14 @@ public class PredicateParserTests
     {
         IPredicate moveRule = new Operator(OperatorType.NOT, new Attacked(BoardState.NEXT, Constants.WhiteKingIdentifier));
 
-        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_attacked(next_state, KI))")));
+        Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParsePredicate("NOT(piece_attacked(next_state, WhiteKing))")));
     }
 
     [Fact]
     public void CountPred_ShouldBeEqual()
     {
         IPredicate countPred = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
-        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("count_pieces_with_id(next_state, KI, equals, 0)")));
+        Assert.Equal(JsonConvert.SerializeObject(countPred), JsonConvert.SerializeObject(pp.ParsePredicate("count_pieces_with_id(next_state, WhiteKing, equals, 0)")));
     }
     [Fact]
     public void FilePred_ShouldBeEqual()
@@ -95,7 +95,7 @@ public class PredicateParserTests
 
         Assert.Equal(JsonConvert.SerializeObject(moveRule), JsonConvert.SerializeObject(pp.ParseCode("" +
             "x=bi\n" +
-            "white_king = KI\n\n" +
+            "white_king = WhiteKing\n\n" +
             "white_king_checked_next_turn = piece_attacked(next_state, white_king)\n" +
             "white_move_rule = NOT(white_king_checked_next_turn)\n" +
             "return = white_move_rule\n")));
