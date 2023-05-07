@@ -141,7 +141,7 @@ public class ChessEngineTests : IDisposable
     }
 
     [Fact ]
-    public void AntiChessTest()
+    public void AntiChessBug2Test()
     {
         
         
@@ -178,21 +178,21 @@ public class ChessEngineTests : IDisposable
         game.MakeMove("b1c3", Player.White);
         game.MakeMove("b8c6", Player.Black);   
         game.MakeMove("f1c4", Player.White);
-        /*game.MakeMove("d8d4", Player.Black);
-        game.MakeMove("c3b5", Player.White);
-        game.MakeMove("d4e5", Player.Black);
-        game.MakeMove("f1c4", Player.White);
-        game.MakeMove("c7c6", Player.Black);
-        game.MakeMove("b5c3", Player.White);
-        game.MakeMove("e5d4", Player.Black);
-        game.MakeMove("d1e2", Player.White);
-        game.MakeMove("c8f5", Player.Black);
+        game.MakeMove("f8c5", Player.Black);
         game.MakeMove("d2d3", Player.White);
+        game.MakeMove("c6d4", Player.Black);
+        game.MakeMove("c1d2", Player.White);
+        game.MakeMove("d4f3", Player.Black);
+        game.MakeMove("d1f3", Player.White);
+        game.MakeMove("f6f3", Player.Black);
+        game.MakeMove("g2f3", Player.White);
         game.MakeMove("g8f6", Player.Black);
-        game.MakeMove("c1g5", Player.White);
-        game.MakeMove("f8d6", Player.Black);
-        game.MakeMove("g5f6", Player.White);
-        game.MakeMove("g7f6", Player.Black);
+        game.MakeMove("e1e2", Player.White);
+        game.MakeMove("c5d4", Player.Black);
+        game.MakeMove("e2e1", Player.White);
+        game.MakeMove("d7d6", Player.Black);
+        game.MakeMove("e1e2", Player.White);
+        /*game.MakeMove("g7f6", Player.Black);
         game.MakeMove("b2c3", Player.White);
         game.MakeMove("d4c3", Player.Black);
         game.MakeMove("e1f1", Player.White);
@@ -251,6 +251,16 @@ public class ChessEngineTests : IDisposable
 
         string moveFreePiece = "c7";
         Move bestMove = negaMax.FindBestMove(2,game, Player.Black, ScoreVariant.RegularChess);
+        Assert.Equal(moveFreePiece, bestMove.FromTo);
+    }
+
+    [Fact]
+    public void AntiChessTest()
+    {
+        antiChessGame.MakeMove("e2e4", Player.White);
+
+        string moveFreePiece = "c7";
+        Move bestMove = negaMax.FindBestMove(2,antiChessGame, Player.Black, ScoreVariant.AntiChess);
         Assert.Equal(moveFreePiece, bestMove.FromTo);
     }
 }

@@ -41,7 +41,7 @@ public class NegaMax : IMoveFinder
     /// <param name="game"> The game that is beeing played </param>
     /// <param name="player"> The player to move </param>
     /// <returns> The best move for the player </returns>
-    public Move FindBestMove(int depth, Game game, Player player, ScoreVariant scoreVariant)
+    public Move FindBestMove(int depth, int tradeDepth, Game game, Player player, ScoreVariant scoreVariant)
     {
         int turnMultiplier;
         _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
@@ -59,7 +59,7 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier, 3);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier, tradeDepth);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
@@ -169,7 +169,7 @@ public class NegaMax : IMoveFinder
 
         double numberOfMoves = moveWorker.GetAllValidMoves(Player.White).Count() - moveWorker.GetAllValidMoves(Player.Black).Count();
         
-        score += numberOfThreats/5 + numberOfMoves/30;
+        score += numberOfThreats/100 + numberOfMoves/800;
 
         if (scoreVariant.Equals(ScoreVariant.AntiChess))
             score = -score;
