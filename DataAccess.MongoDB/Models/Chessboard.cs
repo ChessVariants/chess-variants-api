@@ -17,4 +17,10 @@ public record Chessboard : IModel
     [BsonElement("board")]
     public List<string> Board { get; set; } = new List<string>();
 
+    [BsonElement("rows")]
+    public int Rows { get; set; } = 0;
+
+    [BsonElement("cols")]
+    public int Cols { get; set; } = 0;
+
 }

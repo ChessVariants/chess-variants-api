@@ -9,6 +9,8 @@ public static class ChessboardTranslator
             Name = name,
             Creator = creator,
             Board = translateBoard(chessboard),
+            Rows = chessboard.Rows,
+            Cols = chessboard.Cols,
         };
     }
 
