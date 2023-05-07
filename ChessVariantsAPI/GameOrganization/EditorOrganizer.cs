@@ -90,6 +90,13 @@ public class EditorOrganizer
         return editor.GetCurrentState();
     }
 
+
+    public Chessboard BuildBoard(string editorId)
+    {
+        var editor = GetBoardEditor(editorId);
+        return editor.Build();
+    }
+
 #endregion
 
 #region Piece editor

@@ -13,6 +13,7 @@ public abstract class DatabaseService
     private readonly IMongoDatabase _database;
     public readonly UserRepository Users;
     public readonly PieceRepository Pieces;
+    public readonly ChessboardRepository Chessboards;
 
     public DatabaseService(string connectionString, string databaseName)
     {
@@ -20,6 +21,7 @@ public abstract class DatabaseService
         _database = _client.GetDatabase(databaseName);
         Users = new UserRepository(_database);
         Pieces = new PieceRepository(_database);
+        Chessboards = new ChessboardRepository(_database);
     }
 
     //public string ObjecatId()

@@ -113,6 +113,20 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
+    public async Task BuildChessboard(string editorId, string boardName)
+    {
+        var board = _organizer.BuildBoard(editorId);
+
+        var user = GetUsername();
+
+        var boardModel = ChessboardTranslator.CreateChessboardModel(board, boardName, user);
+
+        _logger.LogDebug("User <{user}> attempts to save board <{boardName}> to database.", user, boardName);
+        await _db.Chessboards.CreateAsync(boardModel);
+        _logger.LogDebug("User <{user}> saved board <{boardName}> to database.", user, boardName);
+    }
+
+
     #endregion
 
 

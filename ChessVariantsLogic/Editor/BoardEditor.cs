@@ -57,9 +57,9 @@ public class BoardEditor
         _mw.Board = new Chessboard(row, col);
     }
 
-    public void SaveBoardToDb()
+    public Chessboard Build()
     {
-        // This should use _mwPieceName to save all the piece IDs.
+        return _mw.Board;
     }
 
     public BoardEditorState GetCurrentState() { return EditorExporter.ExportBoardEditorState(_mw); }
