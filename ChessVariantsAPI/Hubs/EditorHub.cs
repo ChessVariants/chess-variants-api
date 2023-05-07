@@ -59,13 +59,13 @@ public class EditorHub : Hub
         await UpdateBoardEditorState(editorId);
     }
 
-    public async Task SetActivePiece(string editorId, string pieceName, string color)
+    public async Task SetActivePiece(string editorId, string pieceName)
     {
         var user = GetUsername();
         Piece? pieceModel = null;
         try
         {
-            pieceModel = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(StandardPieceUser, pieceName, color);
+            pieceModel = await _db.Pieces.GetByUserAndPieceNameAsync(StandardPieceUser, pieceName);
         }
         catch (InvalidOperationException)
         {
@@ -73,11 +73,11 @@ public class EditorHub : Hub
         }
         try
         {
-            pieceModel = await _db.Pieces.GetByUserAndPieceNameAndColorAsync(user, pieceName, color);
+            pieceModel = await _db.Pieces.GetByUserAndPieceNameAsync(user, pieceName);
         }
         catch (InvalidOperationException)
         {
-            _logger.LogDebug("Piece {pName} of color {color} is not a piece created bu {user}", pieceName, color, user);
+            _logger.LogDebug("Piece {pName} is not a piece created bu {user}", pieceName, user);
         }
         if (pieceModel == null)
         {
@@ -248,7 +248,7 @@ public class EditorHub : Hub
         var pieceDTOs = new List<PieceDTO>();
         foreach (var p in pieces)
         {
-            pieceDTOs.Add(new PieceDTO{ Name = p.Name, Image = p.ImagePath, Color = p.BelongsTo });
+            pieceDTOs.Add(new PieceDTO{ Name = p.Name, Image = p.ImagePath});
         }
         return pieceDTOs;
     }
@@ -261,7 +261,7 @@ public class EditorHub : Hub
         {
             if (!p.BelongsTo.Equals(color))
                 continue;
-            pieceDTOs.Add(new PieceDTO { Name = p.Name, Image = p.ImagePath, Color = p.BelongsTo });
+            pieceDTOs.Add(new PieceDTO { Name = p.Name, Image = p.ImagePath});
         }
 
         return pieceDTOs;

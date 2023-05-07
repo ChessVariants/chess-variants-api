@@ -10,6 +10,4 @@ public record PieceDTO
     [JsonProperty("image")]
     public string Image { get; set; } = null!;
 
-    [JsonProperty("color")]
-    public string Color { get; set; } = null!;
 }

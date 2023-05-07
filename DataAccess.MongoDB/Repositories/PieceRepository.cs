@@ -13,9 +13,9 @@ public class PieceRepository : GenericRepository<Piece>
         return await _collection.Find(p => p.Creator.Equals(username)).ToListAsync();
     }
 
-    public async Task<Piece> GetByUserAndPieceNameAndColorAsync(string username, string pieceName, string color)
+    public async Task<Piece> GetByUserAndPieceNameAsync(string username, string pieceName)
     {
-        return await _collection.Find(p => p.Creator.Equals(username) && p.Name.Equals(pieceName) && p.BelongsTo.Equals(color)).FirstAsync();
+        return await _collection.Find(p => p.Creator.Equals(username) && p.Name.Equals(pieceName)).FirstAsync();
     }
     
     public async Task<List<Piece>> GetStandardPieces()
