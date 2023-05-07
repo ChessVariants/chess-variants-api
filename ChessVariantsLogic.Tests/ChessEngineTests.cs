@@ -46,7 +46,7 @@ public class ChessEngineTests : IDisposable
         
         game.MoveWorker.InsertOnBoard(Piece.Rook(PieceClassifier.BLACK), "a3");
         string moveFreePiece = "a3";
-        Move bestMove = negaMax.FindBestMove(1,game, Player.White, ScoreVariant.RegularChess);
+        Move bestMove = negaMax.FindBestMove(2,game, Player.White, ScoreVariant.RegularChess);
         Assert.Equal(moveFreePiece, bestMove.To);
     }
 

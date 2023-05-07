@@ -48,6 +48,7 @@ public class NegaMax : IMoveFinder
         var tmp_legalMoves = game.LegalMoves;
         var tmp_playerTurn = game.PlayerTurn;
 
+
         if (player.Equals(Player.White))
         {
             turnMultiplier = _whiteToMove;
@@ -64,11 +65,9 @@ public class NegaMax : IMoveFinder
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
-            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant, turnMultiplier, 3);
-        }
-        if (_nextMove == null)
-        {
+
             throw new ArgumentNullException("no valid nextMove found!");
+
         }
         return _nextMove;
     }
@@ -77,6 +76,7 @@ public class NegaMax : IMoveFinder
 
     private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player, int tradeDepth)
     {
+
         if (currentDepth == 0)
         {
             return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
@@ -94,14 +94,17 @@ public class NegaMax : IMoveFinder
 
         foreach (var move in L)
         {
-            var pieceCaptured = game.MoveWorker.Board.GetPieceIdentifier(move.To);
+ 
+            var piece = game.MoveWorker.Board.GetPieceIdentifier(move.To);
+            
             var legalMoves = SaveGameState(game);
             var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
 
             UpdatePlayerVictory(events);
-
-            if(!pieceCaptured.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1 && tradeDepth > 0)
+            
+            if(!piece.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1 && tradeDepth > 0)
             {
+                
                 _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth - 1);
             }
             else 
@@ -110,7 +113,7 @@ public class NegaMax : IMoveFinder
             if (_score > max)
             {
                 max = _score;
-                if (currentDepth == maxDepth)
+                if (currentDepth == maxDepth && turnMultiplier == player)
                 {
                     _nextMove = move;
                 }
@@ -122,6 +125,7 @@ public class NegaMax : IMoveFinder
             if (alpha >= beta)
                 break;
         }
+
         return max;
     }
 
