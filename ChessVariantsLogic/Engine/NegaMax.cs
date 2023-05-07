@@ -58,13 +58,13 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier);
+        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier, 3);
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
         if (_nextMove == null)
         {
-            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant, turnMultiplier);
+            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant, turnMultiplier, 3);
         }
         if (_nextMove == null)
         {
@@ -75,7 +75,7 @@ public class NegaMax : IMoveFinder
 
 
 
-    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player)
+    private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player, int tradeDepth)
     {
         if (currentDepth == 0)
         {
@@ -100,12 +100,12 @@ public class NegaMax : IMoveFinder
 
             UpdatePlayerVictory(events);
 
-            if(!pieceCaptured.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1)
+            if(!pieceCaptured.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1 && tradeDepth > 0)
             {
-                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
+                _score = -NegaMaxAlgorithm(currentDepth, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth - 1);
             }
             else 
-                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player);
+                _score = -NegaMaxAlgorithm(currentDepth - 1, -turnMultiplier, maxDepth, -beta, -alpha, game, scoreVariant, player, tradeDepth - 1);
 
             if (_score > max)
             {
