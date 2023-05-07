@@ -13,5 +13,10 @@ public class ChessboardRepository : GenericRepository<Chessboard>
         return await _collection.Find(p => p.Creator.Equals(username)).ToListAsync();
     }
 
+    public async Task<Chessboard> GetByUserAndBoardNameAsync(string username, string boardName)
+    {
+        return await _collection.Find(p => p.Creator.Equals(username) && p.Name.Equals(boardName)).FirstAsync();
+    }
+
     
 }

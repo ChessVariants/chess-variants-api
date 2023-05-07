@@ -101,9 +101,9 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.PatternAdded, state);
     }
 
-    public static async Task SendBuildFailed(this IClientProxy clients)
+    public static async Task SendBuildFailed(this IClientProxy clients, string message)
     {
-        await clients.SendAsync(Events.BuildFailed, "Build failed");
+        await clients.SendAsync(Events.BuildFailed, "Build failed: " + message);
     }
 
     public static async Task SendCouldNotFetchPiece(this IClientProxy clients)

@@ -224,14 +224,7 @@ public class PieceEditor
     /// <returns>EditorEvent.Success if the build was successful, otherwise EditorEvent.BuildFailed.</returns>
     public Piece? BuildPiece()
     {
-        try 
-        {
-            _piece = _builder.Build();
-        }
-        catch (ArgumentException)
-        {
-            return null;
-        }
+        _piece = _builder.Build();
         return _piece;
     }
 

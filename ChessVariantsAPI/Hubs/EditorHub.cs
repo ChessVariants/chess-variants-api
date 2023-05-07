@@ -115,10 +115,16 @@ public class EditorHub : Hub
 
     public async Task BuildChessboard(string editorId, string boardName)
     {
-        var board = _organizer.BuildBoard(editorId);
-
         var user = GetUsername();
+        try
+        {
+            var userBoard = await _db.Chessboards.GetByUserAndBoardNameAsync(user, boardName);
+            await Clients.Caller.SendBuildFailed("User <"+ userBoard.Creator + "> already has created a chessboard with the name <" + userBoard.Name + ">. Try a different name.");
+            return;
+        }
+        catch (InvalidOperationException) {}
 
+        var board = _organizer.BuildBoard(editorId);
         var boardModel = ChessboardTranslator.CreateChessboardModel(board, boardName, user);
 
         _logger.LogDebug("User <{user}> attempts to save board <{boardName}> to database.", user, boardName);
@@ -258,19 +264,31 @@ public class EditorHub : Hub
 
     public async Task BuildPiece(string editorId, string pieceName)
     {
-        var piece = _organizer.Build(editorId);
-        if (piece == null)
-            await Clients.Caller.SendBuildFailed();
-        else
+        var user = GetUsername();
+
+        try
         {
-            var user = GetUsername();
-
-
-            var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
-            _logger.LogDebug("Attempting to save piece <{pieceName}> by user <{user}>", pieceName, user);
-            await _db.Pieces.CreateAsync(modelPiece);
-            _logger.LogDebug("Piece <{pieceName}> saved to database by user <{user}>.", pieceName, user);
+            var userPiece = await _db.Pieces.GetByUserAndPieceNameAsync(user, pieceName);
+            await Clients.Caller.SendBuildFailed("User <"+ userPiece.Creator + "> already has created a piece with the name <" + userPiece.Name + ">. Try a different name.");
+            return;
         }
+        catch (InvalidOperationException) {}
+
+        ChessVariantsLogic.Piece? piece;
+        try
+        {
+            piece = _organizer.Build(editorId);
+        }
+        catch (ArgumentException e)
+        {
+            await Clients.Caller.SendBuildFailed(e.Message);
+            return;
+        }
+        var modelPiece = PieceTranslator.CreatePieceModel(piece, pieceName, user, piece.ImagePath);
+        _logger.LogDebug("Attempting to save piece <{pieceName}> by user <{user}>", pieceName, user);
+        await _db.Pieces.CreateAsync(modelPiece);
+        _logger.LogDebug("Piece <{pieceName}> saved to database by user <{user}>.", pieceName, user);
+
     }
 
     public async Task<List<PieceDTO>> RequestUserPieces()
