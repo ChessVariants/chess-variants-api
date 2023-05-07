@@ -20,7 +20,7 @@ public class PieceRepository : GenericRepository<Piece>
     
     public async Task<List<Piece>> GetStandardPieces()
     {
-        var username = "Guest-f004d09b-b95c-4a3e-b83b-b0a0fe29cbf7";
+        var username = "Guest-2f79c3ef-5e85-41e5-bc8f-c8b731805a16";
         return await _collection.Find(p => p.Creator.Equals(username)).ToListAsync();
     }
     

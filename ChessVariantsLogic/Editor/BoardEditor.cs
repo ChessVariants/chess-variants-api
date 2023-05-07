@@ -59,7 +59,7 @@ public class BoardEditor
 
     public void SaveBoardToDb()
     {
-        // This should use _mwID to save all the piece IDs.
+        // This should use _mwPieceName to save all the piece IDs.
     }
 
     public BoardEditorState GetCurrentState() { return EditorExporter.ExportBoardEditorState(_mw); }

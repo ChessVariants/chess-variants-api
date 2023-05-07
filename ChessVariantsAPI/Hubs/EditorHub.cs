@@ -17,7 +17,7 @@ public class EditorHub : Hub
     private DatabaseService _db;
 
     //Stanard pieces are for now stored in the db under this user
-    private static readonly string StandardPieceUser = "Guest-f004d09b-b95c-4a3e-b83b-b0a0fe29cbf7";
+    private static readonly string StandardPieceUser = "Guest-2f79c3ef-5e85-41e5-bc8f-c8b731805a16";
 
     public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger, DatabaseService databaseService)
     {
@@ -77,14 +77,13 @@ public class EditorHub : Hub
         }
         catch (InvalidOperationException)
         {
-            _logger.LogDebug("Piece {pName} is not a piece created bu {user}", pieceName, user);
+            _logger.LogDebug("Piece {pName} of color {color} is not a piece created bu {user}", pieceName, color, user);
         }
         if (pieceModel == null)
         {
             await Clients.Caller.SendCouldNotFetchPiece();
             return;
         }
-        _logger.LogDebug("piece: " + pieceModel.Name);
         var logicPiece = PieceTranslator.CreatePieceLogic(pieceModel);
         _organizer.SetActivePiece(editorId, logicPiece);
         await UpdateBoardEditorState(editorId);
@@ -249,22 +248,20 @@ public class EditorHub : Hub
         var pieceDTOs = new List<PieceDTO>();
         foreach (var p in pieces)
         {
-            pieceDTOs.Add(new PieceDTO{ Name = p.Name, Image = p.ImagePath });
+            pieceDTOs.Add(new PieceDTO{ Name = p.Name, Image = p.ImagePath, Color = p.BelongsTo });
         }
         return pieceDTOs;
     }
 
     public async Task<List<PieceDTO>> RequestStandardPiecesByColor(string color)
     {
-
         var pieces = await _db.Pieces.GetStandardPieces();
         var pieceDTOs = new List<PieceDTO>();
         foreach (var p in pieces)
         {
             if (!p.BelongsTo.Equals(color))
                 continue;
-            _logger.LogDebug("Piece: " + p.Name);
-            pieceDTOs.Add(new PieceDTO { Name = p.Name, Image = p.ImagePath });
+            pieceDTOs.Add(new PieceDTO { Name = p.Name, Image = p.ImagePath, Color = p.BelongsTo });
         }
 
         return pieceDTOs;
