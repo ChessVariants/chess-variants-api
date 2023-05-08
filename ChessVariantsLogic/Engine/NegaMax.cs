@@ -47,6 +47,11 @@ public class NegaMax : IMoveFinder
         _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
         var tmp_legalMoves = game.LegalMoves;
         var tmp_playerTurn = game.PlayerTurn;
+        double bestScore = -11111111;
+        _alpha = -100000;
+        _beta = 100000;
+        _score = -1111111;
+
 
 
         if (player.Equals(Player.White))
@@ -59,15 +64,40 @@ public class NegaMax : IMoveFinder
             turnMultiplier = _blackToMove;
             game.PlayerTurn = Player.Black;
         }
-        NegaMaxAlgorithm(depth, turnMultiplier, depth, _alpha, _beta, game, scoreVariant, turnMultiplier, tradeDepth);
+
+        UpdatePlayerTurn(game, turnMultiplier);
+
+        var validMoves = game.LegalMoves.Values;
+
+        List<Move> L = validMoves.ToList();
+
+        Shuffle(L);
+
+        foreach(var move in L)
+        {
+            var legalMoves = SaveGameState(game);
+            var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
+
+            UpdatePlayerVictory(events);
+            double score = -NegaMaxAlgorithm(depth -1, -turnMultiplier, depth -1, -_beta, -_alpha, game, scoreVariant, turnMultiplier, tradeDepth);
+            game.MoveWorker.UndoMove();
+            game.LegalMoves = _legalMovesLog.Pop();
+
+            if(score > bestScore)
+            {
+                bestScore = score;
+                _nextMove = move;
+            }
+
+            _alpha = Math.Max(_alpha, score);
+
+            if(_alpha >= _beta)
+                break;
+        }
 
         game.LegalMoves = tmp_legalMoves;
         game.PlayerTurn = tmp_playerTurn;
-        if (_nextMove == null)
-        {
-            NegaMaxAlgorithm(1, turnMultiplier, 1, _alpha, _beta, game, scoreVariant, turnMultiplier, 0);
-        }
-
+        
         if (_nextMove == null)
         {
             throw new ArgumentNullException("no valid nextMove found!");
@@ -80,7 +110,7 @@ public class NegaMax : IMoveFinder
     private double NegaMaxAlgorithm(int currentDepth, int turnMultiplier, int maxDepth, double alpha, double beta, Game game, ScoreVariant scoreVariant, int player, int tradeDepth)
     {
 
-        if (currentDepth == 0)
+        if (currentDepth == 0 || _blackWon || _whiteWon || _draw )
         {
             return turnMultiplier * ScoreBoard(game.MoveWorker, game.PlayerTurn, scoreVariant);
         }
@@ -94,7 +124,7 @@ public class NegaMax : IMoveFinder
         List<Move> L = validMoves.ToList();
 
         Shuffle(L);
-
+        
         foreach (var move in L)
         {
  
@@ -104,7 +134,9 @@ public class NegaMax : IMoveFinder
             var events = MakeAiMove(game, move.FromTo, game.PlayerTurn, legalMoves, game.PlayerTurn);
 
             UpdatePlayerVictory(events);
+
             
+
             if(!piece.Equals(Constants.UnoccupiedSquareIdentifier) && currentDepth == 1 && tradeDepth > 0)
             {
                 
@@ -116,15 +148,11 @@ public class NegaMax : IMoveFinder
             if (_score > max)
             {
                 max = _score;
-                if (currentDepth == maxDepth && turnMultiplier == player)
-                {
-                    _nextMove = move;
-                }
+                
             }
             game.MoveWorker.UndoMove();
             game.LegalMoves = _legalMovesLog.Pop();
-            if (_score > alpha)
-                alpha = _score;
+            alpha = Math.Max(_score, alpha);
             if (alpha >= beta)
                 break;
         }
@@ -138,12 +166,12 @@ public class NegaMax : IMoveFinder
         if (_blackWon)
         {
             _blackWon = false;
-            return -1000000;
+            return -1000;
         }
         if (_whiteWon)
         {
             _whiteWon = false;
-            return 1000000;
+            return 1000;
         }
         if (_draw)
         {
