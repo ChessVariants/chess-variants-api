@@ -91,7 +91,7 @@ public class GameOrganizer
         try
         {
             var color = GetActiveGame(gameId).AddPlayer("AI");
-            var ai = AIFactory.NegaMaxAI(color);
+            var ai = AIFactory.NegaMaxAI(color, GetActiveGame(gameId).GetGame().MoveWorker.GetPieces());
             GetGame(gameId).AssignAI(ai);
             return color;
         }
