@@ -12,13 +12,13 @@ public class RuleSetTranslator
 {
     public static RuleSet? ConstructFromModel(ISet<Tuple<MoveTemplateModel, string>> moveTemplateModels, List<Tuple<EventModel, string>> eventModels, List<Tuple<EventModel, string>> stalemateModels, string predicateScript)
     {
-        var moveTemplates = (ISet<MoveTemplate>) moveTemplateModels.Select(tuple => ConstructMoveTemplateFromModel(tuple.Item1, tuple.Item2));
+        ISet<MoveTemplate?> moveTemplates = moveTemplateModels.Select(tuple => ConstructMoveTemplateFromModel(tuple.Item1, tuple.Item2)).ToHashSet();
         if (moveTemplates.Any(item => item == null)) return null;
 
-        var events = (ISet<Event>) eventModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2));
+        ISet<Event?> events = eventModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2)).ToHashSet();
         if (events.Any(item => item == null)) return null;
 
-        var stalemateEvents = (ISet<Event>) stalemateModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2));
+        ISet<Event?> stalemateEvents = stalemateModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2)).ToHashSet();
         if (stalemateEvents.Any(item => item == null)) return null;
 
         IPredicate predicate;
@@ -30,7 +30,7 @@ public class RuleSetTranslator
         {
             return null;
         }
-        return new RuleSet(predicate, moveTemplates, events, stalemateEvents);
+        return new RuleSet(predicate, moveTemplates as ISet<MoveTemplate>, events as ISet<Event>, stalemateEvents as ISet<Event>);
     }
 
     public static Event? ConstructEventFromModel(EventModel eventModel, string predicateScript)

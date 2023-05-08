@@ -306,9 +306,20 @@ public static class GameFactory
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
-    public static Game Custom(RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, Chessboard board)
+    public static Game Custom(RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, int rows, int cols, HashSet<Piece> pieces, List<string> boardSetup)
     {
-        throw new NotImplementedException();
+        var board = new Chessboard(rows, cols);
+        int i = 0;
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                board.Insert(boardSetup[i], row, col);
+                i++;
+            }
+        }
+        var moveWorker = new MoveWorker(board, pieces);
+        return new Game(moveWorker, Player.White, movesPerTurn, whiteRules, blackRules);
     }
 
     /// <summary>
@@ -331,7 +342,7 @@ public static class GameFactory
     }
 
     public static VariantType GetVariantType(string variantIdentifier) {
-        return identifier switch
+        return variantIdentifier switch
         {
             StandardIdentifier => VariantType.Predefined,
             AntiChessIdentifier => VariantType.Predefined,

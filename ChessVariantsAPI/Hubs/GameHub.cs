@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using ChessVariantsAPI.ObjectTranslations;
 using DataAccess.MongoDB.Models;
+using ChessVariantsLogic.Rules;
+using System.Linq;
+using DataAccess.MongoDB.Repositories;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -155,48 +158,17 @@ public class GameHub : Hub
 
                 var whiteRulesetModel = whiteRulesetModelList.First();
                 var blackRulesetModel = blackRulesetModelList.First();
+
                 var boardModel = boardModelList.First();
 
-                List<Tuple<EventModel, string>> eventModels = new();
-                foreach (var eventIdentifier in whiteRulesetModel.Events)
-                {
-                    var emList = await _db.Events.FindAsync(e => e.Name == eventIdentifier && e.CreatorName == user);
-                    var em = emList.First();
-                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == em.Predicate && p.CreatorName == user);
-                    var predicate = predicateList.First();
-                    eventModels.Add(Tuple.Create(em, predicate.Code));
-                }
+                var whiteRuleset = await CreateRuleSet(user, whiteRulesetModel);
+                var blackRuleset = await CreateRuleSet(user, blackRulesetModel);
 
-                List<Tuple<EventModel, string>> stalemateEventModels = new();
-                foreach (var eventIdentifier in whiteRulesetModel.StalemateEvents)
-                {
-                    var semList = await _db.Events.FindAsync(e => e.Name == eventIdentifier);
-                    var sem = semList.First();
-                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == sem.Predicate && p.CreatorName == user);
-                    var predicate = predicateList.First();
-                    stalemateEventModels.Add(Tuple.Create(sem, predicate.Code));
-                }
-
-                HashSet<Tuple<MoveTemplateModel, string>> moveTemplateModels = new ();
-                foreach (var moveTemplateIdentifier in whiteRulesetModel.Moves)
-                {
-                    var mtmList = await _db.Moves.FindAsync(mt => mt.Name == moveTemplateIdentifier);
-                    var mtm = mtmList.First();
-                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == mtm.Predicate && p.CreatorName == user);
-                    var predicate = predicateList.First();
-                    moveTemplateModels.Add(Tuple.Create(mtm, predicate.Code));
-                }
-
-                var movePredicateList = await _db.Predicates.FindAsync(p => p.Name == whiteRulesetModel.Predicate && p.CreatorName == user);
-                var movePredicate = movePredicateList.First();
-
-                var whiteRuleset = RuleSetTranslator.ConstructFromModel(moveTemplateModels, eventModels, stalemateEventModels, movePredicate.Code);
+                List<ChessVariantsLogic.Piece> pieces = new();
+                var pieceModelList = await _db.Pieces.FindAsync(p => boardModel.Board.Contains(p.Name) && (p.Creator == user || p.Creator == "admin"));
+                var pieceLogicSet = pieceModelList.Select(pm => PieceTranslator.CreatePieceLogic(pm)).ToHashSet();
+                createdPlayer = _organizer.CreateCustomGame(gameId, user, variantIdentifier, whiteRuleset, blackRuleset, variantToPlay.MovesPerTurn, pieceLogicSet, boardModel.Rows, boardModel.Cols, boardModel.Board);
             }
-
-
-
-
-
 
 
             await AddToGroup(user, gameId);
@@ -209,6 +181,44 @@ public class GameHub : Hub
             await Clients.Caller.SendGenericError(e.Message);
             return new SetVariantDTO { Success = false, FailReason = e.Message };
         }
+    }
+
+    private async Task<RuleSet> CreateRuleSet(string user, RuleSetModel rulesetModel)
+    {
+        var eventModels = await CreateEventModelTuples(user, rulesetModel.Events, _db.Events);
+        var stalemateEventModels = await CreateEventModelTuples(user, rulesetModel.StalemateEvents, _db.Events);
+
+        var movetemplateList = await _db.Moves.FindAsync(mt => rulesetModel.Moves.Contains(mt.Name) && mt.CreatorName == user);
+        var movetemplatePredicateList = await _db.Predicates.FindAsync(p => movetemplateList.Any(mt => mt.Predicate == p.Name) && p.CreatorName == user);
+        movetemplateList = movetemplateList.OrderBy(mt => mt.Name).ToList();
+        movetemplatePredicateList = movetemplatePredicateList.OrderBy(p => p.Name).ToList();
+        var movetemplateModels = movetemplateList.Zip(movetemplatePredicateList, (mt, p) => Tuple.Create(mt, p.Code)).ToList();
+
+        HashSet<Tuple<MoveTemplateModel, string>> moveTemplateModels = new();
+        foreach (var moveTemplateIdentifier in rulesetModel.Moves)
+        {
+            var mtmList = await _db.Moves.FindAsync(mt => mt.Name == moveTemplateIdentifier && mt.CreatorName == user);
+            var mtm = mtmList.First();
+            var predicateList = await _db.Predicates.FindAsync(p => p.Name == mtm.Predicate && p.CreatorName == user);
+            var predicate = predicateList.First();
+            moveTemplateModels.Add(Tuple.Create(mtm, predicate.Code));
+        }
+
+        var movePredicateList = await _db.Predicates.FindAsync(p => p.Name == rulesetModel.Predicate && p.CreatorName == user);
+        var movePredicate = movePredicateList.First();
+
+        var ruleset = RuleSetTranslator.ConstructFromModel(moveTemplateModels, eventModels, stalemateEventModels, movePredicate.Code);
+        return ruleset!;
+    }
+
+    private async Task<List<Tuple<EventModel, string>>> CreateEventModelTuples(string user, List<string> events, EventRepository eventRepo)
+    {
+        var eventModelList = await eventRepo.FindAsync(e => events.Contains(e.Name) && e.CreatorName == user);
+        var eventModelPredicateList = await _db.Predicates.FindAsync(p => eventModelList.Any(e => e.Predicate == p.Name) && p.CreatorName == user);
+        eventModelList = eventModelList.OrderBy(e => e.Name).ToList();
+        eventModelPredicateList = eventModelPredicateList.OrderBy(p => p.Name).ToList();
+        var eventModels = eventModelList.Zip(eventModelPredicateList, (e, p) => Tuple.Create(e, p.Code)).ToList();
+        return eventModels!;
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 using ChessVariantsLogic;
 using ChessVariantsLogic.Engine;
 using ChessVariantsLogic.Export;
+using ChessVariantsLogic.Rules;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -71,11 +72,14 @@ public class GameOrganizer
         return activeGame.GetPlayer(playerIdentifier)!;
     }
 
-    public Player CreateCustomGame(string gameId, string playerIdentifier, string variantIdentifier)
+    public Player CreateCustomGame(string gameId, string playerIdentifier, string variantIdentifier, RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, HashSet<Piece> pieces, int rows, int cols, List<string> boardSetup)
     {
         AssertGameDoesNotExist(gameId);
-        var activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
-        return activeGame.GetPlayer(playerIdentifier)!;
+
+        var gameVariant = GameFactory.Custom(whiteRules, blackRules, movesPerTurn, rows, cols, pieces, boardSetup);
+        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
+        _activeGames.Add(gameId, activeGame);
+        return activeGame.GetPlayer(playerIdentifier);
     }
 
     public bool SetGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
