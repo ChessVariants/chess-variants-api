@@ -347,7 +347,7 @@ public class GameHub : Hub
                 if (result.Contains(GameEvent.Promotion))
                 {
                     var promotablePieces = _organizer.GetPromotablePieces(gameId);
-                    var pieceInfos = promotablePieces.Select(p => p.PieceIdentifier).ToList();
+                    var pieceInfos = promotablePieces.Select(p => new PieceInfo { ImagePath = p.ImagePath, Identifier = p.PieceIdentifier }).ToList();
                     var currentPlayer = _organizer.GetPlayer(gameId, user).AsString();
                     var promotionOptionsDTO = new PromotionOptionsDTO { PromotablePieces = pieceInfos, Player = currentPlayer};
                     _logger.LogDebug("User <{user}> in <{gameid}> ready to make a promotion with pieces: {options}", user, gameId, pieceInfos);

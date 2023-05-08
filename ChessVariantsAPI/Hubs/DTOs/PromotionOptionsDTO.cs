@@ -6,7 +6,7 @@ namespace ChessVariantsAPI.Hubs.DTOs;
 public record PromotionOptionsDTO
 {
     [JsonProperty("promotablePieces")]
-    public List<string> PromotablePieces { get; set; } = null!;
+    public List<PieceInfo> PromotablePieces { get; set; } = null!;
 
     [JsonProperty("player")]
     public string Player { get; set; } = null!;
