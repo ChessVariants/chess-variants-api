@@ -139,7 +139,7 @@ public class Chessboard
     {
         var chessboard = StandardChessboard();
         
-        chessboard.board[4, 4] = Constants.DuckIdentifier;
+        chessboard.board[3, 4] = Constants.DuckIdentifier;
 
         return chessboard;
     }
