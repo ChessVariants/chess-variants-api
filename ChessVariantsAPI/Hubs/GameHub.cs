@@ -143,7 +143,7 @@ public class GameHub : Hub
             _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
             Player createdPlayer;
 
-            var type = _organizer.GetVariantType(gameId);
+            var type = _organizer.GetVariantType(variantIdentifier);
             if (type == VariantType.Predefined)
             {
                 createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);

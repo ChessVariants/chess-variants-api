@@ -12,7 +12,7 @@ public class AIPlayer
         PlayingAs = player;
     }
 
-    public Move SearchMove(Game game, int depth=2, int tradeDepth=3)
+    public Move SearchMove(Game game, int depth=1, int tradeDepth=0)
     {
         return _moveFinder.FindBestMove(depth, tradeDepth, game, PlayingAs, ScoreVariant.RegularChess);
     }
