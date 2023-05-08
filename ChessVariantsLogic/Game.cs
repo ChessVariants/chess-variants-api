@@ -268,11 +268,11 @@ public class Game {
             string latestMoveTo = _moveWorker.Movelog.Last().To;
             var indexFromTopFrom = CalculateIndexFromTopOfBoardToSquare(latestMoveFrom);
             var indexFromTopTo = CalculateIndexFromTopOfBoardToSquare(latestMoveTo);
-            return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict(), indexFromTopFrom, indexFromTopTo);
+            return GameExporter.ExportGameState(_moveWorker, PlayerTurn, GetLegalMoveDict(), indexFromTopFrom, indexFromTopTo);
         }
         catch (InvalidOperationException)
         {
-            return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+            return GameExporter.ExportGameState(_moveWorker, PlayerTurn, GetLegalMoveDict());
         }
     }
 

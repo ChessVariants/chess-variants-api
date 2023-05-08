@@ -22,6 +22,8 @@ public class Piece
 
     public bool CanBePromotedTo { get; }
 
+    public string ImagePath { get; set; }
+
     /// <summary>
     /// Constructor for a new Piece.
     /// </summary>
@@ -31,7 +33,8 @@ public class Piece
     /// <param name="pc">is the player the piece belongs to</param>
     /// <param name="repeat">is the amount of times the movement pattern can be repeated on the same turn</param>
     /// <param name="pieceIdentifier">is the unique string representation of the piece</param>
-    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured, bool canBePromotedTo)
+    /// <param name="imagePath">is the path to the image connected to the piece</param>
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured, bool canBePromotedTo, string imagePath)
     {
         this.movementPattern = movementPattern;
         this.capturePattern = capturePattern;
@@ -39,6 +42,7 @@ public class Piece
         this.PieceIdentifier = pieceIdentifier;
         this.CanBeCaptured = canBeCaptured;
         this.CanBePromotedTo = canBePromotedTo;
+        ImagePath = imagePath;
 
         //This might not be optimal since it doesn't notify the user that the value is not what it was set to.
         if(repeat < 0)
@@ -49,20 +53,17 @@ public class Piece
             this.Repeat = repeat;
     }
 
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, PieceClassifier pc, int repeat, string pieceIdentifier, bool canBeCaptured, bool canBePromotedTo)
+    : this(movementPattern, capturePattern, pc, repeat, pieceIdentifier, canBeCaptured, canBePromotedTo, pieceIdentifier) {}
+
     public Piece(MovementPattern movementPattern, MovementPattern capturePattern, PieceClassifier pc, string pieceIdentifier, bool canBeCaptured = true, bool canBePromotedTo = true)
     : this(movementPattern, capturePattern, pc, 0, pieceIdentifier, canBeCaptured, canBePromotedTo) {}
 
+    public Piece(MovementPattern movementPattern, MovementPattern capturePattern, PieceClassifier pc, string pieceIdentifier, string imagePath, bool canBeCaptured = true, bool canBePromotedTo = true)
+    : this(movementPattern, capturePattern, pc, 0, pieceIdentifier, canBeCaptured, canBePromotedTo, imagePath) {}
+
 
 #endregion
-
-    /// <summary>
-    /// Exports this piece into a string of Json-format.
-    /// </summary>
-    /// <returns>A string of Json-format representing this piece.</returns>
-    public string ExportAsJson()
-    {
-        return PieceExporter.ExportPieceStateAsJson(this);
-    }
 
     /// <summary>
     /// Yield returns all IPatterns existing in this movement pattern.
@@ -93,24 +94,6 @@ public class Piece
     }
 
 #region Static methods
-
-    /// <summary>
-    /// Parses a <see cref="PieceState"/> into a <see cref="Piece"/>. 
-    /// </summary>
-    /// <param name="state">is the state that should be parsed.</param>
-    /// <returns>An object of type <see cref="Piece"/>.</returns>
-    public static Piece ParseState(PieceState state)
-    {
-        var movement = new MovementPattern(fetchPatterns(state.Movement));
-        var captures = new MovementPattern(fetchPatterns(state.Captures));
-
-        PieceClassifier pc;
-        var capitalizedPieceClassifier = state.PieceClassifier.ToUpper();
-        if(Enum.TryParse(capitalizedPieceClassifier, out pc))
-            return new Piece(movement, captures, pc, state.Repeat, state.PieceIdentifier, state.CanBeCaptured, state.CanBePromotedTo);
-
-        throw new ArgumentException("PieceClassifier could not be parsed correctly.");
-    }
 
     private static HashSet<Pattern> fetchPatterns(List<PatternRecord> patterns)
     {
@@ -143,8 +126,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteRookIdentifier);
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackRookIdentifier);
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteRookIdentifier, Constants.WhiteRookImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackRookIdentifier, Constants.BlackRookImage);
     }
 
     /// <summary>
@@ -163,8 +146,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteBishopIdentifier);
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackBishopIdentifier);
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteBishopIdentifier, Constants.WhiteBishopImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackBishopIdentifier, Constants.BlackBishopImage);
     }
 
     /// <summary>
@@ -187,8 +170,8 @@ public class Piece
         var mp = new MovementPattern(patterns);
 
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteQueenIdentifier);
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackQueenIdentifier);
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteQueenIdentifier, Constants.WhiteQueenImage);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackQueenIdentifier, Constants.BlackQueenImage);
     }
 
     /// <summary>
@@ -210,8 +193,8 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier, Constants.WhiteKingIdentifier, canBePromotedTo: false);
-        return new Piece(mp, mp, pieceClassifier, Constants.BlackKingIdentifier, canBePromotedTo: false);
+            return new Piece(mp, mp, pieceClassifier, Constants.WhiteKingIdentifier, Constants.WhiteKingImage, canBePromotedTo: false);
+        return new Piece(mp, mp, pieceClassifier, Constants.BlackKingIdentifier, Constants.BlackKingImage, canBePromotedTo: false);
     }
 
     /// <summary>
@@ -233,8 +216,8 @@ public class Piece
         };
         var mp = new MovementPattern(pattern);
         if(pieceClassifier.Equals(PieceClassifier.WHITE))
-            return new Piece(mp, mp, pieceClassifier,Constants.WhiteKnightIdentifier);
-        return new Piece(mp, mp, pieceClassifier,Constants.BlackKnightIdentifier);
+            return new Piece(mp, mp, pieceClassifier,Constants.WhiteKnightIdentifier, Constants.WhiteKnightImage);
+        return new Piece(mp, mp, pieceClassifier,Constants.BlackKnightIdentifier, Constants.BlackKnightImage);
     }
 
     /// <summary>
@@ -252,7 +235,7 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        return new Piece(mp, cp, PieceClassifier.BLACK, Constants.BlackPawnIdentifier, canBePromotedTo: false);
+        return new Piece(mp, cp, PieceClassifier.BLACK, Constants.BlackPawnIdentifier, Constants.BlackPawnImage, canBePromotedTo: false);
     }
 
     /// <summary>
@@ -270,7 +253,7 @@ public class Piece
         };
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        return new Piece(mp, cp, PieceClassifier.WHITE, Constants.WhitePawnIdentifier, canBePromotedTo: false);
+        return new Piece(mp, cp, PieceClassifier.WHITE, Constants.WhitePawnIdentifier, Constants.WhitePawnImage, canBePromotedTo: false);
     }
 
     /// <summary>
@@ -293,7 +276,7 @@ public class Piece
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        return new Piece(mp, cp, PieceClassifier.SHARED, Constants.DuckIdentifier, false, canBePromotedTo: false);
+        return new Piece(mp, cp, PieceClassifier.SHARED, Constants.DuckIdentifier, "Du", false, canBePromotedTo: false);
     }
 
     /// <summary>

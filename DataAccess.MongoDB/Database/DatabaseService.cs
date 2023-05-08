@@ -18,6 +18,7 @@ public abstract class DatabaseService
     public readonly EventRepository Events;
     public readonly MoveRepository Moves;
     public readonly RuleSetRepository RuleSets;
+    public readonly ChessboardRepository Chessboards;
 
     public DatabaseService(string connectionString, string databaseName)
     {
@@ -29,6 +30,7 @@ public abstract class DatabaseService
         Events = new EventRepository(_database);
         Moves = new MoveRepository(_database);
         RuleSets = new RuleSetRepository(_database);
+        Chessboards = new ChessboardRepository(_database);
     }
 
 }

@@ -370,7 +370,7 @@ public class GameHub : Hub
     }
 
 
-    private class AuthenticationError : Exception
+    public class AuthenticationError : Exception
     {
         public string ErrorType { get; }
         public AuthenticationError(string errorType)

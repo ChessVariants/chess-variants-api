@@ -15,9 +15,44 @@ public static class PieceTranslator
             CanBeCaptured = piece.CanBeCaptured,
             CanBePromotedTo = piece.CanBePromotedTo,
             ImagePath = imagePath,
+            BelongsTo = piece.PieceClassifier.AsString(),
             Movement = TranslatePatterns(piece.GetAllMovementPatterns()),
             Captures = TranslatePatterns(piece.GetAllCapturePatterns()),
         };
+    }
+
+    public static ChessVariantsLogic.Piece CreatePieceLogic(DataAccess.MongoDB.Models.Piece pieceModel)
+    {
+        PieceClassifier pc = PieceClassifier.SHARED;
+        switch (pieceModel.BelongsTo)
+        {
+            case "white" : pc = PieceClassifier.WHITE; break;
+            case "black" : pc = PieceClassifier.BLACK; break;
+        }
+        return new ChessVariantsLogic.Piece
+        (
+            TranslateToLogicPatterns(pieceModel.Movement),
+            TranslateToLogicPatterns(pieceModel.Captures),
+            pc,
+            pieceModel.Repeat,
+            pieceModel.Name,
+            pieceModel.CanBeCaptured,
+            pieceModel.CanBePromotedTo,
+            pieceModel.ImagePath
+        );
+    }
+
+    private static ChessVariantsLogic.MovementPattern TranslateToLogicPatterns(List<MovePattern> modelPatterns)
+    {
+        var logicPatterns = new HashSet<Pattern>();
+        foreach (var mp in modelPatterns)
+        {
+            if (mp.MinLength == -1)
+                logicPatterns.Add(new JumpPattern(mp.XDir, mp.YDir));
+            else
+                logicPatterns.Add(new RegularPattern(mp.XDir, mp.YDir, mp.MinLength, mp.MaxLength));
+        }
+        return new MovementPattern(logicPatterns);
     }
 
     private static List<MovePattern> TranslatePatterns(IEnumerable<Pattern> logicPatterns)
