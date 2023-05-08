@@ -17,7 +17,7 @@ public class EditorHub : Hub
     private DatabaseService _db;
 
     //Stanard pieces are for now stored in the db under this user
-    private static readonly string StandardPieceUser = "Guest-2f79c3ef-5e85-41e5-bc8f-c8b731805a16";
+    private static readonly string StandardPieceUser = "admin";
 
     public EditorHub(EditorOrganizer organizer, ILogger<EditorHub> logger, DatabaseService databaseService)
     {

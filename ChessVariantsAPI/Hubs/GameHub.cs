@@ -2,9 +2,14 @@
 using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic;
 using ChessVariantsLogic.Export;
-using ChessVariantsLogic.Rules.Moves;
+using DataAccess.MongoDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using ChessVariantsAPI.ObjectTranslations;
+using DataAccess.MongoDB.Models;
+using ChessVariantsLogic.Rules;
+using System.Linq;
+using DataAccess.MongoDB.Repositories;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -17,13 +22,15 @@ public class GameHub : Hub
     private readonly GameOrganizer _organizer;
     private readonly GroupOrganizer _groupOrganizer;
     readonly protected ILogger _logger;
+    private DatabaseService _db;
 
 
-    public GameHub(GameOrganizer organizer, ILogger<GameHub> logger, GroupOrganizer groupOrganizer)
+    public GameHub(GameOrganizer organizer, ILogger<GameHub> logger, GroupOrganizer groupOrganizer, DatabaseService db)
     {
         _organizer = organizer;
         _groupOrganizer = groupOrganizer;
         _logger = logger;
+        _db = db;
     }
 
     /// <summary>
@@ -134,7 +141,36 @@ public class GameHub : Hub
         {
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
-            Player createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
+            Player createdPlayer;
+
+            var type = _organizer.GetVariantType(variantIdentifier);
+            if (type == VariantType.Predefined)
+            {
+                createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
+            } else
+            {
+                var variantList = await _db.Variants.FindAsync(v => v.Creator == user && v.Code == variantIdentifier);
+                var variantToPlay = variantList.First();
+
+                var whiteRulesetModelList = await _db.RuleSets.FindAsync(r => r.Name == variantToPlay.WhiteRuleSetIdentifier && r.CreatorName == user);
+                var blackRulesetModelList = await _db.RuleSets.FindAsync(r => r.Name == variantToPlay.BlackRuleSetIdentifier && r.CreatorName == user);
+                var boardModelList = await _db.Chessboards.FindAsync(b => b.Name == variantToPlay.BoardIdentifier && b.Creator == user);
+
+                var whiteRulesetModel = whiteRulesetModelList.First();
+                var blackRulesetModel = blackRulesetModelList.First();
+
+                var boardModel = boardModelList.First();
+
+                var whiteRuleset = await CreateRuleSet(user, whiteRulesetModel);
+                var blackRuleset = await CreateRuleSet(user, blackRulesetModel);
+
+                List<ChessVariantsLogic.Piece> pieces = new();
+                var pieceModelList = await _db.Pieces.FindAsync(p => boardModel.Board.Contains(p.Name) && (p.Creator == user || p.Creator == "admin"));
+                var pieceLogicSet = pieceModelList.Select(pm => PieceTranslator.CreatePieceLogic(pm)).ToHashSet();
+                createdPlayer = _organizer.CreateCustomGame(gameId, user, variantIdentifier, whiteRuleset, blackRuleset, variantToPlay.MovesPerTurn, pieceLogicSet, boardModel.Rows, boardModel.Cols, boardModel.Board);
+            }
+
+
             await AddToGroup(user, gameId);
             await Clients.Caller.SendGameCreated(createdPlayer.AsString(), user);
             return new SetVariantDTO { Success = true };
@@ -145,6 +181,44 @@ public class GameHub : Hub
             await Clients.Caller.SendGenericError(e.Message);
             return new SetVariantDTO { Success = false, FailReason = e.Message };
         }
+    }
+
+    private async Task<RuleSet> CreateRuleSet(string user, RuleSetModel rulesetModel)
+    {
+        var eventModels = await CreateEventModelTuples(user, rulesetModel.Events, _db.Events);
+        var stalemateEventModels = await CreateEventModelTuples(user, rulesetModel.StalemateEvents, _db.Events);
+
+        var movetemplateList = await _db.Moves.FindAsync(mt => rulesetModel.Moves.Contains(mt.Name) && mt.CreatorName == user);
+        var movetemplatePredicateList = await _db.Predicates.FindAsync(p => movetemplateList.Any(mt => mt.Predicate == p.Name) && p.CreatorName == user);
+        movetemplateList = movetemplateList.OrderBy(mt => mt.Name).ToList();
+        movetemplatePredicateList = movetemplatePredicateList.OrderBy(p => p.Name).ToList();
+        var movetemplateModels = movetemplateList.Zip(movetemplatePredicateList, (mt, p) => Tuple.Create(mt, p.Code)).ToList();
+
+        HashSet<Tuple<MoveTemplateModel, string>> moveTemplateModels = new();
+        foreach (var moveTemplateIdentifier in rulesetModel.Moves)
+        {
+            var mtmList = await _db.Moves.FindAsync(mt => mt.Name == moveTemplateIdentifier && mt.CreatorName == user);
+            var mtm = mtmList.First();
+            var predicateList = await _db.Predicates.FindAsync(p => p.Name == mtm.Predicate && p.CreatorName == user);
+            var predicate = predicateList.First();
+            moveTemplateModels.Add(Tuple.Create(mtm, predicate.Code));
+        }
+
+        var movePredicateList = await _db.Predicates.FindAsync(p => p.Name == rulesetModel.Predicate && p.CreatorName == user);
+        var movePredicate = movePredicateList.First();
+
+        var ruleset = RuleSetTranslator.ConstructFromModel(moveTemplateModels, eventModels, stalemateEventModels, movePredicate.Code);
+        return ruleset!;
+    }
+
+    private async Task<List<Tuple<EventModel, string>>> CreateEventModelTuples(string user, List<string> events, EventRepository eventRepo)
+    {
+        var eventModelList = await eventRepo.FindAsync(e => events.Contains(e.Name) && e.CreatorName == user);
+        var eventModelPredicateList = await _db.Predicates.FindAsync(p => eventModelList.Any(e => e.Predicate == p.Name) && p.CreatorName == user);
+        eventModelList = eventModelList.OrderBy(e => e.Name).ToList();
+        eventModelPredicateList = eventModelPredicateList.OrderBy(p => p.Name).ToList();
+        var eventModels = eventModelList.Zip(eventModelPredicateList, (e, p) => Tuple.Create(e, p.Code)).ToList();
+        return eventModels!;
     }
 
     /// <summary>
@@ -273,7 +347,7 @@ public class GameHub : Hub
                 if (result.Contains(GameEvent.Promotion))
                 {
                     var promotablePieces = _organizer.GetPromotablePieces(gameId);
-                    var pieceInfos = promotablePieces.Select(p => p.PieceIdentifier).ToList();
+                    var pieceInfos = promotablePieces.Select(p => new PieceInfo { ImagePath = p.ImagePath, Identifier = p.PieceIdentifier }).ToList();
                     var currentPlayer = _organizer.GetPlayer(gameId, user).AsString();
                     var promotionOptionsDTO = new PromotionOptionsDTO { PromotablePieces = pieceInfos, Player = currentPlayer};
                     _logger.LogDebug("User <{user}> in <{gameid}> ready to make a promotion with pieces: {options}", user, gameId, pieceInfos);

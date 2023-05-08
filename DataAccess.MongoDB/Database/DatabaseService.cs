@@ -19,6 +19,7 @@ public abstract class DatabaseService
     public readonly MoveRepository Moves;
     public readonly RuleSetRepository RuleSets;
     public readonly ChessboardRepository Chessboards;
+    public readonly VariantRepository Variants;
 
     public DatabaseService(string connectionString, string databaseName)
     {
@@ -31,6 +32,7 @@ public abstract class DatabaseService
         Moves = new MoveRepository(_database);
         RuleSets = new RuleSetRepository(_database);
         Chessboards = new ChessboardRepository(_database);
+        Variants = new VariantRepository(_database);
     }
 
 }
