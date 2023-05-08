@@ -306,6 +306,11 @@ public static class GameFactory
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
+    public static Game Custom(RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, Chessboard board)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Returns a game corresponding to the <paramref name="identifier"/>>.
     /// </summary>
@@ -323,6 +328,23 @@ public static class GameFactory
             AtomicChessIdentifier => AtomicChess(),
             _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
         };
-
     }
+
+    public static VariantType GetVariantType(string variantIdentifier) {
+        return identifier switch
+        {
+            StandardIdentifier => VariantType.Predefined,
+            AntiChessIdentifier => VariantType.Predefined,
+            CaptureTheKingIdentifier => VariantType.Predefined,
+            DuckChessIdentifier => VariantType.Predefined,
+            AtomicChessIdentifier => VariantType.Predefined,
+            _ => VariantType.Custom,
+        };
+    }
+}
+
+public enum VariantType
+{
+    Predefined,
+    Custom,
 }

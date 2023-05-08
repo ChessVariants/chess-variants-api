@@ -59,7 +59,19 @@ public class GameOrganizer
         return activeGame.AddPlayer(playerIdentifier);
     }
 
+    public VariantType GetVariantType(string variantIdentifier)
+    {
+        return GameFactory.GetVariantType(variantIdentifier);
+    }
+
     public Player CreateGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
+    {
+        AssertGameDoesNotExist(gameId);
+        var activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
+        return activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    public Player CreateCustomGame(string gameId, string playerIdentifier, string variantIdentifier)
     {
         AssertGameDoesNotExist(gameId);
         var activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);

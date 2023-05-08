@@ -18,11 +18,11 @@ public class VariantController : GenericController
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetVariants()
+    public async Task<ActionResult<GetVariantsDTO>> GetVariants()
     {
         var username = GetUsername();
 
-        var variantsBelongingToUser = await _db.Variants.FindAsync(variant => variant.Creator == username);
+        var variantsBelongingToUser = await _db.Variants.GetByUserAsync(username);
         var variantInfoList = variantsBelongingToUser.Select(variant => new VariantInfoDTO
         {
             Name = variant.Name,
@@ -63,6 +63,6 @@ public class VariantController : GenericController
 
     private static string GenerateCode()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(7));
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(7)).Substring(0, 7);
     }
 }

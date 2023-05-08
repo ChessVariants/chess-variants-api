@@ -2,9 +2,11 @@
 using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic;
 using ChessVariantsLogic.Export;
-using ChessVariantsLogic.Rules.Moves;
+using DataAccess.MongoDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using ChessVariantsAPI.ObjectTranslations;
+using DataAccess.MongoDB.Models;
 
 namespace ChessVariantsAPI.Hubs;
 
@@ -17,13 +19,15 @@ public class GameHub : Hub
     private readonly GameOrganizer _organizer;
     private readonly GroupOrganizer _groupOrganizer;
     readonly protected ILogger _logger;
+    private DatabaseService _db;
 
 
-    public GameHub(GameOrganizer organizer, ILogger<GameHub> logger, GroupOrganizer groupOrganizer)
+    public GameHub(GameOrganizer organizer, ILogger<GameHub> logger, GroupOrganizer groupOrganizer, DatabaseService db)
     {
         _organizer = organizer;
         _groupOrganizer = groupOrganizer;
         _logger = logger;
+        _db = db;
     }
 
     /// <summary>
@@ -134,7 +138,67 @@ public class GameHub : Hub
         {
             var user = GetUsername();
             _logger.LogDebug("User <{user}> trying to create game with id <{gameid}>", user, gameId);
-            Player createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
+            Player createdPlayer;
+
+            var type = _organizer.GetVariantType(gameId);
+            if (type == VariantType.Predefined)
+            {
+                createdPlayer = _organizer.CreateGame(gameId, user, variantIdentifier);
+            } else
+            {
+                var variantList = await _db.Variants.FindAsync(v => v.Creator == user && v.Code == variantIdentifier);
+                var variantToPlay = variantList.First();
+
+                var whiteRulesetModelList = await _db.RuleSets.FindAsync(r => r.Name == variantToPlay.WhiteRuleSetIdentifier && r.CreatorName == user);
+                var blackRulesetModelList = await _db.RuleSets.FindAsync(r => r.Name == variantToPlay.BlackRuleSetIdentifier && r.CreatorName == user);
+                var boardModelList = await _db.Chessboards.FindAsync(b => b.Name == variantToPlay.BoardIdentifier && b.Creator == user);
+
+                var whiteRulesetModel = whiteRulesetModelList.First();
+                var blackRulesetModel = blackRulesetModelList.First();
+                var boardModel = boardModelList.First();
+
+                List<Tuple<EventModel, string>> eventModels = new();
+                foreach (var eventIdentifier in whiteRulesetModel.Events)
+                {
+                    var emList = await _db.Events.FindAsync(e => e.Name == eventIdentifier && e.CreatorName == user);
+                    var em = emList.First();
+                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == em.Predicate && p.CreatorName == user);
+                    var predicate = predicateList.First();
+                    eventModels.Add(Tuple.Create(em, predicate.Code));
+                }
+
+                List<Tuple<EventModel, string>> stalemateEventModels = new();
+                foreach (var eventIdentifier in whiteRulesetModel.StalemateEvents)
+                {
+                    var semList = await _db.Events.FindAsync(e => e.Name == eventIdentifier);
+                    var sem = semList.First();
+                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == sem.Predicate && p.CreatorName == user);
+                    var predicate = predicateList.First();
+                    stalemateEventModels.Add(Tuple.Create(sem, predicate.Code));
+                }
+
+                HashSet<Tuple<MoveTemplateModel, string>> moveTemplateModels = new ();
+                foreach (var moveTemplateIdentifier in whiteRulesetModel.Moves)
+                {
+                    var mtmList = await _db.Moves.FindAsync(mt => mt.Name == moveTemplateIdentifier);
+                    var mtm = mtmList.First();
+                    var predicateList = await _db.Predicates.FindAsync(p => p.Name == mtm.Predicate && p.CreatorName == user);
+                    var predicate = predicateList.First();
+                    moveTemplateModels.Add(Tuple.Create(mtm, predicate.Code));
+                }
+
+                var movePredicateList = await _db.Predicates.FindAsync(p => p.Name == whiteRulesetModel.Predicate && p.CreatorName == user);
+                var movePredicate = movePredicateList.First();
+
+                var whiteRuleset = RuleSetTranslator.ConstructFromModel(moveTemplateModels, eventModels, stalemateEventModels, movePredicate.Code);
+            }
+
+
+
+
+
+
+
             await AddToGroup(user, gameId);
             await Clients.Caller.SendGameCreated(createdPlayer.AsString(), user);
             return new SetVariantDTO { Success = true };

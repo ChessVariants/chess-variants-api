@@ -18,7 +18,7 @@ public class RuleSetTranslator
         var events = (ISet<Event>) eventModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2));
         if (events.Any(item => item == null)) return null;
 
-        var stalemateEvents = (ISet<Event>) eventModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2));
+        var stalemateEvents = (ISet<Event>) stalemateModels.Select(tuple => ConstructEventFromModel(tuple.Item1, tuple.Item2));
         if (stalemateEvents.Any(item => item == null)) return null;
 
         IPredicate predicate;

@@ -14,4 +14,9 @@ public class VariantRepository : GenericRepository<Variant>
     public VariantRepository(IMongoDatabase database) : base(database.GetCollection<Variant>(CollectionName))
     {
     }
+
+    public async Task<List<Variant>> GetByUserAsync(string username)
+    {
+        return await _collection.Find(v => v.Creator.Equals(username)).ToListAsync();
+    }
 }
