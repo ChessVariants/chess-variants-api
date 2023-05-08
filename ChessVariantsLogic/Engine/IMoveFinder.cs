@@ -4,6 +4,6 @@ namespace ChessVariantsLogic.Engine;
 public interface IMoveFinder
 {
 
-    public Move FindBestMove(int depth, Game game, Player player, ScoreVariant scoreVariant);
+    public Move FindBestMove(int depth, int tradeDepth, Game game, Player player, ScoreVariant scoreVariant);
     public PieceValue GetPieceValue();
 }
