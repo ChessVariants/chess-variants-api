@@ -307,6 +307,8 @@ public class MoveWorker
     // Generates all moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int,int> pos)
     {
+        bool hasCaptured = false;
+
         var moves = new HashSet<Tuple<int, int>>();
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
@@ -333,6 +335,7 @@ public class MoveWorker
                 if(captureMove == null)
                     continue;
                 moves.Add(captureMove);
+                hasCaptured = true;
             }
         }
         var movesTmp = moves.ToHashSet();
@@ -355,6 +358,9 @@ public class MoveWorker
                     }
                 }
 
+                if (hasCaptured)
+                    continue;
+
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
@@ -367,6 +373,8 @@ public class MoveWorker
                         if (captureMove == null)
                             continue;
                         moves.Add(captureMove);
+                        hasCaptured = true;
+                        break;
                     }
                 }
             }
@@ -482,49 +490,40 @@ public class MoveWorker
         if(!insideBoard(newRow, newCol))
             return null;
 
-        string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-        string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+        string? square = board.GetPieceIdentifier(newRow, newCol);
 
-        if(pieceIdentifier1 == null || pieceIdentifier2 == null)
+        if(square == null || !square.Equals(Constants.UnoccupiedSquareIdentifier))
             return null;
 
-        if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
-        {
-            return new Tuple<int, int>(newRow, newCol);
-        }
-        return null;
+        return new Tuple<int, int>(newRow, newCol);
     }
 
     // Returns capture move for a jumpingpattern.
     private Tuple<int,int>? getJumpCaptureMove(Piece piece, Pattern pattern, Tuple<int, int> pos)
     {
-        
         if (pattern == null)
             return null;
 
         int newRow = pos.Item1 + pattern.XDir;
         int newCol = pos.Item2 + pattern.YDir;
 
-        string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-        string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+        string? square = board.GetPieceIdentifier(newRow, newCol);
 
-        if (pieceIdentifier1 == null || pieceIdentifier2 == null || pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+        if (square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
             return null;
 
-        Piece? piece1 = null;
-        Piece? piece2 = null;
+        Piece? otherPiece = null;
 
         try
         {
-            piece1 = this.stringToPiece[pieceIdentifier1];
-            piece2 = this.stringToPiece[pieceIdentifier2];
+            otherPiece = this.stringToPiece[square];
         }
         catch (KeyNotFoundException)
         {
             return null;
         }
 
-        if (!insideBoard(newRow, newCol) || !piece1.CanTake(piece2))
+        if (!insideBoard(newRow, newCol) || !piece.CanTake(otherPiece))
             return null;
         
         return new Tuple<int,int>(newRow, newCol); 
@@ -574,6 +573,8 @@ public class MoveWorker
     // Generates all capture moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
+        bool hasCaptured = false;
+
         var moves = new HashSet<Tuple<int, int>>();
         var capturemoves = new HashSet<Tuple<int, int>>();
 
@@ -595,6 +596,8 @@ public class MoveWorker
                 if(captureMove == null)
                     continue;
                 capturemoves.Add(captureMove);
+                hasCaptured = true;
+                break;
             }
         }
 
@@ -630,6 +633,8 @@ public class MoveWorker
 
                     }
                 }
+                if (hasCaptured)
+                    continue;
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
@@ -643,8 +648,11 @@ public class MoveWorker
                         if(jumpMove != null)
                             capturemoves.Add(jumpMove);
                         var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                        if(captureMove != null)
-                            capturemoves.Add(captureMove);
+                        if(captureMove == null)
+                            continue;
+                        capturemoves.Add(captureMove);
+                        hasCaptured = true;
+                        break;
                     }
                 }
             }
@@ -691,6 +699,8 @@ public class MoveWorker
 
     private HashSet<Tuple<int, int>> getAllThreatMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
+        bool hasCaptured = false;
+
         var moves = new HashSet<Tuple<int, int>>();
         var capturemoves = new HashSet<Tuple<int, int>>();
 
@@ -721,6 +731,7 @@ public class MoveWorker
                 if (jumpMove == null)
                     continue;
                 moves.Add(jumpMove);
+                hasCaptured = true;
             }
         }
 
@@ -742,6 +753,10 @@ public class MoveWorker
                         moves.Add(jumpMove);
                     }
                 }
+
+                if (hasCaptured)
+                    continue;
+
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
@@ -756,6 +771,8 @@ public class MoveWorker
                         if (captureMove == null)
                             continue;
                         capturemoves.Add(captureMove);
+                        hasCaptured = true;
+                        break;
                     }
                 }
             }

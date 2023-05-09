@@ -482,6 +482,51 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
+    public void PieceWithRepeatCanCaptureAfterAtRepeatMove()
+    {
+        moveWorker.Board = new Chessboard(8);
+
+        var patterns = new HashSet<Pattern> {
+            new JumpPattern( -2, 0),
+            new JumpPattern( 2, 0),
+        };
+        
+        var mp = new MovementPattern(patterns);
+        Piece customPiece = new Piece(mp, mp, PieceClassifier.WHITE , 2, customPieceNotation, true, true);
+        Piece blackPawn = Piece.BlackPawn();
+        
+        moveWorker.InsertOnBoard(customPiece, "a1");
+        moveWorker.InsertOnBoard(blackPawn, "a5");
+
+        moveWorker.Move("a1a5");
+
+        Assert.Equal(customPieceNotation, moveWorker.Board.GetPieceIdentifier("a5"));
+    }
+
+    [Fact]
+    public void PieceWithRepeatCanOnlyCaptureOnePiece()
+    {
+        moveWorker.Board = new Chessboard(8);
+
+        var patterns = new HashSet<Pattern> {
+            new JumpPattern( -2, 0),
+            new JumpPattern( 2, 0),
+        };
+        
+        var mp = new MovementPattern(patterns);
+        Piece customPiece = new Piece(mp, mp, PieceClassifier.WHITE , 2, customPieceNotation, true, true);
+        Piece blackPawn = Piece.BlackPawn();
+        
+        moveWorker.InsertOnBoard(customPiece, "a1");
+        moveWorker.InsertOnBoard(blackPawn, "a3");
+        moveWorker.InsertOnBoard(blackPawn, "a5");
+
+        moveWorker.Move("a1a5");
+
+        Assert.Equal(customPieceNotation, moveWorker.Board.GetPieceIdentifier("a1"));
+    }
+
+    [Fact]
     public void perftTestThreeMoves()
     {
        this.perft.PerftTest (3, Player.White);
