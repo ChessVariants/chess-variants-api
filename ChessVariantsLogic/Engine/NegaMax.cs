@@ -44,7 +44,7 @@ public class NegaMax : IMoveFinder
     public Move FindBestMove(int depth, int tradeDepth, Game game, Player player, ScoreVariant scoreVariant)
     {
         int turnMultiplier;
-        _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Rows);
+        _heatMap = new HeatMap(game.MoveWorker.Board.Rows, game.MoveWorker.Board.Cols);
         var tmp_legalMoves = game.LegalMoves;
         var tmp_playerTurn = game.PlayerTurn;
         double bestScore = -11111111;
