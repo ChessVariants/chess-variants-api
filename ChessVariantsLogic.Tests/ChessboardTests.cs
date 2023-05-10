@@ -339,20 +339,21 @@ public class ChessboardTests : IDisposable
     [Fact]
     public void GetAllCapturePatternMovesReturnsCorrectNumberOfMoves()
     {
-        Move move = new Move("e2e3", Piece.WhitePawn());
+        Move whitePawnMove = new Move("e2e3", Piece.WhitePawn());
+        Move blackPawnMove = new Move("b8a6", Piece.Knight(PieceClassifier.BLACK));
+        Move whiteQueenMove = new Move("d1f3", Piece.Queen(PieceClassifier.WHITE));
         
-        var moves1 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
-        moveWorker.PerformMove(move);
-        var moves2 = this.moveWorker.GetAllCapturePatternMoves(Player.White);
+        var moves1 = moveWorker.GetAllCapturePatternMoves(Player.White);
+        moveWorker.PerformMove(whitePawnMove);
+        moveWorker.PerformMove(blackPawnMove);
+        var moves2 = moveWorker.GetAllCapturePatternMoves(Player.White);
 
-        this.moveWorker.Board = new Chessboard(8);
+        moveWorker.PerformMove(whiteQueenMove);
+        var movesQueen = moveWorker.GetAllCapturePatternMoves(Player.White);
 
-        this.moveWorker.InsertOnBoard(Piece.Queen(PieceClassifier.WHITE), "e4");
-        var movesQueen = this.moveWorker.GetAllCapturePatternMoves(Player.White);
-
-        Assert.Equal(18, moves1.Count);
-        Assert.Equal(27, moves2.Count);
-        Assert.Equal(27, movesQueen.Count);
+        Assert.Equal(0, moves1.Count);
+        Assert.Equal(1, moves2.Count);
+        Assert.Equal(3, movesQueen.Count);
     }
 
     [Fact]
@@ -504,7 +505,7 @@ public class ChessboardTests : IDisposable
     }
 
     [Fact]
-    public void PieceWithRepeatCanOnlyCaptureOnePiece()
+    public void PieceWithRepeatAndJumpCanOnlyCaptureOnePiece()
     {
         moveWorker.Board = new Chessboard(8);
 
@@ -522,6 +523,30 @@ public class ChessboardTests : IDisposable
         moveWorker.InsertOnBoard(blackPawn, "a5");
 
         moveWorker.Move("a1a5");
+
+        Assert.Equal(customPieceNotation, moveWorker.Board.GetPieceIdentifier("a1"));
+    }
+
+    [Fact]
+    public void PieceWithRepeatAndRegularCanOnlyCaptureOnePiece()
+    {
+        moveWorker.Board = new Chessboard(8);
+
+        var patterns = new HashSet<Pattern> {
+            new JumpPattern( -2, 0),
+            new RegularPattern(0, 1, 1, 20),
+        };
+        
+        var mp = new MovementPattern(patterns);
+        Piece customPiece = new Piece(mp, mp, PieceClassifier.WHITE , 2, customPieceNotation, true, true);
+        Piece blackPawn = Piece.BlackPawn();
+        
+        moveWorker.InsertOnBoard(customPiece, "a1");
+        moveWorker.InsertOnBoard(blackPawn, "a3");
+        moveWorker.InsertOnBoard(blackPawn, "d1");
+        moveWorker.InsertOnBoard(blackPawn, "c3");
+
+        moveWorker.Move("a1d3");
 
         Assert.Equal(customPieceNotation, moveWorker.Board.GetPieceIdentifier("a1"));
     }

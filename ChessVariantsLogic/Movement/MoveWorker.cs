@@ -307,8 +307,6 @@ public class MoveWorker
     // Generates all moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidMovesByPiece(Piece piece, Tuple<int,int> pos)
     {
-        bool hasCaptured = false;
-
         var moves = new HashSet<Tuple<int, int>>();
         foreach (var pattern in piece.GetAllMovementPatterns())
         {
@@ -323,22 +321,23 @@ public class MoveWorker
             }
         }
 
+        var captures = new HashSet<Tuple<int, int>>();
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if (pattern is RegularPattern)
             {
-                moves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                captures.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
             }
             else
             {
                 var captureMove = getJumpCaptureMove(piece, pattern, pos);
                 if(captureMove == null)
                     continue;
-                moves.Add(captureMove);
-                hasCaptured = true;
+                captures.Add(captureMove);
             }
         }
         var movesTmp = moves.ToHashSet();
+        var capturesTmp = captures.ToHashSet();
         int repeat = piece.Repeat;
         
         while (repeat >= 1)
@@ -358,29 +357,25 @@ public class MoveWorker
                     }
                 }
 
-                if (hasCaptured)
-                    continue;
-
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
-                    {
-                        moves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
-                    }
+                        captures.UnionWith(getRegularCaptureMoves(piece, pattern, move));
                     else
                     {
                         var captureMove = getJumpCaptureMove(piece, pattern, move);
                         if (captureMove == null)
                             continue;
-                        moves.Add(captureMove);
-                        hasCaptured = true;
+                        captures.Add(captureMove);
                         break;
                     }
                 }
             }
+            capturesTmp = captures;
             movesTmp = moves;
             repeat--;
         }
+        moves.UnionWith(captures);
         return moves;
     }
 
@@ -401,10 +396,9 @@ public class MoveWorker
                 if(!insideBoard(newRow, newCol))
                     break;
 
-                string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-                string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+                string? square = board.GetPieceIdentifier(newRow, newCol);
 
-                if(pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
+                if(square == null || hasTaken(piece, pos))
                     break;
 
                 var minLength = pattern.MinLength;
@@ -413,7 +407,7 @@ public class MoveWorker
                 if(maxLength < j || j < minLength)
                     break;
 
-                if(pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+                if(square.Equals(Constants.UnoccupiedSquareIdentifier))
                 {
                     moves.Add(new Tuple<int, int>(newRow, newCol));
                     continue;
@@ -429,24 +423,18 @@ public class MoveWorker
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
 
-
         for (int j = 1; j < maxIndex; j++)
         {
-    
-            if (pattern == null)
-                continue;
-
             int newRow = pos.Item1 + pattern.XDir * j;
             int newCol = pos.Item2 + pattern.YDir * j;
 
             if (!insideBoard(newRow, newCol))
                 break;
 
-            string? pieceIdentifier1 = board.GetPieceIdentifier(pos);
-            string? pieceIdentifier2 = board.GetPieceIdentifier(newRow, newCol);
+            string? square = board.GetPieceIdentifier(newRow, newCol);
 
-            if (pieceIdentifier1 == null || pieceIdentifier2 == null || hasTaken(piece, pos))
-                continue;
+            if (square == null || hasTaken(piece, pos))
+                break;
 
             var minLength = pattern.MinLength;
             var maxLength = pattern.MaxLength;
@@ -454,24 +442,23 @@ public class MoveWorker
             if (maxLength < j || j < minLength)
                 continue;
 
-            if (pieceIdentifier2.Equals(Constants.UnoccupiedSquareIdentifier))
+            if (square.Equals(Constants.UnoccupiedSquareIdentifier))
             {
                 //moves.Add(new Tuple<int, int>(newRow, newCol));
                 continue;
             }
 
-            Piece? piece2 = null;
-
+            Piece? otherPiece = null;
             try
             {
-                piece2 = this.stringToPiece[pieceIdentifier2];
+                otherPiece = this.stringToPiece[square];
             }
             catch (KeyNotFoundException)
             {
                 continue;
             }
 
-            if (piece.CanTake(piece2))
+            if (piece.CanTake(otherPiece))
                 moves.Add(new Tuple<int, int>(newRow, newCol));
 
             break;
@@ -573,31 +560,18 @@ public class MoveWorker
     // Generates all capture moves for a piece.
     private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
-        bool hasCaptured = false;
-
         var moves = new HashSet<Tuple<int, int>>();
         var capturemoves = new HashSet<Tuple<int, int>>();
-
-        int repeat = piece.Repeat;
         
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if (pattern is RegularPattern)
-            {
-                capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
                 capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-            }
             else
             {
-                var jumpMove = getJumpMove(piece, pattern, pos);
-                if(jumpMove != null)
-                    capturemoves.Add(jumpMove);
                 var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                if(captureMove == null)
-                    continue;
-                capturemoves.Add(captureMove);
-                hasCaptured = true;
-                break;
+                if(captureMove != null)
+                    capturemoves.Add(captureMove);
             }
         }
 
@@ -608,13 +582,13 @@ public class MoveWorker
             else
             {
                 var jumpMove = getJumpMove(piece, pattern, pos);
-                if (jumpMove == null)
-                    continue;
-                moves.Add(jumpMove);
+                if (jumpMove != null)
+                    moves.Add(jumpMove);
             }
         }
 
         var movesTmp = moves.ToHashSet();
+        int repeat = piece.Repeat;
 
         while (repeat >= 1)
         {
@@ -627,32 +601,21 @@ public class MoveWorker
                     else
                     {
                         var jumpMove = getJumpMove(piece, pattern, move);
-                        if(jumpMove == null)
-                            continue;
-                        moves.Add(jumpMove);
+                        if(jumpMove != null)
+                            moves.Add(jumpMove);
 
                     }
                 }
-                if (hasCaptured)
-                    continue;
+
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
-                    {    
-                        capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
-                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-                    }
+                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
                     else
                     {
-                        var jumpMove = getJumpMove(piece, pattern, move);
-                        if(jumpMove != null)
-                            capturemoves.Add(jumpMove);
-                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                        if(captureMove == null)
-                            continue;
-                        capturemoves.Add(captureMove);
-                        hasCaptured = true;
-                        break;
+                        var captureMove = getJumpCaptureMove(piece, pattern, move);
+                        if(captureMove != null)
+                            capturemoves.Add(captureMove);
                     }
                 }
             }
