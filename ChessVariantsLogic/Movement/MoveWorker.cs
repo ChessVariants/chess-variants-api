@@ -325,15 +325,12 @@ public class MoveWorker
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if (pattern is RegularPattern)
-            {
                 captures.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-            }
             else
             {
                 var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                if(captureMove == null)
-                    continue;
-                captures.Add(captureMove);
+                if(captureMove != null)
+                    captures.Add(captureMove);
             }
         }
         var movesTmp = moves.ToHashSet();
@@ -351,9 +348,8 @@ public class MoveWorker
                     else
                     {
                         var jumpMove = getJumpMove(piece, pattern, move);
-                        if(jumpMove == null)
-                            continue;
-                        moves.Add(jumpMove);
+                        if(jumpMove != null)
+                            moves.Add(jumpMove);
                     }
                 }
 
@@ -364,10 +360,8 @@ public class MoveWorker
                     else
                     {
                         var captureMove = getJumpCaptureMove(piece, pattern, move);
-                        if (captureMove == null)
-                            continue;
-                        captures.Add(captureMove);
-                        break;
+                        if (captureMove != null)
+                            captures.Add(captureMove);
                     }
                 }
             }
@@ -384,35 +378,32 @@ public class MoveWorker
     {
         var moves = new HashSet<Tuple<int, int>>();
         int maxIndex = Math.Max(board.Rows,board.Cols);
-
-        if(pattern != null)
         
-        
-            for (int j = pattern.MinLength; j < maxIndex; j++)
-            {
-                int newRow = pos.Item1 + pattern.XDir * j;
-                int newCol = pos.Item2 + pattern.YDir * j;
+        for (int j = pattern.MinLength; j < maxIndex; j++)
+        {
+            int newRow = pos.Item1 + pattern.XDir * j;
+            int newCol = pos.Item2 + pattern.YDir * j;
 
-                if(!insideBoard(newRow, newCol))
-                    break;
-
-                string? square = board.GetPieceIdentifier(newRow, newCol);
-
-                if(square == null || hasTaken(piece, pos))
-                    break;
-
-                var minLength = pattern.MinLength;
-                var maxLength = pattern.MaxLength;
-
-                if(maxLength < j || j < minLength)
-                    break;
-
-                if(square.Equals(Constants.UnoccupiedSquareIdentifier))
-                {
-                    moves.Add(new Tuple<int, int>(newRow, newCol));
-                    continue;
-                } 
+            if(!insideBoard(newRow, newCol))
                 break;
+
+            string? square = board.GetPieceIdentifier(newRow, newCol);
+
+            if(square == null || hasTaken(piece, pos))
+                break;
+
+            var minLength = pattern.MinLength;
+            var maxLength = pattern.MaxLength;
+
+            if(maxLength < j || j < minLength)
+                break;
+
+            if(square.Equals(Constants.UnoccupiedSquareIdentifier))
+            {
+                moves.Add(new Tuple<int, int>(newRow, newCol));
+                continue;
+            } 
+            break;
         }
         return moves;    
     }
@@ -464,7 +455,6 @@ public class MoveWorker
             break;
 
         }
-        
         return moves;    
     }
 
@@ -488,11 +478,11 @@ public class MoveWorker
     // Returns capture move for a jumpingpattern.
     private Tuple<int,int>? getJumpCaptureMove(Piece piece, Pattern pattern, Tuple<int, int> pos)
     {
-        if (pattern == null)
-            return null;
-
         int newRow = pos.Item1 + pattern.XDir;
         int newCol = pos.Item2 + pattern.YDir;
+
+        if (!insideBoard(newRow, newCol))
+            return null;
 
         string? square = board.GetPieceIdentifier(newRow, newCol);
 
@@ -510,7 +500,7 @@ public class MoveWorker
             return null;
         }
 
-        if (!insideBoard(newRow, newCol) || !piece.CanTake(otherPiece))
+        if (!piece.CanTake(otherPiece))
             return null;
         
         return new Tuple<int,int>(newRow, newCol); 
