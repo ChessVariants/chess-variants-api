@@ -343,13 +343,13 @@ public class ChessboardTests : IDisposable
         Move blackPawnMove = new Move("b8a6", Piece.Knight(PieceClassifier.BLACK));
         Move whiteQueenMove = new Move("d1f3", Piece.Queen(PieceClassifier.WHITE));
         
-        var moves1 = moveWorker.GetAllCapturePatternMoves(Player.White);
+        var moves1 = moveWorker.GetAllThreatMoves(Player.White);
         moveWorker.PerformMove(whitePawnMove);
         moveWorker.PerformMove(blackPawnMove);
-        var moves2 = moveWorker.GetAllCapturePatternMoves(Player.White);
+        var moves2 = moveWorker.GetAllThreatMoves(Player.White);
 
         moveWorker.PerformMove(whiteQueenMove);
-        var movesQueen = moveWorker.GetAllCapturePatternMoves(Player.White);
+        var movesQueen = moveWorker.GetAllThreatMoves(Player.White);
 
         Assert.Equal(0, moves1.Count);
         Assert.Equal(1, moves2.Count);

@@ -521,109 +521,6 @@ public class MoveWorker
     /// </summary>
     /// <param name="player"> is the player whose moves should be calculated. </param>
     /// <returns>an iterable collection of all valid capture moves.</returns>
-    public HashSet<string> GetAllCapturePatternMoves(Player player)
-    {
-        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
-
-        foreach (var coor in this.board.GetAllCoordinates())
-        {
-            int row = coor.Item1;
-            int col = coor.Item2;
-            var square = this.board.GetPieceIdentifier(row, col);
-
-            if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
-                continue;
-
-            Piece? p = null;
-            try
-            {
-                p = this.stringToPiece[square];
-            }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
-
-            if(pieceBelongsToPlayer(p, player))
-            {
-                var startPosition = new Tuple<int,int>(row, col);
-                var legalMoves = getAllValidCaptureMovesByPiece(p, startPosition);
-                foreach (var pos in legalMoves)
-                {
-                    coorMoves.Add((startPosition, pos));
-                }
-            }
-        }
-        return coorSetToStringSet(coorMoves);
-    }
-
-    // Generates all capture moves for a piece.
-    private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
-    {
-        var moves = new HashSet<Tuple<int, int>>();
-        var capturemoves = new HashSet<Tuple<int, int>>();
-        
-        foreach (var pattern in piece.GetAllCapturePatterns())
-        {
-            if (pattern is RegularPattern)
-                capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-            else
-            {
-                var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                if(captureMove != null)
-                    capturemoves.Add(captureMove);
-            }
-        }
-
-        foreach (var pattern in piece.GetAllMovementPatterns())
-        {
-            if (pattern is RegularPattern)
-                moves.UnionWith(getRegularMoves(piece, pattern, pos));
-            else
-            {
-                var jumpMove = getJumpMove(piece, pattern, pos);
-                if (jumpMove != null)
-                    moves.Add(jumpMove);
-            }
-        }
-
-        var movesTmp = moves.ToHashSet();
-        int repeat = piece.Repeat;
-
-        while (repeat >= 1)
-        {
-            foreach (var move in movesTmp)
-            {
-                foreach (var pattern in piece.GetAllMovementPatterns())
-                {
-                    if (pattern is RegularPattern)
-                        moves.UnionWith(getRegularMoves(piece, pattern, move));
-                    else
-                    {
-                        var jumpMove = getJumpMove(piece, pattern, move);
-                        if(jumpMove != null)
-                            moves.Add(jumpMove);
-
-                    }
-                }
-
-                foreach (var pattern in piece.GetAllCapturePatterns())
-                {
-                    if (pattern is RegularPattern)
-                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
-                    else
-                    {
-                        var captureMove = getJumpCaptureMove(piece, pattern, move);
-                        if(captureMove != null)
-                            capturemoves.Add(captureMove);
-                    }
-                }
-            }
-            movesTmp = moves;
-            repeat--;
-        }
-        return capturemoves;
-    }
     public HashSet<string> GetAllThreatMoves(Player player)
     {
         var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
@@ -660,27 +557,21 @@ public class MoveWorker
         return coorSetToStringSet(coorMoves);
     }
 
+    // Generates all capture moves for a piece.
     private HashSet<Tuple<int, int>> getAllThreatMovesByPiece(Piece piece, Tuple<int, int> pos)
     {
-        bool hasCaptured = false;
-
         var moves = new HashSet<Tuple<int, int>>();
         var capturemoves = new HashSet<Tuple<int, int>>();
-
-        int repeat = piece.Repeat;
-
+        
         foreach (var pattern in piece.GetAllCapturePatterns())
         {
             if (pattern is RegularPattern)
-            {
                 capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-            }
             else
             {
                 var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                if (captureMove == null)
-                    continue;
-                capturemoves.Add(captureMove);
+                if(captureMove != null)
+                    capturemoves.Add(captureMove);
             }
         }
 
@@ -691,18 +582,17 @@ public class MoveWorker
             else
             {
                 var jumpMove = getJumpMove(piece, pattern, pos);
-                if (jumpMove == null)
-                    continue;
-                moves.Add(jumpMove);
-                hasCaptured = true;
+                if (jumpMove != null)
+                    moves.Add(jumpMove);
             }
         }
 
         var movesTmp = moves.ToHashSet();
+        int repeat = piece.Repeat;
 
         while (repeat >= 1)
         {
-            foreach (var move in movesTmp)
+            foreach (var move in movesTmp.ToList())
             {
                 foreach (var pattern in piece.GetAllMovementPatterns())
                 {
@@ -710,32 +600,22 @@ public class MoveWorker
                         moves.UnionWith(getRegularMoves(piece, pattern, move));
                     else
                     {
-                        var jumpMove = getJumpMove(piece, pattern, pos);
-                        if (jumpMove == null)
-                            continue;
-                        moves.Add(jumpMove);
+                        var jumpMove = getJumpMove(piece, pattern, move);
+                        if(jumpMove != null)
+                            moves.Add(jumpMove);
+
                     }
                 }
-
-                if (hasCaptured)
-                    continue;
 
                 foreach (var pattern in piece.GetAllCapturePatterns())
                 {
                     if (pattern is RegularPattern)
-                    {
-                        //capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
-                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
-                    }
+                        capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, move));
                     else
                     {
-                        //capturemoves.UnionWith(getJumpMove(piece, pattern, move));
-                        var captureMove = getJumpCaptureMove(piece, pattern, pos);
-                        if (captureMove == null)
-                            continue;
-                        capturemoves.Add(captureMove);
-                        hasCaptured = true;
-                        break;
+                        var captureMove = getJumpCaptureMove(piece, pattern, move);
+                        if(captureMove != null)
+                            capturemoves.Add(captureMove);
                     }
                 }
             }
@@ -744,6 +624,7 @@ public class MoveWorker
         }
         return capturemoves;
     }
+   
     public void UndoMove()
     {
         if(stateLog.Count() != 0)
