@@ -1,5 +1,6 @@
 ﻿
 using ChessVariantsLogic.Rules.Predicates.ChessPredicates;
+using Newtonsoft.Json;
 
 namespace ChessVariantsLogic.Rules;
 /// <summary>
@@ -7,7 +8,9 @@ namespace ChessVariantsLogic.Rules;
 /// </summary>
 public class PositionRelative : IPosition
 {
+    [JsonProperty]
     private readonly Tuple<int, int> _relativePosition;
+    [JsonProperty]
     private readonly RelativeTo _relativeTo;
 
     public PositionRelative(int row, int col, RelativeTo relativeTo)

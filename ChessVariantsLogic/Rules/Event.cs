@@ -40,8 +40,7 @@ public class Event
         IPredicate pawnMoved = new PieceMoved(pawnIdentifier);
         IPredicate pawnAtRank = new SquareHasRank(new PositionRelative(0, 0, RelativeTo.TO), rank);
 
-        List<Action> actions = new List<Action> { new ActionSetPiece(new PositionRelative(0, 0, RelativeTo.TO), queenIdentifier) };
-
+        var actions = new List<Action> { new ActionPromotionTime() };
         return new Event(pawnMoved & pawnAtRank, actions);
     }
 

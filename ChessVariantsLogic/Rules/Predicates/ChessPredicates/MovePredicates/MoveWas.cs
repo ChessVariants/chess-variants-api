@@ -26,8 +26,8 @@ public class MoveWas : MovePredicate
 
         var moveCoordinates = MoveWorker.ParseMove(move.FromTo);
         if (moveCoordinates == null) return false;
-        string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFrom);
-        string? to = _compareTo.GetPosition(transition.ThisState, transition.MoveFrom);
+        string? from = _compareFrom.GetPosition(transition.ThisState, transition.MoveFromTo);
+        string? to = _compareTo.GetPosition(transition.ThisState, transition.MoveFromTo);
 
         if (from == null) return to == moveCoordinates.Item2;
         if (to == null) return from == moveCoordinates.Item1;

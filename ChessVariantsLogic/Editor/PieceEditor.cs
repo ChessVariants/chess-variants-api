@@ -17,6 +17,8 @@ public class PieceEditor
 
     private bool _showMovement;
 
+    private string _player;
+
     public PieceEditor()
     {
         _builder = new PieceBuilder();
@@ -24,18 +26,24 @@ public class PieceEditor
         _square = "e4";
         _dummy = _builder.GetDummyPieceWithCurrentMovement();
         _showMovement = true;
+        _player = "white";
 
         _moveWorker.InsertOnBoard(_dummy, _square);
     }
 
     public void ShowMovement(bool enable) { _showMovement = enable; }
 
-    public EditorState GetCurrentState()
+    public PieceEditorState GetCurrentState()
     {
-        if(_showMovement)
-            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidMoves(), _square);
+        Player player = Player.None;
+        if(_player.Equals("white"))
+            player = Player.White;
         else
-            return EditorExporter.ExportEditorState(_moveWorker.Board, Player.White, GetAllCurrentlyValidCaptures(), _square);
+            player = Player.Black;
+        if(_showMovement)
+            return EditorExporter.ExportPieceEditorState(_moveWorker, player, GetAllCurrentlyValidMoves(), _square);
+        else
+            return EditorExporter.ExportPieceEditorState(_moveWorker, player, GetAllCurrentlyValidCaptures(), _square);
     }
 
     public PatternState GetCurrentPatternState()
@@ -45,6 +53,8 @@ public class PieceEditor
         else
             return EditorExporter.ExportPatternState(_builder.CapturePattern);
     }
+
+    public void SetImagePath(string imagePath) { _builder.SetImagePath(imagePath); }
 
     public void UpdateBoardSize(int row, int col)
     {
@@ -155,6 +165,14 @@ public class PieceEditor
 
     }
 
+    public void RemoveAllMovementPatterns()
+    { 
+        if(_showMovement)
+            _builder.RemoveAllMovementPatterns();
+        else
+            _builder.RemoveAllCapturePatterns();
+    }
+
     /// <summary>
     /// Sets the player that the piece should belong to, i.e. "white", "black", or "shared".
     /// </summary>
@@ -165,6 +183,7 @@ public class PieceEditor
         try
         {
             _builder.BelongsToPlayer(player);
+            _player = player;
         }
         catch(ArgumentException)
         {
@@ -178,6 +197,8 @@ public class PieceEditor
     /// </summary>
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { _builder.SetSameMovementAndCapturePattern(enable); }
+
+    public void SetCanBePromotedTo(bool enable) { _builder.SetCanBePromotedTo(enable); }
 
     /// <summary>
     /// Set true if the piece can be captured, false if it can not. Is true from the preset.
@@ -201,28 +222,10 @@ public class PieceEditor
     /// Builds the piece with the current settings.
     /// </summary>
     /// <returns>EditorEvent.Success if the build was successful, otherwise EditorEvent.BuildFailed.</returns>
-    public EditorEvent BuildPiece()
+    public Piece? BuildPiece()
     {
-        try 
-        {
-            _piece = _builder.Build();
-        }
-        catch (ArgumentException)
-        {
-            return EditorEvent.BuildFailed;
-        }
-        return EditorEvent.Success;
-    }
-
-    /// <summary>
-    /// Returns the piece as a string of Json-format.
-    /// </summary>
-    /// <returns>If the piece is successfully built it returns astring on Json-format, otherwise ArgumentNullException is surfaced.</returns>
-    public string ExportStateAsJson()
-    {
-        if(_piece != null)
-            return _piece.ExportAsJson();
-        throw new ArgumentNullException("Piece has not been built successfully.");
+        _piece = _builder.Build();
+        return _piece;
     }
 
     /// <summary>

@@ -173,11 +173,11 @@ public static class GameFactory
 
         IPredicate firstMove = new FirstMove();
 
-        IPredicate whiteMoveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
-        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate whiteMoveRule = ((thisMoveWasDuckMove & lastMoveWasWhite) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove | lastMoveWasBlack)));
+        IPredicate whiteWinRule = new PiecesLeft(Constants.BlackKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
 
-        IPredicate blackMoveRule = ((thisMoveWasDuckMove & lastMoveWasBlack) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove)));
-        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.THIS);
+        IPredicate blackMoveRule = ((thisMoveWasDuckMove & lastMoveWasBlack) | (!thisMoveWasDuckMove & (lastMoveWasDuck | firstMove | lastMoveWasWhite)));
+        IPredicate blackWinRule = new PiecesLeft(Constants.WhiteKingIdentifier, Comparator.EQUALS, 0, BoardState.NEXT);
 
         ISet<MoveTemplate> movesWhite = new HashSet<MoveTemplate>
         {
@@ -306,6 +306,22 @@ public static class GameFactory
         return new Game(new MoveWorker(Chessboard.StandardChessboard(), Piece.AllStandardPieces()), Player.White, 1, rulesWhite, rulesBlack);
     }
 
+    public static Game Custom(RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, int rows, int cols, HashSet<Piece> pieces, List<string> boardSetup)
+    {
+        var board = new Chessboard(rows, cols);
+        int i = 0;
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                board.Insert(boardSetup[i], row, col);
+                i++;
+            }
+        }
+        var moveWorker = new MoveWorker(board, pieces);
+        return new Game(moveWorker, Player.White, movesPerTurn, whiteRules, blackRules);
+    }
+
     /// <summary>
     /// Returns a game corresponding to the <paramref name="identifier"/>>.
     /// </summary>
@@ -323,6 +339,23 @@ public static class GameFactory
             AtomicChessIdentifier => AtomicChess(),
             _ => throw new ArgumentException($"No variant corresponds to identifier: {identifier}"),
         };
-
     }
+
+    public static VariantType GetVariantType(string variantIdentifier) {
+        return variantIdentifier switch
+        {
+            StandardIdentifier => VariantType.Predefined,
+            AntiChessIdentifier => VariantType.Predefined,
+            CaptureTheKingIdentifier => VariantType.Predefined,
+            DuckChessIdentifier => VariantType.Predefined,
+            AtomicChessIdentifier => VariantType.Predefined,
+            _ => VariantType.Custom,
+        };
+    }
+}
+
+public enum VariantType
+{
+    Predefined,
+    Custom,
 }

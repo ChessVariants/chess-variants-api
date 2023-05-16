@@ -1,4 +1,5 @@
 ﻿using ChessVariantsAPI.GameOrganization;
+using ChessVariantsAPI.Hubs.DTOs;
 using ChessVariantsLogic.Export;
 using Microsoft.AspNetCore.SignalR;
 
@@ -86,14 +87,39 @@ public static class IClientProxyExtensions
         await clients.SendAsync(Events.InvalidMove);
     }
 
-    public static async Task SendUpdatedEditorState(this IClientProxy clients, EditorState state)
+    public static async Task SendPromotionOptions(this IClientProxy clients, PromotionOptionsDTO promotionOptionsDTO)
     {
-        await clients.SendAsync(Events.UpdatedEditorState, state);
+        await clients.SendAsync(Events.Promotion, promotionOptionsDTO);
+    }
+
+    public static async Task SendPromotionDone(this IClientProxy clients)
+    {
+        await clients.SendAsync(Events.Promoted);
+    }
+
+    public static async Task SendUpdatedBoardEditorState(this IClientProxy clients, BoardEditorState state)
+    {
+        await clients.SendAsync(Events.UpdatedBoardEditorState, state);
+    }
+
+    public static async Task SendUpdatedPieceEditorState(this IClientProxy clients, PieceEditorState state)
+    {
+        await clients.SendAsync(Events.UpdatedPieceEditorState, state);
     }
 
     public static async Task SendUpdatedPatternState(this IClientProxy clients, PatternState state)
     {
-        await clients.SendAsync("PatternAdded", state);
+        await clients.SendAsync(Events.PatternAdded, state);
+    }
+
+    public static async Task SendBuildFailed(this IClientProxy clients, string message)
+    {
+        await clients.SendAsync(Events.BuildFailed, "Build failed: " + message);
+    }
+
+    public static async Task SendCouldNotFetchPiece(this IClientProxy clients)
+    {
+        await clients.SendAsync(Events.CouldNotFetchPiece, "Unable to fetch piece.");
     }
 }
 
@@ -114,8 +140,11 @@ public static class Events
     public readonly static string BlackWon = "blackWon";
     public readonly static string Tie = "tie";
     public readonly static string Colors = "colors";
+    public readonly static string Promotion = "promotion";
+    public readonly static string Promoted = "promoted";
 
-    // Lobby events
+
+#region Lobby events
     public readonly static string PlayerJoinedLobby = "playerJoinedLobby";
     public readonly static string PlayerLeftLobby = "playerLeftLobby";
     public readonly static string LobbyCreated = "lobbyCreated";
@@ -124,9 +153,15 @@ public static class Events
     public readonly static string GameVariantNotSet = "gameVariantNotSet";
     public readonly static string GameStarted = "gameStarted";
 
+#endregion
+
 #region Editor events
 
-    public readonly static string UpdatedEditorState = "updatedEditorState";
+    public readonly static string UpdatedPieceEditorState = "updatedPieceEditorState";
+    public readonly static string UpdatedBoardEditorState = "updatedBoardEditorState";
+    public readonly static string PatternAdded = "PatternAdded";
+    public readonly static string BuildFailed = "buildFailed";
+    public readonly static string CouldNotFetchPiece = "couldNotFetchPiece";
 
 #endregion
 

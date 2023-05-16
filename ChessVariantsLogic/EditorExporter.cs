@@ -25,15 +25,25 @@ public class EditorExporter
         return state;
     }
 
-    public static EditorState ExportEditorState(Chessboard chessboard, Player sideToMove, HashSet<string> moves, string square)
+    public static BoardEditorState ExportBoardEditorState(MoveWorker mw)
     {
-        var gameState = GameExporter.ExportGameState(chessboard, sideToMove, getLegalMovesDict(moves));
-        var editorState = new EditorState
+        return new BoardEditorState
+        {
+            Board = GameExporter.ExportBoard(mw),
+            BoardSize = new BoardSize { Rows = mw.Board.Rows, Cols = mw.Board.Cols }
+        };
+    }
+
+    public static PieceEditorState ExportPieceEditorState(MoveWorker mw, Player sideToMove, HashSet<string> moves, string square)
+    {
+        var gameState = GameExporter.ExportGameState(mw, sideToMove, getLegalMovesDict(moves));
+        var editorState = new PieceEditorState
         {
             Board = gameState.Board,
             BoardSize = gameState.BoardSize,
             Moves = gameState.Moves,
             Square = square,
+            BelongsTo = gameState.SideToMove,
         };
         return editorState;
     }
@@ -59,7 +69,25 @@ public class EditorExporter
     }
 }
 
-public record EditorState
+public record PieceImageState
+{
+    [JsonProperty("board")]
+    public List<string> Board { get; set; } = null!;
+
+    [JsonProperty("boardSize")]
+    public BoardSize BoardSize { get; set; } = null!;
+}
+
+public record BoardEditorState
+{
+    [JsonProperty("board")]
+    public List<string> Board { get; set; } = null!;
+
+    [JsonProperty("boardSize")]
+    public BoardSize BoardSize { get; set; } = null!;
+}
+
+public record PieceEditorState
 {
 
     [JsonProperty("board")]
@@ -73,6 +101,9 @@ public record EditorState
 
     [JsonProperty("square")]
     public string Square { get; set; } = null!;
+
+    [JsonProperty("belongsTo")]
+    public string BelongsTo { get; set; } = null!;
 
     public string AsJson()
     {

@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 namespace ChessVariantsLogic.Engine;
 public static class AIFactory
 {
-    public static AIPlayer NegaMaxAI(Player player)
+    public static AIPlayer NegaMaxAI(Player player, ISet<Piece> pieceSet)
     {
-        var pieceValues = new PieceValue(Piece.AllStandardPieces());
-        var negaMax = new NegaMax(pieceValues);
+        var pieces = (HashSet<Piece>) pieceSet;
+        var chessboard = new Chessboard(8,8);
+        var negaMax = new NegaMax(pieces, chessboard);
         return new AIPlayer(negaMax, player);
     }
 }

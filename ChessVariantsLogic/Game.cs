@@ -7,6 +7,8 @@ using ChessVariantsLogic.Export;
 using System;
 using System.Collections.Generic;
 using ChessVariantsLogic.Engine;
+using ChessVariantsLogic.Rules.Moves.Actions;
+using ChessVariantsLogic.Rules.Predicates;
 
 public class Game {
 
@@ -17,7 +19,7 @@ public class Game {
     protected readonly RuleSet _whiteRules;
     protected readonly RuleSet _blackRules;
     private AIPlayer? _ai;
-    
+    public bool PendingPromotion { get; private set; } = false;
 
     public MoveWorker MoveWorker
     {
@@ -64,6 +66,17 @@ public class Game {
         return MakeMoveImplementation(move);
     }
 
+    public ISet<GameEvent> PlayerPromotionMove(string pieceToPromoteIdentifier)
+    {
+        var currentPlayer = PlayerTurn;
+        var opponent = PlayerTurn == Player.White ? Player.Black : Player.White;
+        var events = PerformPromotion(currentPlayer, opponent, pieceToPromoteIdentifier);
+        DecrementPlayerMoves();
+        UpdateLegalMovesForPlayer(PlayerTurn);
+        PendingPromotion = false;
+        return events;
+    }
+
 
     /// <summary>
     /// Performs the given <paramref name="move"/> on the internal move worker. Then runs all events that should be run and subsequently updates _legalMoves dictionary to next player's legal moves. Returns a set of GameEvents that indicate what happened during the move and events.
@@ -92,14 +105,55 @@ public class Game {
 
         // Calculate new player
 
+        if (events.Contains(GameEvent.Promotion))
+        {
+            if (AIShouldMakeMove())
+            {
+                var promotablePieces = GetPromotablePieces().Select(p => p.PieceIdentifier).ToHashSet();
+                var pieceToPromoteIdentifier = _ai.GetMostValuablePieceIdentifier(promotablePieces, currentPlayer);
+                var eventsAfterPromotion = PerformPromotion(currentPlayer, opponent, pieceToPromoteIdentifier);
+                DecrementPlayerMoves();
+                UpdateLegalMovesForPlayer(PlayerTurn);
+                return eventsAfterPromotion;
+            }
+            else
+            {
+                PendingPromotion = true;
+                return new HashSet<GameEvent> { GameEvent.Promotion };
+            }
+        }
+
         DecrementPlayerMoves();
-
-        // Update legal moves to new player's legal moves
-
-
         UpdateLegalMovesForPlayer(PlayerTurn);
 
         return events;
+    }
+
+    private ISet<GameEvent> PerformPromotion(Player currentPlayer, Player opponent, string pieceToPromoteIdentifier)
+    {
+        var promotionActions = new List<Rules.Moves.Actions.Action> { new ActionSetPiece(new PositionRelative(0, 0, RelativeTo.TO), pieceToPromoteIdentifier) };
+        _moveWorker.RunEvent(new Event(new Const(true), promotionActions));
+        var eventsAfterPromotion = CheckForGameEndAfterPromotion(currentPlayer, opponent, pieceToPromoteIdentifier);
+        return eventsAfterPromotion;
+    }
+
+    private ISet<GameEvent> CheckForGameEndAfterPromotion(Player currentPlayer, Player opponent, string pieceToPromoteIdentifier)
+    {
+        var promotionPosition = _moveWorker.Movelog.Last().To;
+        var promotedPiece = _moveWorker.GetPieceFromIdentifier(pieceToPromoteIdentifier);
+        Move moveNowhere = new Move(promotionPosition + promotionPosition, promotedPiece);
+        BoardTransition afterPromotionBoardTransition = new BoardTransition(_moveWorker, moveNowhere);
+        var events = _moveWorker.PerformMove(moveNowhere);
+        events.UnionWith(RunEventsForPlayer(currentPlayer, afterPromotionBoardTransition));
+        if (!HasLegalMoves(opponent))
+            events.UnionWith(RunStalemateEventsForPlayer(opponent, afterPromotionBoardTransition));
+        return events;
+    }
+
+    public ISet<Piece> GetPromotablePieces()
+    {
+        var ColorToPromote = PlayerTurn == Player.White ? PieceClassifier.WHITE : PieceClassifier.BLACK;
+        return _moveWorker.GetPieces().Where(p => p.CanBePromotedTo && p.PieceClassifier == ColorToPromote).ToHashSet();
     }
 
     public void AssignAI(AIPlayer ai)
@@ -120,6 +174,19 @@ public class Game {
     public bool AIShouldMakeMove()
     {
         return _ai != null && PlayerTurn == _ai.PlayingAs;
+    }
+
+    public Player GetAIColor()
+    {
+        return _ai!.PlayingAs;
+    }
+
+    public void AssignAINewColor(Player color)
+    {
+        if (ActiveAI)
+        {
+            _ai!.PlayingAs = color;
+        }
     }
 
     public Dictionary<string, List<string>> GetLegalMoveDict()
@@ -190,12 +257,30 @@ public class Game {
 
     public string ExportStateAsJson()
     {
-        return GameExporter.ExportGameStateAsJson(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        return ExportState().AsJson();
     }
 
     public GameState ExportState()
     {
-        return GameExporter.ExportGameState(_moveWorker.Board, PlayerTurn, GetLegalMoveDict());
+        try
+        {
+            string latestMoveFrom = _moveWorker.Movelog.Last().From;
+            string latestMoveTo = _moveWorker.Movelog.Last().To;
+            var indexFromTopFrom = CalculateIndexFromTopOfBoardToSquare(latestMoveFrom);
+            var indexFromTopTo = CalculateIndexFromTopOfBoardToSquare(latestMoveTo);
+            return GameExporter.ExportGameState(_moveWorker, PlayerTurn, GetLegalMoveDict(), indexFromTopFrom, indexFromTopTo);
+        }
+        catch (InvalidOperationException)
+        {
+            return GameExporter.ExportGameState(_moveWorker, PlayerTurn, GetLegalMoveDict());
+        }
+    }
+
+    private int CalculateIndexFromTopOfBoardToSquare(string square)
+    {
+        var rowColIndices = _moveWorker.Board.CoorToIndex[square];
+        var indexFromTop = _moveWorker.Board.Cols * rowColIndices.Item1 + rowColIndices.Item2;
+        return indexFromTop;
     }
 }
 
@@ -206,7 +291,8 @@ public enum GameEvent {
     MoveSucceeded,
     WhiteWon,
     BlackWon,
-    Tie
+    Tie,
+    Promotion,
 }
 
 public enum Player {

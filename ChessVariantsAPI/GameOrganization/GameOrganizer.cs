@@ -2,6 +2,7 @@
 using ChessVariantsLogic;
 using ChessVariantsLogic.Engine;
 using ChessVariantsLogic.Export;
+using ChessVariantsLogic.Rules;
 
 namespace ChessVariantsAPI.GameOrganization;
 
@@ -59,11 +60,26 @@ public class GameOrganizer
         return activeGame.AddPlayer(playerIdentifier);
     }
 
+    public VariantType GetVariantType(string variantIdentifier)
+    {
+        return GameFactory.GetVariantType(variantIdentifier);
+    }
+
     public Player CreateGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
     {
         AssertGameDoesNotExist(gameId);
         var activeGame = CreateActiveGame(gameId, playerIdentifier, variantIdentifier);
         return activeGame.GetPlayer(playerIdentifier)!;
+    }
+
+    public Player CreateCustomGame(string gameId, string playerIdentifier, string variantIdentifier, RuleSet whiteRules, RuleSet blackRules, int movesPerTurn, HashSet<Piece> pieces, int rows, int cols, List<string> boardSetup)
+    {
+        AssertGameDoesNotExist(gameId);
+
+        var gameVariant = GameFactory.Custom(whiteRules, blackRules, movesPerTurn, rows, cols, pieces, boardSetup);
+        var activeGame = new ActiveGame(gameVariant, playerIdentifier, variantIdentifier);
+        _activeGames.Add(gameId, activeGame);
+        return activeGame.GetPlayer(playerIdentifier);
     }
 
     public bool SetGame(string gameId, string playerIdentifier, string variantIdentifier=GameFactory.StandardIdentifier)
@@ -91,7 +107,7 @@ public class GameOrganizer
         try
         {
             var color = GetActiveGame(gameId).AddPlayer("AI");
-            var ai = AIFactory.NegaMaxAI(color);
+            var ai = AIFactory.NegaMaxAI(color, GetActiveGame(gameId).GetGame().MoveWorker.GetPieces());
             GetGame(gameId).AssignAI(ai);
             return color;
         }
@@ -100,6 +116,23 @@ public class GameOrganizer
             _logger.LogInformation("Unable to add an AI to game {g} as the game is already full", gameId);
             throw new OrganizerException("Unable to add an AI player to an already full game");
         }
+    }
+
+    public ISet<Piece> GetPromotablePieces(string gameId)
+    {
+        var game = GetGame(gameId);
+        return game.GetPromotablePieces();
+    }
+
+    public ISet<GameEvent> PromotePiece(string gameId, string pieceIdentifier)
+    {
+        var game = GetGame(gameId);
+        if (!game.PendingPromotion)
+        {
+            _logger.LogWarning("Unable to promote piece in game {g} as there is no promotion pending", gameId);
+            throw new OrganizerException("Cannot promote piece as there is no promotion pending. This should not have happend!");
+        }
+        return game.PlayerPromotionMove(pieceIdentifier);
     }
 
     private void AssertGameDoesNotExist(string gameId)
@@ -257,6 +290,15 @@ public class GameOrganizer
         ISet<GameEvent> result = game.MakeMove(move, player);
         yield return result;
 
+        while (game.AIShouldMakeMove())
+        {
+            yield return game.MakeAIMove();
+        }
+    }
+
+    public IEnumerable<ISet<GameEvent>> MakePendingAIMoveIfApplicable(string gameId)
+    {
+        var game = GetGame(gameId);
         while (game.AIShouldMakeMove())
         {
             yield return game.MakeAIMove();

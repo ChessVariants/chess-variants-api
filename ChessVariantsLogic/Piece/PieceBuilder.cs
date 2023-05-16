@@ -17,11 +17,16 @@ public class PieceBuilder
     private PieceClassifier pc;
     private int repeat;
     private bool canBeCaptured;
+    private bool canBePromotedTo;
+
+    private string _imagePath;
 
     private bool sameCaptureAsMovement;
 
     private static string whiteCustomPieceIdentifier = "CA"; // Reset these values when a game is initialized to keep each identifier unique.
     private static string blackCustomPieceIdentifier = "ca";
+
+    private static string initialImagePath = "JO";
 
     public PieceBuilder()
     {
@@ -31,23 +36,9 @@ public class PieceBuilder
         this.pc = PieceClassifier.WHITE;
         this.repeat = 0;
         this.canBeCaptured = true;
+        canBePromotedTo = true;
         this.sameCaptureAsMovement = true;
-    }
-
-    /// <summary>
-    /// Parses <paramref name="json"/> into an object of type Piece.
-    /// </summary>
-    /// <param name="json">is the string that should be parsed.</param>
-    /// <returns>If <paramref name="json"/> is valid json format a Piece is returned, otherwise a JsonException is surfaced. </returns>
-    /// <exception cref="JsonException">description</exception>
-    public static Piece ParseJson(string json) //Should this be in PieceExporter?
-    {
-        var pieceState = JsonConvert.DeserializeObject<PieceState>(json,
-            new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
-
-        if(pieceState == null)
-            throw new JsonException();
-        return Piece.ParseState(pieceState);
+        _imagePath = initialImagePath;
     }
 
     /// <summary>
@@ -62,6 +53,7 @@ public class PieceBuilder
         this.repeat = 0;
         this.canBeCaptured = true;
         this.sameCaptureAsMovement = true;
+        _imagePath = initialImagePath;
     }
 
     /// <summary>
@@ -78,9 +70,26 @@ public class PieceBuilder
             pieceString = this.pc == PieceClassifier.WHITE ? whiteCustomPieceIdentifier : blackCustomPieceIdentifier; 
 
         if(sameCaptureAsMovement)
-            return new Piece(this.movementPattern, this.movementPattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.movementPattern, this.pc, this.repeat, pieceString, this.canBeCaptured, this.canBePromotedTo, _imagePath);
         else
-            return new Piece(this.movementPattern, this.capturePattern, this.royal, this.pc, this.repeat, pieceString, this.canBeCaptured);
+            return new Piece(this.movementPattern, this.capturePattern, this.pc, this.repeat, pieceString, this.canBeCaptured, this.canBePromotedTo, _imagePath);
+    }
+
+    public void SetImagePath(string imagePath)
+    {
+        string path = imagePath;
+        switch (pc) {
+            case PieceClassifier.WHITE : path = imagePath.ToUpper(); break;
+            case PieceClassifier.BLACK : path = imagePath.ToLower(); break;
+            case PieceClassifier.SHARED : {
+                string first = imagePath.Substring(0, 1).ToUpper();
+                string second = imagePath.Substring(1, 1).ToLower();
+                path = first + second;
+                break;
+            }
+            default : throw new ArgumentException("Invalid image path.");
+        }
+        _imagePath = path;
     }
 
     /// <summary>
@@ -94,7 +103,7 @@ public class PieceBuilder
         //Create helper class to remove dependency on MoveWorker and to avoid creating new objects each time this method is called?
 
         var moveWorker = new MoveWorker(new Chessboard(8));
-        var dummyPiece = new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        var dummyPiece = new Piece(this.movementPattern, this.movementPattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo, _imagePath);
         if(moveWorker.InsertOnBoard(dummyPiece, square))
             return moveWorker.GetAllValidMoves(Player.White);
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");
@@ -102,12 +111,12 @@ public class PieceBuilder
 
     public Piece GetDummyPieceWithCurrentMovement()
     {
-        return new Piece(this.movementPattern, this.movementPattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        return new Piece(this.movementPattern, this.movementPattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo, _imagePath);
     }
 
     public Piece GetDummyPieceWithCurrentCaptures()
     {
-        return new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        return new Piece(this.capturePattern, this.capturePattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo, _imagePath);
     }
 
     /// <summary>
@@ -124,7 +133,7 @@ public class PieceBuilder
             return GetAllCurrentlyValidMovesFromSquare(square);
             
         var moveWorker = new MoveWorker(new Chessboard(8));
-        var dummyPiece = new Piece(this.capturePattern, this.capturePattern, false, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured);
+        var dummyPiece = new Piece(this.capturePattern, this.capturePattern, PieceClassifier.WHITE, this.repeat, whiteCustomPieceIdentifier, this.canBeCaptured, this.canBePromotedTo, _imagePath);
         if(moveWorker.InsertOnBoard(dummyPiece, square))
             return moveWorker.GetAllValidMoves(Player.White);
         throw new ArgumentException("Invalid square for an 8x8 chessboard.");
@@ -200,6 +209,10 @@ public class PieceBuilder
         return this.movementPattern.RemovePattern(pattern);
     }
 
+    public void RemoveAllMovementPatterns() { movementPattern = new MovementPattern(); }
+
+    public void RemoveAllCapturePatterns() { capturePattern = new MovementPattern(); }
+
     /// <summary>
     /// Adds a regular pattern to the allowed capture patterns. 
     /// </summary>
@@ -273,6 +286,8 @@ public class PieceBuilder
     /// </summary>
     /// <param name="enable">true to enable same capture and movement pattern, false to disable.</param>
     public void SetSameMovementAndCapturePattern(bool enable) { this.sameCaptureAsMovement = enable; }
+
+    public void SetCanBePromotedTo(bool enable) { canBePromotedTo = enable; }
    
     public bool HasSameMovementAndCapturePattern() { return sameCaptureAsMovement; }
 
@@ -298,6 +313,7 @@ public class PieceBuilder
             default : throw new ArgumentException("Unknown argument of player.");
         }
         this.pc = pieceClassifier;
+        SetImagePath(_imagePath);
     }
 
     /// <summary>

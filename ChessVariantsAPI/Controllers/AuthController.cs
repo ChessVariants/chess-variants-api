@@ -8,8 +8,11 @@ namespace ChessVariantsAPI.Controllers;
 [ApiController]
 public class AuthController : GenericController
 {
-    public AuthController(DatabaseService databaseService, ILogger<UsersController> logger) : base(databaseService, logger)
+    ILogger _logger;
+
+    public AuthController(DatabaseService databaseService, ILogger<AuthController> logger) : base(databaseService)
     {
+        _logger = logger;
     }
 
     [Authorize]

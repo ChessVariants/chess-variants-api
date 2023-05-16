@@ -139,7 +139,7 @@ public class Chessboard
     {
         var chessboard = StandardChessboard();
         
-        chessboard.board[4, 4] = Constants.DuckIdentifier;
+        chessboard.board[3, 4] = Constants.DuckIdentifier;
 
         return chessboard;
     }
@@ -260,6 +260,19 @@ public class Chessboard
     {
         if(validIndex(row, col))
             return board[row,col];
+        return null;
+    }
+
+    public string? GetPieceImagePath(MoveWorker mw, int row, int col)
+    {
+        if(validIndex(row, col))
+        {
+            var pieceIdentifier = board[row,col];
+            if(pieceIdentifier.Equals(Constants.UnoccupiedSquareIdentifier))
+                return pieceIdentifier;
+            Piece piece = mw.GetPieceFromIdentifier(pieceIdentifier);
+            return piece.ImagePath;
+        }
         return null;
     }
 

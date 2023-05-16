@@ -267,7 +267,7 @@ public class ChessboardTests : IDisposable
 
         };
         var mp = new MovementPattern(patterns);
-        Piece piece = new Piece(mp, mp, false, PieceClassifier.WHITE, customPieceNotation);
+        Piece piece = new Piece(mp, mp, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "c4");
 
@@ -301,7 +301,7 @@ public class ChessboardTests : IDisposable
             new RegularPattern(Constants.West,  1, 8),
         };
         var mp = new MovementPattern(patterns);
-        Piece piece1 = new Piece(mp, mp, false, PieceClassifier.WHITE, 1, customPieceNotation, true);
+        Piece piece1 = new Piece(mp, mp, PieceClassifier.WHITE, 1, customPieceNotation, true, true);
         var piece2 = Piece.BlackPawn();
 
         this.moveWorker.InsertOnBoard(piece1, "h4");
@@ -394,7 +394,7 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePatterns);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, customPieceNotation);
+        Piece piece = new Piece(mp, cp, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         this.moveWorker.Move("h2h3");
@@ -431,7 +431,7 @@ public class ChessboardTests : IDisposable
 
         var mp = new MovementPattern(patterns);
         var cp = new MovementPattern(capturePattern);
-        Piece piece = new Piece(mp, cp, false, PieceClassifier.WHITE, customPieceNotation);
+        Piece piece = new Piece(mp, cp, PieceClassifier.WHITE, customPieceNotation);
 
         this.moveWorker.InsertOnBoard(piece, "h1");
         
@@ -470,7 +470,7 @@ public class ChessboardTests : IDisposable
         
         var mp = new MovementPattern(patterns);
         var cp = new  MovementPattern(capturePatterns);
-        Piece piece1 = new Piece(mp, cp, false, PieceClassifier.WHITE , customPieceNotation);
+        Piece piece1 = new Piece(mp, cp, PieceClassifier.WHITE , customPieceNotation);
         Piece piece2 = Piece.BlackPawn();
         
         this.moveWorker.InsertOnBoard(piece1, "d4");

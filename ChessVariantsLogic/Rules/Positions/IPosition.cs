@@ -1,4 +1,5 @@
-﻿namespace ChessVariantsLogic.Rules;
+﻿
+namespace ChessVariantsLogic.Rules;
 /// <summary>
 /// Represents a position on the board that can be calculated at runtime.
 /// </summary>
@@ -22,4 +23,5 @@ public interface IPosition
     /// <returns>The calculated position as a tuple of ints.</returns>
     /// 
     public Tuple<int, int>? GetPositionTuple(MoveWorker moveWorker, string pivotPosition);
+
 }

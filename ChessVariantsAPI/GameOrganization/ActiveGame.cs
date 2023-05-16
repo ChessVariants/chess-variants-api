@@ -157,7 +157,12 @@ public class ActiveGame
 
         foreach (var key in _playerDict.Keys)
         {
-            _playerDict[key] = _playerDict[key] == Player.White ? Player.Black : Player.White;
+            var newColor = _playerDict[key] == Player.White ? Player.Black : Player.White;
+            if (_game != null && _game.ActiveAI && _playerDict[key] == _game.GetAIColor())
+            {
+                _game.AssignAINewColor(newColor);
+            }
+            _playerDict[key] = newColor;
         }
     }
 

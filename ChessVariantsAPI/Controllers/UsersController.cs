@@ -14,8 +14,11 @@ namespace ChessVariantsAPI.Controllers;
 [ApiController]
 public class UsersController : GenericController
 {
-    public UsersController(DatabaseService databaseService, ILogger<UsersController> logger) : base(databaseService, logger)
+    private readonly ILogger _logger;
+
+    public UsersController(DatabaseService databaseService, ILogger<UsersController> logger) : base(databaseService)
     {
+        _logger = logger;
     }
 
     [HttpGet]
