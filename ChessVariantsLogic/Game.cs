@@ -279,7 +279,7 @@ public class Game {
     private int CalculateIndexFromTopOfBoardToSquare(string square)
     {
         var rowColIndices = _moveWorker.Board.CoorToIndex[square];
-        var indexFromTop = _moveWorker.Board.Rows * rowColIndices.Item1 + rowColIndices.Item2;
+        var indexFromTop = _moveWorker.Board.Cols * rowColIndices.Item1 + rowColIndices.Item2;
         return indexFromTop;
     }
 }
